@@ -39,6 +39,6 @@
 - [ ] My change requires a change to the documentation.
 - [ ] I have updated the documentation accordingly.
 - [ ] I have read the **CONTRIBUTING** document.
-[CARMA Contributing Guide](https://github.com/usdot-fhwa-stol/cda-telematics/blob/main/Contributing.md) 
+[CDA Telematics Contributing Guide](https://github.com/usdot-fhwa-stol/cda-telematics/blob/main/Contributing.md) 
 - [ ] I have added tests to cover my changes.
 - [ ] All new and existing tests passed.
