@@ -11,6 +11,10 @@ import sys
 from nats.aio.client import Client as NATS
 from rcl_interfaces.msg import ParameterDescriptor
 
+import codecs
+
+reader = codecs.getreader("utf-8")
+
 class Ros2NatsBridgeNode(Node):
     def __init__(self):
         super().__init__('ros2_nats_bridge')
@@ -20,7 +24,7 @@ class Ros2NatsBridgeNode(Node):
         self.nc = NATS()
         self.js = self.nc.jetstream()
                 
-        self.declare_parameter("NATS_SERVER_IP_PORT", "nats://3.90.213.250:4222", ParameterDescriptor(description='This parameter sets the ip address and port for nats server.'))
+        self.declare_parameter("NATS_SERVER_IP_PORT", "nats://34.229.139.199:4222", ParameterDescriptor(description='This parameter sets the ip address and port for nats server.'))
         self.declare_parameter("NODE_ID", "1", ParameterDescriptor(description='This parameter is a Unique iD for the node.'))
 
         self.node_id = self.get_parameter('NODE_ID').get_parameter_value().string_value
@@ -41,15 +45,13 @@ class Ros2NatsBridgeNode(Node):
             await asyncio.sleep(0)
             if time.time() > time1 + 0.1:
                 try:          
-                    self.logger.info("register node at server running ...")
+                    self.logger.debug("register node at server running ...")
 
                     message = {}
                     message["id"] = self.node_id
                     message["topics"] = [{"name": name, "type": types[0]}  for name, types in self.get_topic_names_and_types()]
                     
                     json_message = json.dumps(message).encode('utf8')
-
-                    print(json_message)
 
                     await self.nc.publish("register_node", json_message)
                 except Exception as e:
@@ -62,20 +64,27 @@ class Ros2NatsBridgeNode(Node):
     async def create_custom_topic_subscribers(self):
 
         async def topic_request(msg):
-            topics = json.load(msg.reply)
             
-            for key, value in topics:
-                if(key not in self.topics_map):
-                    msg_type = value[0].split('/')
+            data = json.loads(msg.data.decode("utf-8"))
+            print(data["topics"])
+            
+            # for key, value in data["topics"]:
+            for i in data["topics"]:
+                topic_ = i["name"]
+                type_ = i["type"]
+
+                if(topic_ not in self.topics_map):
+                    msg_type = type_.split('/')
                     exec('import ' + msg_type[0] + '.' + msg_type[1])
 
-                    call_back = self.CallBack(key, value[0].replace("/","."), self.nc)
-                    self.topics[key] = self.create_subscription(eval(value[0].replace("/",".")), key, call_back.listener_callback, 10)
+                    call_back = self.CallBack(topic_, type_.replace("/","."), self.nc, self.node_id)
+                    self.topics_map[topic_] = self.create_subscription(eval(type_.replace("/",".")), topic_, call_back.listener_callback, 10)
+
         time1 = time.time()
         while True:
             await asyncio.sleep(0)
             if time.time() > time1 + 0.1:
-                self.logger.info("create_custom_topic_subscribers running ...")
+                self.logger.debug("create_custom_topic_subscribers running ...")
                 try:
                     sub = await self.nc.subscribe(self.node_id, "workers", topic_request)
                 except Exception as e:
@@ -91,7 +100,7 @@ class Ros2NatsBridgeNode(Node):
         while True:
             await asyncio.sleep(0)
             if time.time() > time1 + 0.1:
-                self.logger().info.debug("create_subscribers is running ...")
+                self.logger().debug("create_subscribers is running ...")
                 
                 current_topic_list = self.get_topic_names_and_types()
 
@@ -106,14 +115,16 @@ class Ros2NatsBridgeNode(Node):
                 time1 = time.time()
 
     class CallBack(): 
-        def __init__(self, topic_name, msg_type, nc):
-            self.topic_name = topic_name
+        def __init__(self, topic_name, msg_type, nc, node_id):
+            self.node_id = node_id
+            self.topic_name = node_id + topic_name.replace("/",".")
             self.msg_type = msg_type
             self.nc = nc
+            
 
         async def listener_callback(self, msg):
             self.msg = msg
             json_message = json.dumps(rosidl_runtime_py.convert.message_to_ordereddict(msg)).encode('utf8')
-
-            print(self.node_id + "." + self.topic_name)
-            await self.nc.publish(self.node_id + "." + self.topic_name, json_message)
+            
+            print(self.topic_name, msg)
+            await self.nc.publish(self.topic_name, json_message)
