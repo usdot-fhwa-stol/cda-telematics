@@ -18,4 +18,3 @@ RUN source /opt/ros/foxy/setup.bash && \
     colcon build
 
 ENTRYPOINT ["src/ros2_nats_bridge/docker/ros_entrypoint.sh"]
-CMD ["bash"]

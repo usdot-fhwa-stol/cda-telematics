@@ -1,5 +1,5 @@
 ros2_nats_bridge:
   ros__parameters:
-    NATS_SERVER_IP_PORT: "nats://34.229.139.199:4222"    
+    NATS_SERVER_IP_PORT: "nats://44.206.13.7:4222"    
     #NATS_SERVER_IP_PORT: "nats://0.0.0.0:4222"
     NODE_ID: "vehicle_1"
