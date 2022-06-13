@@ -12,12 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from ament_pep257.main import main
 import pytest
+from nats.aio.client import Client as NATS
+import rclpy
 
+import rosidl_runtime_py
+import json
+import time
+import threading
+import asyncio
 
-@pytest.mark.linter
-@pytest.mark.pep257
-def test_pep257():
-    rc = main(argv=['.', 'test'])
-    assert rc == 0, 'Found code style errors / warnings'
+from nats.aio.client import Client as NATS
+
+async def nats_connection(nc):
+
+    async def disconnected_cb():
+        print("Got disconnected...")
+
+    async def reconnected_cb():
+        print("Got reconnected...")
+
+    await nc.connect("nats://44.206.13.7:4222", reconnected_cb=reconnected_cb, disconnected_cb=disconnected_cb, max_reconnect_attempts=1)
+
+@pytest.mark.asyncio
+async def test():
+
+    nc = NATS()
+    await nats_connection(nc)
+
+    await nc.drain()
