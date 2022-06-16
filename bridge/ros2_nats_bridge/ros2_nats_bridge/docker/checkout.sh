@@ -19,7 +19,7 @@
 
 set -exo pipefail
 
-dir=/home/ros2_ws
+dir=/ws
 while [[ $# -gt 0 ]]; do
       arg="$1"
       case $arg in
