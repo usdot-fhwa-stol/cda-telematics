@@ -1,20 +1,41 @@
-FROM ros:foxy
+FROM ros:foxy AS base
 
 SHELL ["/bin/bash", "-c"]
 
-WORKDIR /home/ros2_ws
-
 RUN set -xe \
     && apt-get update \
-    && apt-get install -y git python3-pip
+    && apt-get install -y \
+    git \
+    vim \
+    python3-pip
 
-RUN pip install nats-py
+RUN pip install --upgrade pip nats-py
 
-COPY ros2_nats_bridge src/ros2_nats_bridge
+FROM base AS workspace
+
+WORKDIR /ws
+
+COPY ros2_nats_bridge/docker/checkout.sh src/ros2_nats_bridge/docker/checkout.sh
 
 RUN src/ros2_nats_bridge/docker/checkout.sh
 
 RUN source /opt/ros/foxy/setup.bash && \
     colcon build
 
-ENTRYPOINT ["src/ros2_nats_bridge/docker/ros_entrypoint.sh"]
+FROM base AS install
+
+WORKDIR /ws
+
+COPY --from=workspace /ws/build /ws/build
+COPY --from=workspace /ws/install /ws/install
+
+COPY ros2_nats_bridge src/ros2_nats_bridge
+
+RUN source /opt/ros/foxy/setup.bash && \
+    colcon build
+
+RUN rm -rf src /var/lib/apt/lists/*
+
+RUN echo "source /ws/install/setup.bash" >> ~/.bashrc
+
+CMD ["bash"]
