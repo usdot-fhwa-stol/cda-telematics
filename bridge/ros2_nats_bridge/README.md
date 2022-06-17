@@ -1,4 +1,4 @@
-# Package Name
+# ros2 nats bridge
 
 ## Overview
 
