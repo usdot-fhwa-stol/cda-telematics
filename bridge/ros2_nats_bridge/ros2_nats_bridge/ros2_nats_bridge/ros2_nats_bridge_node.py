@@ -42,14 +42,15 @@ class Ros2NatsBridgeNode(Node):
         super().__init__('ros2_nats_bridge')
         self.logger = rclpy.logging.get_logger('ros2_nats_bridge')
 
-        self.topics_map = {}
         self.nc = NATS()
         self.js = self.nc.jetstream()
-                
-        self.declare_parameter("NATS_SERVER_IP_PORT", "nats://34.229.139.199:4222", ParameterDescriptor(description='This parameter sets the ip address and port for nats server.'))
-        self.declare_parameter("NODE_ID", "1", ParameterDescriptor(description='This parameter is a Unique iD for the node.'))
 
-        self.node_id = self.get_parameter('NODE_ID').get_parameter_value().string_value
+        self.subsribers_list = {}
+
+        self.declare_parameter("NATS_SERVER_IP_PORT", "nats://0.0.0.0:4222", ParameterDescriptor(description='This parameter sets the ip address and port for nats server.'))
+        self.declare_parameter("NODE_ID", "1", ParameterDescriptor(description='This parameter is a Unique id for the node.'))
+
+        self.node_id = self.get_parameter("NODE_ID").get_parameter_value().string_value
 
     async def nats_connection(self):
         """
@@ -68,13 +69,13 @@ class Ros2NatsBridgeNode(Node):
         """
             send request to server to register node using node_id and all the available topics 
         """
+        self.logger.info("Sending available topics to server ...")
         time1 = time.time()
         while True:
             await asyncio.sleep(0)
             if time.time() > time1 + 0.1:
                 try:          
                     self.logger.debug("register node at server running ...")
-
                     message = {}
                     message["id"] = self.node_id
                     message["topics"] = [{"name": name, "type": types[0]}  for name, types in self.get_topic_names_and_types()]
@@ -94,6 +95,8 @@ class Ros2NatsBridgeNode(Node):
             receives request from server to create subscirber to selected topics
         """
 
+        self.logger.info("Waiting for server to select topics ...")
+
         async def topic_request(msg):
             """
                 process request message
@@ -106,13 +109,13 @@ class Ros2NatsBridgeNode(Node):
                 topic_ = i["name"]
                 type_ = i["type"]
 
-                if(topic_ not in self.topics_map):
+                if(topic_ not in self.subsribers_list):
                     msg_type = type_.split('/')
 
                     exec("from " + msg_type[0] + '.' + msg_type[1] + " import " + msg_type[2])
 
                     call_back = self.CallBack(topic_, self.js, self.node_id)
-                    self.topics_map[topic_] = self.create_subscription(eval(type_.replace("/",".")), topic_, call_back.listener_callback, 10)
+                    self.subsribers_list[topic_] = self.create_subscription(eval(type_.replace("/",".")), topic_, call_back.listener_callback, 10)
 
         time1 = time.time()
         while True:
@@ -133,6 +136,7 @@ class Ros2NatsBridgeNode(Node):
             """
                 initilize CallBack class
                 declare Nats client 
+                publish message to nats server
             """
 
             self.node_id = node_id
