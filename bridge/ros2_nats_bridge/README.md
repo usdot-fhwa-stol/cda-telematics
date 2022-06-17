@@ -8,7 +8,7 @@ This is a ros2 nats bridge. this package is meant to create conection between ro
 
 ### License
 
-The source code is released under a [BSD 3-Clause license](ros_package_template/LICENSE).
+The source code is released under a [Apache-2.0 license](cda-telematics/LICENSE).
 
 The PACKAGE NAME package has been tested under [ROS] foxy on respectively Ubuntu 18.04.
 This code, expect that it changes often and any fitness for a particular purpose is disclaimed.
