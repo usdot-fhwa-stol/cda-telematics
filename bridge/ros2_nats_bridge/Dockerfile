@@ -29,6 +29,8 @@ WORKDIR /ws
 COPY --from=workspace /ws/build /ws/build
 COPY --from=workspace /ws/install /ws/install
 
+COPY ros2_nats_bridge/docker/ros_entrypoint.sh ros_entrypoint.sh
+
 COPY ros2_nats_bridge src/ros2_nats_bridge
 
 RUN source /opt/ros/foxy/setup.bash && \
