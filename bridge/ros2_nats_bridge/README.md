@@ -21,9 +21,9 @@ This code, expect that it changes often and any fitness for a particular purpose
 
 #### Dependencies
 
-- [ROS]: http://www.ros.org
-- [Nats.io]: https://github.com/nats-io/nats.py
-- [carma-msgs]: https://github.com/usdot-fhwa-stol/carma-msgs.git
+[ROS]: http://www.ros.org
+[Nats.io]: https://github.com/nats-io/nats.py
+[carma-msgs]: https://github.com/usdot-fhwa-stol/carma-msgs.git
 
 #### Building
 
