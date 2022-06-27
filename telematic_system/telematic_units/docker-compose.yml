@@ -1,0 +1,12 @@
+version: "3.9"
+services:
+  ros2-nats-bridge:
+    build:
+          context: ./ros2_nats_bridge
+          dockerfile: Dockerfile
+    image: usdot-fhwa-stol/ros2-nats-bridge
+    container_name: ros2-nats-bridge
+    network_mode: host
+    environment:
+      - "NATS_SERVER_IP_PORT=nats://0.0.0.0:4222"
+    entrypoint: /ws/ros_entrypoint.sh
