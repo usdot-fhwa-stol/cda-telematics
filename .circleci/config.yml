@@ -68,18 +68,18 @@ jobs:
    resource_class: large 
    steps:
      - checkout
-      - run: 
-         name: Docker Build
+     - run: 
+         name: Pull Deps
          command: |
-          docker build -t usdotfhwastoldev/cda-telematics:latest -f telematic_system/telematic_units/ros2_nats_bridge/Dockerfile .         
-    
-      - run: 
-         name: Docker Push
-         # Push Cda- telematics docker image to usdotfhwastoldev dockerhub
-         command: | 
-          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-          docker push usdotfhwastoldev/cda-telematics:latest 
-
+           source ${INIT_ENV}
+           ./src/cda-telematics/telematic_system/telematic_units/ros2_nats_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}
+     - run:
+         name: Build Driver
+         command: |
+           source ${INIT_ENV}
+           source ${ROS_2_ENV}
+           build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output bash make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov     
+     
 workflows:
   version: 2
   build:
