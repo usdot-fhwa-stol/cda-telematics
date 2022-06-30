@@ -53,7 +53,7 @@ jobs:
           name: Pull Deps
           command: |
             source ${INIT_ENV}
-            ./src/cda-telematics/bridge/ros2_nats_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}
+            ./src/cda-telematics/telematic_system/telematic_units/ros2_nats_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}
       - run:
           name: Build Driver
           command: |
