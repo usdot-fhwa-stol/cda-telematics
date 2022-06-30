@@ -28,7 +28,7 @@ jobs:
     # XTERM used for better make output
     docker:
       - image: usdotfhwastoldev/carma-base:develop
-	user:carma
+        user:carma
         environment:
           TERM: xterm
           INIT_ENV: /home/carma/.base-image/init-env.sh
