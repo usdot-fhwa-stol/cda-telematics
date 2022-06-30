@@ -1,47 +1,110 @@
-# Use the latest 2.1 version of CircleCI pipeline process engine.
-# See: https://circleci.com/docs/2.0/configuration-reference
-version: 2.1
+version: 2
+#  Copyright (C) 2018-2022 LEIDOS.
+# 
+#  Licensed under the Apache License, Version 2.0 (the "License"); you may not
+#  use this file except in compliance with the License. You may obtain a copy of
+#  the License at
+# 
+#  http://www.apache.org/licenses/LICENSE-2.0
+# 
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#  License for the specific language governing permissions and limitations under
+#  the License.
+# 
 
-# Orbs are reusable packages of CircleCI configuration that you may share across projects, enabling you to create encapsulated, parameterized commands, jobs, and executors that can be used across multiple projects.
-# See: https://circleci.com/docs/2.0/orb-intro/
-orbs:
-  # The python orb contains a set of prepackaged CircleCI configuration you can use repeatedly in your configuration files
-  # Orb commands and jobs help you with common scripting around a language/tool
-  # so you dont have to copy and paste it everywhere.
-  # See the orb documentation here: https://circleci.com/developer/orbs/orb/circleci/python
-  python: circleci/python@1.5.0
+# Configuration file for Circle CI 
+# CI will report failure if any executed command returns and error status
+# Operations performed are as follows
+# Build source code
+# Run unit tests for C++ and Java
+# Run static code analyzer for SourceCloud
+# Upload test results
+# Every run command should start with source ${INIT_ENV} to ensure all default dependancies are available
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-  build-and-test: # This is the name of the job, feel free to change it to better match what you're trying to do!
-    # These next lines defines a Docker executors: https://circleci.com/docs/2.0/executor-types/
-    # You can specify an image from Dockerhub or use one of the convenience images from CircleCI's Developer Hub
-    # A list of available CircleCI Docker convenience images are available here: https://circleci.com/developer/images/image/cimg/python
-    # The executor is the environment in which the steps below will be executed - below will use a python 3.10.2 container
-    # Change the version below to your required version of python
+  build:
+    # Pull docker image from docker hub
+    # XTERM used for better catkin_make output
     docker:
-      - image: cimg/python:3.10.2
-    # Checkout the code as the first step. This is a dedicated CircleCI step.
-    # The python orb's install-packages step will install the dependencies from a Pipfile via Pipenv by default.
-    # Here we're making sure we use just use the system-wide pip. By default it uses the project root's requirements.txt.
-    # Then run your tests!
-    # CircleCI will report the results back to your VCS provider.
+      - image: usdotfhwastoldev/carma-base:develop
+        user: carma
+        environment:
+          TERM: xterm # use xterm to get full display output from build
+          INIT_ENV: /home/carma/.base-image/init-env.sh
+          ROS_2_ENV: /opt/ros/foxy/setup.bash
+    working_directory: "/opt/carma/"
+    resource_class: large
+    # Execution steps
     steps:
-      - checkout
-      - python/install-packages:
-          pkg-manager: pip
-          # app-dir: ~/project/package-directory/  # If you're requirements.txt isn't in the root directory.
-          # pip-dependency-file: test-requirements.txt  # if you have a different name for your requirements file, maybe one that combines your runtime and test requirements.
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
-          name: Run tests
-          # This assumes pytest is installed via the install-package step above
-          command: pytest
-
-# Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
-workflows:
-  sample: # This is the name of the workflow, feel free to change it to better match your workflow.
-    # Inside the workflow, you define the jobs you want to run.
-    jobs:
-      - build-and-test
+          name: Create src folder
+          command: |
+            source ${INIT_ENV}
+            mkdir src
+            cd src
+            mkdir cda-telematics
+      - checkout:
+          path: src/cda-telematics
+      - run: 
+          name: Pull Deps
+          command: |
+            source ${INIT_ENV}
+            ./src/cda-telematics/bridge/ros2_nats_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}
+      - run:
+          name: Build Driver
+          command: |
+            source ${INIT_ENV}
+            source ${ROS_2_ENV}
+            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output bash make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
+      #- run:
+          #name: Run C++ Tests
+          #command: |
+            #source ${INIT_ENV}
+            #source ${ROS_2_ENV}
+            #bash make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov
+      - run: 
+         name: Docker Build
+         command: |
+          docker build -t usdotfhwastoldev/cda-telematics:latest -f telematic_system/telematic_units/ros2_nats_bridge/Dockerfile .         
+    
+      - run: 
+         name: Docker Push
+         # Push Cda- telematics docker image to usdotfhwastoldev dockerhub
+         command: | 
+          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
+          docker push usdotfhwastoldev/cda-telematics:latest 
+      # Run SonarCloud analysis
+      # PR Branchs and number extracted from Circle variables and github api
+      # Circle CI seems to make a change to the base branch, so we must fetch --force to ensure correct git file change stats
+      # SONAR_SCANNER_TOKEN MUST be secured as an environment variable in Circle CI NOT in this file. 
+      # The following sonar settings MUST be set in SonarCloud UI NOT in this file
+      # sonar.pullrequest.provider
+      # sonar.pullrequest.github.endpoint
+      # sonar.pullrequest.github.token.secured
+      # sonar.pullrequest.github.repository
+      # Use -X on sonar-scanner to enable debug output
+      - run:
+          name: Run Sonar Scanner
+          command: |
+            source ${INIT_ENV}
+            if [ -z "${CIRCLE_PULL_REQUEST}" ]; then
+              echo "Non-PR Build Detected. Running analysis on ${CIRCLE_BRANCH}"
+              cd src/cda-telematics
+              sonar-scanner -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} 
+              exit 0;
+            fi
+            echo "PR branch ${CIRCLE_BRANCH}"
+            echo "Repo name ${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}"
+            echo "URL ${CIRCLE_PULL_REQUEST}"
+            export PR_NUM=`echo ${CIRCLE_PULL_REQUEST} | cut -d'/' -f7`
+            echo "PR number ${PR_NUM}"
+            export BASE_BRANCH_URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUM}"
+            export TARGET_BRANCH=$(curl "$BASE_BRANCH_URL" | jq '.base.ref' | tr -d '"') 
+            echo "Target Branch = ${TARGET_BRANCH}"
+            cd src/cda-telematics
+            git fetch --force origin ${TARGET_BRANCH}:${TARGET_BRANCH}
+            sonar-scanner -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} -Dsonar.pullrequest.base=${TARGET_BRANCH} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.key=${PR_NUM}
