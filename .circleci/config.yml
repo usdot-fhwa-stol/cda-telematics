@@ -28,11 +28,11 @@ jobs:
     # XTERM used for better make output
     docker:
       - image: usdotfhwastoldev/carma-base:develop
-		user:carma
+	user:carma
         environment:
           TERM: xterm
           INIT_ENV: /home/carma/.base-image/init-env.sh
-		  ROS_2_ENV: /opt/ros/foxy/setup.bash
+          ROS_2_ENV: /opt/ros/foxy/setup.bash
     resource_class: large 
     # Set working directory
     working_directory: "/opt/carma/"
