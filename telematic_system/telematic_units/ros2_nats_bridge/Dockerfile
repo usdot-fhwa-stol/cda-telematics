@@ -17,8 +17,9 @@ WORKDIR /ws
 
 RUN ls -a && pwd
 COPY telematic_system/telematic_units/ros2_nats_bridge ws
+RUN cd ws && ls -a && pwd
 
-RUN ws/ros2_nats_bridge/ros2_nats_bridge/docker/checkout.sh
+RUN ws/telematic_system/telematic_units/ros2_nats_bridge/ros2_nats_bridge/docker/checkout.sh
 
 RUN source /opt/ros/foxy/setup.bash && \
     colcon build
