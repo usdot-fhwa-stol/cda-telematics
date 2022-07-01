@@ -15,7 +15,10 @@ FROM base AS workspace
 
 WORKDIR /ws
 
-COPY ros2_nats_bridge/docker/checkout.sh src/ros2_nats_bridge/docker/checkout.sh
+RUN pwd && ls -la
+
+
+COPY src/cda-telematics/telematic_system/telematic_units/ros2_nats_bridge/ros2_nats_bridge/docker/checkout.sh src/ros2_nats_bridge/docker/checkout.sh
 
 RUN src/ros2_nats_bridge/docker/checkout.sh
 
