@@ -15,7 +15,7 @@ FROM base AS workspace
 
 WORKDIR /ws
 
-COPY . ws/ros2_nats_bridge/docker/checkout.sh
+COPY . ws
 
 RUN cd ws && ls -la
 Run ws/ros2_nats_bridge/docker/checkout.sh
