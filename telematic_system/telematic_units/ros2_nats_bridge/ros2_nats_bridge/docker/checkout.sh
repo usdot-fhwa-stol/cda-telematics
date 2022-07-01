@@ -35,7 +35,7 @@ while [[ $# -gt 0 ]]; do
       esac
 done
 
-cd ${dir}/src
+cd ${dir}
 
 
 # clone carma repos
