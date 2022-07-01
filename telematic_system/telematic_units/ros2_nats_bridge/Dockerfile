@@ -17,7 +17,8 @@ WORKDIR /ws
 
 COPY . ws/ros2_nats_bridge/docker/checkout.sh
 
-RUN pwd && ls -la && ws/ros2_nats_bridge/docker/checkout.sh
+RUN cd ws && ls -la
+Run ws/ros2_nats_bridge/docker/checkout.sh
 
 RUN source /opt/ros/foxy/setup.bash && \
     colcon build
