@@ -15,10 +15,10 @@ FROM base AS workspace
 
 WORKDIR /ws
 
-COPY telematic_system/telematic_units/ros2_nats_bridge/ros2_nats_bridge/docker/checkout.sh ws/checkout.sh
+RUN ls -a && pwd
+COPY telematic_system/telematic_units/ros2_nats_bridge/ros2_nats_bridge/docker/checkout.sh ws/ros2_nats_bridge/docker/checkout.sh
 
-RUN cd ws && ls -a && pwd
-RUN ./checkout.sh
+RUN ws/ros2_nats_bridge/docker/checkout.sh
 
 RUN source /opt/ros/foxy/setup.bash && \
     colcon build
