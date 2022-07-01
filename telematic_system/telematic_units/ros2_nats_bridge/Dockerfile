@@ -15,12 +15,9 @@ FROM base AS workspace
 
 WORKDIR /ws
 
-RUN pwd && ls -la
+COPY . ws/ros2_nats_bridge/docker/checkout.sh
 
-
-COPY ros2_nats_bridge/docker/checkout.sh ws/ros2_nats_bridge/docker/checkout.sh
-
-RUN src/ros2_nats_bridge/docker/checkout.sh
+RUN pwd && ls -la && ws/ros2_nats_bridge/docker/checkout.sh
 
 RUN source /opt/ros/foxy/setup.bash && \
     colcon build
