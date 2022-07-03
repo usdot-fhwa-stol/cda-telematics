@@ -14,19 +14,24 @@ RUN pip install --upgrade pip nats-py
 FROM base AS workspace
 
 WORKDIR /ws
-
 RUN ls -a && pwd
-COPY telematic_system/telematic_units/ros2_nats_bridge ws
-RUN ls -a
-RUN cd ws && ls -a && pwd && ros2_nats_bridge/docker/checkout.sh
+COPY telematic_system/telematic_units/ros2_nats_bridge/ros2_nats_bridge/docker/checkout.sh src/ros2_nats_bridge/docker/checkout.sh
+
+RUN src/ros2_nats_bridge/docker/checkout.sh
 
 RUN source /opt/ros/foxy/setup.bash && \
     colcon build
 
 FROM base AS install
 
+WORKDIR /ws
+
 COPY --from=workspace /ws/build /ws/build
 COPY --from=workspace /ws/install /ws/install
+
+COPY telematic_system/telematic_units/ros2_nats_bridge/ros2_nats_bridge/docker/ros_entrypoint.sh ros_entrypoint.sh
+
+COPY telematic_system/telematic_units/ros2_nats_bridge src/ros2_nats_bridge
 
 RUN source /opt/ros/foxy/setup.bash && \
     colcon build
