@@ -1,4 +1,4 @@
-FROM ros:foxy AS base
+FROM usdotfhwastoldev/carma-base:develop AS base
 
 SHELL ["/bin/bash", "-c"]
 

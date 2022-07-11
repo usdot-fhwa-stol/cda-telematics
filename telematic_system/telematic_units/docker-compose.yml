@@ -8,5 +8,5 @@ services:
     container_name: ros2-nats-bridge
     network_mode: host
     environment:
-      - "NATS_SERVER_IP_PORT=nats://0.0.0.0:4222"
+      - "NATS_SERVER_IP_PORT='nats://0.0.0.0:4222'"
     entrypoint: /ws/ros_entrypoint.sh

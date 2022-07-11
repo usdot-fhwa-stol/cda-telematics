@@ -42,15 +42,37 @@ cd ${dir}/src
 
 if [[ "$BRANCH" = "develop" ]]; then
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch  $BRANCH
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-ssc-interface-wrapper.git --branch $BRANCH
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/novatel_gps_driver.git --branch $BRANCH
+      git clone https://github.com/usdot-fhwa-stol/carma-utils.git --branch $BRANCH
 else
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch develop
-fi
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-ssc-interface-wrapper.git --branch develop
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/novatel_gps_driver.git --branch develop
+      git clone https://github.com/usdot-fhwa-stol/carma-utils.git --branch develop
+fi 
 
-# add astuff messages
-# NOTE: The ibeo_msgs package is ignored because on build the cmake files in that package run a sed command 
-#       which can make them incompatible with a new ros version after a source switch
+git clone https://github.com/NewEagleRaptor/raptor-dbw-ros2.git --branch foxy
+cd raptor-dbw-ros2
+git reset --hard 4ad958dd07bb9c7128dc75bc7397bc8f5be30a3c
+cd ..
+
+git clone https://github.com/astuff/pacmod3.git --branch ros2_master
+cd pacmod3
+sudo git reset --hard 159ef36f26726cf8d7f58e67add8c8319a67ae85
+cd ..
+
+git clone https://github.com/astuff/kvaser_interface.git --branch ros2_master
+cd kvaser_interface
+sudo git reset --hard d7ea2fb82a1b61d0ce4c96d1422599f7ee6ed1b7
+cd ..
+
+git clone https://github.com/astuff/automotive_autonomy_msgs.git --branch master
+cd automotive_autonomy_msgs
+sudo git reset --hard 191dce1827023bef6d69b31e8c2514cf82bf10c5
+cd ..
+
 git clone https://github.com/astuff/astuff_sensor_msgs 
-
 cd astuff_sensor_msgs
 git checkout 41d5ef0c33fb27eb3c9ba808b51332bcce186a83
 

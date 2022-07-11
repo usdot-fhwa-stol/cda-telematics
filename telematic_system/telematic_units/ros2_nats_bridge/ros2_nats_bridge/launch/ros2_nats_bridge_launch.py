@@ -17,7 +17,7 @@ def generate_launch_description():
             name='ros2_nats_bridge',
             output='screen',
             emulate_tty=True,
-            parameters = [config],
+            parameters = [config, {"NATS_SERVER_IP_PORT": os.getenv('NATS_SERVER_IP_PORT')}],
             arguments=['--ros-args', '--log-level', 'info']
         )
     ])
