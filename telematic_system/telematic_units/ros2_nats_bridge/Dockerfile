@@ -1,13 +1,13 @@
-FROM usdotfhwastoldev/carma-base:develop AS base
+FROM usdotfhwastoldev/carma-ssc-interface-wrapper:develop AS base
 
 SHELL ["/bin/bash", "-c"]
 
-RUN set -xe \
-    && apt-get update \
-    && apt-get install -y \
-    git \
-    vim \
-    python3-pip
+# RUN set -xe \
+#     && apt-get update \
+#     && apt-get install -y \
+#     git \
+#     vim \
+#     python3-pip
 
 RUN pip install --upgrade pip nats-py
 
@@ -17,7 +17,7 @@ WORKDIR /ws
 
 COPY ros2_nats_bridge/docker/checkout.sh src/ros2_nats_bridge/docker/checkout.sh
 
-RUN src/ros2_nats_bridge/docker/checkout.sh
+RUN sudo src/ros2_nats_bridge/docker/checkout.sh
 
 RUN source /opt/ros/foxy/setup.bash && \
     colcon build
@@ -34,9 +34,9 @@ COPY ros2_nats_bridge/docker/ros_entrypoint.sh ros_entrypoint.sh
 COPY ros2_nats_bridge src/ros2_nats_bridge
 
 RUN source /opt/ros/foxy/setup.bash && \
-    colcon build
+    sudo colcon build
 
-RUN rm -rf src /var/lib/apt/lists/*
+RUN sudo rm -rf src /var/lib/apt/lists/*
 
 RUN echo "source /ws/install/setup.bash" >> ~/.bashrc
 
