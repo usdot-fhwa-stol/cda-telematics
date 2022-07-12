@@ -1,13 +1,13 @@
-FROM usdotfhwastoldev/carma-ssc-interface-wrapper:develop AS base
+FROM ros:foxy AS base
 
 SHELL ["/bin/bash", "-c"]
 
-# RUN set -xe \
-#     && apt-get update \
-#     && apt-get install -y \
-#     git \
-#     vim \
-#     python3-pip
+RUN set -xe \
+    && apt-get update \
+    && apt-get install -y \
+    git \
+    vim \
+    python3-pip
 
 RUN pip install --upgrade pip nats-py
 
@@ -16,28 +16,28 @@ FROM base AS workspace
 WORKDIR /ws
 
 COPY ros2_nats_bridge/docker/checkout.sh src/ros2_nats_bridge/docker/checkout.sh
+COPY ros2_nats_bridge/docker/install.sh src/ros2_nats_bridge/docker/install.sh
 
-RUN sudo src/ros2_nats_bridge/docker/checkout.sh
+RUN src/ros2_nats_bridge/docker/checkout.sh
 
-RUN source /opt/ros/foxy/setup.bash && \
-    colcon build
+RUN src/ros2_nats_bridge/docker/install.sh
 
-FROM base AS install
+# FROM base AS install
 
-WORKDIR /ws
+# WORKDIR /ws
 
-COPY --from=workspace /ws/build /ws/build
-COPY --from=workspace /ws/install /ws/install
+# COPY --from=workspace /ws/build /ws/build
+# COPY --from=workspace /ws/install /ws/install
 
-COPY ros2_nats_bridge/docker/ros_entrypoint.sh ros_entrypoint.sh
+# COPY ros2_nats_bridge/docker/ros_entrypoint.sh ros_entrypoint.sh
 
-COPY ros2_nats_bridge src/ros2_nats_bridge
+# COPY ros2_nats_bridge src/ros2_nats_bridge
 
-RUN source /opt/ros/foxy/setup.bash && \
-    sudo colcon build
+# RUN source /opt/ros/foxy/setup.bash && \
+#     sudo colcon build
 
-RUN sudo rm -rf src /var/lib/apt/lists/*
+# RUN sudo rm -rf src /var/lib/apt/lists/*
 
-RUN echo "source /ws/install/setup.bash" >> ~/.bashrc
+# RUN echo "source /ws/install/setup.bash" >> ~/.bashrc
 
-CMD ["bash"]
+# CMD ["bash"]

@@ -43,7 +43,39 @@ cd ${dir}/src
 if [[ "$BRANCH" = "develop" ]]; then
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch  $BRANCH
       git clone --depth=1 https://github.com/usdot-fhwa-stol/novatel_gps_driver.git --branch $BRANCH
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-ssc-interface-wrapper.git --branch $BRANCH
 else
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch develop
       git clone --depth=1 https://github.com/usdot-fhwa-stol/novatel_gps_driver.git --branch develop
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-ssc-interface-wrapper.git --branch develop
 fi 
+
+rm -rf carma-ssc-interface-wrapper/ssc_interface_wrapper_ros2 carma-ssc-interface-wrapper/ssc_interface_wrapper
+
+
+
+sudo git clone https://github.com/NewEagleRaptor/raptor-dbw-ros2.git raptor-dbw-ros2 --branch foxy 
+cd raptor-dbw-ros2
+sudo git reset --hard 4ad958dd07bb9c7128dc75bc7397bc8f5be30a3c
+cd ..
+
+rm -rf can_dbc_parser raptor_dbw_can raptor_dbw_joystick raptor_pdu
+
+# Install automotive_autonomy_msgs
+sudo git clone https://github.com/astuff/automotive_autonomy_msgs.git automotive_autonomy_msgs --branch master
+cd automotive_autonomy_msgs 
+sudo git reset --hard 191dce1827023bef6d69b31e8c2514cf82bf10c5
+cd ..
+
+
+apt-get install -y ros-foxy-lgsvl-msgs \
+                   ros-foxy-udp-msgs \
+                   ros-foxy-rosapi-msgs \
+                   ros-foxy-rosbridge-msgs \
+                   ros-foxy-automotive-platform-msgs \
+                   ros-foxy-gps-msgs
+
+sudo apt install apt-transport-https
+sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-public.list'
+sudo apt update
+sudo apt install ros-$ROS_DISTRO-pacmod3-msgs  
