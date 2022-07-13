@@ -1,4 +1,4 @@
-# Configure Grafana 
+# Configure Grafana in AWS EC2
 ## Environment Setup
 ### Prerequisites
 - [Ubuntu 20.04](https://releases.ubuntu.com/20.04/)
@@ -8,7 +8,7 @@
 - [Latest version Grafana image from dockerhub](https://hub.docker.com/r/grafana/grafana/tags)
 
 ### Step by step instruction
-- Setup MYSQL database for Grafana
+- Setup AWS RDS MYSQL database instance
     - Create Amazon RDS DB instance following [this](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_CreateDBInstance.html) guide. Note: If the RDS DB instance is not publicly accessible, making sure the security groups include one that is the same as this EC2 instance security group to allow it to make connection.
 
     - Connect to MYSQL from EC2 instance. Login to EC2 via ssh.
@@ -21,8 +21,8 @@
         ```
         CREATE SCHEMA <grafana-database-name>;
         ```
-- Configure and start Grafana with docker-compose
-    - Clone repository
+- Configure and start Grafana with docker-compose.yml
+    - Login to EC2 instance and clone repository to a workspace
         ```
         git clone <repository - url>
         ```
