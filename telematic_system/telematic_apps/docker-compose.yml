@@ -1,17 +1,17 @@
 version: "3.9"
 services:
   grafana:
-    image: grafana/grafana-enterprise:8.2.0
+    image: grafana/grafana:9.0.2
     ports:
       - 3000:3000
     container_name: grafana
     volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/provisioning:/usr/share/grafana/conf/provisioning
+      - ./grafana/config/grafana.ini:/usr/share/grafana/conf/defaults.ini
     environment:
-      - GF_SECURITY_ADMIN_USER=${ADMIN_USER}
-      - GF_SECURITY_ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - GF_SECURITY_ADMIN_USER=root
+      - GF_SECURITY_ADMIN_PASSWORD=root
       - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_OAUTH_AUTO_LOGIN=true
     restart: unless-stopped
 
   web:
