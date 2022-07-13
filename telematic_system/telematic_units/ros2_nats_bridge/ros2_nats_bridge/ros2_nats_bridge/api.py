@@ -25,8 +25,8 @@ class Ros2NatsBridgeNode(Node):
 
     def timer_callback(self):
         msg = String()
-        msg.data = 'Hello World: %d' % self.i
-        self.get_logger().info('Publishing: "%s"' % msg.data)
+        msg.data = 'heartbeat: %d' % self.i
+        self.get_logger().info('"%s"' % msg.data)
         self.i += 1
 
     async def nats_connect(self):
@@ -51,6 +51,9 @@ class Ros2NatsBridgeNode(Node):
             self.get_logger().warn("Client is connected To Server.")
 
     async def register_node(self):
+        """
+            send request to server to register node and waits for ack 
+        """
 
         self.vehicle_info["TimeStamp"] = self.get_clock().now().nanoseconds
         vehicle_info_message = json.dumps(self.vehicle_info).encode('utf8')
@@ -72,6 +75,9 @@ class Ros2NatsBridgeNode(Node):
             await asyncio.sleep(0.01)
 
     async def available_topics(self):
+        """
+            receives request from server and responds with available topics
+        """
 
         async def send_list_of_topics(msg):
             self.get_logger().warn(f"Received a message on '{msg.subject} {msg.reply}': {msg.data.decode()}")
@@ -81,8 +87,6 @@ class Ros2NatsBridgeNode(Node):
 
             message = json.dumps(self.vehicle_info).encode('utf8')
                         
-            # json_message = json.dumps(message).encode('utf8')
-
             await self.nc.publish(msg.reply, message)
 
         while True:
@@ -95,6 +99,9 @@ class Ros2NatsBridgeNode(Node):
             await asyncio.sleep(0.01)
 
     async def publish_topics(self):
+        """
+            receives request from server to create subscirber to selected topics and publish data
+        """
 
         async def topic_request(msg):
             """
