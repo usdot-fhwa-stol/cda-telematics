@@ -11,32 +11,31 @@ RUN set -xe \
 
 RUN pip install --upgrade pip nats-py
 
-FROM base AS workspace
+FROM base AS dep
 
 WORKDIR /ws
 
 COPY ros2_nats_bridge/docker/checkout.sh src/ros2_nats_bridge/docker/checkout.sh
-
 RUN src/ros2_nats_bridge/docker/checkout.sh
 
-RUN source /opt/ros/foxy/setup.bash && \
-    colcon build
+COPY ros2_nats_bridge/docker/install.sh src/ros2_nats_bridge/docker/install.sh
+RUN src/ros2_nats_bridge/docker/install.sh
 
 FROM base AS install
 
 WORKDIR /ws
 
-COPY --from=workspace /ws/build /ws/build
-COPY --from=workspace /ws/install /ws/install
+COPY --from=dep /ws/build /ws/build
+COPY --from=dep /ws/install /ws/install
 
 COPY ros2_nats_bridge/docker/ros_entrypoint.sh ros_entrypoint.sh
 
 COPY ros2_nats_bridge src/ros2_nats_bridge
 
 RUN source /opt/ros/foxy/setup.bash && \
-    colcon build
+    sudo colcon build
 
-RUN rm -rf src /var/lib/apt/lists/*
+RUN sudo rm -rf src /var/lib/apt/lists/*
 
 RUN echo "source /ws/install/setup.bash" >> ~/.bashrc
 

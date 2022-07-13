@@ -1,0 +1,24 @@
+version: "3.9"
+services:
+  grafana:
+    image: grafana/grafana:9.0.2
+    ports:
+      - 3000:3000
+    container_name: grafana
+    volumes:
+      - ./grafana/provisioning:/usr/share/grafana/conf/provisioning
+      - ./grafana/config/grafana.ini:/usr/share/grafana/conf/defaults.ini
+    environment:
+      - GF_SECURITY_ADMIN_USER=root
+      - GF_SECURITY_ADMIN_PASSWORD=root
+      - GF_USERS_ALLOW_SIGN_UP=false
+    restart: unless-stopped
+
+  web:
+    build: web_app/.
+    ports:
+      - "80:8000"
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 8000

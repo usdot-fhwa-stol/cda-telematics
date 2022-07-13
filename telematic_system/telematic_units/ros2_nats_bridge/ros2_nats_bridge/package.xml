@@ -9,6 +9,7 @@
 
   <depend>automotive_platform_msgs</depend>
   <depend>autoware_msgs</depend>
+  <depend>std_msgs</depend>
 
   <test_depend>python3-pytest</test_depend>
 
