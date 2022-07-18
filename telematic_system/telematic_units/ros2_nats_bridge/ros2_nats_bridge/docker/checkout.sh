@@ -52,8 +52,6 @@ fi
 
 rm -rf carma-ssc-interface-wrapper/ssc_interface_wrapper_ros2 carma-ssc-interface-wrapper/ssc_interface_wrapper
 
-
-
 sudo git clone https://github.com/NewEagleRaptor/raptor-dbw-ros2.git raptor-dbw-ros2 --branch foxy 
 cd raptor-dbw-ros2
 sudo git reset --hard 4ad958dd07bb9c7128dc75bc7397bc8f5be30a3c

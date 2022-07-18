@@ -111,18 +111,20 @@ class Ros2NatsBridgeNode(Node):
             """
             self.get_logger().warn(f"Received a message on '{msg.subject} {msg.reply}': {msg.data.decode()}")
             await self.nc.publish(msg.reply, b"request received!")
-
             data = json.loads(msg.data.decode("utf-8"))
-            for i in data["topics"]:
-                topic_ = i["name"]
-                type_ = i["type"]
 
-                if(topic_ not in self.subsribers_list):
-                    self.get_logger().warn(f"Create a callback for '{topic_} with type {type_}'.")
-                    msg_type = type_.split('/')
+            topics = [v for i,v in enumerate(self.get_topic_names_and_types()) if v[0] in data["topics"]]
+
+            for i in topics:
+                topic = i[0]
+                msg_type = i[1][0]
+
+                if(topic not in self.subsribers_list):
+                    self.get_logger().warn(f"Create a callback for '{topic} with type {msg_type}'.")
+                    msg_type = msg_type.split('/')
                     exec("from " + msg_type[0] + '.' + msg_type[1] + " import " + msg_type[2])
-                    call_back = self.CallBack(topic_, self.nc, "vehicle_id")
-                    self.subsribers_list[topic_] = self.create_subscription(eval(msg_type[2]), topic_, call_back.listener_callback, 10)
+                    call_back = self.CallBack(topic, self.nc, "vehicle_id")
+                    self.subsribers_list[topic] = self.create_subscription(eval(msg_type[2]), topic, call_back.listener_callback, 10)
 
         while True:
             self.get_logger().debug("Waiting for server to select topics ...")
@@ -151,5 +153,6 @@ class Ros2NatsBridgeNode(Node):
             """
 
             json_message = json.dumps(rosidl_runtime_py.convert.message_to_ordereddict(msg)).encode('utf8')
+            print("sending message on ", self.topic_name)
 
             await self.nc.publish(self.topic_name, json_message)
