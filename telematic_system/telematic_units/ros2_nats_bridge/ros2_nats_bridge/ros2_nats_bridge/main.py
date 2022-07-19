@@ -18,7 +18,6 @@ from .api import Ros2NatsBridgeNode
 import rclpy
 import asyncio
 
-
 async def spin_node(node):
     while rclpy.ok():
         if(node.nc.is_connected):
