@@ -1,3 +1,19 @@
+#
+# Copyright (C) 2022 LEIDOS.
+#
+# Licensed under the Apache License, Version 2.0 (the "License"); you may not
+# use this file except in compliance with the License. You may obtain a copy of
+# the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+# WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+# License for the specific language governing permissions and limitations under
+# the License.
+#
+
 import asyncio
 import json
 
@@ -6,18 +22,26 @@ from nats.aio.client import Client as NATS
 
 from std_msgs.msg import String
 import rosidl_runtime_py
+from rcl_interfaces.msg import ParameterDescriptor
 
 class Ros2NatsBridgeNode(Node):
 
     def __init__(self):
-        super().__init__('minimal_publisher')
+        super().__init__('ros2_nats_bridge')
         self.nc = NATS()
         self.registered = False
         self.subsribers_list = {}
 
-        self.vehicle_info = {"UniteId": "vehicle_id", 
-                             "UnitType": "platform"
+        self.declare_parameter("NATS_SERVER_IP_PORT", "nats://0.0.0.0:4222", ParameterDescriptor(description='This parameter sets the ip address and port for nats server.'))
+        self.declare_parameter("UNITE_ID", "vehicle_id", ParameterDescriptor(description='This parameter is a Unique id for the node.'))
+        self.declare_parameter("UNITE_TYPE", "platform", ParameterDescriptor(description='This parameter is a Unique id for the node.'))
+
+        self.vehicle_info = {"UniteId": self.get_parameter("UNITE_ID").get_parameter_value().string_value, 
+                             "UnitType": self.get_parameter("UNITE_TYPE").get_parameter_value().string_value
                             }
+        
+        self.nats_ip_port = self.get_parameter("NATS_SERVER_IP_PORT").get_parameter_value().string_value
+        self.async_sleep_rate = 0.0001
 
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
@@ -42,7 +66,7 @@ class Ros2NatsBridgeNode(Node):
             self.get_logger().error("{0}".format(err) )
 
         try:
-            await self.nc.connect("nats://0.0.0.0:4222",
+            await self.nc.connect(self.nats_ip_port,
                             reconnected_cb=reconnected_cb,
                             disconnected_cb=disconnected_cb,
                             error_cb=error_cb,
@@ -72,7 +96,7 @@ class Ros2NatsBridgeNode(Node):
                 self.registered = False
                 pass
 
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(self.async_sleep_rate)
 
     async def available_topics(self):
         """
@@ -92,11 +116,11 @@ class Ros2NatsBridgeNode(Node):
         while True:
             if(self.registered):
                 try:
-                    sub = await self.nc.subscribe("vehicle_id.available_topics", "vehicle_id", send_list_of_topics)
+                    sub = await self.nc.subscribe(self.vehicle_info["UniteId"] + ".available_topics", self.vehicle_info["UniteId"], send_list_of_topics)
                 finally:
                     self.get_logger().debug("available_topics")
 
-            await asyncio.sleep(0.01)
+            await asyncio.sleep(self.async_sleep_rate)
 
     async def publish_topics(self):
         """
@@ -120,19 +144,23 @@ class Ros2NatsBridgeNode(Node):
                 msg_type = i[1][0]
 
                 if(topic not in self.subsribers_list):
-                    self.get_logger().warn(f"Create a callback for '{topic} with type {msg_type}'.")
                     msg_type = msg_type.split('/')
                     exec("from " + msg_type[0] + '.' + msg_type[1] + " import " + msg_type[2])
-                    call_back = self.CallBack(topic, self.nc, "vehicle_id")
-                    self.subsribers_list[topic] = self.create_subscription(eval(msg_type[2]), topic, call_back.listener_callback, 10)
-
+                    call_back = self.CallBack(topic, self.nc, self.vehicle_info["UniteId"])
+                    try:
+                        self.subsribers_list[topic] = self.create_subscription(eval(msg_type[2]), topic, call_back.listener_callback, 10)
+                    except:
+                        self.get_logger().error("got error")
+                    finally:
+                        self.get_logger().warn(f"Create a callback for '{topic} with type {msg_type}'.")
         while True:
-            self.get_logger().debug("Waiting for server to select topics ...")
-            try:
-                sub = await self.nc.subscribe("vehicle_id.publish_topics", "worker", topic_request)
-            finally:
-                self.get_logger().debug("Waiting for available_topics")
-            await asyncio.sleep(0.01)
+            if(self.registered):
+                self.get_logger().debug("Waiting for server to select topics ...")
+                try:
+                    sub = await self.nc.subscribe(self.vehicle_info["UniteId"] + ".publish_topics", "worker", topic_request)
+                finally:
+                    self.get_logger().debug("Waiting for available_topics")
+            await asyncio.sleep(self.async_sleep_rate)
 
     class CallBack(): 
         def __init__(self, topic_name, nc, node_id):
@@ -151,8 +179,6 @@ class Ros2NatsBridgeNode(Node):
                 listener callback function to publish message to nats server
                 convert message to json format
             """
-
             json_message = json.dumps(rosidl_runtime_py.convert.message_to_ordereddict(msg)).encode('utf8')
-            print("sending message on ", self.topic_name)
 
             await self.nc.publish(self.topic_name, json_message)

@@ -71,9 +71,12 @@ apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-rosapi-msgs \
                    ros-foxy-rosbridge-msgs \
                    ros-foxy-automotive-platform-msgs \
-                   ros-foxy-gps-msgs
+                   ros-foxy-gps-msgs \
+                   ros-foxy-autoware-auto-msgs
 
 sudo apt install apt-transport-https
 sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-public.list'
 sudo apt update
-sudo apt install ros-$ROS_DISTRO-pacmod3-msgs  
+sudo apt install ros-$ROS_DISTRO-pacmod3-msgs ros-$ROS_DISTRO-pcl-msgs
+
+sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
