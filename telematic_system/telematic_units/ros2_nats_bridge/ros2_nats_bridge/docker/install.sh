@@ -1,5 +1,3 @@
-source /opt/ros/foxy/setup.bash
-colcon build --packages-up-to autoware_lanelet2_msgs autoware_can_msgs
-# colcon build --packages-up-to jsk_common_msgs
-rm -rf src/autoware.ai
+source ~/catkin/setup.bash
+source /opt/autoware.ai/ros/install_ros2/setup.bash
 colcon build

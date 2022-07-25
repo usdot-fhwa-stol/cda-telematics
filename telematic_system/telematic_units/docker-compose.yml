@@ -9,4 +9,4 @@ services:
     network_mode: host
     environment:
       - "NATS_SERVER_IP_PORT='nats://0.0.0.0:4222'"
-    entrypoint: /ws/ros_entrypoint.sh
+    entrypoint: /home/carma/ws/ros_entrypoint.sh

@@ -19,7 +19,7 @@
 
 set -exo pipefail
 
-dir=/ws
+dir=/home/carma/ws
 while [[ $# -gt 0 ]]; do
       arg="$1"
       case $arg in
@@ -65,7 +65,6 @@ cd automotive_autonomy_msgs
 sudo git reset --hard 191dce1827023bef6d69b31e8c2514cf82bf10c5
 cd ..
 
-
 apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-udp-msgs \
                    ros-foxy-rosapi-msgs \
@@ -77,6 +76,6 @@ apt-get install -y ros-foxy-lgsvl-msgs \
 sudo apt install apt-transport-https
 sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-public.list'
 sudo apt update
-sudo apt install ros-$ROS_DISTRO-pacmod3-msgs ros-$ROS_DISTRO-pcl-msgs
+sudo apt install -y ros-foxy-pacmod3-msgs ros-foxy-pcl-msgs
 
-sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
+# sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git

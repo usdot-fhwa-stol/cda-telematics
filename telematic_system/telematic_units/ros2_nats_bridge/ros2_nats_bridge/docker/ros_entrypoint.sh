@@ -17,5 +17,5 @@
 
 set -e
 source /opt/ros/foxy/setup.bash
-source /ws/install/setup.bash
+source /home/carma/ws/install/setup.bash
 ros2 launch ros2_nats_bridge ros2_nats_bridge_launch.py
