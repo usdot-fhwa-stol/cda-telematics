@@ -19,7 +19,7 @@
 
 set -exo pipefail
 
-dir=/home/carma/ws
+dir=/ws
 while [[ $# -gt 0 ]]; do
       arg="$1"
       case $arg in
@@ -78,4 +78,14 @@ sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo
 sudo apt update
 sudo apt install -y ros-foxy-pacmod3-msgs ros-foxy-pcl-msgs
 
-# sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
+sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
+cd autoware.ai
+sed -i.bak '/find_package(ros_environment REQUIRED)/d' messages/*/CMakeLists.txt
+sed -i.bak '/find_package(ros_environment REQUIRED)/d' jsk_common_msgs/*/CMakeLists.txt
+
+mv jsk_common_msgs ../carma-msgs/jsk_common_msgs
+mv jsk_recognition ../carma-msgs/jsk_recognition
+mv messages ../carma-msgs/messages
+
+cd ..
+rm -rf autoware.ai
