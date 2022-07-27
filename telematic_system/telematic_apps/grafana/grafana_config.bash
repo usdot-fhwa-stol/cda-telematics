@@ -5,7 +5,6 @@ then
 else
     mkdir -p /opt/grafana
 fi
-
 sudo chmod 777 -R /opt/grafana
 # Directory where grafana can store logs
 mkdir -p /opt/grafana/logs
