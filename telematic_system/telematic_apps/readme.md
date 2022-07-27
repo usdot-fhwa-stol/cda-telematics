@@ -114,7 +114,8 @@
     }
   ```
  After the policy is created successfully, it is shown below:
-  ![image](https://user-images.githubusercontent.com/62157949/181349825-35fef62d-4b43-4820-b86e-4fb9e9c0b1fe.PNG)
+    ![image](https://user-images.githubusercontent.com/62157949/181350481-c20ace25-da8c-4736-9f91-51f32c1b8161.png)
+
   
 Refer to : https://github.com/grafana/redshift-datasource
 
