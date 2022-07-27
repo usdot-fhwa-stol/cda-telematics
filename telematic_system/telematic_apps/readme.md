@@ -124,7 +124,7 @@ Refer to : https://github.com/grafana/redshift-datasource
 - Login to Grafana, and open the data sources tab.
 - Click add data source button at the data source configuration page. 
 - Filter the list of plugins and find Amazone Redshift plugin.
-- Open the data source redshift page, there is a connection detail drop down. Click the dropdown and choose "Access & secret key".
+- Open the data source redshift page, there is a connection detail dropdown. Click the dropdown and choose "Access & secret key".
     - Provide the access key id and secret key id. 
     - Provide the default region: us-east-1
 - Click the "Cluster identifier" at the Redshift detail panel.
