@@ -122,6 +122,7 @@
 
 - Open the security credential tab, and click the "create access key" button to create a set of access key ID and secret key. This key pair will be used for grafana to redshift connection.
 
+## Run docker-compose up to bring up grafana container.
 - Login to Grafana, and open the data sources tab.
 - Click add data source button at the data source configuration page. 
 - Filter the list of plugins and find Amazone Redshift plugin.
