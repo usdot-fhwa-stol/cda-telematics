@@ -4,19 +4,20 @@ services:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
-      - 3000:3000
+      - 9000:3000
     restart: always
     volumes:
       - /opt/grafana/logs:/var/log/grafana
       - /opt/grafana/grafana.ini:/etc/grafana/grafana.ini
       - /opt/grafana/data:/var/lib/grafana
       - /opt/grafana/provisioning:/home/grafana/conf/provisioning
+    user: '472'
 
-  web:
-    build: web_app/.
-    ports:
-      - "80:8000"
-    restart: always
-    environment:
-      NODE_ENV: ${NODE_ENV}
-      PORT: 8000
+  #web:
+  #  build: web_app/.
+  #  ports:
+  #    - "80:8000"
+  #  restart: always
+  #  environment:
+  #    NODE_ENV: ${NODE_ENV}
+  #    PORT: 8000
