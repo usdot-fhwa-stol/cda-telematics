@@ -113,11 +113,11 @@
     ]
     }
   ```
+ The JSON is referred to : https://github.com/grafana/redshift-datasource
  After the policy is created successfully, it is shown below:
     ![image](https://user-images.githubusercontent.com/62157949/181350481-c20ace25-da8c-4736-9f91-51f32c1b8161.png)
 
   
-Refer to : https://github.com/grafana/redshift-datasource
 
 - Open the security credential tab, and click the "create access key" button to create a set of access key ID and secret key. This key pair will be used for grafana to redshift connection.
 
