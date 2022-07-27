@@ -113,6 +113,9 @@
     ]
     }
   ```
+ After the policy is created successfully, it is shown below:
+  [Add_inline_policy_for_redshift_step_specify_arn_redshift](https://user-images.githubusercontent.com/62157949/181349825-35fef62d-4b43-4820-b86e-4fb9e9c0b1fe.PNG)
+  
 Refer to : https://github.com/grafana/redshift-datasource
 
 - Open the security credential tab, and click the "create access key" button to create a set of access key ID and secret key. This key pair will be used for grafana to redshift connection.
@@ -128,5 +131,6 @@ Refer to : https://github.com/grafana/redshift-datasource
     - Provide the database user.
     - Provide the database name. 
     - Click the "save & test" to make sure the connection is successful.
+    ![image](https://user-images.githubusercontent.com/62157949/181349704-c9c471ef-143b-4183-8283-e2d756ab80f5.png)
 
 
