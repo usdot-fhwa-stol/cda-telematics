@@ -67,3 +67,66 @@
         or
         docker-compose up -d # Running this contaienr in the background
         ```
+
+# Configure AWS Redshift connection to Grafana running in EC2
+## Create customized Grafana image
+- Create Grafana Dockerfile and install redshift plugin
+    ```
+        FROM grafana/grafana:latest
+        ENV GF_INSTALL_PLUGINS "grafana-redshift-datasource"
+    ```
+## Create an IAM user that is dedicated for Redshift connection
+- Create IAM user with AWS management console: https://us-east-1.console.aws.amazon.com/iamv2/home#/users
+  The created user ARN (Amazone Resource name) is: arn:aws:iam::<ID>:user/redshiftConnect
+- Open the permission tab and create an inline policy with below JSON and attach the policy to the user:
+  ```
+    {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+        "Sid": "AllowReadingMetricsFromRedshift",
+        "Effect": "Allow",
+        "Action": [
+            "redshift-data:ListTables",
+            "redshift-data:DescribeTable",
+            "redshift-data:GetStatementResult",
+            "redshift-data:DescribeStatement",
+            "redshift-data:ListSchemas",
+            "redshift-data:ExecuteStatement",
+            "redshift:GetClusterCredentials",
+            "redshift:DescribeClusters",
+            "secretsmanager:ListSecrets"
+        ],
+        "Resource": "*"
+        },
+        {
+        "Sid": "AllowReadingRedshiftQuerySecrets",
+        "Effect": "Allow",
+        "Action": ["secretsmanager:GetSecretValue"],
+        "Resource": "*",
+        "Condition": {
+            "Null": {
+            "secretsmanager:ResourceTag/RedshiftQueryOwner": "false"
+            }
+        }
+        }
+    ]
+    }
+  ```
+Refer to : https://github.com/grafana/redshift-datasource
+
+- Open the security credential tab, and click the "create access key" button to create a set of access key ID and secret key. This key pair will be used for grafana to redshift connection.
+
+- Login to Grafana, and open the data sources tab.
+- Click add data source button at the data source configuration page. 
+- Filter the list of plugins and find Amazone Redshift plugin.
+- Open the data source redshift page, there is a connection detail drop down. Click the dropdown and choose "Access & secret key".
+    - Provide the access key id and secret key id. 
+    - Provide the default region: us-east-1
+- Click the "Cluster identifier" at the Redshift detail panel.
+    - It will display an existing cluster named "redshift-cluster-ecs" from the AWS.
+    - Provide the database user.
+    - Provide the database name. 
+    - Click the "save & test" to make sure the connection is successful.
+
+
