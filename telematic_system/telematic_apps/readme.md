@@ -114,7 +114,7 @@
     }
   ```
  After the policy is created successfully, it is shown below:
-  [Add_inline_policy_for_redshift_step_specify_arn_redshift](https://user-images.githubusercontent.com/62157949/181349825-35fef62d-4b43-4820-b86e-4fb9e9c0b1fe.PNG)
+  ![image](https://user-images.githubusercontent.com/62157949/181349825-35fef62d-4b43-4820-b86e-4fb9e9c0b1fe.PNG)
   
 Refer to : https://github.com/grafana/redshift-datasource
 
