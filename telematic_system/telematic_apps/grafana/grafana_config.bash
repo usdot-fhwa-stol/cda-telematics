@@ -10,7 +10,7 @@ sudo chmod 777 -R /opt/grafana
 mkdir -p /opt/grafana/logs
 
 # Grafana Configuration file
-wget https://raw.githubusercontent.com/usdot-fhwa-stol/cda-telematics/dev/telematic_system/telematic_apps/grafana/grafana.ini?token=GHSAT0AAAAAABVTWARTIHJ3YZZ3YEU26AUUYXBOKZQ -O /opt/grafana/grafana.ini
+cp  ./grafana/grafana.ini /opt/grafana/grafana.ini
 
 # Path where Grafana can store temp files, sessions, and the sqlite3 db
 mkdir -p /opt/grafana/data
