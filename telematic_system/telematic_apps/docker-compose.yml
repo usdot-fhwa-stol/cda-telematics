@@ -10,7 +10,7 @@ services:
       - /opt/grafana/logs:/var/log/grafana
       - /opt/grafana/grafana.ini:/etc/grafana/grafana.ini
       - /opt/grafana/data:/var/lib/grafana
-      - /opt/grafana/provisioning:/etc/grafana/provisioning
+      - /opt/grafana/provisioning:conf/provisioning
 
   web:
     build: web_app/.
