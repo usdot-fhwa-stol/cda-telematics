@@ -5,8 +5,8 @@ then
 else
     mkdir -p /opt/grafana
 fi
-sudo chmod 777 -R /opt/grafana
 
+sudo chmod 777 -R /opt/grafana
 # Directory where grafana can store logs
 mkdir -p /opt/grafana/logs
 
@@ -22,3 +22,4 @@ mkdir -p /opt/grafana/provisioning/datasources
 mkdir -p /opt/grafana/provisioning/plugins
 mkdir -p /opt/grafana/provisioning/notifiers
 mkdir -p /opt/grafana/provisioning/dashboards
+sudo chmod 777 -R /opt/grafana
