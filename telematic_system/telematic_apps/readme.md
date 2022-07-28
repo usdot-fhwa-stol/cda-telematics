@@ -142,8 +142,8 @@
     aws_access_key_id = <access-key-id>
     aws_secret_access_key = <secret-key>
     region = us-east-1
-    ``` 
-    ![image](https://user-images.githubusercontent.com/62157949/181596501-c607631e-5cf7-4584-99d2-b1d56f2b833a.png)
+    ``` ![image](https://user-images.githubusercontent.com/62157949/181596809-4b6a0212-8efd-459c-bcf2-45ab990154dd.png)
+
 
 
 ### Configure Redshift details 
