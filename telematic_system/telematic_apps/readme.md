@@ -75,10 +75,10 @@
         FROM grafana/grafana:latest
         ENV GF_INSTALL_PLUGINS "grafana-redshift-datasource"
     ```
-## Create an IAM user that is dedicated for Redshift connection
+## Create an IAM user and policy that is dedicated for Redshift connection
 - Create IAM user with AWS management console: https://us-east-1.console.aws.amazon.com/iamv2/home#/users
   The created user ARN (Amazone Resource name) is: arn:aws:iam::<ID>:user/redshiftConnect
-- Open the permission tab and create an inline policy with below JSON and attach the policy to the user:
+- Open the permission tab and create a policy with below JSON and attach the policy to the user:
   ```
     {
     "Version": "2012-10-17",
@@ -122,18 +122,35 @@
 
 - Open the security credential tab, and click the "create access key" button to create a set of access key ID and secret key. This key pair will be used for grafana to redshift connection.
 
-## Run docker-compose up to bring up grafana container.
+## Run docker-compose up to bring up grafana container and configure the Amazon Redshift data source.
 - Login to Grafana, and open the data sources tab.
 - Click add data source button at the data source configuration page. 
 - Filter the list of plugins and find Amazone Redshift plugin.
+
+### Configure connection details
+#### Authentication with "Access & secret key"
 - Open the data source redshift page, there is a connection detail dropdown. Click the dropdown and choose "Access & secret key".
     - Provide the access key id and secret key id. 
     - Provide the default region: us-east-1
+#### Authentication with "credential file"
+- Open the data source redshift page, there is a connection detail dropdown. Click the dropdown and choose "credential file".
+    - Provide the credentials profile name. 
+    - Provide the default region: us-east-1
+    - update the docker-compose.yml with volumes to mount host machine the credential file ~/.aws/credentials to the /usr/shared/grafana/.aws/credentials. The credentials file content is similar to below:
+    ```
+    [default]
+    aws_access_key_id = <access-key-id>
+    aws_secret_access_key = <secret-key>
+    region = us-east-1
+    ``` 
+
+### Configure Redshift details 
 - Click the "Cluster identifier" at the Redshift detail panel.
     - It will display an existing cluster named "redshift-cluster-ecs" from the AWS.
     - Provide the database user.
     - Provide the database name. 
     - Click the "save & test" to make sure the connection is successful.
     ![image](https://user-images.githubusercontent.com/62157949/181349704-c9c471ef-143b-4183-8283-e2d756ab80f5.png)
+
 
 
