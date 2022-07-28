@@ -150,7 +150,10 @@
     - Provide the database user.
     - Provide the database name. 
     - Click the "save & test" to make sure the connection is successful.
+    Using "Access & secret key"
     ![image](https://user-images.githubusercontent.com/62157949/181349704-c9c471ef-143b-4183-8283-e2d756ab80f5.png)
+    Using "credentials file"
+    ![image](https://user-images.githubusercontent.com/62157949/181591323-bac5be52-7428-41c0-a88b-6bb87a80e371.png)
 
 
 
