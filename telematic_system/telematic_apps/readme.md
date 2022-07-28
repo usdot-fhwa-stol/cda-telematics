@@ -139,7 +139,7 @@
 - Open the data source redshift page, there is a connection detail dropdown. Click the dropdown and choose "credential file".
     - Provide the credentials profile name. 
     - Provide the default region: us-east-1
-    - update the docker-compose.yml with volumes to mount host machine the credential file ~/.aws/credentials to the /usr/shared/grafana/.aws/credentials. The credentials file content is similar to below:
+    - update the docker-compose.yml with volumes to mount host machine credential file ~/.aws/credentials to the folder /usr/shared/grafana/.aws/credentials in the Grafana container. The credentials file content is similar to below:
     ```
     [default]
     aws_access_key_id = <access-key-id>
