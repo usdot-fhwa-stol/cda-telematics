@@ -116,7 +116,10 @@
  The JSON is referred to : https://github.com/grafana/redshift-datasource
  
  After the policy is created successfully, it is shown below:
-    ![image](https://user-images.githubusercontent.com/62157949/181350481-c20ace25-da8c-4736-9f91-51f32c1b8161.png)
+ ![image](https://user-images.githubusercontent.com/62157949/181602113-569244c2-45e3-40aa-9518-bd542d389c01.png)
+ After assigning the policy to a user:
+ ![image](https://user-images.githubusercontent.com/62157949/181602532-845cd50e-5384-47a8-bf47-9a62d07e4fca.png)
+
 
   
 
