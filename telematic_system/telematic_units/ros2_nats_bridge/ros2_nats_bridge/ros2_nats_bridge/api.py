@@ -34,7 +34,7 @@ class Ros2NatsBridgeNode(Node):
 
         self.declare_parameter("NATS_SERVER_IP_PORT", "nats://0.0.0.0:4222", ParameterDescriptor(description='This parameter sets the ip address and port for nats server.'))
         self.declare_parameter("UNIT_ID", "vehicle_id", ParameterDescriptor(description='This parameter is a Unique id for the node.'))
-        self.declare_parameter("UNIT_TYPE", "platform", ParameterDescriptor(description='This parameter is a Unique id for the node.'))
+        self.declare_parameter("UNIT_TYPE", "platform", ParameterDescriptor(description='This parameter is for type of platform is deployed on (platform or messager)'))
 
         self.vehicle_info = {"UnitId": self.get_parameter("UNIT_ID").get_parameter_value().string_value, 
                              "UnitType": self.get_parameter("UNIT_TYPE").get_parameter_value().string_value
