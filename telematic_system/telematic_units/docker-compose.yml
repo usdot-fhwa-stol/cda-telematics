@@ -7,6 +7,4 @@ services:
     image: usdot-fhwa-stol/ros2-nats-bridge
     container_name: ros2-nats-bridge
     network_mode: host
-    environment:
-      - "NATS_SERVER_IP_PORT='nats://0.0.0.0:4222'"
     entrypoint: /ws/ros_entrypoint.sh

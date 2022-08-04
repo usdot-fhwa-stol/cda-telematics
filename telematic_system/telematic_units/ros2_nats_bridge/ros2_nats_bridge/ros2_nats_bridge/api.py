@@ -33,11 +33,11 @@ class Ros2NatsBridgeNode(Node):
         self.subsribers_list = {}
 
         self.declare_parameter("NATS_SERVER_IP_PORT", "nats://0.0.0.0:4222", ParameterDescriptor(description='This parameter sets the ip address and port for nats server.'))
-        self.declare_parameter("UNITE_ID", "vehicle_id", ParameterDescriptor(description='This parameter is a Unique id for the node.'))
-        self.declare_parameter("UNITE_TYPE", "platform", ParameterDescriptor(description='This parameter is a Unique id for the node.'))
+        self.declare_parameter("UNIT_ID", "vehicle_id", ParameterDescriptor(description='This parameter is a Unique id for the node.'))
+        self.declare_parameter("UNIT_TYPE", "platform", ParameterDescriptor(description='This parameter is a Unique id for the node.'))
 
-        self.vehicle_info = {"UniteId": self.get_parameter("UNITE_ID").get_parameter_value().string_value, 
-                             "UnitType": self.get_parameter("UNITE_TYPE").get_parameter_value().string_value
+        self.vehicle_info = {"UnitId": self.get_parameter("UNIT_ID").get_parameter_value().string_value, 
+                             "UnitType": self.get_parameter("UNIT_TYPE").get_parameter_value().string_value
                             }
         
         self.nats_ip_port = self.get_parameter("NATS_SERVER_IP_PORT").get_parameter_value().string_value
@@ -116,7 +116,7 @@ class Ros2NatsBridgeNode(Node):
         while True:
             if(self.registered):
                 try:
-                    sub = await self.nc.subscribe(self.vehicle_info["UniteId"] + ".available_topics", self.vehicle_info["UniteId"], send_list_of_topics)
+                    sub = await self.nc.subscribe(self.vehicle_info["UnitId"] + ".available_topics", self.vehicle_info["UnitId"], send_list_of_topics)
                 finally:
                     self.get_logger().debug("available_topics")
 
@@ -146,7 +146,7 @@ class Ros2NatsBridgeNode(Node):
                 if(topic not in self.subsribers_list):
                     msg_type = msg_type.split('/')
                     exec("from " + msg_type[0] + '.' + msg_type[1] + " import " + msg_type[2])
-                    call_back = self.CallBack(topic, self.nc, self.vehicle_info["UniteId"])
+                    call_back = self.CallBack(topic, self.nc, self.vehicle_info["UnitId"])
                     try:
                         self.subsribers_list[topic] = self.create_subscription(eval(msg_type[2]), topic, call_back.listener_callback, 10)
                     except:
@@ -157,7 +157,7 @@ class Ros2NatsBridgeNode(Node):
             if(self.registered):
                 self.get_logger().debug("Waiting for server to select topics ...")
                 try:
-                    sub = await self.nc.subscribe(self.vehicle_info["UniteId"] + ".publish_topics", "worker", topic_request)
+                    sub = await self.nc.subscribe(self.vehicle_info["UnitId"] + ".publish_topics", "worker", topic_request)
                 finally:
                     self.get_logger().debug("Waiting for available_topics")
             await asyncio.sleep(self.async_sleep_rate)
