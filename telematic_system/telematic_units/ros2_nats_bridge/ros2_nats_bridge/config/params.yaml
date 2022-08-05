@@ -1,5 +1,0 @@
-ros2_nats_bridge:
-  ros__parameters:
-    UNIT_ID: "vehicle_id"
-    NATS_SERVER_IP_PORT: "nats://0.0.0.0:4222"
-    UNIT_TYPE: "platform"
