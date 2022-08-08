@@ -147,7 +147,7 @@ class Ros2NatsBridgeNode(Node):
                 if(topic not in self.subsribers_list):
                     msg_type = msg_type.split('/')
                     exec("from " + msg_type[0] + '.' + msg_type[1] + " import " + msg_type[2])
-                    call_back = self.CallBack(msg_type, topic, self.nc, self.vehicle_info["UnitId"])
+                    call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info["UnitId"])
                     try:
                         self.subsribers_list[topic] = self.create_subscription(eval(msg_type[2]), topic, call_back.listener_callback, 10)
                     except:
