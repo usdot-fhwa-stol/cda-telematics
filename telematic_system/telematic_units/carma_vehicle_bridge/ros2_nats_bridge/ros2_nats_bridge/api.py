@@ -52,6 +52,9 @@ class Ros2NatsBridgeNode(Node):
         self.i += 1
 
     async def nats_connect(self):
+        """
+            connect to nats server on EC2 
+        """
 
         async def disconnected_cb():
             self.registered = False
@@ -72,9 +75,9 @@ class Ros2NatsBridgeNode(Node):
         finally:
             self.get_logger().warn("Client is connected To Server.")
 
-    async def register_node(self):
+    async def register_unit(self):
         """
-            send request to server to register node and waits for ack 
+            send request to server to register unit and waits for ack 
         """
 
         self.vehicle_info["TimeStamp"] = self.get_clock().now().nanoseconds
@@ -84,10 +87,10 @@ class Ros2NatsBridgeNode(Node):
             try:
                 self.get_logger().debug("Server status {0}".format(self.nc.is_connected))
                 if(self.nc.is_connected and not self.registered):
-                    self.get_logger().debug("Registering node ... ")
+                    self.get_logger().debug("Registering unit ... ")
                     try:
                         response = await self.nc.request("register_node", vehicle_info_message, timeout=1)
-                        self.get_logger().warn("Registering node received response: {message}".format(message=response.data.decode()))
+                        self.get_logger().warn("Registering unit received response: {message}".format(message=response.data.decode()))
                     finally:
                         self.registered = True
             except:
@@ -144,7 +147,7 @@ class Ros2NatsBridgeNode(Node):
                 if(topic not in self.subsribers_list):
                     msg_type = msg_type.split('/')
                     exec("from " + msg_type[0] + '.' + msg_type[1] + " import " + msg_type[2])
-                    call_back = self.CallBack(topic, self.nc, self.vehicle_info["UnitId"])
+                    call_back = self.CallBack(msg_type, topic, self.nc, self.vehicle_info["UnitId"])
                     try:
                         self.subsribers_list[topic] = self.create_subscription(eval(msg_type[2]), topic, call_back.listener_callback, 10)
                     except:
@@ -161,15 +164,16 @@ class Ros2NatsBridgeNode(Node):
             await asyncio.sleep(self.async_sleep_rate)
 
     class CallBack(): 
-        def __init__(self, topic_name, nc, node_id):
+        def __init__(self, msg_type, topic_name, nc, unit_id):
             """
                 initilize CallBack class
                 declare Nats client 
                 publish message to nats server
             """
 
-            self.node_id = node_id
-            self.topic_name = node_id + ".data" + topic_name.replace("/",".")
+            self.unit_id = unit_id
+            self.msg_type = msg_type
+            self.topic_name = unit_id + ".data" + topic_name.replace("/",".")
             self.nc = nc
 
         async def listener_callback(self, msg):
@@ -177,6 +181,8 @@ class Ros2NatsBridgeNode(Node):
                 listener callback function to publish message to nats server
                 convert message to json format
             """
-            json_message = json.dumps(rosidl_runtime_py.convert.message_to_ordereddict(msg)).encode('utf8')
+            ordereddict_msg = rosidl_runtime_py.convert.message_to_ordereddict(msg)
+            ordereddict_msg["msg_type"] = self.msg_type
+            json_message = json.dumps(ordereddict_msg).encode('utf8')
 
             await self.nc.publish(self.topic_name, json_message)
