@@ -64,20 +64,6 @@ func healthz(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "OK")
 }
 
-func runforever(nc *nats.Conn, unit_id string) {
-	nc.QueueSubscribe(unit_id+".data.>", "data", func(m *nats.Msg) {
-
-		var data map[string]interface{}
-		err := json.Unmarshal(m.Data, &data)
-		if err != nil {
-			fmt.Printf("could not unmarshal json: %s\n", err)
-			return
-		}
-
-		log.Println(m.Subject, string(m.Data))
-	})
-}
-
 func MakeRedshfitConnection(username, password, host, port, dbName string) (*sql.DB, error) {
 
 	url := fmt.Sprintf("sslmode=require user=%v password=%v host=%v port=%v dbname=%v",
