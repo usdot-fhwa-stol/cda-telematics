@@ -52,8 +52,6 @@ fi
 
 rm -rf carma-ssc-interface-wrapper/ssc_interface_wrapper_ros2 carma-ssc-interface-wrapper/ssc_interface_wrapper
 
-
-
 sudo git clone https://github.com/NewEagleRaptor/raptor-dbw-ros2.git raptor-dbw-ros2 --branch foxy 
 cd raptor-dbw-ros2
 sudo git reset --hard 4ad958dd07bb9c7128dc75bc7397bc8f5be30a3c
@@ -67,15 +65,27 @@ cd automotive_autonomy_msgs
 sudo git reset --hard 191dce1827023bef6d69b31e8c2514cf82bf10c5
 cd ..
 
-
 apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-udp-msgs \
                    ros-foxy-rosapi-msgs \
                    ros-foxy-rosbridge-msgs \
                    ros-foxy-automotive-platform-msgs \
-                   ros-foxy-gps-msgs
+                   ros-foxy-gps-msgs \
+                   ros-foxy-autoware-auto-msgs
 
 sudo apt install apt-transport-https
 sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-public.list'
 sudo apt update
-sudo apt install ros-$ROS_DISTRO-pacmod3-msgs  
+sudo apt install -y ros-foxy-pacmod3-msgs ros-foxy-pcl-msgs
+
+sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
+cd autoware.ai
+sed -i.bak '/find_package(ros_environment REQUIRED)/d' messages/*/CMakeLists.txt
+sed -i.bak '/find_package(ros_environment REQUIRED)/d' jsk_common_msgs/*/CMakeLists.txt
+
+mv jsk_common_msgs ../carma-msgs/jsk_common_msgs
+mv jsk_recognition ../carma-msgs/jsk_recognition
+mv messages ../carma-msgs/messages
+
+cd ..
+rm -rf autoware.ai

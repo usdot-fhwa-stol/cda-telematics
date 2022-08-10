@@ -1,3 +1,0 @@
-ros2_nats_bridge:
-  ros__parameters:
-    NODE_ID: "vehicle_1"

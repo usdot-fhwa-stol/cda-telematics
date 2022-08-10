@@ -14,50 +14,9 @@
 # the License.
 #
 
-# from .ros2_nats_bridge import Ros2NatsBridge
-
-# def main(args=None):
-#     ros2_nats_bridge = Ros2NatsBridge()
-#     ros2_nats_bridge.start()
-
-# if __name__ == '__main__':
-#     main()
-
-
 from .api import Ros2NatsBridgeNode
 import rclpy
 import asyncio
-
-# def main(args=None):
-#     rclpy.init(args=args)
-#     minimal_publisher = MinimalPublisher()
-
-#     loop = asyncio.get_event_loop()
-#     try:
-#         asyncio.ensure_future(ros_spin(minimal_publisher))
-#         asyncio.ensure_future(minimal_publisher.nats_connect())
-
-#         loop.run_forever()
-#     except KeyboardInterrupt:
-#         pass
-#     finally:
-#         print("Closing Loop")
-#         loop.close()
-
-#     # Destroy the node explicitly
-#     # (optional - otherwise it will be done automatically
-#     # when the garbage collector destroys the node object)
-#     minimal_publisher.destroy_node()
-#     rclpy.shutdown()
-
-# async def run(loop):
-#     rclpy.init()
-#     minimal_publisher = MinimalPublisher()
-
-#     rclpy.spin(minimal_publisher)
-
-#     minimal_publisher.destroy_node()
-#     rclpy.shutdown()
 
 async def spin_node(node):
     while rclpy.ok():
@@ -75,7 +34,7 @@ def main(args=None):
     tasks = [
         loop.create_task(spin_node(ros2_nats_bridge)),
         loop.create_task(ros2_nats_bridge.nats_connect()),
-        loop.create_task(ros2_nats_bridge.register_node()),
+        loop.create_task(ros2_nats_bridge.register_unit()),
         loop.create_task(ros2_nats_bridge.available_topics()),
         loop.create_task(ros2_nats_bridge.publish_topics())
     ]

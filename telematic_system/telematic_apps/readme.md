@@ -162,6 +162,3 @@
    
     Using "credentials file"<br>
     ![image](https://user-images.githubusercontent.com/62157949/181591323-bac5be52-7428-41c0-a88b-6bb87a80e371.png)
-
-
-
