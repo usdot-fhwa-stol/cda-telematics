@@ -2,21 +2,21 @@ version: "3.9"
 services:
   server:
     build:
-      context: web_app/server/
+      context: server/
     command: /usr/app/node_modules/.bin/nodemon src/index.js
-    volumes:
-    ports:
-      - "8080:8080"
+    # ports:
+    #   - "9010:9010"
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
+    network_mode: 'host'
 
-  client:
-    build:
-      context: web_app/client/
-    command: npm start
-    volumes:
-    depends_on:
-      - server
-    ports:
-      - "3001:3001"
+  # client:
+  #   build:
+  #     context: web_app/client/
+  #   command: npm start
+  #   volumes:
+  #   depends_on:
+  #     - server
+  #   ports:
+  #     - "3001:3001"
