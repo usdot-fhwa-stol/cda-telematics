@@ -1,12 +1,11 @@
-FROM node:16.16.0-alpine
+FROM node:16.16.0
 
-WORKDIR /usr/app
-
-COPY package*.json ./
-RUN npm ci -qy
-
+WORKDIR /app
 COPY . .
 
-EXPOSE 8080
+RUN npm init -y
+RUN npm install
 
-CMD ["npm", "start"]
+EXPOSE 9010
+
+ENTRYPOINT ["npm", "start"]
