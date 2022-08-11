@@ -64,6 +64,7 @@ func healthz(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "OK")
 }
 
+// MakeRedshfitConnection creates a connection to redshift database and returns sql.DB to be used to push data to the database
 func MakeRedshfitConnection(username, password, host, port, dbName string) (*sql.DB, error) {
 
 	url := fmt.Sprintf("sslmode=require user=%v password=%v host=%v port=%v dbname=%v",
@@ -223,6 +224,8 @@ func main() {
 		switch msg_type {
 
 		case "rcl_interfaces/msg/Log":
+			
+			// Using the time stamp from hearte log to calculate a how long it takes for vehicle sends a message to nats server 
 			var h Heartbeat
 			err := json.Unmarshal(m.Data, &h)
 			if err != nil {
@@ -232,6 +235,8 @@ func main() {
 			fmt.Println(string("\033[35m"), unit_id, "message delay is", (time.Now().UnixNano() - int64(h.Stamp.Sec*1000000000) - int64(h.Stamp.Nanosec)), "ns")
 
 		case "geometry_msgs/msg/TwistStamped":
+			
+			// unmarshal json data to TwistStamped struct to push the data to database
 
 			var s TwistStamped
 			err := json.Unmarshal(m.Data, &s)
