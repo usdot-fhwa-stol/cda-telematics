@@ -16,7 +16,7 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-// Node represents
+// Node represents the telematic unit (UnitId is unique within, UnitType ("platform", "messenger", "street", "cloud"))
 type Node struct {
 	UnitId    string  `json:"UnitId"`
 	UnitType  string  `json:"UnitType"`
@@ -32,6 +32,7 @@ type server struct {
 	db *sql.DB
 }
 
+// send request to mysql databse to get all the nodes registered in the system
 func GetNodes(db *sql.DB) ([]Node, error) {
 
 	rows, err := db.Query("SELECT * from wfd.NODES")
@@ -55,12 +56,16 @@ func GetNodes(db *sql.DB) ([]Node, error) {
 	return nodes, err
 }
 
+
+// getRegisteredUnits callback
 func (s server) getRegisteredUnits(w http.ResponseWriter, r *http.Request) {
 	nodes, _ := GetNodes(s.db)
 	res, _ := json.Marshal(nodes)
 	fmt.Fprintf(w, string(res))
 }
 
+// requestAvailableTopics callback 
+// sends request to the unit selected by user to get all the available topics
 func (s server) requestAvailableTopics(w http.ResponseWriter, r *http.Request) {
 
 	keys, ok := r.URL.Query()["UnitId"]
@@ -79,6 +84,7 @@ func (s server) requestAvailableTopics(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, string(response.Data))
 }
 
+// publishSelectedTopics callback, send request to unit to stream the data selected by user
 func (s server) publishSelectedTopics(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -116,7 +122,8 @@ func main() {
 	var s server
 	var err error
 	uri := os.Getenv("NATS_URI")
-
+	
+	// wait for nats server for atleast 5s
 	for i := 0; i < 5; i++ {
 		nc, err := nats.Connect(uri)
 		if err == nil {
@@ -149,6 +156,7 @@ func main() {
 	}
 	defer db.Close()
 
+	// wait for mysql server for atleast 5s
 	for i := 0; i < 5; i++ {
 		mysql_err = db.Ping()
 		if mysql_err == nil {
