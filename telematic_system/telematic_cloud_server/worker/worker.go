@@ -94,7 +94,8 @@ func main() {
 	var nats_err error
 	var nc *nats.Conn
 	var db *sql.DB
-
+	
+	// wait atleast 5s for nats server
 	for i := 0; i < 5; i++ {
 		nc, nats_err = nats.Connect(nats_uri)
 		if nats_err == nil {
@@ -123,7 +124,8 @@ func main() {
 		log.Fatal(err)
 	}
 	defer db.Close()
-
+	
+	// wait atleast 5s for mysql server
 	for i := 0; i < 5; i++ {
 		err = db.Ping()
 		if err == nil {
@@ -153,6 +155,9 @@ func main() {
 	//
 
 	nc.Subscribe("register_node", func(m *nats.Msg) {
+		
+		// once the unit is up it send request to server
+		// here server received the request and push the data to mysql database and send response back with timestamp.
 
 		fmt.Println("Received request on:", m.Subject, string(m.Data))
 
@@ -189,11 +194,15 @@ func main() {
 			"TimeStamp": fmt.Sprint(time.Now().UnixNano() / int64(time.Millisecond)),
 			"Status":    http.StatusCreated,
 		})
+	
 
 		nc.Publish(m.Reply, []byte(response))
 	})
 
 	nc.Subscribe("*.data.>", func(m *nats.Msg) {
+		
+		// callback for add the data published in the system 
+		// *.data.> is a pattern that matches the topics from units
 
 		info := strings.Split(m.Subject, ".")
 
@@ -208,6 +217,8 @@ func main() {
 		}
 
 		msg_type := data["msg_type"]
+		
+		// based on msg_type worker process the data and pushes the data to the redshift database
 
 		switch msg_type {
 
