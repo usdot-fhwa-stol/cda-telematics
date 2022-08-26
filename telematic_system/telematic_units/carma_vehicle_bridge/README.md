@@ -49,6 +49,7 @@ command to start the container :
 Run the unit tests with
 
 	colcon test --packages-select ros2_nats_bridge
+	colcon test --packages-select --event-handlers console_cohesion+ ros2_nats_bridge #print unit test result
 
 Run pytest for individual file:
 	python3 -m pytest test_messages.py

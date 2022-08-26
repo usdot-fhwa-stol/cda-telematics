@@ -9,7 +9,11 @@ import com.github.wnameless.json.flattener.JsonFlattener;
 
 @Component
 public class JSONFlattenerHelper {
-
+    /***
+     * 
+     * @param Nested JSON string consumed from NATS subject
+     * @return Flattened JSON string 
+     */
     public String flattenJsonStr(String json_str) {
         try {
             JSONParser parser = new JSONParser();

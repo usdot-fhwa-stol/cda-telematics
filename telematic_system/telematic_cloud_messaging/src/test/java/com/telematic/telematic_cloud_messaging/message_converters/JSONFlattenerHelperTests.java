@@ -20,7 +20,6 @@ public class JSONFlattenerHelperTests {
         String BSM_json_payload_str = "{\"core_data\":{\"accel_set\":{\"lat\":\"2\",\"long\":\"-79\",\"vert\":\"-127\",\"yaw\":\"12\"},\"accuracy\":{\"orientation\":\"65535\",\"semi_major\":\"255\",\"semi_minor\":\"255\"},\"angle\":\"127\",\"brakes\":{\"abs\":\"0\",\"aux_brakes\":\"0\",\"brake_boost\":\"0\",\"scs\":\"0\",\"traction\":\"0\"},\"elev\":\"384\",\"heading\":\"6160\",\"id\":\"11111111\",\"lat\":\"38.9549740\",\"long\":\"-77.1476267\",\"msg_count\":\"70\",\"sec_mark\":\"40328\",\"size\":{\"length\":\"500\",\"width\":\"200\"},\"speed\":\"282\",\"transmission\":\"0\"}}";
         String json_str = "{ \"metadata\":" + json_metadata_str + ",\"payload\":" + BSM_json_payload_str + "}";
         String flattened_json_str = helper.flattenJsonStr(json_str);
-        System.out.println(flattened_json_str);
         JSONParser parser = new JSONParser();
         try {
             JSONObject flattened_json = (JSONObject) parser.parse(flattened_json_str);
