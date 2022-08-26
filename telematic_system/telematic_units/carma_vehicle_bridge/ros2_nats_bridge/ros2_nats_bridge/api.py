@@ -188,6 +188,7 @@ class Ros2NatsBridgeNode(Node):
             self.location = location
             self.testing_type = testing_type
             self.msg_type = msg_type
+            self.origin_topic_name = topic_name
             self.topic_name = unit_id + ".data" + topic_name.replace("/",".")
             self.nc = nc
 
@@ -204,6 +205,7 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg["location"] = self.location
             ordereddict_msg["testing_type"] = self.testing_type
             ordereddict_msg["msg_type"] = self.msg_type
+            ordereddict_msg["topic_name"] = self.origin_topic_name
             ordereddict_msg["timestamp"] = self.get_clock().now().nanoseconds
             json_message = json.dumps(ordereddict_msg).encode('utf8')
 
