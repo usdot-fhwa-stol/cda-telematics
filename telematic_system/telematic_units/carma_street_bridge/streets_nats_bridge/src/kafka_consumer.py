@@ -1,22 +1,25 @@
 from kafka import KafkaConsumer
-# from .config import params
 import json
 
-class KafkaRead():
+class KafkaConsume():
 
-    #Creates a KafkaConsumer object that connects to the Kafka port 9092
-    def __init__(self):
+    #Creates a KafkaConsumer object that connects to the Kafka broker
+    def __init__(self, kafka_ip, kafka_port):
+
+        #boolean to check the status of Kafka consumer creation
+        self.consumerCreated = False
 
         #auto_offset_reset handles where consumer restarts reading after breaking down or being turned off 
         #("latest" --> start reading at the end of the log, "earliest" --> start reading at latest committed offset)
         #group_id is the consumer group to which this belongs (consumer needs to be part of group to make auto commit work)
         self.consumer = KafkaConsumer(
-            bootstrap_servers=['localhost:9092'],
+            bootstrap_servers=[kafka_ip + ":" + kafka_port],
             auto_offset_reset='earliest',
             enable_auto_commit=True,
             group_id='my-group',
             value_deserializer=lambda x: json.loads(x.decode('utf-8')))
         
+        self.consumerCreated = True   
 
     #Returns a list of all available carma streets topics
     def list_topics(self):
@@ -36,7 +39,7 @@ class KafkaRead():
         except:
             print("Error subscribing to a topic")
 
-    #read the kafka data over the specified topic
+    #Read the kafka data that has been subscribed to
     def kafka_read(self):
         for message in self.consumer:
             message = message.value
@@ -45,3 +48,7 @@ class KafkaRead():
             payload = message['payload']
 
             print("Timestamp: " + str(timestamp) + " intersection: " + str(intersection) + " payload: " + str(payload))
+    
+    #Get status of KafkaConsumer creation
+    def getConsumerStatus(self):
+        return self.consumerCreated
