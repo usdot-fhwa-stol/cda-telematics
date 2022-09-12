@@ -1,6 +1,5 @@
 package com.telematic.telematic_cloud_messaging.message_converters;
 
-import org.apache.commons.lang3.math.NumberUtils;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -20,13 +19,21 @@ public class JSON2KeyValuePairsConverter {
             int key_count = 0;
             for (Object key : json.keySet()) {
                 key_count++;
-                Object value = json.get(key.toString());
-                if (NumberUtils.isParsable(value.toString())) {
-                    Double.parseDouble(value.toString());
-                    pairs += key + "=" + json.get(key.toString());
-                } else {
-                    pairs += key + "=\"" + json.get(key.toString()) + "\"";
+                Object key_value = json.get(key.toString());
+
+                if(json.isInt(key_value.toString())){
+                    int value = json.getInt(key.toString());
+                    pairs += key + "=" + String.valueOf(value);
                 }
+                else if(json.isDouble(key_value.toString())){
+                    double value = json.getDouble(key.toString());
+                    pairs += key + "=" + String.valueOf(value);
+                }
+                else if(json.isString(key_value.toString())){
+                    String value = json.getString(key.toString());
+                    pairs += key + "=\"" + value + "\"";
+                }
+                
                 if (json.keySet().size() != key_count) {
                     pairs += ",";
                 }
