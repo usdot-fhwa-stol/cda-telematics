@@ -19,21 +19,23 @@ public class JSON2KeyValuePairsConverter {
             int key_count = 0;
             for (Object key : json.keySet()) {
                 key_count++;
-                Object key_value = json.get(key.toString());
+                Object value = json.get(key.toString());
+                if (value == null) {
+                    continue;
+                }
+                // Regex matching integers
+                if (value.toString().matches("[-+]?\\d*")) {
+                    pairs += key + "=" + value;
+                }
+                // Regex matching decimals
+                else if (value.toString().matches("[-+]?\\d*\\.?\\d+")) {
+                    pairs += key + "=" + value;
+                }
+                // If none of the above Regex matches, considering it as string
+                else {
+                    pairs += key + "=\"" + value.toString() + "\"";
+                }
 
-                if(json.isInt(key_value.toString())){
-                    int value = json.getInt(key.toString());
-                    pairs += key + "=" + String.valueOf(value);
-                }
-                else if(json.isDouble(key_value.toString())){
-                    double value = json.getDouble(key.toString());
-                    pairs += key + "=" + String.valueOf(value);
-                }
-                else if(json.isString(key_value.toString())){
-                    String value = json.getString(key.toString());
-                    pairs += key + "=\"" + value + "\"";
-                }
-                
                 if (json.keySet().size() != key_count) {
                     pairs += ",";
                 }
