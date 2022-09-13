@@ -35,9 +35,19 @@ class Ros2NatsBridgeNode(Node):
         self.declare_parameter("NATS_SERVER_IP_PORT", "nats://0.0.0.0:4222", ParameterDescriptor(description='This parameter sets the ip address and port for nats server.'))
         self.declare_parameter("UNIT_ID", "vehicle_id", ParameterDescriptor(description='This parameter is a Unique id for the node.'))
         self.declare_parameter("UNIT_TYPE", "platform", ParameterDescriptor(description='This parameter is for type of platform is deployed on (platform or messager)'))
+        self.declare_parameter("UNIT_NAME", "Black_Pacifica", ParameterDescriptor(description='This parameter is for the vehicle name that is running the ROS application.'))
+        self.declare_parameter("EVENT_NAME", "UC3", ParameterDescriptor(description='This parameter is for the name of the event.'))
+        self.declare_parameter("LOCATION", "TFHRC", ParameterDescriptor(description='This parameter is for the vehicle location where the application is running.'))
+        self.declare_parameter("TESTING_TYPE", "Integration", ParameterDescriptor(description='This parameter is for the type of testing (Integration, verification, valication.)'))
 
-        self.vehicle_info = {"UnitId": self.get_parameter("UNIT_ID").get_parameter_value().string_value, "UnitType": self.get_parameter("UNIT_TYPE").get_parameter_value().string_value}
-
+        self.vehicle_info = {
+            "UnitId": self.get_parameter("UNIT_ID").get_parameter_value().string_value,
+            "UnitType": self.get_parameter("UNIT_TYPE").get_parameter_value().string_value,
+            "UnitName": self.get_parameter("UNIT_NAME").get_parameter_value().string_value,
+            "EventName": self.get_parameter("EVENT_NAME").get_parameter_value().string_value,
+            "Location": self.get_parameter("LOCATION").get_parameter_value().string_value,
+            "TestingType": self.get_parameter("TESTING_TYPE").get_parameter_value().string_value}
+        
         self.nats_ip_port = self.get_parameter("NATS_SERVER_IP_PORT").get_parameter_value().string_value
         self.async_sleep_rate = 0.0001
 
@@ -107,7 +117,7 @@ class Ros2NatsBridgeNode(Node):
         async def send_list_of_topics(msg):
             self.get_logger().warn(f"Received a message on '{msg.subject} {msg.reply}': {msg.data.decode()}")
 
-            self.vehicle_info["TimeStamp"] = self.get_clock().now().nanoseconds
+            self.vehicle_info["timestamp"] = self.get_clock().now().nanoseconds
             self.vehicle_info["topics"] = [{"name": name, "type": types[0]}  for name, types in self.get_topic_names_and_types()]
 
             message = json.dumps(self.vehicle_info).encode('utf8')
@@ -147,7 +157,7 @@ class Ros2NatsBridgeNode(Node):
                 if(topic not in self.subsribers_list):
                     msg_type = msg_type.split('/')
                     exec("from " + msg_type[0] + '.' + msg_type[1] + " import " + msg_type[2])
-                    call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info["UnitId"])
+                    call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info["UnitId"], self.vehicle_info["UnitType"], self.vehicle_info["UnitName"], self.vehicle_info["EventName"], self.vehicle_info["Location"], self.vehicle_info["TestingType"])
                     try:
                         self.subsribers_list[topic] = self.create_subscription(eval(msg_type[2]), topic, call_back.listener_callback, 10)
                     except:
@@ -164,7 +174,7 @@ class Ros2NatsBridgeNode(Node):
             await asyncio.sleep(self.async_sleep_rate)
 
     class CallBack(): 
-        def __init__(self, msg_type, topic_name, nc, unit_id):
+        def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name, event_name, location, testing_type):
             """
                 initilize CallBack class
                 declare Nats client 
@@ -172,7 +182,13 @@ class Ros2NatsBridgeNode(Node):
             """
 
             self.unit_id = unit_id
+            self.unit_type = unit_type
+            self.unit_name = unit_name
+            self.event_name = event_name
+            self.location = location
+            self.testing_type = testing_type
             self.msg_type = msg_type
+            self.origin_topic_name = topic_name
             self.topic_name = unit_id + ".data" + topic_name.replace("/",".")
             self.nc = nc
 
@@ -182,7 +198,15 @@ class Ros2NatsBridgeNode(Node):
                 convert message to json format
             """
             ordereddict_msg = rosidl_runtime_py.convert.message_to_ordereddict(msg)
+            ordereddict_msg["unit_id"] = self.unit_id
+            ordereddict_msg["unit_type"] = self.unit_type
+            ordereddict_msg["unit_name"] = self.unit_name
+            ordereddict_msg["event_name"] = self.event_name
+            ordereddict_msg["location"] = self.location
+            ordereddict_msg["testing_type"] = self.testing_type
             ordereddict_msg["msg_type"] = self.msg_type
+            ordereddict_msg["topic_name"] = self.origin_topic_name
+            ordereddict_msg["timestamp"] = self.get_clock().now().nanoseconds
             json_message = json.dumps(ordereddict_msg).encode('utf8')
 
             await self.nc.publish(self.topic_name, json_message)
