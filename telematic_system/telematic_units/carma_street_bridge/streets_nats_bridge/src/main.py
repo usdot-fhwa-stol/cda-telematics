@@ -33,31 +33,33 @@ def main(args=None):
     unit_type = config['streets_nats_bridge']['streets_parameters']['UNIT_TYPE']
 
     #Attempt to create a kafka consumer 
-    # try:
-    #     kafka_consumer = KafkaConsume(kafka_ip, kafka_port)
-    # except:
-    #     print("No CARMA Streets Kafka broker available..exiting")
-    #     sys.exit(0)
+    try:
+        kafka_consumer = KafkaConsume(kafka_ip, kafka_port)
+    except:
+        print("No CARMA Streets Kafka broker available..exiting")
+        sys.exit(0)
 
-    # #If a connection was made, subscribe to all topics and read in data
-    # if kafka_consumer.getConsumerStatus():
-    #     carma_streets_topics = kafka_consumer.list_topics()
-    #     kafka_consumer.topic_subscribe(carma_streets_topics)
-    #     kafka_consumer.kafka_read()
+    #If a connection was made, subscribe to all topics and read in data
+    if kafka_consumer.getConsumerStatus():
+        carma_streets_topics = kafka_consumer.list_topics()       
+        
+        # Create asyncio loop and Nats publisher object
+        loop = asyncio.get_event_loop()
+        nats_publisher = NatsPublish(nats_ip, nats_port, unit_id, unit_type, carma_streets_topics)
 
-    #Create asyncio loop and Nats publisher object
-    loop = asyncio.get_event_loop()
-    nats_publisher = NatsPublish(nats_ip, nats_port, unit_id, unit_type)
+        #Create tasks to connect to the nats server and register this unit
+        tasks = [
+            loop.create_task(kafka_consumer.topic_subscribe(carma_streets_topics)),
+            loop.create_task(nats_publisher.nats_connect()),
+            loop.create_task(nats_publisher.register_unit()),
+            # loop.create_task(kafka_consumer.kafka_read()),
+            loop.create_task(nats_publisher.available_topics()),
+            loop.create_task(nats_publisher.publish_topics())
+        ]
 
-    #Create tasks to connect to the nats server and register this unit
-    tasks = [
-        loop.create_task(nats_publisher.nats_connect()),
-        loop.create_task(nats_publisher.register_unit())
-    ]
-
-    loop.run_forever()
-    loop.run_until_complete(asyncio.wait(tasks))
-    loop.close()
+        loop.run_forever()
+        loop.run_until_complete(asyncio.wait(tasks))
+        loop.close()
 
 if __name__ == '__main__':
     main()

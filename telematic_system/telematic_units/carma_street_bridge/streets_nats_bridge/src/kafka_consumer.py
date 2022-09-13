@@ -1,5 +1,6 @@
 from kafka import KafkaConsumer
 import json
+import asyncio
 
 class KafkaConsume():
 
@@ -20,6 +21,8 @@ class KafkaConsume():
             value_deserializer=lambda x: json.loads(x.decode('utf-8')))
         
         self.consumerCreated = True   
+        #TODO need to establish best sleep rate for reading in messages
+        self.async_sleep_rate = 0.01
 
     #Returns a list of all available carma streets topics
     def list_topics(self):
@@ -31,7 +34,7 @@ class KafkaConsume():
 
     #Subscribes to the input list of carma streets topics
     #Topic subscriptions are not incremental: this list will replace the current assignment (if there is one).
-    def topic_subscribe(self, topic_list):
+    async def topic_subscribe(self, topic_list):
         try:
             self.consumer.subscribe(topics=topic_list)
             #TODO need to figure out way to print out topics we failed to subscribe to
@@ -40,15 +43,22 @@ class KafkaConsume():
             print("Error subscribing to a topic")
 
     #Read the kafka data that has been subscribed to
-    def kafka_read(self):
-        for message in self.consumer:
-            message = message.value
-            timestamp = message['metadata']['timestamp']
-            intersection = message['metadata']['intersection_type']
-            payload = message['payload']
+    async def kafka_read(self):
+        print("Reading carma-streets kafka traffic")
 
-            print("Timestamp: " + str(timestamp) + " intersection: " + str(intersection) + " payload: " + str(payload))
-    
+        try:
+            for message in self.consumer:
+                message = message.value
+                timestamp = message['metadata']['timestamp']
+                intersection = message['metadata']['intersection_type']
+                payload = message['payload']
+                print(message)
+                # print("Timestamp: " + str(timestamp) + " intersection: " + str(intersection) + " payload: " + str(payload))
+                await asyncio.sleep(self.async_sleep_rate)
+        except:
+            print("Error reading message")
+        
+
     #Get status of KafkaConsumer creation
     def getConsumerStatus(self):
         return self.consumerCreated
