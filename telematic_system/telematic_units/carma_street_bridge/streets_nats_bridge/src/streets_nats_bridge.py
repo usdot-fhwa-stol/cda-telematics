@@ -158,7 +158,7 @@ class StreetsNatsBridge():
         #Send list of carma streets topics
         async def send_list_of_topics(msg):
             self.logger.info(str(datetime.datetime.now()) + "  In send_list_of_topics: Received a request for available topics")
-            self.streets_info["TimeStamp"] = time.time_ms()
+            self.streets_info["TimeStamp"] = time.time_ns()
             self.streets_info["topics"] = [{"name": topicName} for topicName in self.streets_topics]            
             message = json.dumps(self.streets_info).encode('utf8')   
 
