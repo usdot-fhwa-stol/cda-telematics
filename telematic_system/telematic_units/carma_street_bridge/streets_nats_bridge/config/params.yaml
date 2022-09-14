@@ -6,3 +6,4 @@ streets_nats_bridge:
     NATS_PORT: "4222"
     UNIT_ID: "streets_id"
     UNIT_TYPE: "streets"
+    LOG_LEVEL: "debug"
