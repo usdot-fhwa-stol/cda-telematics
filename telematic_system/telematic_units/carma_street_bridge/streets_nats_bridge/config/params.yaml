@@ -1,9 +1,9 @@
 streets_nats_bridge:
   streets_parameters:
-    KAFKA_BROKER_IP: "localhost"
+    KAFKA_BROKER_IP: "192.168.1.162"
     KAFKA_BROKER_PORT: "9092"
     NATS_IP: "0.0.0.0"
     NATS_PORT: "4222"
     UNIT_ID: "streets_id"
-    UNIT_TYPE: "streets"
+    UNIT_TYPE: "infrastructure"
     LOG_LEVEL: "debug"

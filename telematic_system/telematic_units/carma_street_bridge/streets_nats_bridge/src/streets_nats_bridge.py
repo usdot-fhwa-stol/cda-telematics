@@ -3,7 +3,6 @@ from kafka import KafkaConsumer
 import json
 import asyncio
 import time
-import spdlog as spd
 import logging
 import yaml
 import datetime
@@ -24,19 +23,29 @@ class StreetsNatsBridge():
         self.unit_id = config['streets_nats_bridge']['streets_parameters']['UNIT_ID']
         self.unit_type = config['streets_nats_bridge']['streets_parameters']['UNIT_TYPE']
         self.log_level = config['streets_nats_bridge']['streets_parameters']['LOG_LEVEL']
+        self.unit_name = "West Intersection"
+        self.event_name = "UC3"
+        self.location = "TFHRC"
+        self.testing_type = "Integration"
         self.nc = NATS()
-        self.registered = False
-        self.streets_topics = []
-        self.subscribers_list = []
-        self.async_sleep_rate = 0.001
-        self.streets_info = {"UnitId": self.unit_id, "UnitType": self.unit_type}
+        self.registered = False #boolean to check if this module has been registered with NATS
+        self.streets_topics = [] #list of available carma-streets topic
+        self.subscribers_list = [] #list of topics the user has requested to publish
+        self.async_sleep_rate = 0.001 #asyncio sleep rate
+        self.consumerCreated = False #boolean to check the status of Kafka consumer creation
 
-        #boolean to check the status of Kafka consumer creation
-        self.consumerCreated = False
-
+        #Placeholder info for now
+        self.streets_info = {
+        "UnitId": self.unit_id,
+        "UnitType": self.unit_type,
+        "UnitName": self.unit_name,
+        "EventName": self.event_name,
+        "Location": self.location,
+        "TestingType": self.testing_type}        
+        
         # create log file and set log levels
         self.logger = logging.getLogger('streets_logger')
-        self.file_handler = logging.FileHandler('streets_logger.log', 'w+')
+        self.file_handler = logging.FileHandler('streets_nats_bridge_logger.log', 'w+')
 
         if(self.log_level == "debug"):
             self.logger.setLevel(logging.DEBUG)
@@ -102,7 +111,15 @@ class StreetsNatsBridge():
                 if topic in self.subscribers_list:
                     message = message.value
                     #Add msg_type to json b/c worker looks for this field
-                    message['msg_type'] = topic
+                    message["unit_id"] = self.unit_id
+                    message["unit_type"] = self.unit_type
+                    message["unit_name"] = self.unit_name
+                    message["event_name"] = self.event_name
+                    message["location"] = self.location
+                    message["testing_type"] = self.testing_type
+                    message["msg_type"] = topic
+                    message["topic_name"] = topic
+                    message["timestamp"] = time.time_ns()
 
                     #telematic cloud server will look for topic names with the pattern ".data."
                     self.topic_name = self.unit_id + ".data." + topic

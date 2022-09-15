@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.3"
 services:
   ros2-nats-bridge:
     build:
@@ -8,3 +8,12 @@ services:
     container_name: carma_vehicle_bridge
     network_mode: host
     entrypoint: /ws/ros_entrypoint.sh
+  streets-nats-bridge:
+    build:
+          context: ./carma_street_bridge
+          dockerfile: Dockerfile
+    image: usdot-fhwa-stol/carma_street_bridge
+    container_name: carma_street_bridge
+    network_mode: host
+    ports:
+          - "9092:9092"
