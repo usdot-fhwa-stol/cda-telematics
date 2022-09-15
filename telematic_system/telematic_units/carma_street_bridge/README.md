@@ -1,4 +1,5 @@
 CARMA Streets-Nats Bridge Setup 
+
 	1. Carma streets kafka and scheduling service containers need to be up
 		a. Verify that "intersection_type" is set to "stop_controlled_intersection" in scheduling service manifest.json file		
 	2. Need to comment out anything referring to the Redshift DB in the worker.go code and rebuild with "docker-compose build worker"
@@ -10,9 +11,11 @@ CARMA Streets-Nats Bridge Setup
 	8. Can check the status of the nats bridge with the "streets_nats_bridge_logger.log" file created inside of the container
 	
 Create MySQL Table
+
 	CREATE TABLE NODES (UnitId varchar(255), UnitType varchar(255), Timestamp varchar(255));
 
 HTTP Curl Requests for Testing
+
 	1. get list of registered units with the nats server: "curl -X GET -v http://localhost:8080/getRegisteredUnits"
 	2. request all available topics from carma streets: "curl -X GET-v http://localhost:8080/requestAvailableTopics?UnitId=<unit_id>"
 	3. request to publish the specified topics: "curl -d '{"UnitId": "streets_id", "UnitType": "streets", "TimeStamp": 1663084528513000325, "topics": [{"name": "v2xhub_scheduling_plan_sub"}]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/publishSelectedTopics"
