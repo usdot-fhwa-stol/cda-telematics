@@ -32,6 +32,9 @@ docker-compose -v
 # navigate to a folder where the docker-compose file is located, and check the influxDB service is located in this docker-compose file
 cd <directory name>/telematic_system
 
+# rename the telematic.env file to .env
+mv telematic.env .env
+
 # Docker compose up to launch container
 docker-compose up -d
 
