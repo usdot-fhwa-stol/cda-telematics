@@ -1,16 +1,16 @@
 version: '3'
 services:
   influxdb:
-    image:  influxdb:latest
+    image:  influxdb:${INFLUXDB_DEV_TAG} 
     container_name: influxdb-dev
     ports:
       - '8086:8086'
     environment:
       - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=admin
-      - DOCKER_INFLUXDB_INIT_PASSWORD=adminpwd
-      - DOCKER_INFLUXDB_INIT_BUCKET=platform-dev
-      - DOCKER_INFLUXDB_INIT_ORG=my-org
-      - DOCKER_INFLUXDB_INIT_RETENTION=30d
+      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_DEV_INIT_USERNAME}
+      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_DEV_INIT_PASSWORD}
+      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_DEV_INIT_BUCKET}
+      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_DEV_ORG}
+      - DOCKER_INFLUXDB_INIT_RETENTION=${INFLUXDB_DEV_RETENTION}
     volumes:
-      - /opt/data/influxdb2:/var/lib/influxdb2 # data directory
+      - /opt/influxdb2/data:/var/lib/influxdb2 # data directory
