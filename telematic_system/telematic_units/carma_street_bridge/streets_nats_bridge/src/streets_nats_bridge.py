@@ -7,6 +7,9 @@ import logging
 import yaml
 import datetime
 
+#The StreetsNatsBridge is capable of consuming Kafka topics from carma-streets and streaming
+#the data in real-time to a remote NATS server. Various asynchronous functions are defined to
+#enable connecting to the NATS server, publishing available topics, and streaming data of interest.
 class StreetsNatsBridge():
 
     #Creates a Streets-NATS bridge object that connects to the NATS server
@@ -23,6 +26,7 @@ class StreetsNatsBridge():
         self.unit_id = config['streets_nats_bridge']['streets_parameters']['UNIT_ID']
         self.unit_type = config['streets_nats_bridge']['streets_parameters']['UNIT_TYPE']
         self.log_level = config['streets_nats_bridge']['streets_parameters']['LOG_LEVEL']
+        self.log_name = config['streets_nats_bridge']['streets_parameters']['LOG_NAME']
         self.unit_name = "West Intersection"
         self.event_name = "UC3"
         self.location = "TFHRC"
@@ -43,9 +47,17 @@ class StreetsNatsBridge():
         "Location": self.location,
         "TestingType": self.testing_type}        
         
+        #Create StreetsNatsBridge logger
+        self.createLogger()
+        self.logger.info(str(datetime.datetime.now()) + " Created Streets-NATS bridge object")
+
+    #Creates log file for the StreetsNatsBridge with configuration items based on the settings input in the params.yaml file
+    def createLogger(self):
         # create log file and set log levels
         self.logger = logging.getLogger('streets_logger')
-        self.file_handler = logging.FileHandler('streets_nats_bridge_logger.log', 'w+')
+        log_name = self.log_name + ".log"
+
+        self.file_handler = logging.FileHandler(log_name, 'w+')
 
         if(self.log_level == "debug"):
             self.logger.setLevel(logging.DEBUG)
@@ -58,7 +70,6 @@ class StreetsNatsBridge():
             self.file_handler.setLevel(logging.ERROR)
 
         self.logger.addHandler(self.file_handler)
-        self.logger.info(str(datetime.datetime.now()) + " Created Streets-NATS bridge object")
 
     #Create Kafka consumer object to read carma-streets kafka traffic
     def createKafkaConsumer(self):
@@ -99,14 +110,14 @@ class StreetsNatsBridge():
     def getConsumerStatus(self):
         return self.consumerCreated
 
-    #Read the kafka data and publish to nats if the topic is in the subscribed list
+    #Read the carma streets kafka data and publish to nats if the topic is in the subscribed list
     async def kafka_read(self):
         self.logger.info(str(datetime.datetime.now()) + " In kafka_read: Reading carma-streets kafka traffic")
 
         try:
             for message in self.kafka_consumer:
                 topic = message.topic
-                self.logger.info(str(datetime.datetime.now()) + " In kafka_read: Received message: " + str(message.value))
+                # self.logger.info(str(datetime.datetime.now()) + " In kafka_read: Received message: " + str(message.value))
 
                 if topic in self.subscribers_list:
                     message = message.value
@@ -119,11 +130,12 @@ class StreetsNatsBridge():
                     message["testing_type"] = self.testing_type
                     message["msg_type"] = topic
                     message["topic_name"] = topic
-                    message["timestamp"] = time.time_ns()
+                    message["timestamp"] = time.time_ns() / 1000 #convert nanoseconds to microseconds
 
                     #telematic cloud server will look for topic names with the pattern ".data."
                     self.topic_name = self.unit_id + ".data." + topic
                    
+                    #publish the encoded data to the nats server
                     self.logger.info(str(datetime.datetime.now()) + " In kafka_read: Publishing message: " + str(message))
                     await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
 
@@ -132,7 +144,9 @@ class StreetsNatsBridge():
             self.logger.error(str(datetime.datetime.now()) + " In kafka_read: Error reading kafka traffic")
         
 
-    #Connect to the NATS server with logging callbacks
+    #Attempt to connect to the NATS server with logging callbacks, The IP address and port of the
+    #NATS server are configurable items in the params.yaml. For a remote NATS server on the AWS EC2 instance,
+    #the public ipv4 address of the EC2 instance should be used.
     async def nats_connect(self):
         self.logger.info(str(datetime.datetime.now()) + " In nats_connect: Attempting to connect to nats server at: " + str(self.nats_ip) + ":" + str(self.nats_port))
 
@@ -155,43 +169,15 @@ class StreetsNatsBridge():
             self.logger.error(str(datetime.datetime.now()) + " In nats_connect: Error connecting to nats server")
         finally:
             self.logger.info(str(datetime.datetime.now()) + " In nats_connect: Connected to nats server")
-    
-    #Register this unit with the NATS server and wait for ack
-    async def register_unit(self):
-        
-        self.streets_info["TimeStamp"] = time.time_ns()
-        streets_info_message = json.dumps(self.streets_info).encode('utf8')
-
-        #while loop runs until this unit has been registered with the mysql database
-        while(not self.registered):
-            try:
-                self.logger.info(str(datetime.datetime.now()) + " In register_unit: Server connected: {0}".format(self.nc.is_connected))
-                if(self.nc.is_connected and not self.registered):
-                    #Send request to register node and wait for response back
-                    try:
-                        self.logger.info(str(datetime.datetime.now()) + " In register_unit: Attempting to register unit")
-                        response = await self.nc.request("register_node", streets_info_message, timeout=1)
-
-                        responseJson = json.loads(response.data.decode())
-                        if(responseJson['Status'] == 201):
-                            self.logger.info(str(datetime.datetime.now()) + " In register_unit: Successfully registered this unit")
-                        else:
-                            self.logger.info(str(datetime.datetime.now()) + " In register_unit: Did not successfully register this unit")
-                    finally:
-                        self.registered = True
-            except:
-                self.registered = False
-                self.logger.error(str(datetime.datetime.now()) + " In register_unit: Error registering unit, retrying..")
-                pass
-            await asyncio.sleep(self.async_sleep_rate)
-    
-    #Responds to request from server for available topics
+       
+    #Waits for request from telematic server to publish available topics. When a request has been received, it responds
+    #with all available carma-streets kafka topics.
     async def available_topics(self):
 
         #Send list of carma streets topics
         async def send_list_of_topics(msg):
             self.logger.info(str(datetime.datetime.now()) + "  In send_list_of_topics: Received a request for available topics")
-            self.streets_info["TimeStamp"] = time.time_ns()
+            self.streets_info["TimeStamp"] = time.time_ns() / 1000 #convert nanoseconds to microseconds
             self.streets_info["topics"] = [{"name": topicName} for topicName in self.streets_topics]            
             message = json.dumps(self.streets_info).encode('utf8')   
 
@@ -200,19 +186,20 @@ class StreetsNatsBridge():
             await self.nc.publish(msg.reply, message)
 
 
-        #If device is registered, wait for a request for available topics and call send_list_of_topics callback function
+        #Wait for a request for available topics and call send_list_of_topics callback function
         while(True):
-            if(self.registered):
-                try:
-                    sub = await self.nc.subscribe(self.streets_info["UnitId"] + ".available_topics", self.streets_info["UnitId"], send_list_of_topics)
-                except:
-                    self.logger.error(str(datetime.datetime.now()) + " In send_list_of_topics: ERROR sending list of available topics to nats server")
+            try:
+                sub = await self.nc.subscribe(self.streets_info["UnitId"] + ".available_topics", self.streets_info["UnitId"], send_list_of_topics)
+            except:
+                self.logger.error(str(datetime.datetime.now()) + " In send_list_of_topics: ERROR sending list of available topics to nats server")
             await asyncio.sleep(self.async_sleep_rate)
 
-    #Receives request from server to create subscriber to selected topics and publish data
+    #Waits for request from telematic server to create subscriber to selected topics and receive data. When a request
+    #has been received, the topic name is then added to the StreetsNatsBridge subscribers_list variable, which will
+    #trigger publishing of that data.
     async def publish_topics(self):
 
-        #Create a subscriber for every topic in request message
+        #Add to subscriber_list for every topic in request message
         async def topic_request(msg):
 
             #Alert the nats server that the request has been received and store the requested topics
@@ -227,13 +214,12 @@ class StreetsNatsBridge():
                 if topic['name'] not in self.subscribers_list:
                     self.subscribers_list.append(topic['name'])                   
             
-            self.logger.info(str(datetime.datetime.now()) + " In topic_request: NEW subscriber list: " + str(self.subscribers_list))
+            self.logger.info(str(datetime.datetime.now()) + " In topic_request: UPDATED subscriber list: " + str(self.subscribers_list))
             
-        #If device is registered, wait for request to publish specific topic and call topic_request callback function
+        #Wait for request to publish specific topic and call topic_request callback function
         while True:
-            if(self.registered):
-                try:
-                    sub = await self.nc.subscribe(self.streets_info["UnitId"] + ".publish_topics", "worker", topic_request)
-                except:
-                    self.logger.error(str(datetime.datetime.now()) + " In topic_request: Error publishing")
+            try:
+                sub = await self.nc.subscribe(self.streets_info["UnitId"] + ".publish_topics", "worker", topic_request)
+            except:
+                self.logger.error(str(datetime.datetime.now()) + " In topic_request: Error publishing")
             await asyncio.sleep(self.async_sleep_rate)    

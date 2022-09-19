@@ -17,12 +17,17 @@ from streets_nats_bridge import StreetsNatsBridge
 import sys
 import asyncio
 
-def main(args=None):           
+
+#This creates a carma streets to nats server bridge. It will initiate communication with the
+#carma-streets kafka broker and the telematic cloud nats server. Users can subscribe to carma streets 
+#topics from the telematics UI, which will be streamed to the nats server.
+def main(args=None):
+
     #Create StreetsNatsBridge object and asyncio loop
     streets_nats_bridge = StreetsNatsBridge()
     loop = asyncio.get_event_loop()
 
-    #Attempt to create a kafka consumer 
+    #Attempt to create a Kafka consumer and exit if not able to connect to the Kafka broker
     try:
         streets_nats_bridge.createKafkaConsumer()
     except:
@@ -33,11 +38,12 @@ def main(args=None):
     if streets_nats_bridge.getConsumerStatus():
         streets_nats_bridge.topic_subscribe()
 
-        #Create asyncio tasks for nats server operations
+        #Create individual asyncio tasks to connect to the NATS server, register the StreetsNatsBridge
+        #object, listen for requests for sending available topics/publishing specific topics, and publish
+        #carma streets data that has been subscribed to
         loop = asyncio.get_event_loop()
         tasks = [
             loop.create_task(streets_nats_bridge.nats_connect()),
-            loop.create_task(streets_nats_bridge.register_unit()),
             loop.create_task(streets_nats_bridge.available_topics()),
             loop.create_task(streets_nats_bridge.publish_topics()),
             loop.create_task(streets_nats_bridge.kafka_read())

@@ -9,8 +9,10 @@ RUN set -xe \
     python3-pip
     
 RUN pip install --upgrade pip nats-py
-RUN pip install kafka-python
-RUN pip install pyyaml
+
+COPY requirements.txt /tmp
+WORKDIR /tmp
+RUN pip install --upgrade -r requirements.txt
 
 WORKDIR /ws
 
