@@ -8,8 +8,6 @@ RUN set -xe \
     vim \
     python3-pip
     
-RUN pip install --upgrade pip nats-py
-
 COPY requirements.txt /tmp
 WORKDIR /tmp
 RUN pip install --upgrade -r requirements.txt
