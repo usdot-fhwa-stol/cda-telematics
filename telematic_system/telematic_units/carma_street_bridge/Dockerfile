@@ -18,4 +18,4 @@ ADD streets_nats_bridge src/streets_nats_bridge
 
 WORKDIR /ws/src/streets_nats_bridge/src
 
-CMD [ "python", "main.py" ]
+CMD [ "python", "-u", "main.py" ]

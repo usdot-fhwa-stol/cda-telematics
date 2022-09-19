@@ -35,7 +35,7 @@ class StreetsNatsBridge():
         self.registered = False #boolean to check if this module has been registered with NATS
         self.streets_topics = [] #list of available carma-streets topic
         self.subscribers_list = [] #list of topics the user has requested to publish
-        self.async_sleep_rate = 0.001 #asyncio sleep rate
+        self.async_sleep_rate = 0.0001 #asyncio sleep rate
         self.consumerCreated = False #boolean to check the status of Kafka consumer creation
 
         #Placeholder info for now
