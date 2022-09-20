@@ -35,7 +35,7 @@ def main(args=None):
         sys.exit(0)
 
     #If Kafka consumer was created, subscribe to all available carma-streets kafka topics
-    if streets_nats_bridge.getConsumerStatus():
+    if streets_nats_bridge.consumerCreated:
         streets_nats_bridge.topic_subscribe()
 
         #Create individual asyncio tasks to connect to the NATS server, register the StreetsNatsBridge

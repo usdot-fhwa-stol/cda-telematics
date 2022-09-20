@@ -1,0 +1,6 @@
+2022-09-20 17:22:30,132 - streets_nats_bridge - INFO -  Created Streets-NATS bridge object
+2022-09-20 17:22:30,239 - streets_nats_bridge - INFO -  In createKafkaConsumer: Successfully created Kafka consumer listening to Kafka broker at: localhost:9092
+2022-09-20 17:22:30,240 - streets_nats_bridge - INFO -  In topic_subscribe: Successfully subscribed to the following topics: ['v2xhub_bsm_in', 'v2xhub_map_msg_in', 'v2xhub_bsm_in_TEST', 'vehicle_status_intent_output', 'desire_phase_plan', 'modified_spat', 'v2xhub_mobility_path_in', 'v2xhub_scheduling_plan_sub', 'v2xhub_mobility_operation_in']
+2022-09-20 17:22:30,241 - streets_nats_bridge - INFO -  In nats_connect: Attempting to connect to nats server at: 192.168.1.169:4222
+2022-09-20 17:22:30,241 - streets_nats_bridge - INFO -  In kafka_read: Reading carma-streets kafka traffic
+2022-09-20 17:22:30,456 - streets_nats_bridge - INFO -  In nats_connect: Connected to nats server
