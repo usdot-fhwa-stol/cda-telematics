@@ -15,8 +15,5 @@ services:
           dockerfile: Dockerfile
     image: usdot-fhwa-stol/carma_street_bridge
     container_name: carma_street_bridge
-    network_mode: host
-    ports:
-          - "9092:9092"
     volumes:
            - ./logs:/var/logs
