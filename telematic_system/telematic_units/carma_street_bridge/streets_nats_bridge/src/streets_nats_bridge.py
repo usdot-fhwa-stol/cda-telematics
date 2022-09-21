@@ -1,5 +1,6 @@
+import sys
+from xmlrpc.client import SYSTEM_ERROR
 from nats.aio.client import Client as NATS
-from kafka import KafkaConsumer
 import json
 import asyncio
 import time
@@ -7,6 +8,7 @@ import logging
 import yaml
 import datetime
 from logging.handlers import RotatingFileHandler
+from aiokafka import AIOKafkaConsumer
 
 #The StreetsNatsBridge is capable of consuming Kafka topics from carma-streets and streaming
 #the data in real-time to a remote NATS server. Various asynchronous functions are defined to
@@ -30,8 +32,8 @@ class StreetsNatsBridge():
         self.log_name = config['streets_nats_bridge']['streets_parameters']['LOG_NAME']
         self.log_path = config['streets_nats_bridge']['streets_parameters']['LOG_PATH']
         self.log_rotation = int(config['streets_nats_bridge']['streets_parameters']['LOG_ROTATION_SIZE_BYTES'])
+        self.log_handler = config['streets_nats_bridge']['streets_parameters']['LOG_HANDLER']
         self.kafka_offset_reset = config['streets_nats_bridge']['streets_parameters']['KAFKA_CONSUMER_RESET']
-        self.kafka_group = config['streets_nats_bridge']['streets_parameters']['KAFKA_CONSUMER_GROUP']
 
         self.unit_name = "West Intersection"
         self.event_name = "UC3"
@@ -40,8 +42,7 @@ class StreetsNatsBridge():
         self.nc = NATS()
         self.streets_topics = [] #list of available carma-streets topic
         self.subscribers_list = [] #list of topics the user has requested to publish
-        self.async_sleep_rate = 0.0001 #asyncio sleep rate
-        self.consumerCreated = False #boolean to check the status of Kafka consumer creation
+        self.async_sleep_rate = 0.0001 #asyncio sleep rate 
 
         #Placeholder info for now
         self.streets_info = {
@@ -63,72 +64,75 @@ class StreetsNatsBridge():
         now = datetime.datetime.now()
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")
         log_name = self.log_name + dt_string + ".log"
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        self.console_handler = logging.StreamHandler()
+        self.console_handler.setFormatter(formatter)
 
         #Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the 
         #params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size
         self.file_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
-        
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         self.file_handler.setFormatter(formatter)
 
         if(self.log_level == "debug"):
             self.logger.setLevel(logging.DEBUG)
             self.file_handler.setLevel(logging.DEBUG)
+            self.console_handler.setLevel(logging.DEBUG)
         elif(self.log_level == "info"):
             self.logger.setLevel(logging.INFO)
             self.file_handler.setLevel(logging.INFO)
+            self.console_handler.setLevel(logging.INFO)
         elif(self.log_level == "error"):
             self.logger.setLevel(logging.ERROR)
             self.file_handler.setLevel(logging.ERROR)
+            self.console_handler.setLevel(logging.ERROR)
 
-        self.logger.addHandler(self.file_handler)
+        if self.log_handler=="console":
+            self.logger.addHandler(self.console_handler)
+        else:
+            self.logger.addHandler(self.file_handler)
 
-    #Create Kafka consumer object to read carma-streets kafka traffic
-    def createKafkaConsumer(self):
-        #auto_offset_reset handles where consumer restarts reading after breaking down or being turned off 
-        #("latest" --> start reading at the end of the log, "earliest" --> start reading at latest committed offset)
-        #group_id is the consumer group to which this belongs (consumer needs to be part of group to make auto commit work)
-        self.kafka_consumer = KafkaConsumer(
-            bootstrap_servers=[self.kafka_ip + ":" + self.kafka_port],
-            auto_offset_reset='earliest',
-            enable_auto_commit=True,
-            group_id='my-group',
-            value_deserializer=lambda x: json.loads(x.decode('utf-8')))
-        
-        self.consumerCreated = True 
-        self.logger.info(" In createKafkaConsumer: Successfully created Kafka consumer listening to Kafka broker at: " \
-        + str(self.kafka_ip) + ":" + str(self.kafka_port))  
-
-    #Populates list with all available carma streets topics
-    def list_topics(self):
-        topic_list = []
-        for topic in self.kafka_consumer.topics():
-            topic_list.append(topic)
-        
-        self.streets_topics = topic_list
-
-    #Subscribes to all carma streets topics
-    #Topic subscriptions are not incremental: this list will replace the current assignment (if there is one).
-    def topic_subscribe(self):
+    #Create Async Kafka consumer object to read carma-streets kafka traffic
+    async def RunAsyncKafkaConsumer(self):
         try:
-            self.list_topics()
+            self.logger.info(" In createAsyncKafkaConsumer: ")
+            #auto_offset_reset handles where consumer restarts reading after breaking down or being turned off 
+            #auto_offset_reset handles where consumer restarts reading after breaking down or being turned off 
+            #auto_offset_reset handles where consumer restarts reading after breaking down or being turned off 
+            #("latest" --> start reading at the end of the log, "earliest" --> start reading at latest committed offset)
+            #group_id is the consumer group to which this belongs (consumer needs to be part of group to make auto commit work)
+            self.kafka_consumer  = AIOKafkaConsumer(
+                bootstrap_servers=[self.kafka_ip+":"+self.kafka_port],
+                auto_offset_reset=self.kafka_offset_reset,
+                enable_auto_commit=True,
+                group_id=None,
+                value_deserializer=lambda x: json.loads(x.decode('utf-8')))
+
+            await self.kafka_consumer.start()
+
+            #Get all kafka topics and update the streets Kafka topic list
+            self.streets_topics = []
+            for topic in await self.kafka_consumer.topics():
+                self.streets_topics.append(topic)
+            self.logger.info(" In createAsyncKafkaConsumer: All topics = " + str(self.streets_topics))
+        
+            #Subscribe to streets Kafka topic list
             self.kafka_consumer.subscribe(topics=self.streets_topics)
-            #TODO need to figure out way to print out topics we failed to subscribe to
-            self.logger.info(" In topic_subscribe: Successfully subscribed to the following topics: " + str(self.streets_topics))
+            self.logger.info(" In createAsyncKafkaConsumer: Successfully subscribed to the following topics: " + str(self.streets_topics))
+
+            await self.kafka_read()
         except:
-            self.logger.error(" In topic_subscribe: Error subscribing to one of the available topics")
+            self.logger.error("No CARMA Streets Kafka broker available..exiting")
+            sys.exit(SYSTEM_ERROR)
 
     #Read the carma streets kafka data and publish to nats if the topic is in the subscribed list
     async def kafka_read(self):
         self.logger.info(" In kafka_read: Reading carma-streets kafka traffic")
-
         try:
-            for message in self.kafka_consumer:
-                topic = message.topic
-                # self.logger.info(" In kafka_read: Received message: " + str(message.value))
-
+            async for consumed_msg in self.kafka_consumer:
+                topic = consumed_msg.topic
+                #Publish customized message to correlating NATS topics when subscribe list is not empty
                 if topic in self.subscribers_list:
-                    message = message.value
+                    message = consumed_msg.value
                     #Add msg_type to json b/c worker looks for this field
                     message["unit_id"] = self.unit_id
                     message["unit_type"] = self.unit_type
@@ -159,10 +163,10 @@ class StreetsNatsBridge():
         self.logger.info(" In nats_connect: Attempting to connect to nats server at: " + str(self.nats_ip) + ":" + str(self.nats_port))
 
         async def disconnected_cb():
-            self.logger.error(" In nats_connect: Got disconnected from nats server...")
+            self.logger.info(" In nats_connect: Got disconnected from nats server...")
 
         async def reconnected_cb():
-            self.logger.error(" In nats_connect: Got reconnected from nats server...")
+            self.logger.info(" In nats_connect: Got reconnected from nats server...")
         
         async def error_cb(err):
             self.logger.error(" In nats_connect: Error with nats server: {0}".format(err))
@@ -181,26 +185,23 @@ class StreetsNatsBridge():
     #Waits for request from telematic server to publish available topics. When a request has been received, it responds
     #with all available carma-streets kafka topics.
     async def available_topics(self):
-
         #Send list of carma streets topics
         async def send_list_of_topics(msg):
-            self.logger.info("  In send_list_of_topics: Received a request for available topics")
-            self.streets_info["TimeStamp"] = time.time_ns() / 1000 #convert nanoseconds to microseconds
+            self.logger.info("In send_list_of_topics: Received a request for available topics")
+            self.streets_info["timestamp"] = time.time_ns() / 1000 #convert nanoseconds to microseconds
             self.streets_info["topics"] = [{"name": topicName} for topicName in self.streets_topics]            
             message = json.dumps(self.streets_info).encode('utf8')   
 
-            self.logger.info(" In send_list_of_topics: Sending available topics message to nats: " + str(message))                    
+            self.logger.info("In send_list_of_topics: Sending available topics message to nats: " + str(message))                    
             
             await self.nc.publish(msg.reply, message)
 
 
         #Wait for a request for available topics and call send_list_of_topics callback function
-        while(True):
-            try:
-                sub = await self.nc.subscribe(self.streets_info["unit_id"] + ".available_topics", self.streets_info["unit_id"], send_list_of_topics)
-            except:
-                self.logger.error(" In send_list_of_topics: ERROR sending list of available topics to nats server")
-            await asyncio.sleep(self.async_sleep_rate)
+        try:
+            await self.nc.subscribe(self.streets_info["unit_id"] + ".available_topics", self.streets_info["unit_id"], send_list_of_topics)
+        except:
+            self.logger.error(" In send_list_of_topics: ERROR sending list of available topics to nats server")
 
     #Waits for request from telematic server to create subscriber to selected topics and receive data. When a request
     #has been received, the topic name is then added to the StreetsNatsBridge subscribers_list variable, which will
@@ -225,9 +226,7 @@ class StreetsNatsBridge():
             self.logger.info(" In topic_request: UPDATED subscriber list: " + str(self.subscribers_list))
             
         #Wait for request to publish specific topic and call topic_request callback function
-        while True:
-            try:
-                sub = await self.nc.subscribe(self.streets_info["unit_id"] + ".publish_topics", "worker", topic_request)
-            except:
-                self.logger.error(" In topic_request: Error publishing")
-            await asyncio.sleep(self.async_sleep_rate)    
+        try:
+            await self.nc.subscribe(self.streets_info["unit_id"] + ".publish_topics", "worker", topic_request)
+        except:
+            self.logger.error(" In topic_request: Error publishing")
