@@ -1,7 +1,6 @@
 import sys
 from xmlrpc.client import SYSTEM_ERROR
 from nats.aio.client import Client as NATS
-from kafka import KafkaConsumer
 import json
 import asyncio
 import time
@@ -35,7 +34,6 @@ class StreetsNatsBridge():
         self.log_rotation = int(config['streets_nats_bridge']['streets_parameters']['LOG_ROTATION_SIZE_BYTES'])
         self.log_handler = config['streets_nats_bridge']['streets_parameters']['LOG_HANDLER']
         self.kafka_offset_reset = config['streets_nats_bridge']['streets_parameters']['KAFKA_CONSUMER_RESET']
-        self.kafka_group = config['streets_nats_bridge']['streets_parameters']['KAFKA_CONSUMER_GROUP']
 
         self.unit_name = "West Intersection"
         self.event_name = "UC3"
@@ -98,7 +96,7 @@ class StreetsNatsBridge():
         try:
             self.logger.info(" In createAsyncKafkaConsumer: ")
             #auto_offset_reset handles where consumer restarts reading after breaking down or being turned off 
-        #auto_offset_reset handles where consumer restarts reading after breaking down or being turned off 
+            #auto_offset_reset handles where consumer restarts reading after breaking down or being turned off 
             #auto_offset_reset handles where consumer restarts reading after breaking down or being turned off 
             #("latest" --> start reading at the end of the log, "earliest" --> start reading at latest committed offset)
             #group_id is the consumer group to which this belongs (consumer needs to be part of group to make auto commit work)

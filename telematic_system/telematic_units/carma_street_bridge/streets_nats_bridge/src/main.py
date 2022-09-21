@@ -14,7 +14,6 @@
 # the License.
 #
 from streets_nats_bridge import StreetsNatsBridge
-import sys
 import asyncio
 
 
