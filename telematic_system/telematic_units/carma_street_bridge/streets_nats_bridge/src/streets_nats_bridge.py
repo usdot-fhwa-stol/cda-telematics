@@ -177,10 +177,11 @@ class StreetsNatsBridge():
             reconnected_cb=reconnected_cb,
             disconnected_cb=disconnected_cb,
             max_reconnect_attempts=1)
+            self.logger.info(" In nats_connect: Connected to nats server!")
         except:
             self.logger.error(" In nats_connect: Error connecting to nats server")
         finally:
-            self.logger.info(" In nats_connect: Connected to nats server")
+            self.logger.info(" In nats_connect: Done nats connection call.")
        
     #Waits for request from telematic server to publish available topics. When a request has been received, it responds
     #with all available carma-streets kafka topics.
