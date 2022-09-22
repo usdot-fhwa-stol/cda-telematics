@@ -40,12 +40,12 @@ class Ros2NatsBridgeNode(Node):
         self.declare_parameter("TESTING_TYPE", "Integration", ParameterDescriptor(description='This parameter is for the type of testing (Integration, verification, valication.)'))
 
         self.vehicle_info = {
-            "UnitId": self.get_parameter("UNIT_ID").get_parameter_value().string_value,
-            "UnitType": self.get_parameter("UNIT_TYPE").get_parameter_value().string_value,
-            "UnitName": self.get_parameter("UNIT_NAME").get_parameter_value().string_value,
-            "EventName": self.get_parameter("EVENT_NAME").get_parameter_value().string_value,
-            "Location": self.get_parameter("LOCATION").get_parameter_value().string_value,
-            "TestingType": self.get_parameter("TESTING_TYPE").get_parameter_value().string_value}
+            "unit_id": self.get_parameter("UNIT_ID").get_parameter_value().string_value,
+            "unit_type": self.get_parameter("UNIT_TYPE").get_parameter_value().string_value,
+            "unit_name": self.get_parameter("UNIT_NAME").get_parameter_value().string_value,
+            "event_name": self.get_parameter("EVENT_NAME").get_parameter_value().string_value,
+            "location": self.get_parameter("LOCATION").get_parameter_value().string_value,
+            "testing_type": self.get_parameter("TESTING_TYPE").get_parameter_value().string_value}
         
         self.nats_ip_port = self.get_parameter("NATS_SERVER_IP_PORT").get_parameter_value().string_value
         timer_period = 0.5  # seconds
@@ -94,7 +94,7 @@ class Ros2NatsBridgeNode(Node):
             message = json.dumps(self.vehicle_info).encode('utf8')                        
             await self.nc.publish(msg.reply, message)
         try:
-            await self.nc.subscribe(self.vehicle_info["UnitId"] + ".available_topics", self.vehicle_info["UnitId"], send_list_of_topics)
+            await self.nc.subscribe(self.vehicle_info["unit_id"] + ".available_topics", self.vehicle_info["unit_id"], send_list_of_topics)
         finally:
             self.get_logger().debug("available_topics")
 
@@ -122,7 +122,7 @@ class Ros2NatsBridgeNode(Node):
                 if(topic not in self.subsribers_list):
                     msg_type = msg_type.split('/')
                     exec("from " + msg_type[0] + '.' + msg_type[1] + " import " + msg_type[2])
-                    call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info["UnitId"], self.vehicle_info["UnitType"], self.vehicle_info["UnitName"], self.vehicle_info["EventName"], self.vehicle_info["Location"], self.vehicle_info["TestingType"])
+                    call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info["unit_id"], self.vehicle_info["unit_type"], self.vehicle_info["unit_name"], self.vehicle_info["event_name"], self.vehicle_info["location"], self.vehicle_info["testing_type"])
                     try:
                         self.subsribers_list[topic] = self.create_subscription(eval(msg_type[2]), topic, call_back.listener_callback, 10)
                     except:
@@ -131,7 +131,7 @@ class Ros2NatsBridgeNode(Node):
                         self.get_logger().warn(f"Create a callback for '{topic} with type {msg_type}'.")
        
         try:
-            await self.nc.subscribe(self.vehicle_info["UnitId"] + ".publish_topics", "worker", topic_request)
+            await self.nc.subscribe(self.vehicle_info["unit_id"] + ".publish_topics", "worker", topic_request)
         finally:
             self.get_logger().debug("Waiting for available_topics")
     
@@ -169,7 +169,7 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg["testing_type"] = self.testing_type
             ordereddict_msg["msg_type"] = self.msg_type
             ordereddict_msg["topic_name"] = self.origin_topic_name
-            ordereddict_msg["timestamp"] = self.get_clock().now().nanoseconds
+            ordereddict_msg["timestamp"] = self.get_clock().now().nanoseconds/1000
             json_message = json.dumps(ordereddict_msg).encode('utf8')
 
             await self.nc.publish(self.topic_name, json_message)
