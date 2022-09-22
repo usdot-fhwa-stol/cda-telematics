@@ -44,3 +44,24 @@ docker-compose down
 
 ## Open a browser to view influxDB UI
 http://<amazone ec2 instance url>:8086/orgs/04cb75631ee68b28
+
+## Test telematic cloud server apis with CURL commands
+- Check API service health status
+```
+    curl -X GET-v http://localhost:8080/healthz
+```
+
+- Check worker health status
+```
+    curl -X GET-v http://localhost:8181/healthz
+```
+
+- Get all available topics
+```
+    curl -X GET-v http://localhost:8080/requestAvailableTopics?unit_id=<unit_id>
+```
+
+- Request data for a list of selected topics
+```
+	curl -d '{"unit_id": "streets_id", "unit_type": "streets", "timestamp": 1663084528513000325, "topics": [{"name": "v2xhub_bsm_in"},{"name":"v2xhub_mobility_path_in"}]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/publishSelectedTopics
+```

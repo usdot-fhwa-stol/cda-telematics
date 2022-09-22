@@ -132,7 +132,8 @@ class StreetsNatsBridge():
                 topic = consumed_msg.topic
                 #Publish customized message to correlating NATS topics when subscribe list is not empty
                 if topic in self.subscribers_list:
-                    message = consumed_msg.value
+                    message={}
+                    message["payload"] = consumed_msg.value
                     #Add msg_type to json b/c worker looks for this field
                     message["unit_id"] = self.unit_id
                     message["unit_type"] = self.unit_type
