@@ -29,7 +29,6 @@ class Ros2NatsBridgeNode(Node):
     def __init__(self):
         super().__init__('ros2_nats_bridge')
         self.nc = NATS()
-        self.registered = False
         self.subsribers_list = {}
 
         self.declare_parameter("NATS_SERVER_IP_PORT", "nats://0.0.0.0:4222", ParameterDescriptor(description='This parameter sets the ip address and port for nats server.'))
@@ -49,8 +48,6 @@ class Ros2NatsBridgeNode(Node):
             "TestingType": self.get_parameter("TESTING_TYPE").get_parameter_value().string_value}
         
         self.nats_ip_port = self.get_parameter("NATS_SERVER_IP_PORT").get_parameter_value().string_value
-        self.async_sleep_rate = 0.0001
-
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0
@@ -67,7 +64,6 @@ class Ros2NatsBridgeNode(Node):
         """
 
         async def disconnected_cb():
-            self.registered = False
             self.get_logger().warn("Got disconnected...")
 
         async def reconnected_cb():
@@ -85,30 +81,6 @@ class Ros2NatsBridgeNode(Node):
         finally:
             self.get_logger().warn("Client is connected To Server.")
 
-    async def register_unit(self):
-        """
-            send request to server to register unit and waits for ack 
-        """
-
-        self.vehicle_info["TimeStamp"] = self.get_clock().now().nanoseconds
-        vehicle_info_message = json.dumps(self.vehicle_info).encode('utf8')
-
-        while(True):
-            try:
-                self.get_logger().debug("Server status {0}".format(self.nc.is_connected))
-                if(self.nc.is_connected and not self.registered):
-                    self.get_logger().debug("Registering unit ... ")
-                    try:
-                        response = await self.nc.request("register_node", vehicle_info_message, timeout=1)
-                        self.get_logger().warn("Registering unit received response: {message}".format(message=response.data.decode()))
-                    finally:
-                        self.registered = True
-            except:
-                self.registered = False
-                pass
-
-            await asyncio.sleep(self.async_sleep_rate)
-
     async def available_topics(self):
         """
             receives request from server and responds with available topics
@@ -119,19 +91,12 @@ class Ros2NatsBridgeNode(Node):
 
             self.vehicle_info["timestamp"] = self.get_clock().now().nanoseconds
             self.vehicle_info["topics"] = [{"name": name, "type": types[0]}  for name, types in self.get_topic_names_and_types()]
-
-            message = json.dumps(self.vehicle_info).encode('utf8')
-                        
+            message = json.dumps(self.vehicle_info).encode('utf8')                        
             await self.nc.publish(msg.reply, message)
-
-        while True:
-            if(self.registered):
-                try:
-                    sub = await self.nc.subscribe(self.vehicle_info["UnitId"] + ".available_topics", self.vehicle_info["UnitId"], send_list_of_topics)
-                finally:
-                    self.get_logger().debug("available_topics")
-
-            await asyncio.sleep(self.async_sleep_rate)
+        try:
+            await self.nc.subscribe(self.vehicle_info["UnitId"] + ".available_topics", self.vehicle_info["UnitId"], send_list_of_topics)
+        finally:
+            self.get_logger().debug("available_topics")
 
     async def publish_topics(self):
         """
@@ -164,15 +129,12 @@ class Ros2NatsBridgeNode(Node):
                         self.get_logger().error("got error")
                     finally:
                         self.get_logger().warn(f"Create a callback for '{topic} with type {msg_type}'.")
-        while True:
-            if(self.registered):
-                self.get_logger().debug("Waiting for server to select topics ...")
-                try:
-                    sub = await self.nc.subscribe(self.vehicle_info["UnitId"] + ".publish_topics", "worker", topic_request)
-                finally:
-                    self.get_logger().debug("Waiting for available_topics")
-            await asyncio.sleep(self.async_sleep_rate)
-
+       
+        try:
+            await self.nc.subscribe(self.vehicle_info["UnitId"] + ".publish_topics", "worker", topic_request)
+        finally:
+            self.get_logger().debug("Waiting for available_topics")
+    
     class CallBack(): 
         def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name, event_name, location, testing_type):
             """
@@ -197,7 +159,8 @@ class Ros2NatsBridgeNode(Node):
                 listener callback function to publish message to nats server
                 convert message to json format
             """
-            ordereddict_msg = rosidl_runtime_py.convert.message_to_ordereddict(msg)
+            ordereddict_msg ={}
+            ordereddict_msg["payload"] = rosidl_runtime_py.convert.message_to_ordereddict(msg)
             ordereddict_msg["unit_id"] = self.unit_id
             ordereddict_msg["unit_type"] = self.unit_type
             ordereddict_msg["unit_name"] = self.unit_name
