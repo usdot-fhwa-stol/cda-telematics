@@ -33,6 +33,6 @@
 	```
 2. request to publish the specific topics:
 	```
-	nats request "streets_id.publish_topics" '{"unit_id": "streets_id", "UnitType": "streets", "TimeStamp": 1663084528513000325, "topics": [{"name": "v2xhub_bsm_in"}]}' --raw
+	nats request "streets_id.publish_topics" '{"unit_id": "streets_id", "unit_type": "streets", "timestamp": 1663084528513000325, "topics": [{"name": "v2xhub_bsm_in"}]}' --raw
 	```
 
