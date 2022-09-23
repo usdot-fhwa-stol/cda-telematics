@@ -222,8 +222,8 @@ class StreetsNatsBridge():
 
             #Add requested topics to subscriber list if not already there
             for topic in requested_topics:
-                if topic['name'] not in self.subscribers_list:
-                    self.subscribers_list.append(topic['name'])                   
+                if topic not in self.subscribers_list:
+                    self.subscribers_list.append(topic)                   
             
             self.logger.info(" In topic_request: UPDATED subscriber list: " + str(self.subscribers_list))
             
