@@ -15,6 +15,7 @@
 #
 
 import asyncio
+from datetime import datetime
 import json
 
 from rclpy.node import Node
@@ -63,6 +64,7 @@ class Ros2NatsBridgeNode(Node):
             connect to nats server on EC2 
         """
 
+        self.get_logger().info("nats_connect called")
         async def disconnected_cb():
             self.get_logger().warn("Got disconnected...")
 
@@ -78,14 +80,14 @@ class Ros2NatsBridgeNode(Node):
                             disconnected_cb=disconnected_cb,
                             error_cb=error_cb,
                             max_reconnect_attempts=-1)
+            self.get_logger().info("Connected to NATS Server!")
         finally:
-            self.get_logger().warn("Client is connected To Server.")
+            self.get_logger().warn("Client is trying to connect to NATS Server Done.")
 
     async def available_topics(self):
         """
             receives request from server and responds with available topics
         """
-
         async def send_list_of_topics(msg):
             self.get_logger().warn(f"Received a message on '{msg.subject} {msg.reply}': {msg.data.decode()}")
 
@@ -93,8 +95,12 @@ class Ros2NatsBridgeNode(Node):
             self.vehicle_info["topics"] = [{"name": name, "type": types[0]}  for name, types in self.get_topic_names_and_types()]
             message = json.dumps(self.vehicle_info).encode('utf8')                        
             await self.nc.publish(msg.reply, message)
-        try:
+
+        try:      
+            self.get_logger().error("Awaiting for available_topics")     
             await self.nc.subscribe(self.vehicle_info["unit_id"] + ".available_topics", self.vehicle_info["unit_id"], send_list_of_topics)
+        except:
+            self.get_logger().error("Error for available_topics")
         finally:
             self.get_logger().debug("available_topics")
 
@@ -102,7 +108,6 @@ class Ros2NatsBridgeNode(Node):
         """
             receives request from server to create subscirber to selected topics and publish data
         """
-
         async def topic_request(msg):
             """
                 process request message
@@ -131,9 +136,12 @@ class Ros2NatsBridgeNode(Node):
                         self.get_logger().warn(f"Create a callback for '{topic} with type {msg_type}'.")
        
         try:
-            await self.nc.subscribe(self.vehicle_info["unit_id"] + ".publish_topics", "worker", topic_request)
+            self.get_logger().debug("Awaiting for publish_topics") 
+            await self.nc.subscribe(self.vehicle_info["unit_id"] + ".publish_topics", "worker", topic_request)    
+        except:
+            self.get_logger().error("Error for publish_topics")      
         finally:
-            self.get_logger().debug("Waiting for available_topics")
+            self.get_logger().debug("publish_topics")
     
     class CallBack(): 
         def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name, event_name, location, testing_type):
@@ -169,7 +177,6 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg["testing_type"] = self.testing_type
             ordereddict_msg["msg_type"] = self.msg_type
             ordereddict_msg["topic_name"] = self.origin_topic_name
-            ordereddict_msg["timestamp"] = self.get_clock().now().nanoseconds/1000
+            ordereddict_msg["timestamp"] = datetime.utcnow().timestamp()*1000000 #nanoseconds
             json_message = json.dumps(ordereddict_msg).encode('utf8')
-
             await self.nc.publish(self.topic_name, json_message)

@@ -115,7 +115,7 @@ func write2influxDB(line string) {
 	influxdb_uri := os.Getenv("INFLUXDB_URI")
 	influxdb_bucket := os.Getenv("INFLUXDB_BUCKET")
 	influxdb_org := os.Getenv("INFLUXDB_ORG")
-	client := influxdb2.NewClientWithOptions(influxdb_uri, influxdb_token, influxdb2.DefaultOptions().SetPrecision(time.Microsecond))
+	client := influxdb2.NewClientWithOptions(influxdb_uri, influxdb_token, influxdb2.DefaultOptions())
 	writeAPI := client.WriteAPIBlocking(influxdb_org, influxdb_bucket)
 	writeAPI.WriteRecord(context.Background(), line)
 	writeAPI.Flush(context.Background())
