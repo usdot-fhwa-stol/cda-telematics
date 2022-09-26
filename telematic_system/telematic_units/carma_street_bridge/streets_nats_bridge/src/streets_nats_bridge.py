@@ -39,10 +39,10 @@ class StreetsNatsBridge():
         self.log_handler = config['streets_nats_bridge']['streets_parameters']['LOG_HANDLER']
         self.kafka_offset_reset = config['streets_nats_bridge']['streets_parameters']['KAFKA_CONSUMER_RESET']
 
-        self.unit_name = "LOCAL"
+        self.unit_name = "West Intersection"
         self.event_name = "UC3"
         self.location = "TFHRC"
-        self.testing_type = "local_integration"
+        self.testing_type = "Integration"
         self.nc = NATS()
         self.streets_topics = []  # list of available carma-streets topic
         self.subscribers_list = []  # list of topics the user has requested to publish
