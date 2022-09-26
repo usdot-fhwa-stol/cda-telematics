@@ -100,7 +100,7 @@ class StreetsNatsBridge():
     async def run_async_kafka_consumer(self):
         """Create Async Kafka consumer object to read carma-streets kafka traffic"""
         try:
-            self.logger.info(" In createAsyncKafkaConsumer: ")
+            self.logger.info(" In run_async_kafka_consumer: ")
             # auto_offset_reset handles where consumer restarts reading after breaking down or being turned off
             # auto_offset_reset handles where consumer restarts reading after breaking down or being turned off
             # auto_offset_reset handles where consumer restarts reading after breaking down or being turned off
