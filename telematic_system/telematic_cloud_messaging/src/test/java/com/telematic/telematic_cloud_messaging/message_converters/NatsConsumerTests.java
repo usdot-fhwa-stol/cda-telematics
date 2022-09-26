@@ -8,14 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-public class NatsInfluxPushTests {
+public class NatsConsumerTests {
     @Autowired
-    NatsInfluxPush helper;
+    NatsConsumer helper;
 
     @Test
-    public void flattenJson() {        
+    public void natsConnectTest() {        
         try {
-            helper.nats_connect();
+            // helper.nats_connect();
             assertTrue(helper.nats_connected == true);
         } catch (Exception e) {
             e.printStackTrace();
