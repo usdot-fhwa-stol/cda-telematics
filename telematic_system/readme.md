@@ -63,5 +63,5 @@ http://<amazone ec2 instance url>:8086/orgs/04cb75631ee68b28
 
 - Request data for a list of selected topics
 ```
-	curl -d '{"unit_id": "streets_id", "unit_type": "streets", "timestamp": 1663084528513000325, "topics": [{"name": "v2xhub_bsm_in"},{"name":"v2xhub_mobility_path_in"}]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/publishSelectedTopics
+	curl -d '{"unit_id": "<unit_id>", "unit_type": "<unit_type>", "timestamp": 1663084528513000325, "topics": ["<topic_name_1>","<topic_name_2>"]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/publishSelectedTopics
 ```
