@@ -1,0 +1,5 @@
+pip
+nats-py
+kafka-python
+pyyaml
+aiokafka
