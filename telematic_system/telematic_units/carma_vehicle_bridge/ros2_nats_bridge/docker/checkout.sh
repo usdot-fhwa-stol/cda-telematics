@@ -66,14 +66,13 @@ sudo git clone https://github.com/astuff/automotive_autonomy_msgs.git automotive
 cd automotive_autonomy_msgs 
 sudo git reset --hard 191dce1827023bef6d69b31e8c2514cf82bf10c5
 cd ..
-
+#sudo apt purge -y ros-foxy-autoware-auto-msgs
 sudo apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-udp-msgs \
                    ros-foxy-rosapi-msgs \
                    ros-foxy-rosbridge-msgs \
                    ros-foxy-automotive-platform-msgs \
-                   ros-foxy-gps-msgs \
-                   ros-foxy-autoware-auto-msgs
+                   ros-foxy-gps-msgs 
 
 sudo apt install apt-transport-https
 sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-public.list'
