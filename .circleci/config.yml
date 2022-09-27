@@ -55,7 +55,7 @@ jobs:
           name: Pull Deps
           command: |
             source ${INIT_ENV}
-            ./src/cda-telematics/telematic_system/telematic_units/ros2_nats_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}
+            ./src/cda-telematics/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}
       - run:
           name: Build Driver
           command: |
@@ -71,7 +71,7 @@ jobs:
      - run: 
         name: Docker Build
         command: |
-         docker build -t usdotfhwastoldev/cda-telematics:latest -f telematic_system/telematic_units/ros2_nats_bridge/Dockerfile .         
+         docker build -t usdotfhwastoldev/cda-telematics:latest -f telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile .         
     
      - run: 
         name: Docker Push
