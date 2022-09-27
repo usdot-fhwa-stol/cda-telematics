@@ -6,6 +6,9 @@ import java.io.*;
 import java.util.Properties;
 import java.nio.charset.StandardCharsets;
 import org.springframework.boot.CommandLineRunner;
+import com.telematic.telematic_cloud_messaging.nats_influx_connection.InfluxPublisher;
+import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
+import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
 
 @Component
 public class NatsConsumer implements CommandLineRunner {
@@ -36,14 +39,19 @@ public class NatsConsumer implements CommandLineRunner {
      */
     public static void main(String[] args) {
         NatsConsumer natsObject = new NatsConsumer();
+        InfluxPublisher influxPublisher = new InfluxPublisher();
+        JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
+        JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
 
         natsObject.getConfigValues();
         natsObject.nats_connect(natsObject.getNatsURI());
-        natsObject.async_subscribe();
-        System.out.println("Waiting for messages now..");
 
+        influxPublisher.influx_connect();
+        natsObject.async_subscribe(influxPublisher, jsonFlattener, keyValueConverter);
+        System.out.println("Waiting for messages now..");
     }
 
+   
     /**
      * @return nats_uri ip address of nats server
      */
@@ -94,10 +102,12 @@ public class NatsConsumer implements CommandLineRunner {
     /**
      * Create an asynchronous subsciption to available topics
      */
-    public void async_subscribe() {
+    public void async_subscribe(InfluxPublisher influxPublisher, JSONFlattenerHelper jsonFlattener, JSON2KeyValuePairsConverter keyValueConverter) {
         Dispatcher d = nc.createDispatcher((msg) -> {
             String str = new String(msg.getData(), StandardCharsets.UTF_8);
-            System.out.println("Received: " + str + " on subject: " + msg.getSubject());
+            // System.out.println("Received: " + str + " on subject: " + msg.getSubject());
+
+            influxPublisher.publish(str, jsonFlattener, keyValueConverter);
         });  
 
         try {
