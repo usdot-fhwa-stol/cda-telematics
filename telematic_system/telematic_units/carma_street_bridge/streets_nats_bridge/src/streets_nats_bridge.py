@@ -211,7 +211,7 @@ class StreetsNatsBridge():
             self.logger.info(
                 "In send_list_of_topics: Received a request for available topics")
             # convert nanoseconds to microseconds
-            self.streets_info["timestamp"] = time.time_ns() / 1000
+            self.streets_info["timestamp"] = datetime.datetime.utcnow().timestamp()*1000000 #utc timestamp in microseconds
             self.streets_info["topics"] = [
                 {"name": topicName} for topicName in self.streets_topics]
             message = json.dumps(self.streets_info).encode('utf8')

@@ -14,6 +14,23 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
+/*Global variables declaration*/
+var (
+	influxdb_token  string
+	influxdb_uri    string
+	influxdb_bucket string
+	influxdb_org    string
+	nats_uri        string
+)
+
+func init() {
+	influxdb_token = os.Getenv("INFLUXDB_TOKEN")
+	influxdb_uri = os.Getenv("INFLUXDB_URI")
+	influxdb_bucket = os.Getenv("INFLUXDB_BUCKET")
+	influxdb_org = os.Getenv("INFLUXDB_ORG")
+	nats_uri = os.Getenv("NATS_URI")
+}
+
 func healthz(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintln(w, "OK")
 }
@@ -103,22 +120,22 @@ func transform_data2line(data map[string]interface{}) string {
 	// Add actual payload to line
 	line += fmt.Sprintf(" %s", concatenated)
 
-	// Add timestamp to line
-	// t := time.UnixMicro(int64(timestamp))
-	// line += fmt.Sprintf(" %d", t.UTC().UnixMicro())
+	// Add timestamp (unit of microseconds from telematic units) to line
+	t := int64(timestamp)
+	cur_timestamp := time.Now().UTC().UnixMicro()
+	fmt.Printf("current timestamp = %d, msg timestamp = %d . TAKES = %d\n", cur_timestamp, t, cur_timestamp-t)
+	line += fmt.Sprintf(" %d", t)
 	return line
 }
 
-// Use write client for writing data into desired bucket
+/* Use write client for writing data into desired bucket*/
 func write2influxDB(line string) {
-	influxdb_token := os.Getenv("INFLUXDB_TOKEN")
-	influxdb_uri := os.Getenv("INFLUXDB_URI")
-	influxdb_bucket := os.Getenv("INFLUXDB_BUCKET")
-	influxdb_org := os.Getenv("INFLUXDB_ORG")
 	client := influxdb2.NewClientWithOptions(influxdb_uri, influxdb_token, influxdb2.DefaultOptions().SetPrecision(time.Microsecond))
 	writeAPI := client.WriteAPIBlocking(influxdb_org, influxdb_bucket)
-	writeAPI.WriteRecord(context.Background(), line)
-	writeAPI.Flush(context.Background())
+	err := writeAPI.WriteRecord(context.Background(), line)
+	if err != nil {
+		panic(err)
+	}
 	client.Close()
 	fmt.Printf("%s\n", "Write to influxDB.")
 }
@@ -144,7 +161,6 @@ func stream_data(nc *nats.Conn) {
 
 func main() {
 	// connecting to NATS server
-	nats_uri := os.Getenv("NATS_URI")
 	var nats_err error
 	var nc *nats.Conn
 
