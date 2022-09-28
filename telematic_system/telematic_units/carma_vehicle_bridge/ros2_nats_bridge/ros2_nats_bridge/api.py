@@ -15,7 +15,7 @@
 #
 
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 import json
 
 from rclpy.node import Node
@@ -177,6 +177,6 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg["testing_type"] = self.testing_type
             ordereddict_msg["msg_type"] = self.msg_type
             ordereddict_msg["topic_name"] = self.origin_topic_name
-            ordereddict_msg["timestamp"] = datetime.utcnow().timestamp()*1000000 #microseconds
+            ordereddict_msg["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000 #microseconds
             json_message = json.dumps(ordereddict_msg).encode('utf8')
             await self.nc.publish(self.topic_name, json_message)

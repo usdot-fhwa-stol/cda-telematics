@@ -3,7 +3,7 @@ from xmlrpc.client import SYSTEM_ERROR
 from nats.aio.client import Client as NATS
 import json
 import asyncio
-import time
+from datetime  import timezone
 import logging
 import yaml
 import datetime
@@ -152,7 +152,7 @@ class StreetsNatsBridge():
                     message["testing_type"] = self.testing_type
                     message["msg_type"] = topic
                     message["topic_name"] = topic
-                    message["timestamp"] = datetime.datetime.utcnow().timestamp()*1000000 #utc timestamp in microseconds
+                    message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000 #utc timestamp in microseconds
 
                     # telematic cloud server will look for topic names with the pattern ".data."
                     self.topic_name = self.unit_id + ".data." + topic
@@ -211,7 +211,7 @@ class StreetsNatsBridge():
             self.logger.info(
                 "In send_list_of_topics: Received a request for available topics")
             # convert nanoseconds to microseconds
-            self.streets_info["timestamp"] = datetime.datetime.utcnow().timestamp()*1000000 #utc timestamp in microseconds
+            self.streets_info["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000 #utc timestamp in microseconds
             self.streets_info["topics"] = [
                 {"name": topicName} for topicName in self.streets_topics]
             message = json.dumps(self.streets_info).encode('utf8')
