@@ -66,7 +66,7 @@ sudo git clone https://github.com/astuff/automotive_autonomy_msgs.git automotive
 cd automotive_autonomy_msgs 
 sudo git reset --hard 191dce1827023bef6d69b31e8c2514cf82bf10c5
 cd ..
-#sudo apt purge -y ros-foxy-autoware-auto-msgs
+sudo apt purge -y ros-foxy-autoware-auto-msgs
 sudo apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-udp-msgs \
                    ros-foxy-rosapi-msgs \
@@ -81,6 +81,7 @@ sudo apt update
 sudo apt install -y ros-foxy-pacmod3-msgs ros-foxy-pcl-msgs
 
 sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
+chmod +x autoware.ai
 cd autoware.ai
 sed -i.bak '/find_package(ros_environment REQUIRED)/d' messages/*/CMakeLists.txt
 sed -i.bak '/find_package(ros_environment REQUIRED)/d' jsk_common_msgs/*/CMakeLists.txt
