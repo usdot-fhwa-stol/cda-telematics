@@ -18,12 +18,12 @@
 
 1. request all available topics from carma streets: 
 	```
-	curl -X GET-v http://localhost:8080/requestAvailableTopics?unit_id=<unit_id>
+	curl -X GET-v http://localhost:8080/requestAvailableTopics?unit_id=streets_id
 	```
 
 2. request to publish the specified topics: 
 	```
-	curl -d '{"unit_id": "streets_id", "UnitType": "streets", "TimeStamp": 1663084528513000325, "topics": ["v2xhub_scheduling_plan_sub","v2xhub_bsm_in"]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/publishSelectedTopics
+	curl -d '{"unit_id": "streets_id", "unit_type": "streets", "timestamp": 1663084528513000325, "topics": ["v2xhub_scheduling_plan_sub","v2xhub_bsm_in"]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/publishSelectedTopics
 	```
 
 ### Nats CLI for testing
