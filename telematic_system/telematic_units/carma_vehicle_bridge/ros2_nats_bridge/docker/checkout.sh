@@ -79,8 +79,8 @@ sudo apt install -y ros-foxy-pacmod3-msgs ros-foxy-pcl-msgs
 
 sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
 cd autoware.ai
-rm -rf lanelet2/lanelet2_examples/
-rm -rf lanelet2/lanelet2_python/
+sudo rm -rf lanelet2/lanelet2_examples/
+sudo rm -rf lanelet2/lanelet2_python/
 sudo sed -i.bak '/find_package(ros_environment REQUIRED)/d' messages/*/CMakeLists.txt
 sudo sed -i.bak '/find_package(ros_environment REQUIRED)/d' jsk_common_msgs/*/CMakeLists.txt
 
