@@ -86,6 +86,6 @@ sudo mv jsk_common_msgs ../carma-msgs/jsk_common_msgs
 sudo mv jsk_recognition ../carma-msgs/jsk_recognition
 sudo mv messages ../carma-msgs/messages
 
-cd ..
-sudo rm -rf autoware.ai
+#cd ..
+#sudo rm -rf autoware.ai
 
