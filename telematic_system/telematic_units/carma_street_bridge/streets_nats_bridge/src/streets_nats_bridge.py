@@ -3,10 +3,9 @@ from xmlrpc.client import SYSTEM_ERROR
 from nats.aio.client import Client as NATS
 import json
 import asyncio
-from datetime  import timezone
+from datetime import datetime, timezone
 import logging
 import yaml
-import datetime
 from logging.handlers import RotatingFileHandler
 from aiokafka import AIOKafkaConsumer
 
@@ -65,7 +64,7 @@ class StreetsNatsBridge():
         """Creates log file for the StreetsNatsBridge with configuration items based on the settings input in the params.yaml file"""
         # create log file and set log levels
         self.logger = logging.getLogger(self.log_name)
-        now = datetime.datetime.now()
+        now = datetime.now()
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")
         log_name = self.log_name + dt_string + ".log"
         formatter = logging.Formatter(
