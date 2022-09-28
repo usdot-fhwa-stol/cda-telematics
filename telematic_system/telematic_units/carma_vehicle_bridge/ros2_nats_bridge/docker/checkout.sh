@@ -72,7 +72,8 @@ sudo apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-rosapi-msgs \
                    ros-foxy-rosbridge-msgs \
                    ros-foxy-automotive-platform-msgs \
-                   ros-foxy-gps-msgs 
+                   ros-foxy-gps-msgs \
+                   ros-foxy-autoware-auto-msgs
 
 sudo apt install apt-transport-https
 sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-public.list'
@@ -90,3 +91,4 @@ mv messages ../carma-msgs/messages
 
 cd ..
 rm -rf autoware.ai
+

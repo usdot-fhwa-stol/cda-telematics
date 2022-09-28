@@ -33,7 +33,7 @@ jobs:
           TERM: xterm
           INIT_ENV: /home/carma/.base-image/init-env.sh
           ROS_2_ENV: /opt/ros/foxy/setup.bash
-    resource_class: large 
+    resource_class: large
     # Set working directory
     working_directory: "/opt/carma/"
     # Pull code and execute tests |
@@ -51,10 +51,11 @@ jobs:
             mkdir cda-telematics
       - checkout:
           path: src/cda-telematics
-      - run: 
+      - run:
           name: Pull Deps
           command: |
             source ${INIT_ENV}
+            source ${ROS_2_ENV}
             ./src/cda-telematics/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}
       - run:
           name: Build Driver
@@ -65,21 +66,19 @@ jobs:
   docker_build_push_cda-telematics :
    machine:
     image: ubuntu-2004:202201-02
-   resource_class: large 
+   resource_class: large
    steps:
-     - checkout      
-     - run: 
+     - checkout
+     - run:
         name: Docker Build
         command: |
-         docker build -t usdotfhwastoldev/cda-telematics:latest -f telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile .         
-    
-     - run: 
+         docker build -t usdotfhwastoldev/cda-telematics:latest -f telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile .
+     - run:
         name: Docker Push
         # Push Cda- telematics docker image to usdotfhwastoldev dockerhub
-        command: | 
+        command: |
          echo "$DOCKERHUB_PASSWORD" | docker login --username $DOCKERHUB_USERNAME --password-stdin
-         docker push usdotfhwastoldev/cda-telematics:latest     
-     
+         docker push usdotfhwastoldev/cda-telematics:latest
 workflows:
   version: 2
   build:
