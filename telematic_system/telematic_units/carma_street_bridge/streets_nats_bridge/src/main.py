@@ -30,7 +30,7 @@ def main():
     #object, listen for requests for sending available topics/publishing specific topics, and publish
     #carma streets data that has been subscribed to
     tasks = [
-        loop.create_task(streets_nats_bridge.RunAsyncKafkaConsumer()),# Kafka consumer was created, subscribe to all available carma-streets kafka topics, and wait to read data from kafka topics
+        loop.create_task(streets_nats_bridge.run_async_kafka_consumer()),# Kafka consumer was created, subscribe to all available carma-streets kafka topics, and wait to read data from kafka topics
         loop.create_task(streets_nats_bridge.nats_connect()),
         loop.create_task(streets_nats_bridge.available_topics()),
         loop.create_task(streets_nats_bridge.publish_topics())

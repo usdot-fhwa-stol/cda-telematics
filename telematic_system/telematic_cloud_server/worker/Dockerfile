@@ -15,4 +15,4 @@ RUN go get -d -v ./...
 
 RUN go build -o ./worker worker.go
 
-EXPOSE 8080
+EXPOSE 8181

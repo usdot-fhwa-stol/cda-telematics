@@ -16,10 +16,6 @@ services:
       - nats
     environment:
       - "NATS_URI=nats://nats:4222"
-      - "MYSQL_USER=*****"
-      - "MYSQL_PASSWORD=*****"
-      - "MYSQL_DATABASE=wfd"
-      - "MYSQL_URI=*****"
     depends_on:
       - nats
     ports:
@@ -33,10 +29,10 @@ services:
       - nats
     environment:
       - "NATS_URI=nats://nats:4222"
-      - "MYSQL_USER=*****""
-      - "MYSQL_PASSWORD=*****""
-      - "MYSQL_DATABASE=wfd"
-      - "MYSQL_URI=*****"
+      - "INFLUXDB_TOKEN=*****" #Replace with correct token
+      - "INFLUXDB_URI=http://<influxdb_host_ip>:8086"
+      - "INFLUXDB_ORG=my-org"
+      - "INFLUXDB_BUCKET=platform-dev"
     depends_on:
       - nats
     ports:
