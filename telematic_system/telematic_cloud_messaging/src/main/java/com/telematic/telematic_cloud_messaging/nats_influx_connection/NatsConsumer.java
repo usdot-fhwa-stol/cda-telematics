@@ -10,9 +10,15 @@ import com.telematic.telematic_cloud_messaging.nats_influx_connection.InfluxPubl
 import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
 import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
 
+/**
+ * The NatsConsumer object creates a connection to the telematic nats server and subscribes to 
+ * all available subjects. It instantiates an InfluxPublisher object that is used to publish the
+ * received data to the Influx database.
+ */
 @Component
 public class NatsConsumer implements CommandLineRunner {
     private String nats_uri;
+    int nats_max_reconnects;
     String nats_subscribe_str;
     boolean nats_connected;
     Connection nc;
@@ -21,6 +27,8 @@ public class NatsConsumer implements CommandLineRunner {
      * Constructor to instantiate NatsConsumer object
      */
     public NatsConsumer() {
+        System.out.println("Creating new NatsConsumer");
+
         nats_connected = false;
         nc = null;
     }
@@ -40,18 +48,30 @@ public class NatsConsumer implements CommandLineRunner {
     public static void main(String[] args) {
         NatsConsumer natsObject = new NatsConsumer();
         InfluxPublisher influxPublisher = new InfluxPublisher();
+
         JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
         JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
 
         natsObject.getConfigValues();
         natsObject.nats_connect(natsObject.getNatsURI());
 
-        influxPublisher.influx_connect();
-        natsObject.async_subscribe(influxPublisher, jsonFlattener, keyValueConverter);
-        System.out.println("Waiting for messages now..");
+        //If we successfully connect to the nats server, then subscribe to data and publish
+        if (natsObject.getNatsConnected())
+        {
+            influxPublisher.influx_connect();
+            natsObject.async_subscribe(influxPublisher, jsonFlattener, keyValueConverter);
+            System.out.println("Waiting for data from nats..");
+        }
+       
     }
 
-   
+    /**
+     * @return nats_uri ip address of nats server
+     */
+    public boolean getNatsConnected() {
+        return nats_connected;
+    }
+
     /**
      * @return nats_uri ip address of nats server
      */
@@ -72,6 +92,8 @@ public class NatsConsumer implements CommandLineRunner {
 
             nats_uri = prop.getProperty("NATS_URI");
             nats_subscribe_str = prop.getProperty("NATS_SUBJECT_SUBSCRIBE");
+            nats_max_reconnects = Integer.parseInt(prop.getProperty("NATS_MAX_RECONNECTS"));
+
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -80,13 +102,13 @@ public class NatsConsumer implements CommandLineRunner {
     }
     
     /**
+     * Attempt to connect to the nats server using the uri from the config.properties file
      * @param uri The uri of the nats server to connect to
-     * @return The nats connection object
      */
     public void nats_connect(String uri) {    
         String connection_string = "";
         try {
-            Options options = new Options.Builder().server(nats_uri).maxReconnects(5).build();
+            Options options = new Options.Builder().server(nats_uri).maxReconnects(nats_max_reconnects).build();
             nc = Nats.connect(options);
             connection_string = "Successfully connected to nats server";
             System.out.println(connection_string);
@@ -100,17 +122,18 @@ public class NatsConsumer implements CommandLineRunner {
     }
    
     /**
-     * Create an asynchronous subsciption to available topics
+     * Create an asynchronous subsciption to available subjects and publish to influxdb using the InfluxPublisher
      */
     public void async_subscribe(InfluxPublisher influxPublisher, JSONFlattenerHelper jsonFlattener, JSON2KeyValuePairsConverter keyValueConverter) {
+        //Create dispatcher object that will be used to call InfluxPublisher publish method everytime a 
+        //message has been received
         Dispatcher d = nc.createDispatcher((msg) -> {
             String str = new String(msg.getData(), StandardCharsets.UTF_8);
-            // System.out.println("Received: " + str + " on subject: " + msg.getSubject());
-
             influxPublisher.publish(str, jsonFlattener, keyValueConverter);
         });  
 
         try {
+            //subscribe to all avaialable subjects on nats server
             d.subscribe(nats_subscribe_str); //subject example: "streets_id.data.v2xhub_scheduling_plan_sub"
             System.out.println("Successfully subscribed to nats server data");
 

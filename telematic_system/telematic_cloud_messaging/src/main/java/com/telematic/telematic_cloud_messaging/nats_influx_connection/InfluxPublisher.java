@@ -10,6 +10,10 @@ import com.influxdb.client.domain.Authorization;
 import com.influxdb.client.domain.WritePrecision;
 import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
 import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
+// import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+// import org.json.simple.parser.ParseException;
+import org.json.*;  
 
 public class InfluxPublisher {
     private String influx_uri;
@@ -25,7 +29,6 @@ public class InfluxPublisher {
     InfluxDBClientOptions adminClientOptions;
     WriteApi writeApi;
 
-
     /**
      * Constructor to instantiate InfluxPublisher object
      */
@@ -38,14 +41,6 @@ public class InfluxPublisher {
         System.out.println("Attempting to connect to InfluxDb at " + influx_uri);
         System.out.println("InfluxDb bucket name: " + influx_bucket);
         System.out.println("InfluxDb org name: " + influx_org);     
-    }
-
-
-    /**
-     * @return influx_uri ip address of influx server
-     */
-    public String getinfluxURI() {
-        return influx_uri;
     }
 
     /**
@@ -75,45 +70,71 @@ public class InfluxPublisher {
     }       
     
     /**
-     * The uri of the influx server to connect to
+     * Create an influxdb client using the configuration parameters in the config.properties and enable
+     * asynchronous writing to the database.
      */
     public void influx_connect() {  
         System.out.println("Attempting to create influxdb client");
   
-        adminClientOptions = InfluxDBClientOptions.builder()
-                .url(influx_uri)
-                .org(influx_org)
-                .authenticate(influx_username, influx_pwd.toCharArray())
-                .bucket(influx_bucket)
-                .build();
+        // adminClientOptions = InfluxDBClientOptions.builder()
+        //         .url(influx_uri)
+        //         .org(influx_org)
+        //         .authenticate(influx_username, influx_pwd.toCharArray())
+        //         .bucket(influx_bucket)
+        //         .build();
 
         try {
             // influxDBClient = InfluxDBClientFactory.create(adminClientOptions);
             
             influxDBClient = InfluxDBClientFactory.create(influx_uri, influx_token.toCharArray(), influx_org, influx_bucket);
-
             System.out.println("Successfully created influxdb client");
         }
         catch (Exception e) {
             e.printStackTrace();
         }
 
-        writeApi = influxDBClient.getWriteApi();
+        //Create a new asynchronous non-blocking Write client.
+        writeApi = influxDBClient.makeWriteApi();
     }       
 
+    /**
+     * @param publishData The data to publish to influxdb
+     * @param flattener JsonFlattenerHelper object used to flatten the publishData string
+     * @param keyValueConverter JSON2KeyValuePairsConverter object used to properly form key value pairs before writing
+     */
     public void publish(String publishData, JSONFlattenerHelper flattener, JSON2KeyValuePairsConverter keyValueConverter) {
 
-        String flattenedJson = flattener.flattenJsonStr(publishData);
-        String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedJson);
-
-        System.out.println("Writing record to influx: " + keyValuePairs);
+        //receive from nats server in format below:
+        //{'payload': {'metadata': {'timestamp': 1664295886951, 'intersection_type': 'Carma/stop_controlled_intersection'}, 'payload': []}, 
+        //'unit_id': 'streets_id', 'unit_type': 'infrastructure', 'unit_name': 'West Intersection', 'event_name': 'UC3', 'location': 'TFHRC', 
+        //'testing_type': 'Integration', 'msg_type': 'v2xhub_scheduling_plan_sub', 'topic_name': 'v2xhub_scheduling_plan_sub', 
+        //'timestamp': 1664389254620257.0}
 
         try {
-            writeApi.writeRecord(WritePrecision.US, keyValuePairs);
+            JSONObject publishDataJson = new JSONObject(publishData);
+            JSONObject payloadJson = publishDataJson.getJSONObject("payload");
+           
+            String flattenedPayloadJson = flattener.flattenJsonStr(payloadJson.toString());
+            String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
+
+            String unit_id = publishDataJson.getString("unit_id");
+            String unit_type = publishDataJson.getString("unit_type");
+            String event_name = publishDataJson.getString("event_name");
+            String location = publishDataJson.getString("location");
+            String testing_type = publishDataJson.getString("testing_type");
+            String topic_name = publishDataJson.getString("topic_name");
+            String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
+
+            String record = event_name + "," + "unit_id=" + unit_id + "," + "unit_type=" + unit_type + "," + "location=" + location
+            + "," + "testing_type=" + testing_type + "," + "topic_name=" + topic_name + " " + keyValuePairs + " " + timestamp;
+            
+            System.out.println("Sendind to influxdb: " + record);
+            writeApi.writeRecord(WritePrecision.US, record);
+
         }
         catch (Exception e) {
             e.printStackTrace();
-        }
+        }       
     }
             
 }
