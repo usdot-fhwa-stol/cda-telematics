@@ -10,8 +10,8 @@ import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerH
 import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
 
 /**
- * The NatsConsumer object creates a connection to the telematic nats server and subscribes to 
- * all available subjects. It instantiates an InfluxPublisher object that is used to publish the
+ * The NatsInfluxPush object instantiates a NatsConsumer that creates a connection to the telematic nats server 
+ * and subscribes to all available subjects. It also instantiates an InfluxPublisher object that is used to publish the
  * received data to the Influx database.
  */
 @Component
@@ -28,7 +28,7 @@ public class NatsInfluxPush implements CommandLineRunner {
     static String nats_subscribe_str;
 
     /**
-     * Constructor to instantiate NatsConsumer object
+     * Constructor to instantiate NatsInfluxPush object
      */
     public NatsInfluxPush() {
         System.out.println("Creating new NatsInfluxPush");
@@ -72,7 +72,7 @@ public class NatsInfluxPush implements CommandLineRunner {
     }
 
     /**
-     * Main method that connects to the nats server and creates an asynchronous subscription to all available subjects
+     * Main method that instantiates the NatsConsumer and InfluxPublisher.
      */
     public static void main(String[] args) {
         getConfigValues();
@@ -86,7 +86,7 @@ public class NatsInfluxPush implements CommandLineRunner {
 
         natsObject.nats_connect(natsObject.getNatsURI());
 
-        //If we successfully connect to the nats server, then subscribe to data and publish
+        //If we successfully connect to the nats server, then subscribe to data and publish to influxdb
         if (natsObject.getNatsConnected())
         {
             influxPublisher.influx_connect();

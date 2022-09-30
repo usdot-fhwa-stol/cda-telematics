@@ -10,7 +10,6 @@ import com.influxdb.client.domain.Authorization;
 import com.influxdb.client.domain.WritePrecision;
 import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
 import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
-<<<<<<< HEAD
 import org.json.simple.parser.JSONParser;
 import org.json.*;  
 
@@ -27,21 +26,6 @@ public class InfluxPublisher {
     String influx_token;
     String influx_username;
     String influx_pwd;
-=======
-// import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-// import org.json.simple.parser.ParseException;
-import org.json.*;  
-
-public class InfluxPublisher {
-    private String influx_uri;
-    private String influx_bucket;
-    private String influx_org;
-    private String influx_org_id;
-    private String influx_token;
-    private String influx_username;
-    private String influx_pwd;
->>>>>>> 223d470e9a171d1869bdf65a1f71c47955ef235d
 
     boolean influx_connected;
     InfluxDBClient influxDBClient;
@@ -51,7 +35,6 @@ public class InfluxPublisher {
     /**
      * Constructor to instantiate InfluxPublisher object
      */
-<<<<<<< HEAD
     public InfluxPublisher(String influx_uri, String influx_username, String influx_pwd, String influx_bucket,
         String influx_org, String influx_org_id, String influx_token) {
         System.out.println("Creating new InfluxPublisher");
@@ -70,44 +53,6 @@ public class InfluxPublisher {
         System.out.println("InfluxDb bucket name: " + influx_bucket);
         System.out.println("InfluxDb org name: " + influx_org);     
     }   
-=======
-    public InfluxPublisher() {
-        System.out.println("Creating new InfluxPublisher");
-
-        influx_connected = false;
-
-        getConfigValues();
-        System.out.println("Attempting to connect to InfluxDb at " + influx_uri);
-        System.out.println("InfluxDb bucket name: " + influx_bucket);
-        System.out.println("InfluxDb org name: " + influx_org);     
-    }
-
-    /**
-     * Load required configuration values from config.properties file    
-     */
-    private void getConfigValues() {
-        try {
-            String configFilePath = "src/main/java/com/telematic/telematic_cloud_messaging/nats_influx_connection/config.properties";
-
-            FileInputStream propsInput = new FileInputStream(configFilePath);
-            Properties prop = new Properties();
-            prop.load(propsInput);
-
-            influx_uri = "http://" + prop.getProperty("INFLUX_URI") + ":" + prop.getProperty("INFLUX_PORT");
-            influx_username = prop.getProperty("INFLUX_USERNAME");
-            influx_pwd = prop.getProperty("INFLUX_PWD");
-            influx_bucket = prop.getProperty("INFLUX_BUCKET");
-            influx_org = prop.getProperty("INFLUX_ORG");
-            influx_org_id = prop.getProperty("INFLUX_ORG_ID");
-            influx_token = prop.getProperty("INFLUX_TOKEN");
-
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }       
->>>>>>> 223d470e9a171d1869bdf65a1f71c47955ef235d
     
     /**
      * Create an influxdb client using the configuration parameters in the config.properties and enable
@@ -115,22 +60,8 @@ public class InfluxPublisher {
      */
     public void influx_connect() {  
         System.out.println("Attempting to create influxdb client");
-<<<<<<< HEAD
 
         try {            
-=======
-  
-        // adminClientOptions = InfluxDBClientOptions.builder()
-        //         .url(influx_uri)
-        //         .org(influx_org)
-        //         .authenticate(influx_username, influx_pwd.toCharArray())
-        //         .bucket(influx_bucket)
-        //         .build();
-
-        try {
-            // influxDBClient = InfluxDBClientFactory.create(adminClientOptions);
-            
->>>>>>> 223d470e9a171d1869bdf65a1f71c47955ef235d
             influxDBClient = InfluxDBClientFactory.create(influx_uri, influx_token.toCharArray(), influx_org, influx_bucket);
             System.out.println("Successfully created influxdb client");
         }
