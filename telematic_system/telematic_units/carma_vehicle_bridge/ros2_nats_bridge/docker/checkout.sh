@@ -44,14 +44,14 @@ if [[ "$BRANCH" = "develop" ]]; then
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch  $BRANCH
       git clone --depth=1 https://github.com/usdot-fhwa-stol/novatel_gps_driver.git --branch $BRANCH
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-ssc-interface-wrapper.git --branch $BRANCH
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch $BRANCH
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.ai.git --branch $BRANCH
+      #git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch $BRANCH
+      #git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.ai.git --branch $BRANCH
 else
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch develop
       git clone --depth=1 https://github.com/usdot-fhwa-stol/novatel_gps_driver.git --branch develop
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-ssc-interface-wrapper.git --branch develop
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch develop
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.ai.git --branch carma-develop
+      #git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch develop
+      #git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.ai.git --branch carma-develop
 fi 
 
 rm -rf carma-ssc-interface-wrapper/ssc_interface_wrapper_ros2 carma-ssc-interface-wrapper/ssc_interface_wrapper
@@ -79,10 +79,10 @@ sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo
 sudo apt update
 sudo apt install -y ros-foxy-pacmod3-msgs ros-foxy-pcl-msgs
 
-#sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
+sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
 cd autoware.ai
-sudo rm -rf lanelet2/lanelet2_examples/
-sudo rm -rf lanelet2/lanelet2_python/
+#sudo rm -rf lanelet2/lanelet2_examples/
+#sudo rm -rf lanelet2/lanelet2_python/
 sudo sed -i.bak '/find_package(ros_environment REQUIRED)/d' messages/*/CMakeLists.txt
 sudo sed -i.bak '/find_package(ros_environment REQUIRED)/d' jsk_common_msgs/*/CMakeLists.txt
 
