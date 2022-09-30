@@ -51,7 +51,7 @@ else
       git clone --depth=1 https://github.com/usdot-fhwa-stol/novatel_gps_driver.git --branch develop
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-ssc-interface-wrapper.git --branch develop
       git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.auto.git --branch develop
-      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.ai.git --branch develop
+      git clone --depth=1 https://github.com/usdot-fhwa-stol/autoware.ai.git --branch carma-develop
 fi 
 
 rm -rf carma-ssc-interface-wrapper/ssc_interface_wrapper_ros2 carma-ssc-interface-wrapper/ssc_interface_wrapper
