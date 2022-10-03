@@ -20,6 +20,7 @@ public class NatsConsumer {
     int nats_max_reconnects;
     String nats_subscribe_str;
     boolean nats_connected;
+    boolean nats_subscribed;
     Connection nc;
 
     /**
@@ -33,11 +34,20 @@ public class NatsConsumer {
         this.nats_max_reconnects = nats_max_reconnects;
 
         nats_connected = false;
+        nats_subscribed = false;
+
         nc = null;
     }
 
     /**
-     * @return nats_uri ip address of nats server
+     * @return true if NatsConsumer is subscribed to subjects on nats server
+     */
+    public boolean getNatsSubscribed() {
+        return nats_subscribed;
+    }
+
+    /**
+     * @return true if NatsConsumer is connected to nats server
      */
     public boolean getNatsConnected() {
         return nats_connected;
@@ -54,19 +64,17 @@ public class NatsConsumer {
      * Attempt to connect to the nats server using the uri from the config.properties file
      * @param uri The uri of the nats server to connect to
      */
-    public void nats_connect(String uri) {    
+    public void nats_connect() {    
         String connection_string = "";
         try {
-            Options options = new Options.Builder().server(uri).maxReconnects(nats_max_reconnects).build();
+            Options options = new Options.Builder().server(nats_uri).maxReconnects(nats_max_reconnects).build();
             nc = Nats.connect(options);
-            connection_string = "Successfully connected to nats server";
-            System.out.println(connection_string);
+            System.out.println("Successfully connected to nats server");
 
             nats_connected = true;
         }
         catch (Exception e) {
-            connection_string = "Connection exception: " + e;
-            System.out.println(connection_string);
+            System.out.println("Could not connect to nats server: " + e);
         }
     }
    
@@ -85,7 +93,7 @@ public class NatsConsumer {
             //subscribe to all available subjects on nats server
             d.subscribe(nats_subscribe_str); //subject example: "streets_id.data.v2xhub_scheduling_plan_sub"
             System.out.println("Successfully subscribed to nats server data");
-
+            nats_subscribed = true;
         }
         catch (Exception e) {
             System.out.println("Could not subscribe to nats server data");

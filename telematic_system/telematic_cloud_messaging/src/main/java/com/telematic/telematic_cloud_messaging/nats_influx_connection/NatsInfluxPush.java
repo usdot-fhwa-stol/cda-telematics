@@ -84,12 +84,12 @@ public class NatsInfluxPush implements CommandLineRunner {
         JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
         JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
 
-        natsObject.nats_connect(natsObject.getNatsURI());
+        natsObject.nats_connect();
+        influxPublisher.influx_connect();
 
-        //If we successfully connect to the nats server, then subscribe to data and publish to influxdb
-        if (natsObject.getNatsConnected())
+        //If we successfully connect to the nats server and InfluxDb, then subscribe to data and publish
+        if (natsObject.getNatsConnected() & influxPublisher.getInfluxConnected())
         {
-            influxPublisher.influx_connect();
             natsObject.async_subscribe(influxPublisher, jsonFlattener, keyValueConverter);
             System.out.println("Waiting for data from nats..");
         }
