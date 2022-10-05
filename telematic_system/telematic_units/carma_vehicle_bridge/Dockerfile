@@ -15,8 +15,6 @@ FROM base AS dep
 
 WORKDIR /ws
 
-RUN ls -a
-#RUN cd ws && ls -a && pwd && ros2_nats_bridge/docker/checkout.sh
 COPY telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/docker/checkout.sh src/ros2_nats_bridge/docker/checkout.sh
 RUN sudo src/ros2_nats_bridge/docker/checkout.sh
 
