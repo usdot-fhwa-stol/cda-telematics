@@ -4,7 +4,7 @@ services:
     build:
           context: ./carma_vehicle_bridge
           dockerfile: Dockerfile
-    image: danducar/carma_vehicle_bridge
+    image: usdot-fhwa-stol/carma_vehicle_bridge
     volumes:
       - ./cyclone_config.xml:/ws/cyclone_config.xml
     environment:
