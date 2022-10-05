@@ -4,7 +4,11 @@ services:
     build:
           context: ./carma_vehicle_bridge
           dockerfile: Dockerfile
-    image: usdot-fhwa-stol/carma_vehicle_bridge
+    image: danducar/carma_vehicle_bridge
+    volumes:
+      - ./cyclone_config.xml:/ws/cyclone_config.xml
+    environment:
+      - CYCLONEDDS_URI=/ws/cyclone_config.xml
     container_name: carma_vehicle_bridge
     network_mode: host
     entrypoint: /ws/ros_entrypoint.sh
