@@ -24,7 +24,6 @@ RUN src/ros2_nats_bridge/docker/install.sh
 FROM base AS install
 
 WORKDIR /ws
-
 COPY --from=dep /ws/build /ws/build
 COPY --from=dep /ws/install /ws/install
 

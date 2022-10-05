@@ -1,8 +1,9 @@
-version: "3.3"
+version: "3.4"
 services:
   ros2-nats-bridge:
     build:
           context: ./carma_vehicle_bridge
+          network: host
           dockerfile: Dockerfile
     image: usdot-fhwa-stol/carma_vehicle_bridge
     container_name: carma_vehicle_bridge

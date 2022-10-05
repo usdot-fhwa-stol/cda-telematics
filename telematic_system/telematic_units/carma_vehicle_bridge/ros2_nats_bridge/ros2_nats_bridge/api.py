@@ -30,6 +30,7 @@ class Ros2NatsBridgeNode(Node):
     def __init__(self):
         super().__init__('ros2_nats_bridge')
         self.nc = NATS()
+        self.registered = False
         self.subsribers_list = {}
 
         self.declare_parameter("NATS_SERVER_IP_PORT", "nats://0.0.0.0:4222", ParameterDescriptor(description='This parameter sets the ip address and port for nats server.'))
@@ -46,18 +47,19 @@ class Ros2NatsBridgeNode(Node):
             "unit_name": self.get_parameter("UNIT_NAME").get_parameter_value().string_value,
             "event_name": self.get_parameter("EVENT_NAME").get_parameter_value().string_value,
             "location": self.get_parameter("LOCATION").get_parameter_value().string_value,
-            "testing_type": self.get_parameter("TESTING_TYPE").get_parameter_value().string_value}
+            "testing_type": self.get_parameter("TESTING_TYPE").get_parameter_value().string_value,
+            "timestamp": ""}
         
         self.nats_ip_port = self.get_parameter("NATS_SERVER_IP_PORT").get_parameter_value().string_value
         timer_period = 0.5  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.i = 0
+        # self.timer = self.create_timer(timer_period, self.timer_callback)
+        # self.i = 0
 
-    def timer_callback(self):
-        msg = String()
-        msg.data = 'heartbeat: %d' % self.i
-        self.get_logger().info('"%s"' % msg.data)
-        self.i += 1
+    # def timer_callback(self):
+    #     msg = String()
+    #     msg.data = 'heartbeat: %d' % self.i
+    #     # self.get_logger().debug('"%s"' % msg.data)
+    #     self.i += 1
 
     async def nats_connect(self):
         """
@@ -66,6 +68,7 @@ class Ros2NatsBridgeNode(Node):
 
         self.get_logger().info("nats_connect called")
         async def disconnected_cb():
+            self.registered = False
             self.get_logger().warn("Got disconnected...")
 
         async def reconnected_cb():
@@ -84,6 +87,31 @@ class Ros2NatsBridgeNode(Node):
         finally:
             self.get_logger().warn("Client is trying to connect to NATS Server Done.")
 
+    async def register_unit(self):
+        """
+            send request to server to register unit and waits for ack 
+        """
+        self.get_logger().info("Entering register unit")
+        self.vehicle_info["timestamp"] = str(self.get_clock().now().nanoseconds)
+        vehicle_info_message = json.dumps(self.vehicle_info ,ensure_ascii=False).encode('utf8')
+
+        
+        try:
+            
+            self.get_logger().info("Server status {0}".format(self.nc.is_connected))
+            
+            self.get_logger().info("Registering unit ... ")
+            response = await self.nc.request("register_node", vehicle_info_message, timeout=1)
+            self.get_logger().warn("Registering unit received response: {message}".format(message=response.data.decode()))
+            
+            self.registered = True
+        except:
+            self.get_logger().warn("Registering unit failed")
+            self.registered = False
+            pass
+            
+
+
     async def available_topics(self):
         """
             receives request from server and responds with available topics
@@ -91,11 +119,11 @@ class Ros2NatsBridgeNode(Node):
         async def send_list_of_topics(msg):
             self.get_logger().warn(f"Received a message on '{msg.subject} {msg.reply}': {msg.data.decode()}")
 
-            self.vehicle_info["timestamp"] = self.get_clock().now().nanoseconds
+            self.vehicle_info["timestamp"] = str(self.get_clock().now().nanoseconds)
             self.vehicle_info["topics"] = [{"name": name, "type": types[0]}  for name, types in self.get_topic_names_and_types()]
             message = json.dumps(self.vehicle_info).encode('utf8')                        
             await self.nc.publish(msg.reply, message)
-
+        
         try:      
             self.get_logger().error("Awaiting for available_topics")     
             await self.nc.subscribe(self.vehicle_info["unit_id"] + ".available_topics", self.vehicle_info["unit_id"], send_list_of_topics)
