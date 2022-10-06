@@ -68,6 +68,12 @@
 			<version>20070405</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-java</artifactId>
+			<version>6.6.0</version>
+		</dependency>
+
 
 	</dependencies>
 
@@ -92,7 +98,7 @@
 				<artifactId>exec-maven-plugin</artifactId>
 				<version>1.2.1</version>
 				<configuration>                 
-					<mainClass>com.telematic.api.API</mainClass>
+					<mainClass>com.telematic.telematic_server_api.API</mainClass>
 				</configuration>
 			</plugin>
 
@@ -101,9 +107,28 @@
 				<artifactId>exec-maven-plugin-2</artifactId>
 				<version>1.2.1</version>
 				<configuration>                 
-					<mainClass>com.telematic.api.API_Exception</mainClass>
+					<mainClass>com.telematic.telematic_server_api.API_Exception</mainClass>
 				</configuration>
 			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin-3</artifactId>
+				<version>1.2.1</version>
+				<configuration>                 
+					<mainClass>com.telematic.telematic_cloud_messaging.telematic_server_worker.Worker</mainClass>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin-4</artifactId>
+				<version>1.2.1</version>
+				<configuration>                 
+					<mainClass>com.telematic.telematic_cloud_messaging.telematic_server_worker.Worker_Exception</mainClass>
+				</configuration>
+			</plugin>
+
 		</plugins>
 	</build>
 

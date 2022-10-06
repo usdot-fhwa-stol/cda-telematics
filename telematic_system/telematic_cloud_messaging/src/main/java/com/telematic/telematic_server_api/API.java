@@ -1,4 +1,4 @@
-package com.telematic.api;
+package com.telematic.telematic_server_api;
 
 import java.util.*;
 import io.nats.client.*;
@@ -26,8 +26,8 @@ import org.json.simple.parser.ParseException;
 
 import java.util.Timer.*;
 
-import com.telematic.api.*;
 import com.telematic.telematic_cloud_messaging.message_converters.*;
+import com.telematic.telematic_server_api.*;
 
 // @Service
 public class API {
@@ -61,7 +61,7 @@ public class API {
         
         try{
             config.load(io);
-            this.uri = config.getProperty("URI");
+            this.uri = config.getProperty("nats_uri");
             this.event_name = config.getProperty("Event_Name");
             this.location = config.getProperty("Location");
             this.testing_type = config.getProperty("Testing_Type");
@@ -436,8 +436,8 @@ public class API {
             api_server = new API();
             Options options = createOptions(api_server.uri);
             nc = Nats.connect(options);
+            
             // nats register unit 
-            // Dispatcher processes on separate thread
             Dispatcher register_sub_ = nc.createDispatcher(msg-> {
                     api_server.register_unit(new String(msg.getData(), StandardCharsets.UTF_8));
                     JSONObject json_str = new JSONObject();
@@ -456,10 +456,10 @@ public class API {
             http.start();
 
             // Create status check timer task to update registered units
-            TimerTask check_status_task = new checkStatus(api_server.registered_units_, nc);
-            Timer timer = new Timer();
-            // Schedule task to repeat every 5s
-            timer.schedule(check_status_task,0, 5000);
+            // TimerTask check_status_task = new checkStatus(api_server.registered_units_, nc);
+            // Timer timer = new Timer();
+            // // Schedule task to repeat every 5s
+            // timer.schedule(check_status_task,0, 5000);
         
         }
         catch(Exception exe)
