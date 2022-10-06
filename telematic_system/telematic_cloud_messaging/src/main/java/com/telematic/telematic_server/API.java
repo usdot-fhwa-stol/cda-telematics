@@ -20,9 +20,6 @@ import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
 import com.sun.net.httpserver.HttpServer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -172,7 +169,12 @@ public class API {
             if(!registered_units.isEmpty()){
                 registered_units_ = new Vector<>(registered_units);
             }
-            // Create registered_node
+            Node node = new Node();
+            node.unit_id = "vehicle";
+            node.unit_type = "pacifica";
+            node.timestamp = 127810218291f;
+
+            registered_units_.add(node);
 
         }
         /**
@@ -181,18 +183,19 @@ public class API {
         */
         @Override
         public void handle(HttpExchange httpExchange) throws IOException{
-            
+            logger.debug("Entering get Registered Units");
             // write the registered units
-            ObjectMapper mapper = new ObjectMapper();
-            String response = "";
-            for(int i  = 0; i < registered_units_.size(); ++i){
-                response += mapper.writeValueAsString(registered_units_.get(i));
-                response +=";";
+            JSONObject response = new JSONObject();
+            for(Node unit: registered_units_){
+                response.put("unit_id",unit.unit_id);
+                response.put("unit_type",unit.unit_type);
+                response.put("timestamp",unit.timestamp);
+
             }
             
-            httpExchange.sendResponseHeaders(200, response.length());
+            httpExchange.sendResponseHeaders(200, response.toString().length());
             OutputStream os = httpExchange.getResponseBody();
-            os.write(response.getBytes());
+            os.write(response.toString().getBytes());
             os.close();
 
         }
@@ -270,9 +273,10 @@ public class API {
 
     }
 
-    private static Node register_unit(String nats_msg){
+    private void register_unit(String nats_msg){
+        
         Node unit_to_register = new Node();
-        logger.debug("Incoming message: " + nats_msg);
+        logger.debug("Incoming Register message: " + nats_msg);
         // Convert json string to key-value pair
         JSONParser parser = new JSONParser();
         try{
@@ -280,26 +284,18 @@ public class API {
             logger.debug("Parsed message");
             for (Object key : json.keySet()) {
                 Object value = json.get(key.toString());
-                
-                logger.debug("Got Key:"+ key.toString());
-                logger.debug("Val: "+  value.toString());
 
-                if (value == null) {
-                    continue;
-                }
                 if(key.toString().equals("unit_id")){
                     unit_to_register.unit_id = value.toString();
                 }
                 else if(key.toString().equals("unit_type")){
                     unit_to_register.unit_type = value.toString();
-                    break;
                 }
                 else if(key.toString().equals("timestamp")){
                     unit_to_register.timestamp = Float.parseFloat(value.toString());
                 }
                 else{
-                    continue;
-                    // logger.debug("Ignoring key: " + key.toString());
+                    logger.debug("Ignoring key: " + key.toString());
                 }
             }
         }catch (ParseException e) {
@@ -307,9 +303,9 @@ public class API {
             e.printStackTrace();
         }
         
-        logger.debug("Completed json parsing");
-        return unit_to_register;
-
+        // logger.debug("Completed json parsing, unit_id:" +  unit_to_register.unit_id);
+        registered_units_.add(unit_to_register);
+        logger.debug("Completed json parsing, unit_id:" +  registered_units_.lastElement().unit_id);
     }
 
     private static class publishSelectedTopics implements HttpHandler{
@@ -389,6 +385,7 @@ public class API {
             registered_units_ = new Vector();
             if(!registered_units.isEmpty()){
                 registered_units_ = new Vector<>(registered_units);
+                logger.debug("Registerd units size: " + registered_units.size());
             }
             nc_ = nc;
         }
@@ -405,8 +402,9 @@ public class API {
                 Future<Message> incoming = nc_.request(requested_unit + ".check_status", request_message.getBytes(StandardCharsets.UTF_8));
                 // Wait 2 seconds for a response
                 try{
-                    Message msg = incoming.get(1, TimeUnit.SECONDS);
+                    Message msg = incoming.get(5, TimeUnit.SECONDS);
                     String response = new String(msg.getData(), StandardCharsets.UTF_8);
+                    logger.debug("Got response for unit: " + unit.unit_id);
                     currently_registered_nodes.add(unit);
                 }
                 catch(InterruptedException exe){
@@ -421,6 +419,7 @@ public class API {
             }
 
             registered_units_ = currently_registered_nodes;
+            logger.debug("Registered units size: " + registered_units_.size());
         }
     }
 
@@ -440,28 +439,13 @@ public class API {
             // nats register unit 
             // Dispatcher processes on separate thread
             Dispatcher register_sub_ = nc.createDispatcher(msg-> {
-                    // api_server.registered_units_.add(register_unit(new String(msg.getData(), StandardCharsets.UTF_8)));
-
-
-                    logger.debug("Registered unit" + api_server.registered_units_.lastElement().unit_id);
-
-                    String json_str = "Timestamp:" + new String(api_server.registered_units_.lastElement().toString());
-                    // Add Event Name, Location, Testing Type
-                    nc.publish("register_node", "replyto", "hello world".getBytes(StandardCharsets.UTF_8));
-                    // try{
-                    //     JSONParser parser = new JSONParser();
-                    //     // JSONObject response = (JSONObject) parser.parse(json_str);
-                    //     // response.put("event_name","UC3");
-                    //     // response.put("location","TFHRC");
-                    //     // response.put("testing_type","Integration");
-                    //     nc.publish("register_node", "replyto", "hello world".getBytes(StandardCharsets.UTF_8));
-                    // }
-                    // catch(ParseException e){
-                    //     logger.error("Could not send register unit response" + e);
-                    //     e.printStackTrace();
-                    // }
-                    
+                    api_server.register_unit(new String(msg.getData(), StandardCharsets.UTF_8));
+                    JSONObject json_str = new JSONObject();
+                    logger.debug("Registered Unit: " + api_server.registered_units_.lastElement().unit_id);
+                    json_str.put("Timestamp", api_server.registered_units_.lastElement().timestamp);
+                    nc.publish(msg.getReplyTo(), json_str.toString().getBytes(StandardCharsets.UTF_8));
                 });
+
             register_sub_.subscribe("register_node");
             //////////////////////////////////////////////// http server
             http = HttpServer.create(new InetSocketAddress(8080), 0);
@@ -472,11 +456,11 @@ public class API {
             http.start();
 
             // Create status check timer task to update registered units
-            // TimerTask check_status_task = new checkStatus(api_server.registered_units_, nc);
-            // Timer timer = new Timer();
-            // // Schedule task to repeat every 5s
-            // timer.schedule(check_status_task,0, 5000);
-            // api_server.registered_units_ = check_status_task.registered_units_;
+            TimerTask check_status_task = new checkStatus(api_server.registered_units_, nc);
+            Timer timer = new Timer();
+            // Schedule task to repeat every 5s
+            timer.schedule(check_status_task,0, 5000);
+        
         }
         catch(Exception exe)
         {

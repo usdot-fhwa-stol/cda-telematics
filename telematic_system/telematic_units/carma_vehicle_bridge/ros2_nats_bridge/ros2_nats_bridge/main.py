@@ -35,6 +35,7 @@ def main(args=None):
         loop.create_task(spin_node(ros2_nats_bridge)),
         loop.create_task(ros2_nats_bridge.nats_connect()),
         loop.create_task(ros2_nats_bridge.register_unit()),
+        loop.create_task(ros2_nats_bridge.check_status()),
         loop.create_task(ros2_nats_bridge.available_topics()),
         loop.create_task(ros2_nats_bridge.publish_topics())
     ]

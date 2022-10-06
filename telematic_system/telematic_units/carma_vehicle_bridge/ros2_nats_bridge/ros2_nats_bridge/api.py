@@ -95,18 +95,29 @@ class Ros2NatsBridgeNode(Node):
         self.vehicle_info["timestamp"] = str(self.get_clock().now().nanoseconds)
         vehicle_info_message = json.dumps(self.vehicle_info ,ensure_ascii=False).encode('utf8')
 
+        if(not self.registered):
+            try:
+                response = await self.nc.request("register_node", vehicle_info_message, timeout=5)
+                self.get_logger().warn("Registering unit received response: {message}".format(message=response.data.decode()))
+                
+                self.registered = True
+            except:
+                self.get_logger().warn("Registering unit failed")
+                self.registered = False
+                pass
+
+    async def check_status(self):
+        """
+            process request from server to check status 
+        """
+        async def send_status(msg):
+            await self.nc.publish(msg.reply, b"OK")
         
         try:
-            
-            self.get_logger().info("Server status {0}".format(self.nc.is_connected))
-            
-            self.get_logger().info("Registering unit ... ")
-            response = await self.nc.request("register_node", vehicle_info_message, timeout=1)
-            self.get_logger().warn("Registering unit received response: {message}".format(message=response.data.decode()))
-            
-            self.registered = True
+            await self.nc.subscribe(self.vehicle_info["unit_id"] + ".check_status", self.vehicle_info["unit_id"], send_status)
+
         except:
-            self.get_logger().warn("Registering unit failed")
+            self.get_logger().warn("Status update failed")
             self.registered = False
             pass
             
