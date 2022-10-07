@@ -49,26 +49,26 @@ public class UnitsStatusService implements ConnectionListener, CommandLineRunner
     public ResponseEntity<List<JSONObject>> requestRegisteredUnits()
             throws IOException, InterruptedException, ExecutionException {
 
-        logger.info("List Registered Units.");
+        logger.debug("List Registered Units.");
         return new ResponseEntity<>(registeredUnitList, HttpStatus.ACCEPTED);
     }
 
     @Scheduled(fixedRate = 5000)
     public void checkUnitsStatus() throws IOException, InterruptedException {
 
-        logger.info("Checking units status at timestamp = : " + System.currentTimeMillis() / 1000);
+        logger.debug("Checking units status at timestamp = : " + System.currentTimeMillis() / 1000);
         for (JSONObject registered_unit : registeredUnitList) {
             String unitId = (String) registered_unit.get("unit_id");
             String subject = unitId + "." + checkUnitsStatus;
-            logger.info("Checking unit status. subject: " + subject);
+            logger.debug("Checking unit status. subject: " + subject);
             try {
                 Future<Message> future = getConnection().request(subject, unitId.getBytes(StandardCharsets.UTF_8));
                 Message msg = future.get();
                 String reply = new String(msg.getData(), StandardCharsets.UTF_8);
-                logger.info("Checking unit status.  Unit =" + unitId + " Reply: " + reply);
+                logger.debug("Checking unit status.  Unit =" + unitId + " Reply: " + reply);
             } catch (CancellationException ex) {
                 // No reply remove unit from registeredUnitList
-                logger.error("Checking status failed. Unit = " + unitId);
+                logger.error("Checking unit status. Unit = " + unitId + " failed. Remove from registered unit list.");
                 registeredUnitList.remove(registered_unit);
             } catch (ExecutionException e) {
                 logger.error(checkUnitsStatus, e);
@@ -89,13 +89,13 @@ public class UnitsStatusService implements ConnectionListener, CommandLineRunner
                     .build();
             connection = Nats.connect(options);
         }
-        logger.info("get Connection: " + connection.getConnectedUrl());
+        logger.debug("get Connection: " + connection.getConnectedUrl());
         return connection;
     }
 
     @Override
     public void connectionEvent(Connection connection, Events event) {
-        logger.info("Connection event: " + event);
+        logger.debug("Connection event: " + event);
         switch (event) {
             case CONNECTED:
                 logger.info("CONNECTED!");
@@ -124,7 +124,7 @@ public class UnitsStatusService implements ConnectionListener, CommandLineRunner
         Dispatcher register_sub_d = getConnection().createDispatcher(msg -> {
         });
 
-        logger.info("register units subscribe to subject: " + registerUnit);
+        logger.debug("register units subscribe to subject: " + registerUnit);
         register_sub_d.subscribe(registerUnit, (msg) -> {
             String msgData = new String(msg.getData(), StandardCharsets.UTF_8);
             logger.info("Received register unit: " + msgData);

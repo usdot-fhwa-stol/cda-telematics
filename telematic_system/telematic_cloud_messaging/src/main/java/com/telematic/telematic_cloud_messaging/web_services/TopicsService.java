@@ -46,11 +46,11 @@ public class TopicsService implements ConnectionListener {
             throws IOException, InterruptedException, ExecutionException {
 
         String subject = unitId + "." + availableTopicSubject;
-        logger.info("Available topics request. subject: " + subject);
+        logger.debug("Available topics request. subject: " + subject);
         Future<Message> future = getConnection().request(subject, unitId.getBytes(StandardCharsets.UTF_8));
         Message msg = future.get();
         String reply = new String(msg.getData(), StandardCharsets.UTF_8);
-        logger.info("Available topics request. Reply: " + reply);
+        logger.debug("Available topics request. Reply: " + reply);
         return new ResponseEntity<>(reply, HttpStatus.ACCEPTED);
     }
 
@@ -58,17 +58,17 @@ public class TopicsService implements ConnectionListener {
     public ResponseEntity<String> requestSelectedTopics(@RequestBody String body)
             throws IOException, InterruptedException, ExecutionException {
 
-        logger.info("Selected topics request. body: " + body);
+        logger.debug("Selected topics request. body: " + body);
         JSONParser parser = new JSONParser();
         try {
             JSONObject jsonObj = (JSONObject) parser.parse(body);
             String unitId = (String) jsonObj.get("unit_id");
             String subject = unitId + "." + publishDataToTopicSubject;
-            logger.info("Selected topics request. subject: " + subject);
+            logger.debug("Selected topics request. subject: " + subject);
             Future<Message> future = getConnection().request(subject, body.getBytes(StandardCharsets.UTF_8));
             Message msg = future.get();
             String reply = new String(msg.getData(), StandardCharsets.UTF_8);
-            logger.info("Selected topics request. Reply: " + reply);
+            logger.debug("Selected topics request. Reply: " + reply);
         } catch (ParseException e) {
             logger.error("Cannot parse requestSelectTopics body", e);
             e.printStackTrace();
@@ -89,13 +89,13 @@ public class TopicsService implements ConnectionListener {
                     .build();
             connection = Nats.connect(options);
         }
-        logger.info("get Connection: " + connection);
+        logger.debug("get Connection: " + connection);
         return connection;
     }
 
     @Override
     public void connectionEvent(Connection connection, Events event) {
-        logger.info("Connection event: " + event);
+        logger.debug("Connection event: " + event);
         switch (event) {
             case CONNECTED:
                 logger.info("CONNECTED!");
