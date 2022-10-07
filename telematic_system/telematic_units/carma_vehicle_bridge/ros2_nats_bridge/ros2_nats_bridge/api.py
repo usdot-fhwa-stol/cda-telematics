@@ -97,7 +97,7 @@ class Ros2NatsBridgeNode(Node):
 
         if(not self.registered):
             try:
-                response = await self.nc.request("register_node", vehicle_info_message, timeout=5)
+                response = await self.nc.request(self.vehicle_info["unit_id"] + ".register_unit",  vehicle_info_message, timeout=5)
                 self.get_logger().warn("Registering unit received response: {message}".format(message=response.data.decode()))
                 
                 self.registered = True

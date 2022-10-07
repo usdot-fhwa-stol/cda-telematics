@@ -56,12 +56,23 @@ http://<amazone ec2 instance url>:8086/orgs/04cb75631ee68b28
     curl -X GET-v http://localhost:8181/healthz
 ```
 
-- Get all available topics
+- Get all available topics (JAVA version)
 ```
-    curl -X GET-v http://localhost:8080/requestAvailableTopics?unit_id=<unit_id>
+	curl -X GET -v http://localhost:8080/requestAvailableTopics/<unit_id>
+```
+
+- Get all available topics (Go version)
+```
+	curl -X GET-v http://localhost:8080/requestAvailableTopics?unit_id=<unit_id>
 ```
 
 - Request data for a list of selected topics
 ```
 	curl -d '{"unit_id": "<unit_id>", "unit_type": "<unit_type>", "timestamp": 1663084528513000325, "topics": ["<topic_name_1>","<topic_name_2>"]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/publishSelectedTopics
 ```
+
+3. get list of registered units:
+	```
+	curl -X GET -v http://localhost:8080/registeredUnits
+
+	```

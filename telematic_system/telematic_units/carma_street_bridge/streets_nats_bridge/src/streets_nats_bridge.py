@@ -46,6 +46,7 @@ class StreetsNatsBridge():
         self.streets_topics = []  # list of available carma-streets topic
         self.subscribers_list = []  # list of topics the user has requested to publish
         self.async_sleep_rate = 0.0001  # asyncio sleep rate
+        self.registered = False
 
         # Placeholder info for now
         self.streets_info = {
@@ -177,6 +178,7 @@ class StreetsNatsBridge():
         async def disconnected_cb():
             self.logger.info(
                 " In nats_connect: Got disconnected from nats server...")
+            self.registered = False
 
         async def reconnected_cb():
             self.logger.info(
@@ -227,6 +229,39 @@ class StreetsNatsBridge():
             self.logger.error(
                 " In send_list_of_topics: ERROR sending list of available topics to nats server")
 
+    async def register_unit(self):
+        """
+            send request to server to register unit and waits for ack 
+        """
+        self.logger.info("Entering register unit")
+        streets_info_message = json.dumps(self.streets_info ,ensure_ascii=False).encode('utf8')
+
+        if(not self.registered):
+            try:
+                response = await self.nc.request(self.streets_info["unit_id"] + ".register_unit", streets_info_message, timeout=5)
+                self.logger.warn("Registering unit received response: {message}".format(message=response.data.decode()))
+                
+                self.registered = True
+            except:
+                self.logger.warn("Registering unit failed")
+                self.registered = False
+                pass
+
+    async def check_status(self):
+        """
+            process request from server to check status 
+        """
+        async def send_status(msg):
+            await self.nc.publish(msg.reply, b"OK")
+        
+        try:
+            await self.nc.subscribe(self.streets_info["unit_id"] + ".check_status", self.streets_info["unit_id"], send_status)
+
+        except:
+            self.logger.warn("Status update failed")
+            self.registered = False
+            pass
+        
     async def publish_topics(self):
         """
         Waits for request from telematic server to create subscriber to selected topics and receive data. When a request

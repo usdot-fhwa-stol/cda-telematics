@@ -16,16 +16,25 @@
 	
 ## HTTP Curl Requests for Testing
 
-1. request all available topics from carma streets: 
-	```
-	curl -X GET-v http://localhost:8080/requestAvailableTopics?unit_id=streets_id
-	```
+1. request all available topics from carma streets (JAVA version)
+```
+	curl -X GET -v http://localhost:8080/requestAvailableTopics/<unit_id>
+```
+
+- request all available topics from carma streets (Go version)
+```
+	curl -X GET-v http://localhost:8080/requestAvailableTopics?unit_id=<unit_id>
+```
 
 2. request to publish the specified topics: 
 	```
-	curl -d '{"unit_id": "streets_id", "unit_type": "streets", "timestamp": 1663084528513000325, "topics": ["v2xhub_scheduling_plan_sub","v2xhub_bsm_in"]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/publishSelectedTopics
+	curl -d '{"unit_id": "streets_id", "unit_type": "streets", "timestamp": 1663084528513000325, "topics": ["v2xhub_scheduling_plan_sub","v2xhub_bsm_in"]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/requestSelectedTopics
 	```
+3. get list of registered units:
+	```
+	curl -X GET -v http://localhost:8080/registeredUnits
 
+	```
 ### Nats CLI for testing
 1. request all available topcis:	
 	```

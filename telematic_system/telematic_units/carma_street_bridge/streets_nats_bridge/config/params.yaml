@@ -2,13 +2,13 @@ streets_nats_bridge:
   streets_parameters:
     KAFKA_BROKER_IP: "localhost" #change to carma-streets ipv4 address
     KAFKA_BROKER_PORT: "9092"
-    NATS_IP: "0.0.0.0" #change to amazon ec2 ipv4 address
+    NATS_IP: "44.206.13.7" #change to amazon ec2 ipv4 address
     NATS_PORT: "4222"
     UNIT_ID: "streets_id"
-    UNIT_TYPE: "infrastructure"
+    UNIT_TYPE: "infrastructuredddd"
     LOG_LEVEL: "debug"
     LOG_NAME: "streets_nats_bridge"
     LOG_PATH: "/var/logs/" 
     LOG_ROTATION_SIZE_BYTES: "2147483648" #2 gigabytes
-    LOG_HANDLER: "file" #console: Print logs on console; file: Save logs to file. 
+    LOG_HANDLER: "console" #console: Print logs on console; file: Save logs to file. 
     KAFKA_CONSUMER_RESET: "earliest"
