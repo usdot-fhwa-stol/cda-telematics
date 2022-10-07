@@ -37,14 +37,35 @@ import io.nats.client.Options;
 public class UnitsStatusService implements ConnectionListener, CommandLineRunner {
     private static Logger logger = LoggerFactory.getLogger(UnitsStatusService.class);
 
+    // Get config parameters from application.properties
     @Value("${nats_uri}")
     private String natServerURL;
 
+    @Value("${event_name}")
+    private String eventName;
+
+    @Value("${location}")
+    private String location;
+
+    @Value("${testing_type}")
+    private String testingType;
+
+    // NATS connection
     private Connection connection;
+
+    // MATS Topics
     private static final String registerUnit = "*.register_unit";
     private static final String checkUnitsStatus = "check_status";
+
+    // Global list to keep track of latest registered units
     private static List<JSONObject> registeredUnitList = new LinkedList<JSONObject>();
 
+    /***
+     * @brief
+     *        GET: /registeredUnits
+     *        Request for a list of latest registered units
+     * @return The list of registered units in JSON format
+     */
     @GetMapping(value = "registeredUnits")
     public ResponseEntity<List<JSONObject>> requestRegisteredUnits()
             throws IOException, InterruptedException, ExecutionException {
@@ -53,6 +74,12 @@ public class UnitsStatusService implements ConnectionListener, CommandLineRunner
         return new ResponseEntity<>(registeredUnitList, HttpStatus.ACCEPTED);
     }
 
+    /***
+     * @brief Scheduled task runnign on app startup. The task is running at a fixed
+     *        interval to send status checking for
+     *        the list a units from registeredUnitList. If failed the status check,
+     *        it will remove the registered units from the list.
+     */
     @Scheduled(fixedRate = 5000)
     public void checkUnitsStatus() throws IOException, InterruptedException {
 
@@ -77,6 +104,11 @@ public class UnitsStatusService implements ConnectionListener, CommandLineRunner
         }
     }
 
+    /***
+     * @brief Update the global NATS connection object if not exist or the service
+     *        is disconnected from NATS.
+     * @return The global NATS connection object
+     */
     private Connection getConnection() throws IOException, InterruptedException {
         if (connection == null || (connection.getStatus() == Status.DISCONNECTED)) {
             Options.Builder connectionBuilder = new Options.Builder().connectionListener(this);
@@ -119,6 +151,12 @@ public class UnitsStatusService implements ConnectionListener, CommandLineRunner
         }
     }
 
+    /***
+     * @brief A background process running on startup to subcribe to NATS topic
+     *        *.register_unit.
+     *        If any telematic unit send request to register_unit, it will update
+     *        the global registeredUnitList, and return a positive reply.
+     */
     @Override
     public void run(String... args) throws Exception {
         Dispatcher register_sub_d = getConnection().createDispatcher(msg -> {
@@ -131,6 +169,9 @@ public class UnitsStatusService implements ConnectionListener, CommandLineRunner
             JSONParser parser = new JSONParser();
             try {
                 JSONObject jsonObj = (JSONObject) parser.parse(msgData);
+                jsonObj.put("event_name", eventName);
+                jsonObj.put("location", location);
+                jsonObj.put("testing_type", testingType);
                 for (JSONObject obj : registeredUnitList) {
                     if (obj.get("unit_id").toString().equals(jsonObj.get("unit_id").toString())) {
                         registeredUnitList.remove(obj);

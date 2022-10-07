@@ -41,6 +41,12 @@ public class TopicsService implements ConnectionListener {
     private static final String availableTopicSubject = "available_topics";
     private static final String publishDataToTopicSubject = "publish_topics";
 
+    /***
+     * @brief
+     *        GET: /registeredUnits/unit_id
+     *        Request for a list of available topics from a telematic unit
+     * @return The list of available topics in JSON format
+     */
     @GetMapping(value = "requestAvailableTopics/{unitId}")
     public ResponseEntity<String> requestAvailableTopics(@PathVariable("unitId") String unitId)
             throws IOException, InterruptedException, ExecutionException {
@@ -54,6 +60,13 @@ public class TopicsService implements ConnectionListener {
         return new ResponseEntity<>(reply, HttpStatus.ACCEPTED);
     }
 
+    /***
+     * @brief
+     *        POST: /requestSelectedTopics
+     *        Request for data stream for a list of selected topics from a telematic
+     *        unit
+     * @return httpstatus to indicate request success or failure
+     */
     @PostMapping(value = "requestSelectedTopics")
     public ResponseEntity<String> requestSelectedTopics(@RequestBody String body)
             throws IOException, InterruptedException, ExecutionException {
@@ -78,6 +91,11 @@ public class TopicsService implements ConnectionListener {
         return new ResponseEntity<>("", HttpStatus.EXPECTATION_FAILED);
     }
 
+    /***
+     * @brief Update the global NATS connection object if not exist or the service
+     *        is disconnected from NATS.
+     * @return The global NATS connection object
+     */
     private Connection getConnection() throws IOException, InterruptedException {
         if (connection == null || (connection.getStatus() == Status.DISCONNECTED)) {
             Options.Builder connectionBuilder = new Options.Builder().connectionListener(this);

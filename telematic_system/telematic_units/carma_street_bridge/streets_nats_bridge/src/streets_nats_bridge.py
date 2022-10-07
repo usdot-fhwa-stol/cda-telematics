@@ -39,9 +39,6 @@ class StreetsNatsBridge():
         self.kafka_offset_reset = config['streets_nats_bridge']['streets_parameters']['KAFKA_CONSUMER_RESET']
 
         self.unit_name = "West Intersection"
-        self.event_name = "UC3"
-        self.location = "TFHRC"
-        self.testing_type = "Integration"
         self.nc = NATS()
         self.streets_topics = []  # list of available carma-streets topic
         self.subscribers_list = []  # list of topics the user has requested to publish
@@ -52,10 +49,7 @@ class StreetsNatsBridge():
         self.streets_info = {
             "unit_id": self.unit_id,
             "unit_type": self.unit_type,
-            "unit_name": self.unit_name,
-            "event_name": self.event_name,
-            "location": self.location,
-            "testing_type": self.testing_type}
+            "unit_name": self.unit_name}
 
         # Create StreetsNatsBridge logger
         self.createLogger()
@@ -147,9 +141,6 @@ class StreetsNatsBridge():
                     message["unit_id"] = self.unit_id
                     message["unit_type"] = self.unit_type
                     message["unit_name"] = self.unit_name
-                    message["event_name"] = self.event_name
-                    message["location"] = self.location
-                    message["testing_type"] = self.testing_type
                     message["msg_type"] = topic
                     message["topic_name"] = topic
                     message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000 #utc timestamp in microseconds
