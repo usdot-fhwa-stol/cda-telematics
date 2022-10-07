@@ -48,7 +48,7 @@
             <artifactId>jnats</artifactId>
             <version>2.16.0</version>
         </dependency>
-
+		
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
 			<artifactId>log4j-api</artifactId>
@@ -83,52 +83,6 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin-0</artifactId>
-				<version>1.2.1</version>
-				<configuration>                 
-					<mainClass>com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter</mainClass>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin</artifactId>
-				<version>1.2.1</version>
-				<configuration>                 
-					<mainClass>com.telematic.telematic_server_api.API</mainClass>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin-2</artifactId>
-				<version>1.2.1</version>
-				<configuration>                 
-					<mainClass>com.telematic.telematic_server_api.API_Exception</mainClass>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin-3</artifactId>
-				<version>1.2.1</version>
-				<configuration>                 
-					<mainClass>com.telematic.telematic_cloud_messaging.telematic_server_worker.Worker</mainClass>
-				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>exec-maven-plugin-4</artifactId>
-				<version>1.2.1</version>
-				<configuration>                 
-					<mainClass>com.telematic.telematic_cloud_messaging.telematic_server_worker.Worker_Exception</mainClass>
-				</configuration>
-			</plugin>
-
 		</plugins>
 	</build>
 
