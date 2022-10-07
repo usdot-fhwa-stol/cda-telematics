@@ -93,7 +93,6 @@ public class InfluxDataWriter {
      * @param flattener JsonFlattenerHelper object used to flatten the publishData string
      * @param keyValueConverter JSON2KeyValuePairsConverter object used to properly form key value pairs before writing
      */
-    // public void publish(String publishData, JSONFlattenerHelper flattener, JSON2KeyValuePairsConverter keyValueConverter) {
     public void publish(String publishData) {
         try {
             String influxRecord = influxStringConverter(publishData);
