@@ -142,6 +142,9 @@ class StreetsNatsBridge():
                     message["unit_type"] = self.unit_type
                     message["unit_name"] = self.unit_name
                     message["msg_type"] = topic
+                    message["event_name"] = self.streets_info["event_name"]
+                    message["testing_type"] = self.streets_info["testing_type"]
+                    message["location"] = self.streets_info["location"]
                     message["topic_name"] = topic
                     message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000 #utc timestamp in microseconds
 
@@ -230,8 +233,12 @@ class StreetsNatsBridge():
         if(not self.registered):
             try:
                 response = await self.nc.request(self.streets_info["unit_id"] + ".register_unit", streets_info_message, timeout=5)
-                self.logger.warn("Registering unit received response: {message}".format(message=response.data.decode()))
-                
+                message = response.data.decode('utf-8')
+                self.logger.warn("Registering unit received response: {message}".format(message=message))   
+                message_json = json.loads(message)             
+                self.streets_info["event_name"] = message_json["event_name"]
+                self.streets_info["location"] = message_json["location"]
+                self.streets_info["testing_type"] = message_json["testing_type"]
                 self.registered = True
             except:
                 self.logger.warn("Registering unit failed")

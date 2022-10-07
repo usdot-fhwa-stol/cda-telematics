@@ -92,8 +92,12 @@ class Ros2NatsBridgeNode(Node):
         if(not self.registered):
             try:
                 response = await self.nc.request(self.vehicle_info["unit_id"] + ".register_unit",  vehicle_info_message, timeout=5)
-                self.get_logger().warn("Registering unit received response: {message}".format(message=response.data.decode()))
-                
+                message = response.data.decode('utf-8')
+                self.logger.warn("Registering unit received response: {message}".format(message=message))   
+                message_json = json.loads(message)             
+                self.vehicle_info["event_name"] = message_json["event_name"]
+                self.vehicle_info["location"] = message_json["location"]
+                self.vehicle_info["testing_type"] = message_json["testing_type"]
                 self.registered = True
             except:
                 self.get_logger().warn("Registering unit failed")
@@ -160,7 +164,7 @@ class Ros2NatsBridgeNode(Node):
                 if(topic not in self.subsribers_list):
                     msg_type = msg_type.split('/')
                     exec("from " + msg_type[0] + '.' + msg_type[1] + " import " + msg_type[2])
-                    call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info["unit_id"], self.vehicle_info["unit_type"], self.vehicle_info["unit_name"])
+                    call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info["unit_id"], self.vehicle_info["unit_type"], self.vehicle_info["unit_name"], self.vehicle_info["event_name"], self.vehicle_info["testing_type"], self.vehicle_info["location"])
                     try:
                         self.subsribers_list[topic] = self.create_subscription(eval(msg_type[2]), topic, call_back.listener_callback, 10)
                     except:
@@ -177,7 +181,7 @@ class Ros2NatsBridgeNode(Node):
             self.get_logger().debug("publish_topics")
     
     class CallBack(): 
-        def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name):
+        def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name, event_name, testing_type, location):
             """
                 initilize CallBack class
                 declare Nats client 
@@ -189,6 +193,9 @@ class Ros2NatsBridgeNode(Node):
             self.unit_name = unit_name
             self.msg_type = msg_type
             self.origin_topic_name = topic_name
+            self.event_name = event_name
+            self.testing_type = testing_type
+            self.location = location
             self.topic_name = unit_id + ".data" + topic_name.replace("/",".")
             self.nc = nc
 
@@ -204,6 +211,9 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg["unit_name"] = self.unit_name
             ordereddict_msg["msg_type"] = self.msg_type
             ordereddict_msg["topic_name"] = self.origin_topic_name
+            ordereddict_msg["event_name"] = self.streets_info["event_name"]
+            ordereddict_msg["testing_type"] = self.streets_info["testing_type"]
+            ordereddict_msg["location"] = self.streets_info["location"]
             ordereddict_msg["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000 #microseconds
             json_message = json.dumps(ordereddict_msg).encode('utf8')
             await self.nc.publish(self.topic_name, json_message)
