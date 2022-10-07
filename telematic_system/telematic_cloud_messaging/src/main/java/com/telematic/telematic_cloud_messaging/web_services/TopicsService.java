@@ -34,10 +34,14 @@ import io.nats.client.Options;
 public class TopicsService implements ConnectionListener {
     private static Logger logger = LoggerFactory.getLogger(TopicsService.class);
 
+    // Get config parameters from application.properties
     @Value("${nats_uri}")
     private String natServerURL;
 
+    // NATS connection
     private Connection connection;
+
+    // MATS Topics
     private static final String availableTopicSubject = "available_topics";
     private static final String publishDataToTopicSubject = "publish_topics";
 
