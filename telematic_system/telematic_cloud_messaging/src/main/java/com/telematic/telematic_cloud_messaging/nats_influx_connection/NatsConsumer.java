@@ -22,7 +22,6 @@ public class NatsConsumer {
     int nats_max_reconnects;
     String nats_subscribe_str;
     boolean nats_connected;
-    boolean nats_subscribed;
     Connection nc;
 
     private static final Logger logger = LoggerFactory.getLogger(NatsConsumer.class);
@@ -38,16 +37,7 @@ public class NatsConsumer {
         this.nats_max_reconnects = nats_max_reconnects;
 
         nats_connected = false;
-        nats_subscribed = false;
-
         nc = null;
-    }
-
-    /**
-     * @return true if NatsConsumer is subscribed to subjects on nats server
-     */
-    public boolean getNatsSubscribed() {
-        return nats_subscribed;
     }
 
     /**
@@ -96,7 +86,6 @@ public class NatsConsumer {
             //subscribe to all available subjects on nats server
             d.subscribe(nats_subscribe_str); //subject example: "streets_id.data.v2xhub_scheduling_plan_sub"
             logger.info("Successfully subscribed to nats server data");
-            nats_subscribed = true;
         }
         catch (Exception e) {
             logger.error(ExceptionUtils.getStackTrace(e));
