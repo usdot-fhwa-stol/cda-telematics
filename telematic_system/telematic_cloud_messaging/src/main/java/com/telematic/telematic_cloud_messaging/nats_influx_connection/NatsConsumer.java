@@ -1,6 +1,5 @@
 package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
-import org.springframework.stereotype.Component;
 import io.nats.client.*;
 import java.io.*;
 import java.util.Properties;
@@ -27,7 +26,7 @@ public class NatsConsumer {
     Connection nc;
 
     private static final Logger logger = LoggerFactory.getLogger(NatsConsumer.class);
-    
+
     /**
      * Constructor to instantiate NatsConsumer object
      */
@@ -66,11 +65,10 @@ public class NatsConsumer {
     }
 
     /**
-     * Attempt to connect to the nats server using the uri from the config.properties file
+     * Attempt to connect to the nats server using the uri from the application.properties file
      * @param uri The uri of the nats server to connect to
      */
     public void nats_connect() {    
-        String connection_string = "";
         try {
             Options options = new Options.Builder().server(nats_uri).maxReconnects(nats_max_reconnects).build();
             nc = Nats.connect(options);
@@ -86,12 +84,12 @@ public class NatsConsumer {
     /**
      * Create an asynchronous subsciption to available subjects and publish to influxdb using the InfluxDataWriter
      */
-    public void async_subscribe(InfluxDataWriter influxDataWriter, JSONFlattenerHelper jsonFlattener, JSON2KeyValuePairsConverter keyValueConverter) {
+    public void async_subscribe(InfluxDataWriter influxDataWriter) {
         //Create dispatcher object that will be used to call InfluxDataWriter publish method everytime a 
         //message has been received
         Dispatcher d = nc.createDispatcher((msg) -> {
             String str = new String(msg.getData(), StandardCharsets.UTF_8);
-            influxDataWriter.publish(str, jsonFlattener, keyValueConverter);
+            influxDataWriter.publish(str);
         });  
 
         try {

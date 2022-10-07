@@ -11,6 +11,7 @@ import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValueP
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import java.lang.Thread;
 
 /**
  * The NatsInfluxPush object instantiates a NatsConsumer that creates a connection to the telematic nats server 
@@ -68,35 +69,35 @@ public class NatsInfluxPush implements CommandLineRunner {
     }       
 
     /**
-     * Override run method that calls the main function
+     * Override run method that instantiates the NatsConsumer and InfluxDataWriter.
      * @param args 
      */
     @Override
     public void run(String[] args) {
-        main(args);
-    }
-
-    /**
-     * Main method that instantiates the NatsConsumer and InfluxDataWriter.
-     */
-    public static void main(String[] args) {
         getConfigValues();
 
         NatsConsumer natsObject = new NatsConsumer(nats_uri, nats_subscribe_str, nats_max_reconnects);
         InfluxDataWriter influxDataWriter = new InfluxDataWriter(influx_uri, influx_username, influx_pwd, influx_bucket,
         influx_bucket_id, influx_org, influx_org_id, influx_token);
 
-        JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
-        JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
+        //Wait until we successfully connect to the nats server and InfluxDb
+        while(!natsObject.getNatsConnected() & !influxDataWriter.getInfluxConnected()){
+            natsObject.nats_connect();
+            influxDataWriter.influx_connect();
 
-        natsObject.nats_connect();
-        influxDataWriter.influx_connect();
-
-        //If we successfully connect to the nats server and InfluxDb, then subscribe to data and publish
-        if (natsObject.getNatsConnected() & influxDataWriter.getInfluxConnected())
-        {
-            natsObject.async_subscribe(influxDataWriter, jsonFlattener, keyValueConverter);
-            logger.info("Waiting for data from nats..");
+            //wait for 100 ms and try to connect again
+            try {
+                Thread.sleep(100);
+            } 
+            catch (InterruptedException e) 
+            {
+                Thread.currentThread().interrupt();
+                logger.info("Couldn't connect to influx or nats, retrying..");
+            }
         }
+       
+        //subscribe to data and publish
+        natsObject.async_subscribe(influxDataWriter);
+        logger.info("Waiting for data from nats..");
     }
 }

@@ -1,6 +1,5 @@
 package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

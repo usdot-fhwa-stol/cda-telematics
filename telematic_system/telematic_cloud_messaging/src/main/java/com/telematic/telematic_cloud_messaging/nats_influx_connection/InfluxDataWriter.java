@@ -1,6 +1,5 @@
 package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
-import org.springframework.stereotype.Component;
 import java.io.*;
 import java.util.Properties;
 import java.util.Arrays;
@@ -94,12 +93,14 @@ public class InfluxDataWriter {
      * @param flattener JsonFlattenerHelper object used to flatten the publishData string
      * @param keyValueConverter JSON2KeyValuePairsConverter object used to properly form key value pairs before writing
      */
-    public void publish(String publishData, JSONFlattenerHelper flattener, JSON2KeyValuePairsConverter keyValueConverter) {
+    // public void publish(String publishData, JSONFlattenerHelper flattener, JSON2KeyValuePairsConverter keyValueConverter) {
+    public void publish(String publishData) {
         try {
-            String influxRecord = influxStringConverter(publishData, flattener, keyValueConverter);
+            String influxRecord = influxStringConverter(publishData);
             
             logger.info("Sending to influxdb: " + influxRecord);
             writeApi.writeRecord(WritePrecision.US, influxRecord);
+            writeApi.flush();
         }
         catch (Exception e) {
             logger.error(ExceptionUtils.getStackTrace(e));
@@ -114,11 +115,14 @@ public class InfluxDataWriter {
      * @param keyValueConverter JSON2KeyValuePairsConverter object used to properly form key value pairs before writing
      * @return record The formatted string for influxdb
      */
-    public String influxStringConverter(String publishData, JSONFlattenerHelper flattener, JSON2KeyValuePairsConverter keyValueConverter) {
+    public String influxStringConverter(String publishData) {
+        JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
+        JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
+
         JSONObject publishDataJson = new JSONObject(publishData);
         JSONObject payloadJson = publishDataJson.getJSONObject("payload");
         
-        String flattenedPayloadJson = flattener.flattenJsonStr(payloadJson.toString());
+        String flattenedPayloadJson = jsonFlattener.flattenJsonStr(payloadJson.toString());
         String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
 
         String unit_id = publishDataJson.getString("unit_id");
