@@ -69,12 +69,13 @@ public class TopicsService implements ConnectionListener {
             Message msg = future.get();
             String reply = new String(msg.getData(), StandardCharsets.UTF_8);
             logger.debug("Selected topics request. Reply: " + reply);
+            return new ResponseEntity<>(reply, HttpStatus.OK);
         } catch (ParseException e) {
             logger.error("Cannot parse requestSelectTopics body", e);
             e.printStackTrace();
         }
 
-        return new ResponseEntity<>(body, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>("", HttpStatus.EXPECTATION_FAILED);
     }
 
     private Connection getConnection() throws IOException, InterruptedException {
