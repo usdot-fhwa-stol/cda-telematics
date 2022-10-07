@@ -35,7 +35,7 @@ public class TopicsService implements ConnectionListener {
     private static Logger logger = LoggerFactory.getLogger(TopicsService.class);
 
     // Get config parameters from application.properties
-    @Value("${nats_uri}")
+    @Value("${NATS_URL}")
     private String natServerURL;
 
     // NATS connection

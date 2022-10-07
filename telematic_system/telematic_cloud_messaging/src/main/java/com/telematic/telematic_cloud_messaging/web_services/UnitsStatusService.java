@@ -38,16 +38,16 @@ public class UnitsStatusService implements ConnectionListener, CommandLineRunner
     private static Logger logger = LoggerFactory.getLogger(UnitsStatusService.class);
 
     // Get config parameters from application.properties
-    @Value("${nats_uri}")
+    @Value("${NATS_URL}")
     private String natServerURL;
 
-    @Value("${event_name}")
+    @Value("${EVENT_NAME}")
     private String eventName;
 
-    @Value("${location}")
+    @Value("${LOCATION}")
     private String location;
 
-    @Value("${testing_type}")
+    @Value("${TESTING_TYPE}")
     private String testingType;
 
     // NATS connection
