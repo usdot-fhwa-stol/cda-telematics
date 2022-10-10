@@ -53,7 +53,7 @@ public class UnitsStatusService implements ConnectionListener, CommandLineRunner
     // NATS connection
     private Connection connection;
 
-    // MATS Topics
+    // NATS Topics
     private static final String registerUnit = "*.register_unit";
     private static final String checkUnitsStatus = "check_status";
 
@@ -76,7 +76,7 @@ public class UnitsStatusService implements ConnectionListener, CommandLineRunner
 
     /***
      * @brief Scheduled task runnign on app startup. The task is running at a fixed
-     *        interval to send status checking for
+     *        interval (fixedRate: The time unit is milliseconds) to send status checking for
      *        the list a units from registeredUnitList. If failed the status check,
      *        it will remove the registered units from the list.
      */

@@ -66,9 +66,15 @@ http://<amazone ec2 instance url>:8086/orgs/04cb75631ee68b28
 	curl -X GET-v http://localhost:8080/requestAvailableTopics?unit_id=<unit_id>
 ```
 
-- Request data for a list of selected topics
+- Request data for a list of selected topics  (Go version)
 ```
 	curl -d '{"unit_id": "<unit_id>", "unit_type": "<unit_type>", "timestamp": 1663084528513000325, "topics": ["<topic_name_1>","<topic_name_2>"]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/publishSelectedTopics
+```
+
+
+- Request data for a list of selected topics (Java version)
+```
+	curl -d '{"unit_id": "<unit_id>", "unit_type": "<unit_type>", "timestamp": 1663084528513000325, "topics": ["<topic_name_1>","<topic_name_2>"]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/requestSelectedTopics
 ```
 
 3. get list of registered units:

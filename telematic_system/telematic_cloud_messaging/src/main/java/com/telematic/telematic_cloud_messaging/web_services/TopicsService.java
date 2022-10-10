@@ -41,7 +41,7 @@ public class TopicsService implements ConnectionListener {
     // NATS connection
     private Connection connection;
 
-    // MATS Topics
+    // NATS Topics
     private static final String availableTopicSubject = "available_topics";
     private static final String publishDataToTopicSubject = "publish_topics";
 
@@ -61,7 +61,7 @@ public class TopicsService implements ConnectionListener {
         Message msg = future.get();
         String reply = new String(msg.getData(), StandardCharsets.UTF_8);
         logger.debug("Available topics request. Reply: " + reply);
-        return new ResponseEntity<>(reply, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(reply, HttpStatus.OK);
     }
 
     /***
