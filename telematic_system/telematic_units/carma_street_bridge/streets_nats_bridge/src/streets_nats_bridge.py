@@ -65,9 +65,9 @@ class StreetsNatsBridge():
 
         # Placeholder info for now
         self.streets_info = {
-            UnitKeys.UNIT_ID: self.unit_id,
-            UnitKeys.UNIT_TYPE: self.unit_type,
-            UnitKeys.UNIT_NAME: self.unit_name}
+            UnitKeys.UNIT_ID.value: self.unit_id,
+            UnitKeys.UNIT_TYPE.value: self.unit_type,
+            UnitKeys.UNIT_NAME.value: self.unit_name}
 
         # Create StreetsNatsBridge logger
         self.createLogger()
@@ -156,14 +156,14 @@ class StreetsNatsBridge():
                     message = {}
                     message["payload"] = consumed_msg.value
                     # Add msg_type to json b/c worker looks for this field
-                    message[UnitKeys.UNIT_ID] = self.unit_id
-                    message[UnitKeys.UNIT_TYPE] = self.unit_type
-                    message[UnitKeys.UNIT_NAME] = self.unit_name
-                    message[TopicKeys.MSG_TYPE] = topic
-                    message[EventKeys.EVENT_NAME] = self.streets_info[EventKeys.EVENT_NAME]
-                    message[EventKeys.TESTING_TYPE] = self.streets_info[EventKeys.TESTING_TYPE]
-                    message[EventKeys.LOCATION] = self.streets_info[EventKeys.LOCATION]
-                    message[TopicKeys.TOPIC_NAME] = topic
+                    message[UnitKeys.UNIT_ID.value] = self.unit_id
+                    message[UnitKeys.UNIT_TYPE.value] = self.unit_type
+                    message[UnitKeys.UNIT_NAME.value] = self.unit_name
+                    message[TopicKeys.MSG_TYPE.value] = topic
+                    message[EventKeys.EVENT_NAME.value] = self.streets_info[EventKeys.EVENT_NAME.value]
+                    message[EventKeys.TESTING_TYPE.value] = self.streets_info[EventKeys.TESTING_TYPE.value]
+                    message[EventKeys.LOCATION.value] = self.streets_info[EventKeys.LOCATION.value]
+                    message[TopicKeys.TOPIC_NAME.value] = topic
                     message["timestamp"] = datetime.now(
                         timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
 
@@ -238,7 +238,7 @@ class StreetsNatsBridge():
 
         # Wait for a request for available topics and call send_list_of_topics callback function
         try:
-            await self.nc.subscribe(self.streets_info[UnitKeys.UNIT_ID] + ".available_topics", self.streets_info[UnitKeys.UNIT_ID], send_list_of_topics)
+            await self.nc.subscribe(self.streets_info[UnitKeys.UNIT_ID.value] + ".available_topics", self.streets_info[UnitKeys.UNIT_ID.value], send_list_of_topics)
         except:
             self.logger.error(
                 " In send_list_of_topics: ERROR sending list of available topics to nats server")
@@ -253,14 +253,14 @@ class StreetsNatsBridge():
 
         if(not self.registered):
             try:
-                response = await self.nc.request(self.streets_info[UnitKeys.UNIT_ID] + ".register_unit", streets_info_message, timeout=5)
+                response = await self.nc.request(self.streets_info[UnitKeys.UNIT_ID.value] + ".register_unit", streets_info_message, timeout=5)
                 message = response.data.decode('utf-8')
                 self.logger.warn(
                     "Registering unit received response: {message}".format(message=message))
                 message_json = json.loads(message)
-                self.streets_info[EventKeys.EVENT_NAME] = message_json[EventKeys.EVENT_NAME]
-                self.streets_info[EventKeys.LOCATION] = message_json[EventKeys.LOCATION]
-                self.streets_info[EventKeys.TESTING_TYPE] = message_json[EventKeys.TESTING_TYPE]
+                self.streets_info[EventKeys.EVENT_NAME.value] = message_json[EventKeys.EVENT_NAME.value]
+                self.streets_info[EventKeys.LOCATION.value] = message_json[EventKeys.LOCATION.value]
+                self.streets_info[EventKeys.TESTING_TYPE.value] = message_json[EventKeys.TESTING_TYPE.value]
                 self.registered = True
             except:
                 self.logger.warn("Registering unit failed")
@@ -275,7 +275,7 @@ class StreetsNatsBridge():
             await self.nc.publish(msg.reply, b"OK")
 
         try:
-            await self.nc.subscribe(self.streets_info[UnitKeys.UNIT_ID] + ".check_status", self.streets_info[UnitKeys.UNIT_ID], send_status)
+            await self.nc.subscribe(self.streets_info[UnitKeys.UNIT_ID.value] + ".check_status", self.streets_info[UnitKeys.UNIT_ID.value], send_status)
 
         except:
             self.logger.warn("Status update failed")
@@ -309,6 +309,6 @@ class StreetsNatsBridge():
 
         # Wait for request to publish specific topic and call topic_request callback function
         try:
-            await self.nc.subscribe(self.streets_info[UnitKeys.UNIT_ID] + ".publish_topics", "worker", topic_request)
+            await self.nc.subscribe(self.streets_info[UnitKeys.UNIT_ID.value] + ".publish_topics", "worker", topic_request)
         except:
             self.logger.error(" In topic_request: Error publishing")
