@@ -10,5 +10,5 @@ streets_nats_bridge:
     LOG_NAME: "streets_nats_bridge"
     LOG_PATH: "/var/logs/" 
     LOG_ROTATION_SIZE_BYTES: "2147483648" #2 gigabytes
-    LOG_HANDLER: "console" #console: Print logs on console; file: Save logs to file. 
+    LOG_HANDLER: "file" #console: Print logs on console; file: Save logs to file. 
     KAFKA_CONSUMER_RESET: "earliest"
