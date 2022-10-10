@@ -8,6 +8,24 @@ import logging
 import yaml
 from logging.handlers import RotatingFileHandler
 from aiokafka import AIOKafkaConsumer
+from enum import Enum
+
+
+class EventKeys(Enum):
+    EVENT_NAME = "event_name"
+    TESTING_TYPE = "testing_type"
+    LOCATION = "location"
+
+
+class UnitKeys(Enum):
+    UNIT_ID = "unit_id"
+    UNIT_TYPE = "unit_type"
+    UNIT_NAME = "unit_name"
+
+
+class TopicKeys(Enum):
+    TOPIC_NAME = "topic_name"
+    MSG_TYPE = "msg_type"
 
 
 class StreetsNatsBridge():
@@ -47,9 +65,9 @@ class StreetsNatsBridge():
 
         # Placeholder info for now
         self.streets_info = {
-            "unit_id": self.unit_id,
-            "unit_type": self.unit_type,
-            "unit_name": self.unit_name}
+            UnitKeys.UNIT_ID: self.unit_id,
+            UnitKeys.UNIT_TYPE: self.unit_type,
+            UnitKeys.UNIT_NAME: self.unit_name}
 
         # Create StreetsNatsBridge logger
         self.createLogger()
@@ -138,15 +156,16 @@ class StreetsNatsBridge():
                     message = {}
                     message["payload"] = consumed_msg.value
                     # Add msg_type to json b/c worker looks for this field
-                    message["unit_id"] = self.unit_id
-                    message["unit_type"] = self.unit_type
-                    message["unit_name"] = self.unit_name
-                    message["msg_type"] = topic
-                    message["event_name"] = self.streets_info["event_name"]
-                    message["testing_type"] = self.streets_info["testing_type"]
-                    message["location"] = self.streets_info["location"]
-                    message["topic_name"] = topic
-                    message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000 #utc timestamp in microseconds
+                    message[UnitKeys.UNIT_ID] = self.unit_id
+                    message[UnitKeys.UNIT_TYPE] = self.unit_type
+                    message[UnitKeys.UNIT_NAME] = self.unit_name
+                    message[TopicKeys.MSG_TYPE] = topic
+                    message[EventKeys.EVENT_NAME] = self.streets_info[EventKeys.EVENT_NAME]
+                    message[EventKeys.TESTING_TYPE] = self.streets_info[EventKeys.TESTING_TYPE]
+                    message[EventKeys.LOCATION] = self.streets_info[EventKeys.LOCATION]
+                    message[TopicKeys.TOPIC_NAME] = topic
+                    message["timestamp"] = datetime.now(
+                        timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
 
                     # telematic cloud server will look for topic names with the pattern ".data."
                     self.topic_name = self.unit_id + ".data." + topic
@@ -206,7 +225,8 @@ class StreetsNatsBridge():
             self.logger.info(
                 "In send_list_of_topics: Received a request for available topics")
             # convert nanoseconds to microseconds
-            self.streets_info["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000 #utc timestamp in microseconds
+            self.streets_info["timestamp"] = datetime.now(
+                timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
             self.streets_info["topics"] = [
                 {"name": topicName} for topicName in self.streets_topics]
             message = json.dumps(self.streets_info).encode('utf8')
@@ -218,7 +238,7 @@ class StreetsNatsBridge():
 
         # Wait for a request for available topics and call send_list_of_topics callback function
         try:
-            await self.nc.subscribe(self.streets_info["unit_id"] + ".available_topics", self.streets_info["unit_id"], send_list_of_topics)
+            await self.nc.subscribe(self.streets_info[UnitKeys.UNIT_ID] + ".available_topics", self.streets_info[UnitKeys.UNIT_ID], send_list_of_topics)
         except:
             self.logger.error(
                 " In send_list_of_topics: ERROR sending list of available topics to nats server")
@@ -228,17 +248,19 @@ class StreetsNatsBridge():
             send request to server to register unit and waits for ack 
         """
         self.logger.info("Entering register unit")
-        streets_info_message = json.dumps(self.streets_info ,ensure_ascii=False).encode('utf8')
+        streets_info_message = json.dumps(
+            self.streets_info, ensure_ascii=False).encode('utf8')
 
         if(not self.registered):
             try:
-                response = await self.nc.request(self.streets_info["unit_id"] + ".register_unit", streets_info_message, timeout=5)
+                response = await self.nc.request(self.streets_info[UnitKeys.UNIT_ID] + ".register_unit", streets_info_message, timeout=5)
                 message = response.data.decode('utf-8')
-                self.logger.warn("Registering unit received response: {message}".format(message=message))   
-                message_json = json.loads(message)             
-                self.streets_info["event_name"] = message_json["event_name"]
-                self.streets_info["location"] = message_json["location"]
-                self.streets_info["testing_type"] = message_json["testing_type"]
+                self.logger.warn(
+                    "Registering unit received response: {message}".format(message=message))
+                message_json = json.loads(message)
+                self.streets_info[EventKeys.EVENT_NAME] = message_json[EventKeys.EVENT_NAME]
+                self.streets_info[EventKeys.LOCATION] = message_json[EventKeys.LOCATION]
+                self.streets_info[EventKeys.TESTING_TYPE] = message_json[EventKeys.TESTING_TYPE]
                 self.registered = True
             except:
                 self.logger.warn("Registering unit failed")
@@ -251,15 +273,15 @@ class StreetsNatsBridge():
         """
         async def send_status(msg):
             await self.nc.publish(msg.reply, b"OK")
-        
+
         try:
-            await self.nc.subscribe(self.streets_info["unit_id"] + ".check_status", self.streets_info["unit_id"], send_status)
+            await self.nc.subscribe(self.streets_info[UnitKeys.UNIT_ID] + ".check_status", self.streets_info[UnitKeys.UNIT_ID], send_status)
 
         except:
             self.logger.warn("Status update failed")
             self.registered = False
             pass
-        
+
     async def publish_topics(self):
         """
         Waits for request from telematic server to create subscriber to selected topics and receive data. When a request
@@ -287,6 +309,6 @@ class StreetsNatsBridge():
 
         # Wait for request to publish specific topic and call topic_request callback function
         try:
-            await self.nc.subscribe(self.streets_info["unit_id"] + ".publish_topics", "worker", topic_request)
+            await self.nc.subscribe(self.streets_info[UnitKeys.UNIT_ID] + ".publish_topics", "worker", topic_request)
         except:
             self.logger.error(" In topic_request: Error publishing")
