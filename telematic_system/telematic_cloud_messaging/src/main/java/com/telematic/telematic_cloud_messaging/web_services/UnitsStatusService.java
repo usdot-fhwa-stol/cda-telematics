@@ -83,7 +83,7 @@ public class UnitsStatusService implements ConnectionListener, CommandLineRunner
     @Scheduled(fixedRate = 5000)
     public void checkUnitsStatus() throws IOException, InterruptedException {
 
-        logger.debug("Checking units status at timestamp = : " + System.currentTimeMillis() / 1000);
+        logger.debug("Checking units status at timestamp (Unit of second) = : " + System.currentTimeMillis() / 1000);
         for (JSONObject registered_unit : registeredUnitList) {
             String unitId = (String) registered_unit.get("unit_id");
             String subject = unitId + "." + checkUnitsStatus;
