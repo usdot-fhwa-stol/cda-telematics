@@ -2,6 +2,8 @@ package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
 import org.springframework.stereotype.Component;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
+
 import java.io.*;
 import java.util.Properties;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.InfluxDataWriter;
@@ -19,6 +21,7 @@ import java.lang.Thread;
  * received data to the Influx database.
  */
 @Component
+@Profile("!test") //Skip Unit test on the CommandLineRunner task
 public class NatsInfluxPush implements CommandLineRunner {
     static String nats_uri;    
     static String influx_uri;

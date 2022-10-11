@@ -1,0 +1,19 @@
+version: "3.4"
+services:
+  ros2-nats-bridge:
+    build:
+          context: ./telematic_units/carma_vehicle_bridge
+          dockerfile: Dockerfile
+    image: usdot-fhwa-stol/carma_vehicle_bridge
+    container_name: carma_vehicle_bridge
+    network_mode: host
+    entrypoint: /ws/ros_entrypoint.sh
+  
+  streets-nats-bridge:
+    build:
+          context: ./telematic_units/carma_street_bridge
+          dockerfile: Dockerfile
+    image: usdot-fhwa-stol/carma_street_bridge
+    container_name: carma_street_bridge
+    volumes:
+           - ./logs:/var/logs

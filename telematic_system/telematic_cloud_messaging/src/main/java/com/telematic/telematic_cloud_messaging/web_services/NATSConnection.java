@@ -19,7 +19,7 @@ public class NATSConnection implements ConnectionListener {
     private static Logger logger = LoggerFactory.getLogger(NATSConnection.class);
 
     // Get config parameters from application.properties
-    @Value("${NATS_URL}")
+    @Value("${NATS_URI}")
     private String natServerURL;
 
     // NATS connection
