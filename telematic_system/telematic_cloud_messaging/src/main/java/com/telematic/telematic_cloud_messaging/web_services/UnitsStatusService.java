@@ -65,7 +65,7 @@ public class UnitsStatusService implements CommandLineRunner {
             throws IOException, InterruptedException, ExecutionException {
 
         logger.debug("List Registered Units.");
-        return new ResponseEntity<>(registeredUnitList, HttpStatus.ACCEPTED);
+        return new ResponseEntity<>(registeredUnitList, HttpStatus.OK);
     }
 
     /***
