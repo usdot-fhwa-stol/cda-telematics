@@ -36,7 +36,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 cd ${dir}/src
-
+sudo apt-get update
 
 # clone carma repos
 

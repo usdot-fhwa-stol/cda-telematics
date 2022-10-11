@@ -32,6 +32,8 @@ def main():
     tasks = [
         loop.create_task(streets_nats_bridge.run_async_kafka_consumer()),# Kafka consumer was created, subscribe to all available carma-streets kafka topics, and wait to read data from kafka topics
         loop.create_task(streets_nats_bridge.nats_connect()),
+        loop.create_task(streets_nats_bridge.register_unit()),
+        loop.create_task(streets_nats_bridge.check_status()),
         loop.create_task(streets_nats_bridge.available_topics()),
         loop.create_task(streets_nats_bridge.publish_topics())
     ]

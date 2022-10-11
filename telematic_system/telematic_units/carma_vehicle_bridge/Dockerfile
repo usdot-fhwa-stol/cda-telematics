@@ -27,7 +27,6 @@ RUN source /opt/ros/foxy/setup.bash && \
 FROM base AS install
 
 WORKDIR /ws
-
 COPY --from=dep /ws/build /ws/build
 COPY --from=dep /ws/install /ws/install
 
