@@ -4,9 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.Assert.assertTrue;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
 import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
 import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
 
+@ActiveProfiles("test")
 @SpringBootTest
 public class InfluxDataWriterTests {
     String influx_uri =  "http://52.71.82.177:8086";

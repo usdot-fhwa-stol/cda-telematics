@@ -36,10 +36,14 @@ cd <directory name>/telematic_system
 mv telematic.env .env
 
 # Docker compose up to launch container
-docker-compose up -d
+ docker-compose -f docker-compose.cloud.servers.yml up -d
+ docker-compose -f docker-compose.dbs.yml up -d
+ docker-compose -f docker-compose.units.yml up -d
 
 # Shutdown container
-docker-compose down
+docker-compose -f docker-compose.cloud.servers.yml down
+docker-compose -f docker-compose.dbs.yml down
+docker-compose -f docker-compose.units.yml down
 ```
 
 ## Open a browser to view influxDB UI
