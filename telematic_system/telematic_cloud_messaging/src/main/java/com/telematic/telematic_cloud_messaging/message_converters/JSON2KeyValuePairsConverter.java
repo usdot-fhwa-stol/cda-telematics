@@ -20,22 +20,26 @@ public class JSON2KeyValuePairsConverter {
             for (Object key : json.keySet()) {
                 key_count++;
                 Object value = json.get(key.toString());
-                if (value == null) {
-                    continue;
-                }
-                // Regex matching integers
-                if (value.toString().matches("[-+]?\\d*")) {
-                    pairs += key + "=" + value;
-                }
-                // Regex matching decimals
-                else if (value.toString().matches("[-+]?\\d*\\.?\\d+")) {
-                    pairs += key + "=" + value;
-                }
-                // If none of the above Regex matches, considering it as string
-                else {
-                    pairs += key + "=\"" + value.toString() + "\"";
-                }
 
+                if (value == null || value.toString().isEmpty())
+                {
+                    pairs += key + "=\"NA\"";
+                }
+                else {
+                    // Regex matching integers
+                    if (value.toString().matches("[-+]?\\d*")) {
+                        pairs += key + "=" + value;
+                    }
+                    // Regex matching decimals
+                    else if (value.toString().matches("[-+]?\\d*\\.?\\d+")) {
+                        pairs += key + "=" + value;
+                    }
+                    // If none of the above Regex matches, considering it as string
+                    else {
+                        pairs += key + "=\"" + value.toString() + "\"";
+                    }
+                }              
+                
                 if (json.keySet().size() != key_count) {
                     pairs += ",";
                 }
