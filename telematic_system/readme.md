@@ -36,10 +36,14 @@ cd <directory name>/telematic_system
 mv telematic.env .env
 
 # Docker compose up to launch container
-docker-compose up -d
+ docker-compose -f docker-compose.cloud.servers.yml up -d
+ docker-compose -f docker-compose.dbs.yml up -d
+ docker-compose -f docker-compose.units.yml up -d
 
 # Shutdown container
-docker-compose down
+docker-compose -f docker-compose.cloud.servers.yml down
+docker-compose -f docker-compose.dbs.yml down
+docker-compose -f docker-compose.units.yml down
 ```
 
 ## Open a browser to view influxDB UI
@@ -56,15 +60,21 @@ http://<amazone ec2 instance url>:8086/orgs/04cb75631ee68b28
     curl -X GET-v http://localhost:8181/healthz
 ```
 
-- Get all available topics
+- Get all available topics (JAVA version)
 ```
-    curl -X GET-v http://localhost:8080/requestAvailableTopics?unit_id=<unit_id>
+	curl -X GET -v http://localhost:8080/requestAvailableTopics/<unit_id>
 ```
 
-- Request data for a list of selected topics
+- Get all available topics (Go version)
+```
+	curl -X GET-v http://localhost:8080/requestAvailableTopics?unit_id=<unit_id>
+```
+
+- Request data for a list of selected topics  (Go version)
 ```
 	curl -d '{"unit_id": "<unit_id>", "unit_type": "<unit_type>", "timestamp": 1663084528513000325, "topics": ["<topic_name_1>","<topic_name_2>"]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/publishSelectedTopics
 ```
+
 
 # CARMA vehicle bridge
 ## Update cycloneDDS config to port to host machine network interface
@@ -79,3 +89,16 @@ http://<amazone ec2 instance url>:8086/orgs/04cb75631ee68b28
 </CycloneDDS>
 ```
 Update the NetworkInterfaceAddress to the machine that used to run carma_vehicle_bridge
+
+
+- Request data for a list of selected topics (Java version)
+```
+	curl -d '{"unit_id": "<unit_id>", "unit_type": "<unit_type>", "timestamp": 1663084528513000325, "topics": ["<topic_name_1>","<topic_name_2>"]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/requestSelectedTopics
+```
+
+3. get list of registered units:
+	```
+	curl -X GET -v http://localhost:8080/registeredUnits
+
+	```
+

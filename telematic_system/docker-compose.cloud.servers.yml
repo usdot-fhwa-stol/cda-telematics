@@ -1,0 +1,18 @@
+version: '3'
+services:  
+  nats:
+    image: 'nats:2.7.3-alpine3.15'
+    ports:
+      - 8222:8222
+      - 4222:4222
+      - 6222:6222
+
+  telematic_messaging:
+    build: 
+      context: "./telematic_cloud_messaging"
+    depends_on:
+      - nats
+    environment:
+      - NATS_URI=nats://nats:4222
+    ports:
+      - 8080:8080

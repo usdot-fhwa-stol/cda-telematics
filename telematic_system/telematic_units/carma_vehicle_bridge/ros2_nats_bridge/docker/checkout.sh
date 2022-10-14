@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#  Copyright (C) 2018-2021 LEIDOS.
+#  Copyright (C) 2018-2022 LEIDOS.
 # 
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
@@ -36,7 +36,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 cd ${dir}/src
-
+sudo apt-get update
 
 # clone carma repos
 
@@ -64,15 +64,12 @@ sudo git clone https://github.com/astuff/automotive_autonomy_msgs.git automotive
 cd automotive_autonomy_msgs 
 sudo git reset --hard 191dce1827023bef6d69b31e8c2514cf82bf10c5
 cd ..
-
-apt-get install -y ros-foxy-lgsvl-msgs \
+sudo apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-udp-msgs \
                    ros-foxy-rosapi-msgs \
                    ros-foxy-rosbridge-msgs \
                    ros-foxy-automotive-platform-msgs \
-                   ros-foxy-gps-msgs \
-                   ros-foxy-autoware-auto-msgs
-
+                   ros-foxy-gps-msgs       
 sudo apt install apt-transport-https
 sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-public.list'
 sudo apt update
@@ -80,12 +77,13 @@ sudo apt install -y ros-foxy-pacmod3-msgs ros-foxy-pcl-msgs
 
 sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
 cd autoware.ai
-sed -i.bak '/find_package(ros_environment REQUIRED)/d' messages/*/CMakeLists.txt
-sed -i.bak '/find_package(ros_environment REQUIRED)/d' jsk_common_msgs/*/CMakeLists.txt
+sudo sed -i.bak '/find_package(ros_environment REQUIRED)/d' messages/*/CMakeLists.txt
+sudo sed -i.bak '/find_package(ros_environment REQUIRED)/d' jsk_common_msgs/*/CMakeLists.txt
 
-mv jsk_common_msgs ../carma-msgs/jsk_common_msgs
-mv jsk_recognition ../carma-msgs/jsk_recognition
-mv messages ../carma-msgs/messages
+sudo mv jsk_common_msgs ../carma-msgs/jsk_common_msgs
+sudo mv jsk_recognition ../carma-msgs/jsk_recognition
+sudo mv messages ../carma-msgs/messages
 
 cd ..
-rm -rf autoware.ai
+sudo rm -rf autoware.ai
+

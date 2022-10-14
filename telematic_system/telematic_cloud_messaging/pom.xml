@@ -10,7 +10,7 @@
 	<groupId>com.telematic</groupId>
 	<artifactId>telematic_cloud_messaging</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<name>telematic_cloud_messaging</name>
 	<description>Telematic Cloud NATS message consumers </description>
 	<properties>
@@ -42,6 +42,27 @@
 			<artifactId>json-flattener</artifactId>
 			<version>0.13.0</version>
 		</dependency>
+		<dependency>
+			<groupId>io.nats</groupId>
+			<artifactId>jnats</artifactId>
+			<version>2.16.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.influxdb</groupId>
+			<artifactId>influxdb-client-java</artifactId>
+			<version>3.3.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>20180813</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.12.0</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
