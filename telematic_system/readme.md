@@ -76,6 +76,21 @@ http://<amazone ec2 instance url>:8086/orgs/04cb75631ee68b28
 ```
 
 
+# CARMA vehicle bridge
+## Update cycloneDDS config to port to host machine network interface
+```
+<?xml version="1.0" encoding="UTF-8" ?>
+ <CycloneDDS xmlns="https://cdds.io/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://cdds.io/config https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
+   <Domain id="any">
+       <General>
+            <NetworkInterfaceAddress>ens33</NetworkInterfaceAddress>
+        </General>
+    </Domain>
+</CycloneDDS>
+```
+Update the NetworkInterfaceAddress to the machine that used to run carma_vehicle_bridge
+
+
 - Request data for a list of selected topics (Java version)
 ```
 	curl -d '{"unit_id": "<unit_id>", "unit_type": "<unit_type>", "timestamp": 1663084528513000325, "topics": ["<topic_name_1>","<topic_name_2>"]}'  -H "Content-Type: application/json" -X POST -v http://localhost:8080/requestSelectedTopics
@@ -86,3 +101,4 @@ http://<amazone ec2 instance url>:8086/orgs/04cb75631ee68b28
 	curl -X GET -v http://localhost:8080/registeredUnits
 
 	```
+
