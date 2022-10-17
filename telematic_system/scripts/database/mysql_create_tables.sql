@@ -52,6 +52,7 @@ create table events(
     location_id int not null default 0,
     testing_type_id int not null default 0,
     default_topic_id int,
+    status Enum('past', 'live', 'active'),
     created_at timestamp default CURRENT_TIMESTAMP,
     created_by int not null default 0,
     updated_at timestamp default CURRENT_TIMESTAMP,
