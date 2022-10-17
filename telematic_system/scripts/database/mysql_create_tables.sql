@@ -19,7 +19,7 @@ create table locations(
     facility_name varchar(255) not null default '',
     city varchar(255) not null default '',
     state_code char(2) not null default '',
-    zipcode varchar(255) not null default '',
+    zip_code varchar(10) not null default '',
     created_at timestamp default CURRENT_TIMESTAMP,
     created_by int not null default 0,
     primary key(id),
