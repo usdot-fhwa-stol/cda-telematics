@@ -1,20 +1,20 @@
 version: 2.1
 #  Copyright (C) 2018-2022 LEIDOS.
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
 #  the License at
-# 
+#
 #  http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #  License for the specific language governing permissions and limitations under
 #  the License.
-# 
+#
 
-# Configuration file for Circle CI 
+# Configuration file for Circle CI
 # CI will report failure if any executed command returns and error status
 # Operations performed are as follows
 # Build source code
@@ -24,7 +24,7 @@ version: 2.1
 # Every run command should start with source ${INIT_ENV} to ensure all default dependancies are available
 jobs:
   build:
-    # Pull docker image 
+    # Pull docker image
     # XTERM used for better make output
     docker:
       - image: usdotfhwastoldev/carma-base:develop
@@ -40,7 +40,7 @@ jobs:
     # Name of each run command defines purpose use
     steps:
       #setup remote docker
-      - setup_remote_docker :
+      - setup_remote_docker:
           docker_layer_caching: true
       - run:
           name: Create src folder
@@ -57,6 +57,11 @@ jobs:
             source ${INIT_ENV}
             ./src/cda-telematics/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}
       - run:
+          name: Build telematic_cloud_messaging
+          command: |
+            cd src/cda-telematics/telematic_system/telematic_cloud_messaging
+            ./mvnw clean package -Dmaven.test.skip=false
+      - run:
           name: Build Driver
           command: |
             source ${INIT_ENV}
@@ -66,7 +71,7 @@ jobs:
       # Run SonarCloud analysis
       # PR Branchs and number extracted from Circle variables and github api
       # Circle CI seems to make a change to the base branch, so we must fetch --force to ensure correct git file change stats
-      # SONAR_SCANNER_TOKEN MUST be secured as an environment variable in Circle CI NOT in this file. 
+      # SONAR_SCANNER_TOKEN MUST be secured as an environment variable in Circle CI NOT in this file.
       # The following sonar settings MUST be set in SonarCloud UI NOT in this file
       # sonar.pullrequest.provider
       # sonar.pullrequest.github.endpoint
@@ -94,7 +99,7 @@ jobs:
             cd src/cda-telematics
             git fetch --force origin ${TARGET_BRANCH}:${TARGET_BRANCH}
             sonar-scanner -Dproject.settings=.sonarqube/sonar-scanner.properties -Dsonar.login=${SONAR_SCANNER_TOKEN} -Dsonar.pullrequest.base=${TARGET_BRANCH} -Dsonar.pullrequest.branch=${CIRCLE_BRANCH} -Dsonar.pullrequest.key=${PR_NUM}
-            
+
 workflows:
   version: 2
   build:
