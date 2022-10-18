@@ -56,11 +56,11 @@ jobs:
           command: |
             source ${INIT_ENV}
             ./src/cda-telematics/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}
-      - run:
-          name: Build telematic_cloud_messaging
-          command: |
-            cd src/cda-telematics/telematic_system/telematic_cloud_messaging
-            ./mvnw clean package -Dmaven.test.skip=false
+      #- run:
+          #name: Build telematic_cloud_messaging
+          #command: |
+            #cd src/cda-telematics/telematic_system/telematic_cloud_messaging
+            #./mvnw clean package -Dmaven.test.skip=false
       - run:
           name: Build Driver
           command: |
