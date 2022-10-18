@@ -3,7 +3,7 @@ RUN mkdir -p /telematic_cloud_messaging
 COPY ./ /telematic_cloud_messaging/
 WORKDIR /telematic_cloud_messaging
 RUN ls -la && pwd
-RUN ./telematic_cloud_messaging/telematic_system/mvnw clean package -Dmaven.test.skip=true
+RUN ./telematic_cloud_messaging/telematic_system/telematic_cloud_messaging/mvnw clean package -Dmaven.test.skip=true
 RUN mv /telematic_cloud_messaging/target/*.jar app.jar
 RUN rm -R target
 ENTRYPOINT ["java", "-jar", "/telematic_cloud_messaging/app.jar" ]
