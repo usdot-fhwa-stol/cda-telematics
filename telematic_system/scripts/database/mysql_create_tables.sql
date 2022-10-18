@@ -33,17 +33,6 @@ create table testing_types(
     created_by int not null default 0,
     primary key(id)
 );
--- Create default_event_topic table
-create table default_event_topics(
-    id int not null auto_increment,
-    topic_names text not null,
-    unit_identifier varchar(100) not null default '',
-    created_at timestamp default CURRENT_TIMESTAMP,
-    created_by int not null default 0,
-    updated_at timestamp default CURRENT_TIMESTAMP,
-    updated_by int not null default 0,
-    primary key(id)
-);
 -- Create event table
 create table events(
     id int not null auto_increment,
@@ -51,7 +40,6 @@ create table events(
     description varchar(500) not null default '',
     location_id int not null default 0,
     testing_type_id int not null default 0,
-    default_topic_id int,
     status varchar(50) not null default '',
     created_at timestamp default CURRENT_TIMESTAMP,
     created_by int not null default 0,
@@ -59,10 +47,7 @@ create table events(
     updated_by int not null default 0,
     primary key(id),
     foreign key (location_id) references locations(id) on update cascade on delete cascade,
-    foreign key (testing_type_id) references testing_types(id) on update cascade on delete cascade,
-    foreign key (default_topic_id) references default_event_topics(id) on update
-    set null on delete
-    set null
+    foreign key (testing_type_id) references testing_types(id) on update cascade on delete cascade
 );
 -- Create unit table
 create table units(
@@ -85,6 +70,20 @@ create table event_units(
     created_at timestamp not null default CURRENT_TIMESTAMP,
     created_by int not null default 0,
     primary key(id),
-    foreign key (unit_id) references units(id) on update cascade on delete cascade,
+    foreign key (unit_id) references units(id),
+    foreign key (event_id) references events(id) 
+);
+
+-- Create default_event_topic table
+create table default_event_topics(
+    id int not null auto_increment,
+    topic_names text not null,
+    event_id int not null default 0,
+    unit_identifier varchar(100) not null default '',
+    created_at timestamp default CURRENT_TIMESTAMP,
+    created_by int not null default 0,
+    updated_at timestamp default CURRENT_TIMESTAMP,
+    updated_by int not null default 0,
+    primary key(id),
     foreign key (event_id) references events(id) on update cascade on delete cascade
 );
