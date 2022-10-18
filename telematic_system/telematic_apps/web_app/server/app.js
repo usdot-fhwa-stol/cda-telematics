@@ -10,6 +10,17 @@ var testAPIRouter = require("./routes/testAPI");
 var unitsRouter = require("./routes/units");
 
 var app = express();
+const cors = require('cors')
+
+var corsOptions = {
+  origin: 'http://localhost:3005'
+}
+
+//Allow cors from selected clients
+app.use(cors(corsOptions))
+
+//parse request of content type application/json
+app.use(express.json())
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -25,14 +36,29 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use("/units", unitsRouter);
 app.use("/testAPI", testAPIRouter);
+require("./routes/events.router")(app);
+require("./routes/locations.router")(app);
+require("./routes/units.router")(app);
+require("./routes/default_event_topics.router")(app);
+require("./routes/event_units.router")(app);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
+const grafana_db = require("./models");
+grafana_db.seq.sync()
+  .then(() => {
+    console.log("Synced grafana_db.");
+  })
+  .catch((err) => {
+    console.log("Failed to sync grafana_db: " + err.message);
+  });
+
+
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
