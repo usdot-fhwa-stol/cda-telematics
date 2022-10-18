@@ -8,7 +8,7 @@ RUN set -xe \
     vim \
     python3-pip
     
-COPY requirements.txt /tmp
+COPY telematic_system/telematic_units/carma_street_bridge/requirements.txt /tmp
 WORKDIR /tmp
 RUN pip install --upgrade -r requirements.txt
 
