@@ -32,6 +32,14 @@ module.exports = (seq, Sequelize) => {
             type: Sequelize.INTEGER,
             defaultValue: 0,
             allowNull: false,
+        }, start_at: {
+            type: 'TIMESTAMP',
+            defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+            allowNull: false
+        }, end_at: {
+            type: 'TIMESTAMP',
+            defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
+            allowNull: false
         },
         created_at: {
             type: 'TIMESTAMP',

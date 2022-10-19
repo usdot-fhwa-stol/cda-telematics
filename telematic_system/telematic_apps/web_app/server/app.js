@@ -41,6 +41,8 @@ require("./routes/locations.router")(app);
 require("./routes/units.router")(app);
 require("./routes/default_event_topics.router")(app);
 require("./routes/event_units.router")(app);
+require("./routes/testing_typess.router")(app);
+require("./routes/states.router")(app);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

@@ -23,6 +23,7 @@ grafana_db.units = require('./units.model')(seq, Sequelize);
 grafana_db.default_event_topics = require('./default_event_topics.model')(seq, Sequelize);
 grafana_db.testing_types = require('./testing_types.model')(seq, Sequelize);
 grafana_db.event_units = require('./event_units.model')(seq, Sequelize);
+grafana_db.states = require('./states.model')(seq, Sequelize);
 
 //Associations
 grafana_db.events.belongsToMany(grafana_db.units, {
@@ -34,6 +35,10 @@ grafana_db.units.belongsToMany(grafana_db.events, {
     through: grafana_db.event_units
 });
 
+grafana_db.events.hasMany(grafana_db.event_units);
+grafana_db.event_units.belongsTo(grafana_db.events);
+grafana_db.units.hasMany(grafana_db.event_units);
+grafana_db.event_units.belongsTo(grafana_db.units);
 
 grafana_db.locations.hasMany(grafana_db.events, {
     foreignKey: {

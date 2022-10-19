@@ -1,4 +1,4 @@
-const { events, Sequelize, locations, testing_types , units} = require("../models");
+const { events, Sequelize, locations, testing_types, units, event_units } = require("../models");
 const Op = Sequelize.Op;
 
 //create an event
@@ -11,9 +11,10 @@ exports.create = (req, res) => {
     }
 
     var event = req.body;
+    event.start_at = new Date(event.start_at);
+    event.end_at = new Date(event.end_at);
     event.updated_by = 1;
     event.created_by = 1;
-    //create an event
     events.create(event).then(data => {
         res.status(201).send(data);
     }).catch(err => {
@@ -36,19 +37,23 @@ exports.findAll = (req, res) => {
         condition.location_id = location_id;
     }
 
-    // const start_time = req.query.start_time;
-    // if (start_time) {
-    //     condition.start_time > start_time;
-    // }
-
-    // const end_time = req.query.end_time;
-    // if (end_time) {
-    //     condition.end_time > end_time;
-    // }
-
     const status = req.query.status;
     if (status) {
         condition.status = status;
+    } else {
+        const start_at = req.query.start_at;
+        if (start_at) {
+            condition.start_at = {
+                [Op.gt]: new Date(start_at)
+            };
+        }
+
+        const end_at = req.query.end_at;
+        if (end_at) {
+            condition.end_at = {
+                [Op.lt]: new Date(end_at)
+            };
+        }
     }
 
     const testing_type_id = req.query.testing_type_id;
@@ -65,12 +70,14 @@ exports.findAll = (req, res) => {
             attributes: ["id", "name"]
         }, {
             model: units,
-            attributes: ["id", "unit_name","unit_type","unit_identifier"],
+            attributes: ["id", "unit_name", "unit_type", "unit_identifier"],
             through: {
                 attributes: [],
-              }
+            }
+        },{
+            model: event_units,
         }
-    ]
+        ]
     })
         .then(data => {
             res.status(200).send(data);
@@ -86,12 +93,14 @@ exports.update = (req, res) => {
     var event = req.body;
     event.updated_at = Sequelize.literal('CURRENT_TIMESTAMP');
     event.updated_by = 0;
+    event.start_at = new Date(event.start_at);
+    event.end_at = new Date(event.end_at);
     //update an event
     events.update(event, {
         where: { id: id }
     }).then(num => {
         if (num == 1) {
-            res.status(204).send({ message: "Event was updated successfully." })
+            res.status(200).send(event);
         } else {
             res.status(404).send({ message: `Cannot update event id =${id}. Maybe event was not found or request body was empty.` });
         }

@@ -7,7 +7,7 @@ module.exports = app => {
     router.post('/create', event_unit.create)
 
     //Unassign unit to an event
-    router.delete('/delete/:id', event_unit.delete)
+    router.delete('/delete', event_unit.delete)
 
     app.use('/api/event_units', router);
 

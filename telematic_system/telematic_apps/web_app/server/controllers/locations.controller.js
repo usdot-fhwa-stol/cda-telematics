@@ -1,4 +1,4 @@
-const { locations, Sequelize } = require("../models");
+const { locations, Sequelize, states } = require("../models");
 const Op = Sequelize.Op;
 
 //create a location
@@ -13,7 +13,6 @@ exports.create = (req, res) => {
     var location = req.body;
     location.created_by = 1;
     locations.create(location).then(data => {
-        console.log(data)
         res.status(201).send(data);
     }).catch(err => {
         res.status(500).send({
