@@ -56,13 +56,7 @@ jobs:
           command: |
             source ${INIT_ENV}
             source ${ROS_2_ENV}
-            ./src/cda-telematics/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}
-      - run:
-          name: Run C++ Tests
-          command: |
-            source ${INIT_ENV}
-            source ${ROS_2_ENV}
-            bash make_with_coverage.bash -t -e /opt/carma/ -o ./coverage_reports/gcov            
+            ./src/cda-telematics/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}          
       #- run:
           #name: Build telematic_cloud_messaging
           #command: |
