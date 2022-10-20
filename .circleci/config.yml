@@ -41,7 +41,7 @@ jobs:
     steps:
       #setup remote docker
       - setup_remote_docker:
-          docker_layer_caching: true
+          docker_layer_caching: false
       - run:
           name: Create src folder
           command: |
@@ -55,6 +55,7 @@ jobs:
           name: Pull Deps
           command: |
             source ${INIT_ENV}
+            source ${ROS_2_ENV}
             ./src/cda-telematics/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/docker/checkout.sh -r ${PWD}
       - run:
           name: Run C++ Tests
