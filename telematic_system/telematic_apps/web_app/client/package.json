@@ -21,7 +21,7 @@
     "react-hook-form": "^7.38.0",
     "react-iframe": "^1.8.4",
     "react-router-dom": "^6.4.2",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "react-use-window-sessionstorage": "^1.0.10",
     "web-vitals": "^2.1.4",
     "yup": "^0.32.11"

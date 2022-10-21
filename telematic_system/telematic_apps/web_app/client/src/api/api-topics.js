@@ -2,7 +2,7 @@ import axios from 'axios';
 const getAvailableLiveTopicsByEventUnits = async (event_id, selectedUnitIdentifiers) => {
     let sentStatus = [];
     await Promise.all(selectedUnitIdentifiers.map(async selectedUnitIdentifier => {
-        const URL = `http://localhost:8080/requestAvailableTopics/${selectedUnitIdentifier}`
+        const URL = `${process.env.REACT_APP_MESSAGING_SERVER_URI}/requestAvailableTopics/${selectedUnitIdentifier}`
         try {
             const { data } = await axios.get(URL);
             sentStatus.push(data);
@@ -18,7 +18,7 @@ const getAvailableLiveTopicsByEventUnits = async (event_id, selectedUnitIdentifi
 }
 
 const requestSelectedLiveUnitsTopics = async (seletedUnitTopicListToConfirm) => {
-    const URL = `http://localhost:8080/requestSelectedTopics`;
+    const URL = `${process.env.REACT_APP_MESSAGING_SERVER_URI}/requestSelectedTopics`;
     let sentStatus = [];
     await Promise.all(seletedUnitTopicListToConfirm.map(async selectdUnitTopics => {
         let body = {

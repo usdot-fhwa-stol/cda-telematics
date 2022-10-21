@@ -1,7 +1,7 @@
 import axios from 'axios';
 const findAllTestingTypes= async (criteria) => {
     try {
-        let URL = "http://localhost:9010/api/testing_types/all";
+        let URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/testing_types/all`;
         const { data } = await axios.get(URL);
         return data;
     } catch (err) {

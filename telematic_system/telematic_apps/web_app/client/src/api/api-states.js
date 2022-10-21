@@ -1,6 +1,6 @@
 import axios from 'axios';
 const findAllStates = async () => {
-    const URL = "http://localhost:9010/api/states/all"
+    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/states/all`
     try {
       const { data } = await axios.get(URL);
       return data;

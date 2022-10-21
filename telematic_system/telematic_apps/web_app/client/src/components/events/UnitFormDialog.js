@@ -8,16 +8,21 @@ import { VALID_UNIT_TYPES } from './EventMetadata';
 export const UnitFormDialog = (props) => {
     const unitIdRef = useRef(null);
     const unitNameRef = useRef(null);
-    const unitTypeRef = useRef(null);
+    const [unitType, setUnitType] = useState('');
 
     const onCloseHandler = () => {
+        setUnitType('');
         props.onClose();
     }
+    const handleUnitTypeChange = (event)=>{
+        setUnitType(event.target.value);
+    }
+
     const onSaveHandler = () => {
         const unit = {
             unit_identifier: unitIdRef.current.value,
             unit_name: unitNameRef.current.value,
-            unit_type: unitTypeRef.current.value
+            unit_type: unitType
         }
         props.onSave(unit);
     }
@@ -78,11 +83,10 @@ export const UnitFormDialog = (props) => {
                             render={({ field }) => (
                                 <Select
                                     {...field}
-                                    labelId="unitTypeLabelId"
-                                    defaultValue=""
-                                    inputRef={unitTypeRef}
+                                    value={unitType}
                                     {...register('unitTypeId')}
-                                    error={errors.unitTypeId ? true : false}>
+                                    error={errors.unitTypeId ? true : false}
+                                    onChange={handleUnitTypeChange}>
                                     {
                                         Object.entries(VALID_UNIT_TYPES).map(entry => (
                                             <MenuItem key={entry[1]} value={entry[1]}>{entry[1]}</MenuItem>

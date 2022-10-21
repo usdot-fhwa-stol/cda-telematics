@@ -1,4 +1,4 @@
--- Insert values into tseting_types table
+-- Insert values into testing_types table
 insert into testing_types (name) values ('Verification');
 insert into testing_types (name) values ('Validation');
 insert into testing_types (name) values ('Integration');

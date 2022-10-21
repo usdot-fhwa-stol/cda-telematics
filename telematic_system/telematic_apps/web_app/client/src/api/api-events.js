@@ -2,7 +2,7 @@ import axios from 'axios';
 
 const createEvent = async (event) => {
     try {
-        const URL = "http://localhost:9010/api/events/create"
+        const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/events/create`
         const { data } = await axios.post(URL, event);
         return data;
     } catch (err) {
@@ -12,7 +12,7 @@ const createEvent = async (event) => {
 
 const findAllEvents = async (criteria) => {
     try {
-        let URL = "http://localhost:9010/api/events/all";
+        let URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/events/all`;
         if (criteria !== undefined && Object.keys(criteria).length > 0) {
             URL += "?";
             let key_values = "";
@@ -31,7 +31,7 @@ const findAllEvents = async (criteria) => {
 
 const editEvent = async (event) => {
     try {
-        const URL = `http://localhost:9010/api/events/update/${event.id}`;
+        const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/events/update/${event.id}`;
         const { data } = await axios.put(URL, event);
         return data;
     } catch (err) {
@@ -42,7 +42,7 @@ const editEvent = async (event) => {
 
 const assignUnit2Event = async (assign_event_unit) => {
     try {
-        const URL = "http://localhost:9010/api/event_units/create"
+        const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/event_units/create`
         const { data } = await axios.post(URL, assign_event_unit);
         return data;
     } catch (err) {
@@ -53,7 +53,7 @@ const assignUnit2Event = async (assign_event_unit) => {
 
 const unAssignUnit2Event = async (event_unit) => {
     try {
-        const URL = `http://localhost:9010/api/event_units/delete?event_id=${event_unit.event_id}&unit_id=${event_unit.unit.id}`;
+        const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/event_units/delete?event_id=${event_unit.event_id}&unit_id=${event_unit.unit.id}`;
         const { data } = await axios.delete(URL);
         return data;
     } catch (err) {
@@ -64,7 +64,7 @@ const unAssignUnit2Event = async (event_unit) => {
 
 const deleteEvent = async (id) => {
     try {
-        const URL = `http://localhost:9010/api/events/delete/${id}`
+        const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/events/delete/${id}`
         const { data } = await axios.delete(URL);
         return data;
     } catch (err) {

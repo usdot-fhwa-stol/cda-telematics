@@ -258,6 +258,7 @@ const TopicList = React.memo((props) => {
                                         onChecked={checkSelectedTopicsHanlder}
                                         onUnChecked={unCheckSelectedTopicsHanlder} />
                                 }
+                                return <React.Fragment>No Topics</React.Fragment>
                             })
                         }
                     </CardContent>

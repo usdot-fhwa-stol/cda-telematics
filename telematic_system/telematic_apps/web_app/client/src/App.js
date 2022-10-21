@@ -1,4 +1,3 @@
-import './App.css';
 import React from 'react';
 import MainRouter from './components/layout/MainRouter';
 import Layout from './components/layout/Layout';

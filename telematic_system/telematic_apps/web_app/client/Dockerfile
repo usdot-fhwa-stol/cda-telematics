@@ -1,13 +1,18 @@
 FROM node:16.16.0
 
-
+# Create app directory
 WORKDIR /app
-COPY . .
 
+#A wildcard is used to ensure both package.json AND package-lock.json are copied where available 
+COPY package*.json ./
 RUN npm init -y
 RUN npm install --force
 
-ENV PORT=3005
+COPY app.env .env
+
+# Bundle app source
+COPY . .
+
 EXPOSE 3005
 
 ENTRYPOINT ["npm", "start"]

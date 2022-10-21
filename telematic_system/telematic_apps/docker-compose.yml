@@ -12,8 +12,8 @@ services:
       - /opt/grafana/data:/var/lib/grafana
       - /opt/grafana/provisioning:/home/grafana/conf/provisioning
       - /home/ubuntu/.aws/credentials:/usr/share/grafana/.aws/credentials
-      
-    user: '472' #grafana user id
+
+    user: "472" #grafana user id
 
   web_server:
     build:
@@ -23,8 +23,8 @@ services:
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
-      - ALLOW_CLIENT_URL=http://localhost:3005 
-      # Server port 
+      - ALLOW_CLIENT_URL=http://localhost:3005
+      # Server port
       - PORT=9010
       # MYSQL DB credentials
       - DB_HOST=localhost
@@ -39,4 +39,8 @@ services:
     restart: always
     depends_on:
       - web_server
+      - grafana
+    environment:
+      # Server port
+      - PORT=3005
     network_mode: host

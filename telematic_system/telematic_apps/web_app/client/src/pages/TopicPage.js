@@ -7,12 +7,12 @@ import { findAllTestingTypes } from '../api/api-testing-types';
 import { requestSelectedLiveUnitsTopics } from '../api/api-topics';
 import { VALID_UNIT_TYPES } from '../components/events/EventMetadata';
 import InfrastructureTopicList from '../components/topics/InfrastructureTopicList';
+import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
 import TopicsFilter from '../components/topics/TopicsFilter';
 import VehicleTopicList from '../components/topics/VehicleTopicList';
-import { PageAvatar } from '../components/ui/PageAvatar';
 import Notification from '../components/ui/Notification';
+import { PageAvatar } from '../components/ui/PageAvatar';
 import TopicContext from '../context/topic-context';
-import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
 
 const TopicPage = React.memo(() => {
   const TopicCtx = useContext(TopicContext);

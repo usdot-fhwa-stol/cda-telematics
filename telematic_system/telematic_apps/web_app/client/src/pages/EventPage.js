@@ -2,19 +2,19 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import EventIcon from '@mui/icons-material/Event';
 import { Button, Grid } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { createEvent, deleteEvent, editEvent, findAllEvents, assignUnit2Event, unAssignUnit2Event } from '../api/api-events';
-import { findAllTestingTypes } from '../api/api-testing-types';
+import { assignUnit2Event, createEvent, deleteEvent, editEvent, findAllEvents, unAssignUnit2Event } from '../api/api-events';
 import { createLocation, findAllLocations } from '../api/api-locations';
-import { createUnit, findAllUnits, getLiveRegisteredUnits } from '../api/api-units';
+import { findAllStates } from '../api/api-states';
+import { findAllTestingTypes } from '../api/api-testing-types';
+import { createUnit, findAllUnits } from '../api/api-units';
 import { AddEventDialog } from '../components/events/AddEventDialog';
 import { AddLocationDialog } from '../components/events/AddLocationDialog';
 import { AddUnitDialog } from '../components/events/AddUnitDialog';
 import EventsFilter from '../components/events/EventsFilter';
 import EventTable from '../components/events/EventTable';
+import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
 import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
-import { findAllStates } from '../api/api-states';
-import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
 
 const EventPage = React.memo(() => {
   //Add Alert notification

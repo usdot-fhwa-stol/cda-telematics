@@ -3,7 +3,7 @@ import { Box } from '@mui/system';
 import React, { useState } from 'react'
 import Iframe from 'react-iframe'
 const Grafana = () => {
-  const embed_url = "http://ec2-44-206-13-7.compute-1.amazonaws.com:9000/d/_HrLXUI4k/default-dashboard-uc3?orgId=1&from=now-10d&to=now&kiosk&theme=light";
+  const embed_url = process.env.REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL;
   const [loading, setLoading] = useState(true);
   const loadedHanlder = () => {
     setLoading(false);
