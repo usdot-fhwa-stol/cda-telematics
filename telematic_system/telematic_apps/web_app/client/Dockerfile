@@ -1,13 +1,13 @@
 FROM node:16.16.0
 
-WORKDIR /usr/app
 
-COPY package*.json ./
-
-RUN npm ci -qy
-
+WORKDIR /app
 COPY . .
 
-EXPOSE 3001
+RUN npm init -y
+RUN npm install --force
 
-CMD ["npm", "start"]
+ENV PORT=3005
+EXPOSE 3005
+
+ENTRYPOINT ["npm", "start"]

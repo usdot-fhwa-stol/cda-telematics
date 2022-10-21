@@ -6,12 +6,14 @@ services:
       - 8222:8222
       - 4222:4222
       - 6222:6222
+    restart: always
 
   telematic_messaging:
     build: 
       context: "./telematic_cloud_messaging"
     depends_on:
       - nats
+    restart: always
     environment:
       - NATS_URI=nats://nats:4222
     ports:

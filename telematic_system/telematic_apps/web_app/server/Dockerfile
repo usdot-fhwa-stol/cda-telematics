@@ -3,6 +3,7 @@ FROM node:16.16.0
 WORKDIR /app
 COPY . .
 
+RUN npm install -g nodemon
 RUN npm init -y
 RUN npm install
 

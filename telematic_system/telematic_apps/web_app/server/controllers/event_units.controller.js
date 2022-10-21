@@ -11,8 +11,6 @@ exports.create = (req, res) => {
   var event_unit = req.body.event_unit;
   event_unit.end_time = new Date(event_unit.end_time);
   event_unit.start_time = new Date(event_unit.start_time);
-  event_unit.created_by = 1;
-  console.log(event_unit)
   //create an event_unit
   return events.findByPk(event_unit.eventId)
     .then((event) => {
@@ -25,7 +23,9 @@ exports.create = (req, res) => {
           console.log("unit not found!");
           return null;
         }
-
+        unit.event_units={
+          start_time: event_unit.start_time, end_time: event_unit.end_time
+        }
         event.addUnits(unit);
         res.status(200).send(event);
         return event;

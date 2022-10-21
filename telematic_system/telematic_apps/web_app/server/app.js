@@ -12,9 +12,11 @@ var unitsRouter = require("./routes/units");
 var app = express();
 const cors = require('cors')
 
+require('dotenv').config();
 var corsOptions = {
-  origin: 'http://localhost:3005'
+  origin: process.env.ALLOW_CLIENT_URL
 }
+console.log("Allowed client URL: " + process.env.ALLOW_CLIENT_URL);
 
 //Allow cors from selected clients
 app.use(cors(corsOptions))

@@ -3,29 +3,70 @@ const Op = Sequelize.Op;
 
 //create a default event topics
 exports.create = (req, res) => {
-    if (!req.body.topic_names) {
+    if (!req.body) {
         res.status(400).send({
             message: "Content cannot be empty."
         });
         return;
     }
+    var defaultEventUnitsTopics = [];
+    for (const unit of req.body) {
+        if (!unit.event_id) {
+            res.status(404).send({
+                message: "Event Id is empty."
+            });
+            return;
+        }
 
-    var default_event_topic = req.body;
-    default_event_topic.updated_by = 1;
-    default_event_topic.created_by = 1;
-    default_event_topics.create(default_event_topic).then(data => {
+        if (!unit.unit_identifier) {
+            res.status(404).send({
+                message: "Unit identifier is empty."
+            });
+            return;
+        }
+        var defaultEventUnitTopic = {};
+        defaultEventUnitTopic.updated_by = 1;
+        defaultEventUnitTopic.created_by = 1;
+        defaultEventUnitTopic.unit_identifier = unit.unit_identifier;
+        defaultEventUnitTopic.event_id = unit.event_id;
+        defaultEventUnitTopic.topic_names = '';
+        for (const categories_topics of unit.unit_topics) {
+            for (const topic of categories_topics.topics) {
+                defaultEventUnitTopic.topic_names += topic.name + ',';
+            }
+        }
+        defaultEventUnitsTopics.push(defaultEventUnitTopic)
+    }
+
+    for (var existing of defaultEventUnitsTopics) {
+        default_event_topics.destroy({
+            where: { unit_identifier: existing.unit_identifier, event_id: existing.event_id }
+        }).then(num => {
+            if (num == 1) {
+                console.log(num)
+            }
+        }).catch(err => {
+            console.log(`Error deleting default_event_topics with event id =${existing.event_id} and unit identifier = ${existing.unit_identifier}`)
+        });
+    }
+
+    default_event_topics.bulkCreate(defaultEventUnitsTopics).then(data => {
         res.status(201).send(data);
     }).catch(err => {
         res.status(500).send({
             message: err.message || "Error while creating default_event_topics."
         });
     });
+    return;
 }
 
 //Retrieve all default event topics
 exports.findAll = (req, res) => {
-    const name = req.query.name;
-    var condition = name ? { name: { [Op.like]: `%${name}%` } } : null;
+    const event_id = req.query.event_id;
+    const unit_identifiers = req.query.unit_identifiers;
+    var condition = [];
+    condition.push({ event_id: event_id });
+    condition.push({ unit_identifier: unit_identifiers });
     default_event_topics.findAll({ where: condition })
         .then(data => {
             res.status(200).send(data);
@@ -35,22 +76,3 @@ exports.findAll = (req, res) => {
             });
         });
 }
-
-//update a default event topics
-exports.update = (req, res) => {
-    const id = req.params.id;
-    var default_event_topic = req.body;
-    default_event_topic.updated_by = 1;
-    default_event_topic.updated_at = Sequelize.literal('CURRENT_TIMESTAMP');
-    default_event_topics.update(default_event_topic, {
-        where: { id: id }
-    }).then(num => {
-        if (num == 1) {
-            res.status(204).send({ message: "default_event_topics was updated successfully." })
-        } else {
-            res.status(404).send({ message: `Cannot update default_event_topics id =${id}. Maybe default_event_topics was not found or request body was empty.` });
-        }
-    }).catch(err => {
-        res.status(500).send({ message: `Error updating default_event_topics with id =${id}` })
-    });
-};

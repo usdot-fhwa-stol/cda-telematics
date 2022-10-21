@@ -1,6 +1,5 @@
 package com.telematic.telematic_cloud_messaging.web_services;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -12,9 +11,9 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +26,7 @@ import io.nats.client.Message;
 /**
  * TopicsService
  */
+@CrossOrigin(origins = "http://localhost:3005", maxAge = 3600)
 @RestController
 public class TopicsService {
     private static Logger logger = LoggerFactory.getLogger(TopicsService.class);
