@@ -61,8 +61,20 @@ cd automotive_autonomy_msgs
 sudo git reset --hard 191dce1827023bef6d69b31e8c2514cf82bf10c5
 cd ..
 
-#Install pacmod3 messages
-sudo git clone https://github.com/astuff/pacmod3_msgs.git pacmod3_msgs --branch main
+#Install Pacmod3
+sudo git clone https://github.com/astuff/pacmod3.git pacmod3_ros2 --branch ros2_master
+cd pacmod3_ros2
+sudo git reset --hard 159ef36f26726cf8d7f58e67add8c8319a67ae85
+cd ..
+
+# Install novatel driver 
+sudo git clone https://github.com/novatel/novatel_oem7_driver.git novatel_oem7_driver --branch ros2-dev 
+cd novatel_oem7_driver
+sudo git checkout 3055e220bb9715b59c3ef53ab0aba05a495d9d5
+cd ..
+
+# Required to build pacmod_msgs
+git clone https://github.com/astuff/astuff_sensor_msgs.git astuff_sensor_msgs --branch 3.0.1
 
 sudo apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-udp-msgs \
@@ -70,13 +82,20 @@ sudo apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-rosbridge-msgs \
                    ros-foxy-automotive-platform-msgs \
                    ros-foxy-gps-msgs \
-                   ros-foxy-pacmod-msgs
+                   ros-foxy-pacmod-msgs \
+                   ros-foxy-nmea-msgs \
+                   ros-foxy-gps-tools \
+                   ros-foxy-osqp-vendor \
+                   ros-foxy-osrf-testing-tools-cpp \
+                   ros-foxy-std-msgs
       
 sudo apt install apt-transport-https
 sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-public.list'
+
 sudo apt update
 sudo apt install -y ros-foxy-pacmod3-msgs ros-foxy-pcl-msgs
 
+#autoware ai
 sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
 cd autoware.ai
 sudo sed -i.bak '/find_package(ros_environment REQUIRED)/d' messages/*/CMakeLists.txt
@@ -89,3 +108,9 @@ sudo mv messages ../carma-msgs/messages
 cd ..
 sudo rm -rf autoware.ai
 
+#autoware auto
+sudo git clone https://github.com/usdot-fhwa-stol/autoware.auto.git autoware.auto --branch develop
+cd autoware.auto
+sudo mv autoware_auto_msgs ../carma-msgs/autoware_auto_msgs
+cd ..
+sudo rm -rf autoware.auto
