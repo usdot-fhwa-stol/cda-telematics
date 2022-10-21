@@ -1,7 +1,10 @@
 const { testing_types, Sequelize } = require("../models");
 const Op = Sequelize.Op;
 
-//Retrieve all testing types
+/**
+ *@brief Find all testing types
+ * @Return Response status and a list of testing types
+ */
 exports.findAll = (req, res) => {
     testing_types.findAll()
         .then(data => {

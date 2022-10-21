@@ -1,5 +1,10 @@
 const { events, Sequelize, locations, testing_types, units, event_units } = require("../models");
-//Add unit to an event
+
+/**
+ *@brief Assign a unit to an event.
+ * @Params The unit and event information combination
+ * @Return Response status and message
+ */
 exports.create = (req, res) => {
   if (!req.body) {
     res.status(400).send({
@@ -37,7 +42,11 @@ exports.create = (req, res) => {
 }
 
 
-// Delete an event unit with the specified id in the request
+/**
+ *@brief Remove a unit from an event.
+ * @Params The unit and event information combination
+ * @Return Response status and message
+ */
 exports.delete = (req, res) => {
   console.log(req.query)
   const event_id = req.query.event_id;

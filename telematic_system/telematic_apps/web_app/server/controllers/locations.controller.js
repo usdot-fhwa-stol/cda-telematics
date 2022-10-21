@@ -1,7 +1,11 @@
 const { locations, Sequelize, states } = require("../models");
 const Op = Sequelize.Op;
 
-//create a location
+/**
+ *@brief Create a location
+ * @Params Location information
+ * @Return Response status and message
+ */
 exports.create = (req, res) => {
     if (!req.body.facility_name) {
         res.status(400).send({
@@ -21,11 +25,12 @@ exports.create = (req, res) => {
     });
 }
 
-//Retrieve all locations
+/**
+ *@brief Find all locations
+ * @Return Response status and a list of locations
+ */
 exports.findAll = (req, res) => {
-    const facility_name = req.query.facility_name;
-    var condition = facility_name ? { facility_name: { [Op.like]: `%${facility_name}%` } } : null;
-    locations.findAll({ where: condition })
+    locations.findAll()
         .then(data => {
             res.status(200).send(data);
         }).catch(err => {

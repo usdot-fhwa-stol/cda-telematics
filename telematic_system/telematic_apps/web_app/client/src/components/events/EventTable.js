@@ -25,7 +25,6 @@ export default function EventTable(props) {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-    console.log(newPage);
   };
 
   const handleChangeRowsPerPage = (event) => {

@@ -1,7 +1,10 @@
 const { units, Sequelize } = require("../models");
 const Op = Sequelize.Op;
 
-//Create a unit
+/**
+ *@brief Create a unit
+ * @Return Response status and message
+ */
 exports.create = (req, res) => {
     if (!req.body.unit_identifier) {
         res.status(400).send({
@@ -21,11 +24,12 @@ exports.create = (req, res) => {
     });
 }
 
-//Retrieve all units
+/**
+ *@brief Find all units
+ * @Return Response status and a list of all units
+ */
 exports.findAll = (req, res) => {
-    const unit_identifier = req.query.unit_identifier;
-    var condition = unit_identifier ? { unit_identifier: { [Op.like]: `%${unit_identifier}%` } } : null;
-    units.findAll({ where: condition })
+    units.findAll()
         .then(data => {
             res.status(200).send(data);
         }).catch(err => {

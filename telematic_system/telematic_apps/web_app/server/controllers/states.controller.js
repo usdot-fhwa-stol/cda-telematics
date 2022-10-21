@@ -1,7 +1,10 @@
 const { states, Sequelize } = require("../models");
 const Op = Sequelize.Op;
 
-//Retrieve all states
+/**
+ *@brief Find all states in the US
+ * @Return Response status and a list of states
+ */
 exports.findAll = (req, res) => {
     states.findAll()
         .then(data => {

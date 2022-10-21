@@ -1,7 +1,11 @@
 const { events, Sequelize, locations, testing_types, units, event_units } = require("../models");
 const Op = Sequelize.Op;
 
-//create an event
+/**
+ *@brief Create an event in database (DB)
+ * @Params event information to save to DB
+ * @Return Response status and message for create
+ */
 exports.create = (req, res) => {
     if (!req.body.name) {
         res.status(400).send({
@@ -24,7 +28,12 @@ exports.create = (req, res) => {
     });
 }
 
-//Retrieve all events
+
+/**
+ *@brief Find all events that match the search criteria
+ * @Params Search criteria for events. The criteria includes location, event type, start_time, end_time, event name
+ * @Return Response status and a list of events that matches
+ */
 exports.findAll = (req, res) => {
     var condition = {};
     const name = req.query.name;
@@ -88,6 +97,11 @@ exports.findAll = (req, res) => {
         });
 }
 
+/**
+ *@brief Update an event
+ * @Params Event information to update
+ * @Return Response status and message
+ */
 exports.update = (req, res) => {
     const id = req.params.id;
     var event = req.body;
@@ -109,7 +123,12 @@ exports.update = (req, res) => {
     });
 }
 
-// Delete an event with the specified id in the request
+
+/**
+ *@brief Delete an event based on the event id.
+ * @Params Event id uniquely identify an event
+ * @Return Response status and message
+ */
 exports.delete = (req, res) => {
     const id = req.params.id;
     events.destroy({

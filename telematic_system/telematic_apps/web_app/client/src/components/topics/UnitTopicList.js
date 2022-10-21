@@ -44,7 +44,7 @@ const UnitTopicList = React.memo((props) => {
 
         if (props.availableUnits !== undefined && props.availableUnits.length > 0) {
             //Get Live units and topics from server
-            const resposne_data = getAvailableLiveTopicsByEventUnits(props.availableUnits[0].event_id, unitIdentifiers);
+            const resposne_data = getAvailableLiveTopicsByEventUnits(unitIdentifiers);
             resposne_data.then(jsonList => {
                 let availableUnitTopicsFromServer = [];
                 jsonList.forEach(json => {
@@ -83,8 +83,7 @@ const UnitTopicList = React.memo((props) => {
     //Refresh button click to send request to server to get latest list of available topics for the current selected units
     const refreshAvailableLiveTopics4SelectedUnit = () => {
         if (selectedUnits.length > 0) {
-            let event_id = selectedUnits[0].event_id;
-            const resposne_data = getAvailableLiveTopicsByEventUnits(event_id, selectedUnitIdentifiers);
+            const resposne_data = getAvailableLiveTopicsByEventUnits(selectedUnitIdentifiers);
             resposne_data.then(jsonList => {
                 let refreshed_num = 0;
                 let availableUnitTopicsFromServer = [];

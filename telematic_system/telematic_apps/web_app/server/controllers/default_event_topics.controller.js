@@ -1,7 +1,11 @@
 const { default_event_topics, Sequelize } = require("../models");
 const Op = Sequelize.Op;
 
-//create a default event topics
+/**
+ *@brief Save the default topics setting for the given list of event and unit combinations
+ * @Param The list of events and units combinations
+ * @Return Response status and save a bulk of topics for each event and unit combination
+ */
 exports.create = (req, res) => {
     if (!req.body) {
         res.status(400).send({
@@ -60,7 +64,12 @@ exports.create = (req, res) => {
     return;
 }
 
-//Retrieve all default event topics
+/**
+ *@brief Load or find the default topics setting for the given event and list of units
+ * @Params event id used to uniquely identifer each event
+ * @Params selectedUnitIdentifiers: A list of unit identifiers. Each unit identifier is a string and is used to uniquely identify each unit.
+ * @Return Response status and load a bulk of topics for each event and list of units for the event
+ */
 exports.findAll = (req, res) => {
     const event_id = req.query.event_id;
     const unit_identifiers = req.query.unit_identifiers;
