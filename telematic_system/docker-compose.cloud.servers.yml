@@ -3,7 +3,7 @@ services:
   nats:
     image: 'nats:2.7.3-alpine3.15'
     restart: always
-    # network_mode: host
+    network_mode: host
 
   telematic_messaging_server:
     build:
@@ -13,7 +13,7 @@ services:
     restart: always
     ports:
       - 8080:8080
-    # network_mode: host
+    network_mode: host
     environment:
       - NATS_URI=nats://ec2-44-206-13-7.compute-1.amazonaws.com:4222
 
@@ -21,7 +21,7 @@ services:
     build:
       context: "./telematic_apps/web_app/server"
     restart: always
-    # network_mode: host
+    network_mode: host
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
@@ -38,7 +38,7 @@ services:
     build:
       context: "./telematic_apps/web_app/client"
     restart: always
-    # network_mode: host
+    network_mode: host
     depends_on:
       - telematic_messaging_server
       - telematic_web_server
