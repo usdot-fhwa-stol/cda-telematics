@@ -2,11 +2,8 @@ version: "3"
 services:
   nats:
     image: 'nats:2.7.3-alpine3.15'
-    ports:
-      - 8222:8222
-      - 4222:4222
-      - 6222:6222
     restart: always
+    # network_mode: host
 
   telematic_messaging_server:
     build:
@@ -14,44 +11,49 @@ services:
     depends_on:
       - nats
     restart: always
+    ports:
+      - 8080:8080
+    # network_mode: host
     environment:
-      - NATS_URI=nats://nats:4222
+      - NATS_URI=nats://ec2-44-206-13-7.compute-1.amazonaws.com:4222
 
   telematic_web_server:
     build:
       context: "./telematic_apps/web_app/server"
     restart: always
+    # network_mode: host
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
-      - ALLOW_CLIENT_URL=http://telematic_web_client:3005
+      - ALLOW_CLIENT_URL=http://ec2-44-206-13-7.compute-1.amazonaws.com:3005
       # Server port
       - PORT=9010
-      # MYSQL DB credentials
+      # MYSQL DB credentials. Need to be replaced with actual MYSQL DB during deployment
       - DB_HOST=localhost
       - DB_USER=root
       - DB_PASSWORD=root
-      - GRAFANA_DB=grafana
+      - GRAFANA_DB=wfd_grafana
 
   telematic_web_client:
     build:
       context: "./telematic_apps/web_app/client"
     restart: always
-    ports:
-      - "3005:3005"
+    # network_mode: host
     depends_on:
       - telematic_messaging_server
       - telematic_web_server
     environment:
       # Server port
       - PORT=3005
+      - REACT_APP_NODE_SERVER_URI=http://ec2-44-206-13-7.compute-1.amazonaws.com:9010
+      - REACT_APP_MESSAGING_SERVER_URI=http://ec2-44-206-13-7.compute-1.amazonaws.com:8080
+      - REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL=http://ec2-44-206-13-7.compute-1.amazonaws.com:9000/d/_HrLXUI4k/default-dashboard-uc3?orgId=1&from=now-10d&to=now&kiosk&theme=light
   
   grafana:
     build:
       context: "./telematic_apps/grafana"
-    ports:
-      - "9000:3000"
     restart: always
+    # network_mode: host
     volumes:
       - /opt/grafana/logs:/var/log/grafana
       - /opt/grafana/grafana.ini:/etc/grafana/grafana.ini

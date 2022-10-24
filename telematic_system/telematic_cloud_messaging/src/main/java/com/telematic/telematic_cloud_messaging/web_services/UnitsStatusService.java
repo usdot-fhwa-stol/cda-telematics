@@ -43,16 +43,6 @@ import io.nats.client.Message;
 public class UnitsStatusService implements CommandLineRunner {
     private static Logger logger = LoggerFactory.getLogger(UnitsStatusService.class);
 
-    // Get config parameters from application.properties
-    @Value("${EVENT_NAME}")
-    private String eventName;
-
-    @Value("${LOCATION}")
-    private String location;
-
-    @Value("${TESTING_TYPE}")
-    private String testingType;
-
     // NATS connection
     @Autowired
     private NATSConnection natsConn;

@@ -1,4 +1,4 @@
-use grafana;
+use wfd_grafana;
 -- Drop tables if already exist
 drop table if exists states,
 locations,

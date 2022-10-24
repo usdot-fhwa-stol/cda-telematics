@@ -26,7 +26,7 @@ import io.nats.client.Message;
 /**
  * TopicsService
  */
-@CrossOrigin(origins = "http://telematic_web_client:3005", maxAge = 3600)
+@CrossOrigin(origins = "http://ec2-44-206-13-7.compute-1.amazonaws.com:3005", maxAge = 3600)
 @RestController
 public class TopicsService {
     private static Logger logger = LoggerFactory.getLogger(TopicsService.class);
