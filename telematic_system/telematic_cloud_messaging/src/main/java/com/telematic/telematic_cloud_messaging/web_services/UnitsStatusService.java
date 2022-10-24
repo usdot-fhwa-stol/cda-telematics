@@ -2,7 +2,6 @@ package com.telematic.telematic_cloud_messaging.web_services;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.sql.Date;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.HashMap;
@@ -29,7 +28,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.telematic.telematic_cloud_messaging.models.Events;
-import com.telematic.telematic_cloud_messaging.models.Units;
 import com.telematic.telematic_cloud_messaging.repository.EventsService;
 import com.telematic.telematic_cloud_messaging.repository.UnitsService;
 
@@ -192,6 +190,8 @@ public class UnitsStatusService implements CommandLineRunner {
                             }
                         }
                         registeredUnitList.add(jsonObj);
+                    }else{
+                        logger.error("Cannot find the unit ="+jsonObj.get("unit_id").toString()+ " assgined to any events at " + cur_timestamp.toString());
                     }
 
                     // Send a reply to the telematic units

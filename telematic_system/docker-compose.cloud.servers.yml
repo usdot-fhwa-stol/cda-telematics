@@ -1,5 +1,5 @@
-version: '3'
-services:  
+version: "3"
+services:
   nats:
     image: 'nats:2.7.3-alpine3.15'
     ports:
@@ -8,13 +8,54 @@ services:
       - 6222:6222
     restart: always
 
-  telematic_messaging:
-    build: 
+  telematic_messaging_server:
+    build:
       context: "./telematic_cloud_messaging"
     depends_on:
       - nats
     restart: always
     environment:
       - NATS_URI=nats://nats:4222
+
+  telematic_web_server:
+    build:
+      context: "./telematic_apps/web_app/server"
+    restart: always
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+      - ALLOW_CLIENT_URL=http://telematic_web_client:3005
+      # Server port
+      - PORT=9010
+      # MYSQL DB credentials
+      - DB_HOST=localhost
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - GRAFANA_DB=grafana
+
+  telematic_web_client:
+    build:
+      context: "./telematic_apps/web_app/client"
+    restart: always
     ports:
-      - 8080:8080
+      - "3005:3005"
+    depends_on:
+      - telematic_messaging_server
+      - telematic_web_server
+    environment:
+      # Server port
+      - PORT=3005
+  
+  grafana:
+    build:
+      context: "./telematic_apps/grafana"
+    ports:
+      - "9000:3000"
+    restart: always
+    volumes:
+      - /opt/grafana/logs:/var/log/grafana
+      - /opt/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - /opt/grafana/data:/var/lib/grafana
+      - /opt/grafana/provisioning:/home/grafana/conf/provisioning
+      - /home/ubuntu/.aws/credentials:/usr/share/grafana/.aws/credentials
+    user: "472" #grafana user id

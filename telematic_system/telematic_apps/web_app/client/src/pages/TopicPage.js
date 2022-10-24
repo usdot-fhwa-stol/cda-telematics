@@ -68,6 +68,15 @@ const TopicPage = React.memo(() => {
   //Send topic request to the server
   const confirmSelectedTopicHandler = () => {
     const seletedUnitTopicListToConfirm = TopicCtx.selected_unit_topics_list;
+    if (seletedUnitTopicListToConfirm.length === 0) {
+      setAlertStatus({
+        open: true,
+        severity: NOTIFICATION_STATUS.WARNING,
+        title: NOTIFICATION_STATUS.WARNING,
+        messageList: ["No topics selected."]
+      });
+      return;
+    }
     const response_data = requestSelectedLiveUnitsTopics(seletedUnitTopicListToConfirm);
     let messageList = [];
     let num_failed = 0;

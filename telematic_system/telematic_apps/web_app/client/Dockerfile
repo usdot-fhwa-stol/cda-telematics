@@ -13,6 +13,4 @@ COPY app.env .env
 # Bundle app source
 COPY . .
 
-EXPOSE 3005
-
 ENTRYPOINT ["npm", "start"]

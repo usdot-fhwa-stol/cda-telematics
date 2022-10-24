@@ -5,20 +5,26 @@ const AuthContext = React.createContext({
   isAuth: false,
   username: null,
   sessionToken: null,
-  login: () => { },
+  login: (username, password, sessionToken) => { },
   logout: () => { }
 })
 
 export const AuthContextProvider = (props) => {
-  const [isAuthenticated, setIsAuthenticated] = useSessionStorageString("isAuth",false);
-  const [username, setUsername] = useSessionStorageString("username",null);
-  const [sessionToken, setSessionToken] = useSessionStorageString("sessionToken",null);
+  const [isAuthenticated, setIsAuthenticated] = useSessionStorageString("isAuth", false);
+  const [username, setUsername] = useSessionStorageString("username", null);
+  const [sessionToken, setSessionToken] = useSessionStorageString("sessionToken", null);
   const clearSessionStorage = useClearSessionStorage();
 
-  const loginHandler = (username,sessionToken) => {
-    setIsAuthenticated(true);
-    setUsername(username);
-    setSessionToken(sessionToken);
+  const loginHandler = (username, password, sessionToken) => {
+    if (username === "admin" && password === "admin") {
+      setIsAuthenticated(true);
+      setUsername(username);
+      setSessionToken(sessionToken);
+      return true;
+    } else {
+      setIsAuthenticated(false);
+      return false;
+    }
   }
 
   const logoutHandler = () => {

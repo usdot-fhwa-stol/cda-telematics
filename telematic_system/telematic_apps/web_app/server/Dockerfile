@@ -15,6 +15,4 @@ COPY server.env .env
 # Bundle app source
 COPY . .
 
-EXPOSE 9010
-
 ENTRYPOINT ["npm", "start"]
