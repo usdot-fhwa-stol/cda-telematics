@@ -243,7 +243,7 @@ const TopicList = React.memo((props) => {
                 <br />
             </Grid>
             <Grid item xs={5}>
-                <Card sx={{ height: '500px', overflowY: 'scroll' }}>
+                <Card sx={{ height: '500px', overflow: 'scroll' }}>
                     <CardHeader sx={{ color: "#000", backgroundColor: "#33bfff", padding: 1 }} title="Selected Topics" titleTypographyProps={{ variant: 'title' }} />
                     <CardContent>
                         {

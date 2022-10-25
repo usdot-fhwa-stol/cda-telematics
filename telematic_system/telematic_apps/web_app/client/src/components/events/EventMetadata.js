@@ -16,6 +16,7 @@ export const UNKNOW_EVENT = "Unknown";
 export const UNKNOW_DATE = "Unknown";
 
 export const VALID_UNIT_TYPES = {
-    VEHICLE: "Platform",
-    INFRASTRUCTURE: "Infrastructure"
+    CAV_VEHICLE: "Platform",
+    INFRASTRUCTURE: "Infrastructure",
+    NON_CAV_VEHICLE: "Messenger"
 }

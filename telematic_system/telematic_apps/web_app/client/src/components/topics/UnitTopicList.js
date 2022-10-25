@@ -134,10 +134,19 @@ const UnitTopicList = React.memo((props) => {
 
                 //Find categories from the live topics
                 serverUnit.topics.forEach(topic => {
-                    let category_topic_array = topic.name.split(".");
+                    let category_topic_array = topic.name.split(/[-.,/]+/);
                     //If there is '/' from the topic name consider the first occurrence after "/" as category name
                     if (category_topic_array.length > 1) {
-                        category_names.push(category_topic_array[0]);
+                        let category_name = "";
+                        for (let name of category_topic_array) {
+                            if (name.length !== 0) {
+                                category_name = name;
+                                break;
+                            }
+                        }
+                        if (category_name.length > 0) {
+                            category_names.push(category_topic_array[0]);
+                        }
                     }
                 });
 
@@ -176,7 +185,7 @@ const UnitTopicList = React.memo((props) => {
                         updatedUnit.unit_topics.forEach(item => {
                             let topic_name = liveTopic.name;
                             //Topic is in a category
-                            if (topic_name.split(".").length > 0 && topic_name.split(".")[0] === item.category) {
+                            if (topic_name.split(/[-.,/]+/).length > 0 && topic_name.split(/[-.,/]+/).includes(item.category)) {
                                 item.topics.push(liveTopic);
                                 isTopicInCategory = true;
                             }

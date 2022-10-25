@@ -45,7 +45,8 @@ const TopicPage = React.memo(() => {
           element.event_id = filteredEvent.id;
           element.event_name = filteredEvent.name;
           if (element.unit_type !== undefined &&
-            element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.VEHICLE.toLocaleLowerCase()) {
+            (element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.CAV_VEHICLE.toLocaleLowerCase()
+              || element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.NON_CAV_VEHICLE.toLocaleLowerCase())) {
             filteredVehicles = [...filteredVehicles, element];
           } else if (element.unit_type !== undefined &&
             element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.INFRASTRUCTURE.toLocaleLowerCase()) {

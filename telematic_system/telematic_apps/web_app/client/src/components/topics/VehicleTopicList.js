@@ -5,7 +5,7 @@ import UnitTopicList from './UnitTopicList';
 const VehicleTopicList = React.memo((props) => {
     return (
         <React.Fragment>
-            <UnitTopicList availableUnits={props.availableUnits} unitSectionTitle="Vehicles"/>
+            <UnitTopicList availableUnits={props.availableUnits} unitSectionTitle="Vehicle"/>
         </React.Fragment>
     )
 });
