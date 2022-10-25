@@ -8,8 +8,6 @@ COPY package*.json ./
 RUN npm init -y
 RUN npm install --force
 
-COPY app.env .env
-
 # Bundle app source
 COPY . .
 

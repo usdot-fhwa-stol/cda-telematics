@@ -10,8 +10,6 @@ RUN npm install -g nodemon
 RUN npm init -y
 RUN npm install
 
-COPY server.env .env
-
 # Bundle app source
 COPY . .
 
