@@ -11,8 +11,6 @@ services:
     depends_on:
       - nats
     restart: always
-    ports:
-      - 8080:8080
     network_mode: host
     environment:
       - NATS_URI=nats://ec2-44-206-13-7.compute-1.amazonaws.com:4222
@@ -25,7 +23,7 @@ services:
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
-      - ALLOW_CLIENT_URL=http://ec2-44-206-13-7.compute-1.amazonaws.com:3005
+      - ALLOW_CLIENT_URL=http://ec2-44-206-13-7.compute-1.amazonaws.com
       # Server port
       - PORT=9010
       # MYSQL DB credentials. Need to be replaced with actual MYSQL DB during deployment
@@ -44,7 +42,7 @@ services:
       - telematic_web_server
     environment:
       # Server port
-      - PORT=3005
+      - PORT=80
       - REACT_APP_NODE_SERVER_URI=http://ec2-44-206-13-7.compute-1.amazonaws.com:9010
       - REACT_APP_MESSAGING_SERVER_URI=http://ec2-44-206-13-7.compute-1.amazonaws.com:8080
       - REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL=http://ec2-44-206-13-7.compute-1.amazonaws.com:9000/d/_HrLXUI4k/default-dashboard-uc3?orgId=1&from=now-10d&to=now&kiosk&theme=light
