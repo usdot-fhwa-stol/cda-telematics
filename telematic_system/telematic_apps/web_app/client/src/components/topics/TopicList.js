@@ -206,7 +206,7 @@ const TopicList = React.memo((props) => {
     return (
         <React.Fragment>
             <Grid item xs={5}>
-                <Card sx={{ height: '500px', overflowY: 'scroll' }}>
+                <Card sx={{ height: '500px', overflow: 'scroll' }}>
                     <CardHeader sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }} title="Available Topics" titleTypographyProps={{ variant: 'title' }} />
                     <CardContent>
                         {

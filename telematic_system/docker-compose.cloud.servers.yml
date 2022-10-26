@@ -51,7 +51,7 @@ services:
     build:
       context: "./telematic_apps/grafana"
     restart: always
-    # network_mode: host
+    network_mode: host
     volumes:
       - /opt/grafana/logs:/var/log/grafana
       - /opt/grafana/grafana.ini:/etc/grafana/grafana.ini

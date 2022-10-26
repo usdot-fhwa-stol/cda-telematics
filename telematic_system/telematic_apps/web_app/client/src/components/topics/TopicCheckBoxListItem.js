@@ -23,7 +23,7 @@ const TopicCheckBoxListItem = (props) => {
     return (
         <React.Fragment>
             <ListItem
-                sx={{ display: 'inline-list-item',m:0 }}
+                sx={{ display: 'inline-list-item', m: 0, width: '100%', maxWidth: 360 }}
                 key={`list-item-${props.value}`}
                 disablePadding>
                 <ListItemButton key={`list-item-btn-${props.value}`} role={undefined} onClick={handleToggle(props.value)} dense>
@@ -33,13 +33,13 @@ const TopicCheckBoxListItem = (props) => {
                             edge="start"
                             checked={checked.indexOf(props.value) !== -1}
                             tabIndex={-1}
-                            sx={{m:0}}
+                            sx={{ m: 0 }}
                             disableRipple
                             inputProps={{ 'aria-labelledby': props.labelId }} />
                     </ListItemIcon>
-                    <ListItemText key={`list-item-text-${props.value}`}  sx={{m:0}} id={props.labelId} primary={props.value} />
-                    <TopicMessageDetailPopover topic_name={props.topic_name} message_type={props.message_type} message_fields={props.message_fields} />
+                    <ListItemText key={`list-item-text-${props.value}`} sx={{ m: 0 }} id={props.labelId} primary={props.value} />
                 </ListItemButton>
+                <TopicMessageDetailPopover topic_name={props.topic_name} message_type={props.message_type} message_fields={props.message_fields} />
             </ListItem>
         </React.Fragment>
     )
