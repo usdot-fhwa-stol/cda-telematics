@@ -16,7 +16,6 @@ WORKDIR /ws
 RUN ls -la && pwd
 
 ADD telematic_system/telematic_units/carma_street_bridge/streets_nats_bridge src/streets_nats_bridge
-#ADD streets_nats_bridge src/streets_nats_bridge
 
 WORKDIR /ws/src/streets_nats_bridge/src
 
