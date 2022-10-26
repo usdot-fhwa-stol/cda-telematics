@@ -90,6 +90,7 @@ jobs:
             export PR_NUM=`echo ${CIRCLE_PULL_REQUEST} | cut -d'/' -f7`
             echo "PR number ${PR_NUM}"
             export BASE_BRANCH_URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUM}"
+            echo $BASE_BRANCH_URL
             export TARGET_BRANCH=$(curl "$BASE_BRANCH_URL" | jq '.base.ref' | tr -d '"') 
             echo "Target Branch = ${TARGET_BRANCH}"
             cd src/cda-telematics
