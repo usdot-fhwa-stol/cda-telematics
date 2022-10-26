@@ -61,10 +61,10 @@ cd automotive_autonomy_msgs
 sudo git reset --hard 191dce1827023bef6d69b31e8c2514cf82bf10c5
 cd ..
 
-#Install Pacmod3
-sudo git clone https://github.com/astuff/pacmod3.git pacmod3_ros2 --branch ros2_master
-cd pacmod3_ros2
-sudo git reset --hard 159ef36f26726cf8d7f58e67add8c8319a67ae85
+# Install Pacmod3
+sudo git clone https://github.com/astuff/pacmod3_msgs.git --branch main
+cd pacmod3_msgs
+sudo git reset --hard f16e787d5e3d32d0958c0346363501f0be449b2f
 cd ..
 
 # Install novatel driver 
@@ -75,6 +75,8 @@ cd ..
 
 # Required to build pacmod_msgs
 git clone https://github.com/astuff/astuff_sensor_msgs.git astuff_sensor_msgs --branch 3.0.1
+
+source /opt/ros/foxy/setup.bash 
 
 sudo apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-udp-msgs \
@@ -87,13 +89,13 @@ sudo apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-gps-tools \
                    ros-foxy-osqp-vendor \
                    ros-foxy-osrf-testing-tools-cpp \
-                   ros-foxy-std-msgs
+                   ros-foxy-std-msgs \
+                   ros-foxy-velodyne-msgs \
+                   apt-transport-https 
       
-sudo apt install apt-transport-https
-sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-public.list'
-
-sudo apt update
-sudo apt install -y ros-foxy-pacmod3-msgs ros-foxy-pcl-msgs
+# sudo apt install apt-transport-https
+sudo apt install -y ros-foxy-pcl-msgs
+# possibly can remove the above two installs
 
 #autoware ai
 sudo git clone https://github.com/usdot-fhwa-stol/autoware.ai.git
