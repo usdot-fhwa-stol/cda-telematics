@@ -13,7 +13,7 @@ const TopicListPerUnit = React.memo((props) => {
     return (
         <React.Fragment>
             <ListItemButton key={`unit-list-expand-${props.unit_identifier}-${props.unit_name}`} onClick={handleCheckboxClick}>
-                <ListItemText primary={`${props.unit_name} (${props.unit_identifier})`} primaryTypographyProps={{ fontWeight: 'bolder' }} />
+                <ListItemText primary={`${props.unit_type}-${props.unit_name} (${props.unit_identifier})`} primaryTypographyProps={{ fontWeight: 'bolder' }} />
                 {openItems ? <ExpandLess /> : <ExpandMore />}
             </ListItemButton>
             <Collapse key={`unit-list-collapse-${props.unit_identifier}-${props.unit_name}`} in={openItems} timeout="auto" unmountOnExit>

@@ -37,7 +37,7 @@ const TopicCheckBoxListItem = (props) => {
                             disableRipple
                             inputProps={{ 'aria-labelledby': props.labelId }} />
                     </ListItemIcon>
-                    <ListItemText key={`list-item-text-${props.value}`} sx={{ m: 0 }} id={props.labelId} primary={props.value} />
+                    <ListItemText key={`list-item-text-${props.value}`} sx={{ m: 0, p: 0, wordBreak: "break-all" }} id={props.labelId} primary={props.value} />
                 </ListItemButton>
                 <TopicMessageDetailPopover topic_name={props.topic_name} message_type={props.message_type} message_fields={props.message_fields} />
             </ListItem>

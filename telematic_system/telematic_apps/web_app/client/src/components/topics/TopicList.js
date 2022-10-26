@@ -63,6 +63,7 @@ const TopicList = React.memo((props) => {
                             event_id: unit.event_id,
                             event_name: unit.event_name,
                             unit_name: unit.unit_name,
+                            unit_type: unit.unit_type,
                             unit_topics: unitTopics
                         })
                     } else {
@@ -148,6 +149,7 @@ const TopicList = React.memo((props) => {
                             event_id: unit.event_id,
                             event_name: unit.event_name,
                             unit_name: unit.unit_name,
+                            unit_type: unit.unit_type,
                             unit_topics: new_unit_topics
                         });
                     } else {
@@ -206,13 +208,14 @@ const TopicList = React.memo((props) => {
     return (
         <React.Fragment>
             <Grid item xs={5}>
-                <Card sx={{ height: '500px', overflow: 'scroll' }}>
+                <Card sx={{ height: '500px', overflowY: 'scroll' }}>
                     <CardHeader sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }} title="Available Topics" titleTypographyProps={{ variant: 'title' }} />
                     <CardContent>
                         {
                             selectedUnits !== undefined && selectedUnits.length !== 0 && selectedUnits.map(unit => (
                                 <TopicListPerUnit key={`available-topics-${unit.unit_identifier}`}
                                     openItems={true}
+                                    unit_type={unit.unit_type}
                                     unit_identifier={unit.unit_identifier}
                                     unit_name={unit.unit_name}
                                     unit_topics={unit.unit_topics}
@@ -243,7 +246,7 @@ const TopicList = React.memo((props) => {
                 <br />
             </Grid>
             <Grid item xs={5}>
-                <Card sx={{ height: '500px', overflow: 'scroll' }}>
+                <Card sx={{ height: '500px', overflowY: 'scroll' }}>
                     <CardHeader sx={{ color: "#000", backgroundColor: "#33bfff", padding: 1 }} title="Selected Topics" titleTypographyProps={{ variant: 'title' }} />
                     <CardContent>
                         {
@@ -252,6 +255,7 @@ const TopicList = React.memo((props) => {
                                 if (selectedUnitIdentifiers.includes(selected_unit.unit_identifier)) {
                                     return <TopicListPerUnit key={`selected-topics-${selected_unit.unit_identifier}`}
                                         openItems={true}
+                                        unit_type={selected_unit.unit_type}
                                         unit_identifier={selected_unit.unit_identifier}
                                         unit_name={selected_unit.unit_name}
                                         unit_topics={selected_unit.unit_topics}

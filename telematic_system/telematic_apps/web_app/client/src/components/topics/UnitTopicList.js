@@ -235,7 +235,7 @@ const UnitTopicList = React.memo((props) => {
                                             renderValue={(selected) => selected.join(',')}
                                             MenuProps={MenuProps}>
                                             {availableUnits.length > 0 && availableUnits.map(unit => (
-                                                <MenuItem value={unit.unit_identifier} key={unit.unit_identifier}>{`${unit.unit_name}(${unit.unit_identifier})`}</MenuItem>
+                                                <MenuItem value={unit.unit_identifier} key={unit.unit_identifier}>{`${unit.unit_type}-${unit.unit_name}(${unit.unit_identifier})`}</MenuItem>
                                             ))}
                                         </Select>
                                     </FormControl>
