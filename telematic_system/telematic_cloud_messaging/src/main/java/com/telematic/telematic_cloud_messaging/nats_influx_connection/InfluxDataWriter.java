@@ -2,12 +2,17 @@ package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
 import java.io.*;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.Arrays;
 import com.influxdb.client.*;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.domain.Authorization;
 import com.influxdb.client.domain.WritePrecision;
 import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
+
+import okhttp3.OkHttpClient;
+
 import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
 import org.json.simple.parser.JSONParser;
 import org.json.*;  
@@ -29,6 +34,8 @@ public class InfluxDataWriter {
     String influx_token;
     String influx_username;
     String influx_pwd;
+    int connect_timeout;
+    int write_timeout;
 
     boolean influx_connected;
     InfluxDBClient influxDBClient;
@@ -41,7 +48,7 @@ public class InfluxDataWriter {
      * Constructor to instantiate InfluxDataWriter object
      */
     public InfluxDataWriter(String influx_uri, String influx_username, String influx_pwd, String influx_bucket,
-        String influx_bucket_id, String influx_org, String influx_org_id, String influx_token) {
+        String influx_bucket_id, String influx_org, String influx_org_id, String influx_token, int connect_timeout, int write_timeout) {
         logger.info("Creating new InfluxDataWriter");
 
         this.influx_uri = influx_uri;
@@ -52,6 +59,8 @@ public class InfluxDataWriter {
         this.influx_org = influx_org;
         this.influx_org_id = influx_org_id;
         this.influx_token = influx_token;
+        this.connect_timeout = connect_timeout;
+        this.write_timeout = write_timeout;
 
         influx_connected = false;
 
@@ -74,8 +83,20 @@ public class InfluxDataWriter {
     public void influx_connect() {  
         logger.info("Attempting to create influxdb client");
 
-        try {            
-            influxDBClient = InfluxDBClientFactory.create(influx_uri, influx_token.toCharArray(), influx_org, influx_bucket);
+        try {
+            OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient().newBuilder()
+                                                            .connectTimeout(connect_timeout, TimeUnit.MILLISECONDS)            
+                                                            .writeTimeout(write_timeout, TimeUnit.MILLISECONDS);
+            InfluxDBClientOptions options = InfluxDBClientOptions
+                                            .builder()
+                                            .url(influx_uri)
+                                            .authenticateToken(influx_token.toCharArray())
+                                            .org(influx_org)
+                                            .bucket(influx_bucket)
+                                            .okHttpClient(okHttpClientBuilder)
+                                            .build();                                                                       
+            // influxDBClient = InfluxDBClientFactory.create(influx_uri, influx_token.toCharArray(), influx_org, influx_bucket);
+            influxDBClient = InfluxDBClientFactory.create(options);
             logger.info("Successfully created influxdb client");
 
             influx_connected = true;

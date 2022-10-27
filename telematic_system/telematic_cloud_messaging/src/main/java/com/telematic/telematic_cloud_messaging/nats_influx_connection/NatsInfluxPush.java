@@ -23,19 +23,32 @@ import java.lang.Thread;
 @Component
 @Profile("!test") //Skip Unit test on the CommandLineRunner task
 public class NatsInfluxPush implements CommandLineRunner {
-    static String nats_uri;    
-    static String influx_uri;
-    static String influx_bucket;
-    static String influx_bucket_id;
-    static String influx_org;
-    static String influx_org_id;
-    static String influx_token;
-    static String influx_username;
-    static String influx_pwd;
-    static int nats_max_reconnects;
-    static String nats_subscribe_str;
+    
+
+    private static class Config{
+        String nats_uri;    
+        String influx_uri;
+        String influx_bucket_type;
+        String influx_bucket_streets;
+        String influx_bucket_id_streets;
+        String influx_bucket_platform;
+        String influx_bucket_id_platform;
+        String influx_org;
+        String influx_org_id;
+        String influx_token;
+        String influx_username;
+        String influx_pwd;
+        int nats_max_reconnects;
+        String nats_subscribe_str;
+        int influx_connect_timeout;
+        int influx_write_timeout;
+
+        public Config(){}
+    }
 
     private static final Logger logger = LoggerFactory.getLogger(NatsInfluxPush.class);
+
+    private static Config config_;
 
     /**
      * Constructor to instantiate NatsInfluxPush object
@@ -47,41 +60,64 @@ public class NatsInfluxPush implements CommandLineRunner {
     /**
      * Load required configuration values from config.properties file    
      */
-    static void getConfigValues() {
+    static Config getConfigValues() {
+        
+        Config config = new Config();
+
         try {
             String configFilePath = "src/main/resources/application.properties";
             FileInputStream propsInput = new FileInputStream(configFilePath);
             Properties prop = new Properties();
             prop.load(propsInput);
-
-            nats_uri = prop.getProperty("NATS_URI");
-            nats_subscribe_str = prop.getProperty("NATS_SUBJECT_SUBSCRIBE");
-            nats_max_reconnects = Integer.parseInt(prop.getProperty("NATS_MAX_RECONNECTS"));
-            influx_uri = "http://" + prop.getProperty("INFLUX_URI") + ":" + prop.getProperty("INFLUX_PORT");
-            influx_username = prop.getProperty("INFLUX_USERNAME");
-            influx_pwd = prop.getProperty("INFLUX_PWD");
-            influx_bucket = prop.getProperty("INFLUX_BUCKET");
-            influx_bucket_id= prop.getProperty("INFLUX_BUCKET_ID");
-            influx_org = prop.getProperty("INFLUX_ORG");
-            influx_org_id = prop.getProperty("INFLUX_ORG_ID");
-            influx_token = prop.getProperty("INFLUX_TOKEN");
+            
+            config.nats_uri = prop.getProperty("NATS_URI");
+            config.nats_subscribe_str = prop.getProperty("NATS_SUBJECT_SUBSCRIBE");
+            config.nats_max_reconnects = Integer.parseInt(prop.getProperty("NATS_MAX_RECONNECTS"));
+            config.influx_uri = "http://" + prop.getProperty("INFLUX_URI") + ":" + prop.getProperty("INFLUX_PORT");
+            config.influx_username = prop.getProperty("INFLUX_USERNAME");
+            config.influx_pwd = prop.getProperty("INFLUX_PWD");
+            config.influx_bucket_type = prop.getProperty("INFLUX_BUCKET_TYPE");
+            config.influx_bucket_streets = prop.getProperty("INFLUX_BUCKET");
+            config.influx_bucket_id_streets= prop.getProperty("INFLUX_BUCKET_ID");
+            config.influx_bucket_platform = prop.getProperty("INFLUX_BUCKET_PLATFORM");
+            config.influx_bucket_id_platform = prop.getProperty("INFLUX_BUCKET_ID_PLATFORM");
+            config.influx_org = prop.getProperty("INFLUX_ORG");
+            config.influx_org_id = prop.getProperty("INFLUX_ORG_ID");
+            config.influx_token = prop.getProperty("INFLUX_TOKEN");
+            config.influx_connect_timeout = Integer.parseInt(prop.getProperty("INFLUX_CONNECT_TIMEOUT"));
+            config.influx_write_timeout = Integer.parseInt(prop.getProperty("INFLUX_WRITE_TIMEOUT"));
+            
 
         } catch (Exception e) {
             logger.error(ExceptionUtils.getStackTrace(e));
         }
-    }       
+        return config;
+    }
+    
+    static void initialize_thread(String bucket_type, Config config) {
+        
+        // Create NATS and InfluxWriter
+        logger.info("Created thread for " + bucket_type + "Data");
+        NatsConsumer natsObject = new NatsConsumer(config.nats_uri, config.nats_subscribe_str, config.nats_max_reconnects);
+        
+        String influx_bucket = "";
+        String influx_bucket_id = "";
 
-    /**
-     * Override run method that instantiates the NatsConsumer and InfluxDataWriter.
-     * @param args 
-     */
-    @Override
-    public void run(String[] args) {
-        getConfigValues();
+        if(bucket_type.equals("Platform")){
+            influx_bucket = config.influx_bucket_platform;
+            influx_bucket_id = config.influx_bucket_id_platform;
+        }
+        else if(bucket_type.equals("Streets")){
+            influx_bucket = config.influx_bucket_streets;
+            influx_bucket_id = config.influx_bucket_id_streets;
+        }
+        else{
+            Thread.currentThread().interrupt();
+            logger.error("Invalid data type for pushing Influx data");
+        }
 
-        NatsConsumer natsObject = new NatsConsumer(nats_uri, nats_subscribe_str, nats_max_reconnects);
-        InfluxDataWriter influxDataWriter = new InfluxDataWriter(influx_uri, influx_username, influx_pwd, influx_bucket,
-        influx_bucket_id, influx_org, influx_org_id, influx_token);
+        InfluxDataWriter influxDataWriter = new InfluxDataWriter(config.influx_uri, config.influx_username, config.influx_pwd, influx_bucket,
+        influx_bucket_id, config.influx_org, config.influx_org_id, config.influx_token, config.influx_connect_timeout, config.influx_write_timeout);
 
         //Wait until we successfully connect to the nats server and InfluxDb
         while(!natsObject.getNatsConnected() & !influxDataWriter.getInfluxConnected()){
@@ -102,5 +138,28 @@ public class NatsInfluxPush implements CommandLineRunner {
         //subscribe to data and publish
         natsObject.async_subscribe(influxDataWriter);
         logger.info("Waiting for data from nats..");
+    }
+
+    /**
+     * Override run method that instantiates the NatsConsumer and InfluxDataWriter.
+     * @param args 
+     */
+    @Override
+    public void run(String[] args) {
+        config_ = getConfigValues();
+
+        // Create threads depending on push data type
+        Thread worker = new Thread(){
+            public void run(){
+                if(config_.influx_bucket_type.equals("All")){
+                    initialize_thread("Platform", config_);
+                    initialize_thread("Streets", config_);
+                }
+                else{
+                    initialize_thread(config_.influx_bucket_type, config_);
+                }
+            }
+        };
+        worker.start();
     }
 }
