@@ -39,7 +39,6 @@ public class NatsInfluxPush implements CommandLineRunner {
         String influx_username;
         String influx_pwd;
         int nats_max_reconnects;
-        String nats_subscribe_str;
         int influx_connect_timeout;
         int influx_write_timeout;
 
@@ -71,7 +70,6 @@ public class NatsInfluxPush implements CommandLineRunner {
             prop.load(propsInput);
             
             config.nats_uri = prop.getProperty("NATS_URI");
-            config.nats_subscribe_str = prop.getProperty("NATS_SUBJECT_SUBSCRIBE");
             config.nats_max_reconnects = Integer.parseInt(prop.getProperty("NATS_MAX_RECONNECTS"));
             config.influx_uri = "http://" + prop.getProperty("INFLUX_URI") + ":" + prop.getProperty("INFLUX_PORT");
             config.influx_username = prop.getProperty("INFLUX_USERNAME");
@@ -98,23 +96,28 @@ public class NatsInfluxPush implements CommandLineRunner {
         
         // Create NATS and InfluxWriter
         logger.info("Created thread for " + bucket_type + "Data");
-        NatsConsumer natsObject = new NatsConsumer(config.nats_uri, config.nats_subscribe_str, config.nats_max_reconnects);
+        
         
         String influx_bucket = "";
         String influx_bucket_id = "";
+        String subscription_topic = "";
 
         if(bucket_type.equals("Platform")){
             influx_bucket = config.influx_bucket_platform;
             influx_bucket_id = config.influx_bucket_id_platform;
+            subscription_topic = "*.platform.data.*";
         }
         else if(bucket_type.equals("Streets")){
             influx_bucket = config.influx_bucket_streets;
             influx_bucket_id = config.influx_bucket_id_streets;
+            subscription_topic = "*.streets.data.*";
         }
         else{
             Thread.currentThread().interrupt();
             logger.error("Invalid data type for pushing Influx data");
         }
+
+        NatsConsumer natsObject = new NatsConsumer(config.nats_uri, subscription_topic, config.nats_max_reconnects);
 
         InfluxDataWriter influxDataWriter = new InfluxDataWriter(config.influx_uri, config.influx_username, config.influx_pwd, influx_bucket,
         influx_bucket_id, config.influx_org, config.influx_org_id, config.influx_token, config.influx_connect_timeout, config.influx_write_timeout);

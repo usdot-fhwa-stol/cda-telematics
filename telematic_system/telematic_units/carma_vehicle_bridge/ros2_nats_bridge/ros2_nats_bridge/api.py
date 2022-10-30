@@ -123,7 +123,7 @@ class Ros2NatsBridgeNode(Node):
                 self.get_logger().warn(
                     "Registering unit received response: {message}".format(message=message))
                 message_json = json.loads(message)
-                self.vehicle_info[EventKeys.EVENT_NAME.value] = message_json[EventKeys.TESTING_TYPE.value]
+                self.vehicle_info[EventKeys.EVENT_NAME.value] = message_json[EventKeys.EVENT_NAME.value]
                 self.vehicle_info[EventKeys.LOCATION.value] = message_json[EventKeys.LOCATION.value]
                 self.vehicle_info[EventKeys.TESTING_TYPE.value] = message_json[EventKeys.TESTING_TYPE.value]
                 self.registered = True
@@ -231,7 +231,7 @@ class Ros2NatsBridgeNode(Node):
             self.event_name = event_name
             self.testing_type = testing_type
             self.location = location
-            self.topic_name = unit_id + ".data" + topic_name.replace("/", ".")
+            self.topic_name = unit_id + ".platform.data" + topic_name.replace("/", ".")
             print("Publishing on topic: "+ self.topic_name)
             self.nc = nc
 
