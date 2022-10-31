@@ -1,3 +1,7 @@
+-- Insert values into testing_types table
+insert into testing_types (name) values ('Verification');
+insert into testing_types (name) values ('Validation');
+insert into testing_types (name) values ('Integration');
 -- Insert values into states table
 insert into states (code,name) values ('AL','Alabama');
 insert into states (code,name) values ('AK','Alaska');
