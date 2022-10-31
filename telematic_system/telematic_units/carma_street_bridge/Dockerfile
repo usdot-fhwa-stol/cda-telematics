@@ -8,14 +8,13 @@ RUN set -xe \
     vim \
     python3-pip
     
-COPY telematic_system/telematic_units/carma_street_bridge/requirements.txt /tmp
+COPY requirements.txt /tmp
 WORKDIR /tmp
 RUN pip install --upgrade -r requirements.txt
 
 WORKDIR /ws
-RUN ls -la && pwd
 
-ADD telematic_system/telematic_units/carma_street_bridge/streets_nats_bridge src/streets_nats_bridge
+ADD streets_nats_bridge src/streets_nats_bridge
 
 WORKDIR /ws/src/streets_nats_bridge/src
 
