@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019-2022 LEIDOS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 import StreamIcon from '@mui/icons-material/Stream';
 import { Button, FormControl, Grid, Tooltip } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
@@ -49,7 +64,9 @@ const TopicPage = React.memo(() => {
               || element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.NON_CAV_VEHICLE.toLocaleLowerCase())) {
             filteredVehicles = [...filteredVehicles, element];
           } else if (element.unit_type !== undefined &&
-            element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.INFRASTRUCTURE.toLocaleLowerCase()) {
+            (element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.CLOUD_INFRASTRUCTURERE.toLocaleLowerCase()
+              || element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.STREETS_INFRASTRUCTURE.toLocaleLowerCase()
+              || element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.V2XHUB_INFRASTRUCTURE.toLocaleLowerCase())) {
             filteredInfrastructures = [...filteredInfrastructures, element];
           }
           else {

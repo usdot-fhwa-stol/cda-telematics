@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019-2022 LEIDOS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import EventIcon from '@mui/icons-material/Event';
 import { Button, Grid } from '@mui/material';
@@ -148,8 +163,8 @@ const EventPage = React.memo(() => {
 
   //Assign a unit to an Event
   const onAssignUnitHandler = (assign_event_unit) => {
-    const resposne_data = assignUnit2Event(assign_event_unit);
-    resposne_data.then(json => {
+    const response_data = assignUnit2Event(assign_event_unit);
+    response_data.then(json => {
       if (json !== undefined) {
         const existingItem = eventInfoList.filter(event => event.id === assign_event_unit.event_id);
         if (existingItem[0].event_units === undefined) {
@@ -177,8 +192,8 @@ const EventPage = React.memo(() => {
 
   //Unassign a unit to an event
   const onConfirmUnassignUnitHandler = (event_unit) => {
-    const resposne_data = unAssignUnit2Event(event_unit);
-    resposne_data.then(json => {
+    const response_data = unAssignUnit2Event(event_unit);
+    response_data.then(json => {
       if (json !== undefined) {
         const existingItem = eventInfoList.filter(event => event.id === event_unit.event_id);
         existingItem[0].units = [...existingItem[0].units.filter(unit => unit.id !== event_unit.unit.id)];

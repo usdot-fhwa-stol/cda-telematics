@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2019-2022 LEIDOS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 import SyncIcon from '@mui/icons-material/Sync';
 import { Button, Card, CardContent, CardHeader, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, Tooltip, Typography } from '@mui/material';
 import { Box } from '@mui/system';
@@ -44,8 +58,8 @@ const UnitTopicList = React.memo((props) => {
 
         if (props.availableUnits !== undefined && props.availableUnits.length > 0) {
             //Get Live units and topics from server
-            const resposne_data = getAvailableLiveTopicsByEventUnits(unitIdentifiers);
-            resposne_data.then(jsonList => {
+            const response_data = getAvailableLiveTopicsByEventUnits(unitIdentifiers);
+            response_data.then(jsonList => {
                 let availableUnitTopicsFromServer = [];
                 jsonList.forEach(json => {
                     if (json !== undefined && json.errCode === undefined) {
@@ -83,8 +97,8 @@ const UnitTopicList = React.memo((props) => {
     //Refresh button click to send request to server to get latest list of available topics for the current selected units
     const refreshAvailableLiveTopics4SelectedUnit = () => {
         if (selectedUnits.length > 0) {
-            const resposne_data = getAvailableLiveTopicsByEventUnits(selectedUnitIdentifiers);
-            resposne_data.then(jsonList => {
+            const response_data = getAvailableLiveTopicsByEventUnits(selectedUnitIdentifiers);
+            response_data.then(jsonList => {
                 let refreshed_num = 0;
                 let availableUnitTopicsFromServer = [];
                 jsonList.forEach(json => {
@@ -173,11 +187,11 @@ const UnitTopicList = React.memo((props) => {
 
                 //If there is no category from the all topics, create a default category and add all topics to default category
                 if (unique_category_names.length === 0) {
-                    let default_categgory_topics = {
+                    let default_category_topics = {
                         category: DEFAULT_TOPIC_CATEGORY_NAME,
                         topics: serverUnit.topics
                     }
-                    updatedUnit.unit_topics.push(default_categgory_topics);
+                    updatedUnit.unit_topics.push(default_category_topics);
                 } else {
                     //If there is category for the topics, add each topic to the correct category
                     serverUnit.topics.forEach(liveTopic => {

@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019-2022 LEIDOS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 import DeleteIcon from '@mui/icons-material/Delete';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -109,8 +124,8 @@ const EventTableRowCollapse = (props) => {
                                     <TableRow >
                                         <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-name`}>Unit Name</TableCell>
                                         <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-type`}>Unit Type</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-start-date`}>Start Datetime</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-end-date`}>End Datetime</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-start-date`}>Start Time & Date</TableCell>
+                                        <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-end-date`}>End Time & Date</TableCell>
                                         <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-controls`}>Controls</TableCell>
                                     </TableRow>
                                 </TableHead>

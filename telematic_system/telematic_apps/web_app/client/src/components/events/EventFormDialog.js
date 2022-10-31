@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019-2022 LEIDOS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -188,14 +203,14 @@ export const EventFormDialog = (props) => {
                     <FormControl fullWidth>
                         <LocalizationProvider dateAdapter={AdapterDayjs}>
                             <DateTimePicker
-                                label="Start Datetime*"
+                                label="Start Time & Date*"
                                 value={startTime}
                                 onChange={handleStartTimeChange}
                                 renderInput={(params) =>
                                     <TextField {...params} sx={{ marginBottom: 5 }} />}
                             />
                             <DateTimePicker
-                                label="End Datetime*"
+                                label="End Time & Date*"
                                 value={endTime}
                                 onChange={handleEndTimeChange}
                                 sx={{ paddingBottom: 5 }}

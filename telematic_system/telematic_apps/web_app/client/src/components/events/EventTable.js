@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019-2022 LEIDOS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
@@ -14,9 +29,9 @@ const columns = [
   { id: 'name', label: 'Event Name', minWidth: 170, info: '' },
   { id: 'testing_type', label: 'Testing Type', minWidth: 100, info: '' },
   { id: 'location', label: 'Location', minWidth: 170, align: 'right', info: '' },
-  { id: 'start_at', label: 'Start Datetime', minWidth: 170, align: 'right', format: (value) => value.toLocaleString('en-US'), info: '' },
-  { id: 'end_at', label: 'End Datetime', minWidth: 170, align: 'right', format: (value) => value.toLocaleString('en-US'), info: '' },
-  { id: 'status', label: 'Event Status', minWidth: 170, info: 'Past event: An event end datetime is prior to the current datetime. Active event: Current datetime is within the event start and end datetime. Live event: There are running units currently testing for this event.' }
+  { id: 'start_at', label: 'Start Time & Date', minWidth: 170, align: 'right', format: (value) => value.toLocaleString('en-US'), info: '' },
+  { id: 'end_at', label: 'End Time & Date', minWidth: 170, align: 'right', format: (value) => value.toLocaleString('en-US'), info: '' },
+  { id: 'status', label: 'Event Status', minWidth: 170, info: 'Past event: An event end Time & Date is prior to the current Time & Date. Active event: Current Time & Date is within the event start and end Time & Date. Live event: There are running units currently testing for this event.' }
 ];
 
 export default function EventTable(props) {

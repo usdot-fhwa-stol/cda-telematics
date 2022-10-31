@@ -27,10 +27,10 @@ services:
       # Server port
       - PORT=9010
       # MYSQL DB credentials. Need to be replaced with actual MYSQL DB during deployment
-      - DB_HOST=localhost
-      - DB_USER=root
-      - DB_PASSWORD=root
-      - GRAFANA_DB=wfd_grafana
+      - DB_HOST=<DB_HOST>
+      - DB_USER=<DB_USER>
+      - DB_PASSWORD=<DB_PASSWORD>
+      - GRAFANA_DB=<GRAFANA_DB>
 
   telematic_web_client:
     build:
