@@ -25,7 +25,7 @@ import java.lang.Thread;
 public class NatsInfluxPush implements CommandLineRunner {
     
 
-    private static class Config{
+    public static class Config{
         String nats_uri;    
         String influx_uri;
         String influx_bucket_type;
@@ -92,7 +92,7 @@ public class NatsInfluxPush implements CommandLineRunner {
         return config;
     }
     
-    static void initialize_thread(String bucket_type, Config config) {
+    public static void initialize_thread(String bucket_type, Config config) {
         
         // Create NATS and InfluxWriter
         logger.info("Created thread for " + bucket_type + "Data");
