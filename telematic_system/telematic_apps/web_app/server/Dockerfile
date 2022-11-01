@@ -1,11 +1,16 @@
 FROM node:16.16.0
 
+# Create app directory
 WORKDIR /app
-COPY . .
 
+#A wildcard is used to ensure both package.json AND package-lock.json are copied where available 
+COPY package*.json ./
+
+RUN npm install -g nodemon
 RUN npm init -y
 RUN npm install
 
-EXPOSE 9010
+# Bundle app source
+COPY . .
 
 ENTRYPOINT ["npm", "start"]
