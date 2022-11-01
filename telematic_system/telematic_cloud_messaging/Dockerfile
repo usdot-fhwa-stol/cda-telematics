@@ -1,5 +1,4 @@
 FROM openjdk:17-jdk-slim-buster
-RUN mkdir -p /telematic_cloud_messaging
 WORKDIR /telematic_cloud_messaging
 COPY ./ /telematic_cloud_messaging/
 RUN ./mvnw clean package -Dmaven.test.skip=true
