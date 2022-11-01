@@ -1,4 +1,4 @@
-use grafana;
+use wfd_grafana;
 -- Drop tables if already exist
 drop table if exists states,
 locations,
@@ -41,6 +41,8 @@ create table events(
     location_id int not null default 0,
     testing_type_id int not null default 0,
     status varchar(50) not null default '',
+    start_at timestamp default CURRENT_TIMESTAMP,
+    end_at timestamp default CURRENT_TIMESTAMP,
     created_at timestamp default CURRENT_TIMESTAMP,
     created_by int not null default 0,
     updated_at timestamp default CURRENT_TIMESTAMP,
@@ -70,8 +72,8 @@ create table event_units(
     created_at timestamp not null default CURRENT_TIMESTAMP,
     created_by int not null default 0,
     primary key(id),
-    foreign key (unit_id) references units(id),
-    foreign key (event_id) references events(id) 
+    foreign key (unit_id) references units(id)  on update cascade on delete cascade,
+    foreign key (event_id) references events(id)  on update cascade on delete cascade
 );
 
 -- Create default_event_topic table
