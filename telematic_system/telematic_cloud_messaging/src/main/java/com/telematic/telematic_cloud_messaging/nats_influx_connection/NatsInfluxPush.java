@@ -79,7 +79,7 @@ public class NatsInfluxPush implements CommandLineRunner {
         return config;
     }
     
-    public static void initialize_thread(Config.BucketType bucket_type, Config config) {
+    public static void initialize_data_persistent_service(Config.BucketType bucket_type, Config config) {
         
         // Create NATS and InfluxWriter
         logger.info("Created thread for " + bucket_type + "Data");
@@ -92,12 +92,12 @@ public class NatsInfluxPush implements CommandLineRunner {
         if(bucket_type == Config.BucketType.Platform){
             influx_bucket = config.influx_bucket_platform;
             influx_bucket_id = config.influx_bucket_id_platform;
-            subscription_topic = "*.platform.data.*";
+            subscription_topic = "*.platform.*.data.*";
         }
         else if(bucket_type == Config.BucketType.Streets){
             influx_bucket = config.influx_bucket_streets;
             influx_bucket_id = config.influx_bucket_id_streets;
-            subscription_topic = "*.streets.data.*";
+            subscription_topic = "*.streets.*.data.*";
         }
         else{
             Thread.currentThread().interrupt();
@@ -106,8 +106,7 @@ public class NatsInfluxPush implements CommandLineRunner {
 
         NatsConsumer natsObject = new NatsConsumer(config.nats_uri, subscription_topic, config.nats_max_reconnects);
 
-        InfluxDataWriter influxDataWriter = new InfluxDataWriter(config.influx_uri, config.influx_username, config.influx_pwd, influx_bucket,
-        influx_bucket_id, config.influx_org, config.influx_org_id, config.influx_token, config.influx_connect_timeout, config.influx_write_timeout);
+        InfluxDataWriter influxDataWriter = new InfluxDataWriter(config_, bucket_type);
 
         //Wait until we successfully connect to the nats server and InfluxDb
         while(!natsObject.getNatsConnected() & !influxDataWriter.getInfluxConnected()){
@@ -143,14 +142,14 @@ public class NatsInfluxPush implements CommandLineRunner {
             // Create thread for platform
             Thread platform_thread  = new Thread() {
                 public void run(){
-                    initialize_thread(Config.BucketType.Platform, config_);
+                    initialize_data_persistent_service(Config.BucketType.Platform, config_);
                 }
             };
 
             // Create thread for streets
             Thread streets_thread = new Thread() {
                 public void run() {
-                    initialize_thread(Config.BucketType.Platform, config_);
+                    initialize_data_persistent_service(Config.BucketType.Platform, config_);
                 }
             };
             
@@ -163,7 +162,7 @@ public class NatsInfluxPush implements CommandLineRunner {
             // Create thread for specified type
             Thread worker_thread  = new Thread() {
                 public void run(){
-                    initialize_thread(config_.influx_bucket_type, config_);
+                    initialize_data_persistent_service(config_.influx_bucket_type, config_);
                 }
             };
             worker_thread.start();

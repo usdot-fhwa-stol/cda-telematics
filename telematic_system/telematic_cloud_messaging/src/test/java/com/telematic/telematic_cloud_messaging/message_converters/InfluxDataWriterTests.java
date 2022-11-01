@@ -12,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
 import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.InfluxDataWriter;
+import com.telematic.telematic_cloud_messaging.nats_influx_connection.Config;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -32,9 +33,11 @@ public class InfluxDataWriterTests {
    
     @Test
     public void influxConnectTest() {        
-        try {   
-            InfluxDataWriter influxDataWriter = new InfluxDataWriter(influx_uri, influx_username, influx_pwd, influx_bucket, influx_bucket_id,
-            influx_org, influx_org_id, influx_token, 10, 10);
+        try {
+            Config config = new Config();
+            Config.BucketType bucket_type = Config.BucketType.Platform;
+              
+            InfluxDataWriter influxDataWriter = new InfluxDataWriter(config, bucket_type);
                   
             assertTrue(influxDataWriter.getInfluxConnected() == false);
 
@@ -48,8 +51,9 @@ public class InfluxDataWriterTests {
     @Test
     public void influxRecordTest() {        
         try {           
-            InfluxDataWriter influxDataWriter = new InfluxDataWriter(influx_uri, influx_username, influx_pwd, influx_bucket, influx_bucket_id,
-            influx_org, influx_org_id, influx_token, 10, 10);
+            Config config = new Config();
+            Config.BucketType bucket_type = Config.BucketType.Streets;
+            InfluxDataWriter influxDataWriter = new InfluxDataWriter(config, bucket_type);
 
             String kafka_str = "{\"payload\":{\"metadata\":{\"timestamp\":\"1664295886951\",\"intersection_type\":\"Carma/stop_controlled_intersection\"}, \"payload\":\"\"}, \"unit_id\":\"streets_id\",\"unit_type\":\"infrastructure\",\"unit_name\":\"West Intersection\",\"event_name\":\"UC3\",\"location\":\"TFHRC\", \"testing_type\":\"Integration\",\"msg_type\":\"v2xhub_scheduling_plan_sub\",\"topic_name\":\"v2xhub_scheduling_plan_sub\",\"timestamp\":\"1664389254620257.0\"}";
             String converted_str = influxDataWriter.influxStringConverter(kafka_str);

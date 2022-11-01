@@ -26,26 +26,10 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  * the config.properties file.
  */
 public class InfluxDataWriter {
-    // URI where the influxdb bucket is hosted
-    String influx_uri;
-    // Influxdb bucket name
+    
+    Config config_;
     String influx_bucket;
-    // Influxdb bucket id
     String influx_bucket_id;
-    // Organization for the influxdb bucket
-    String influx_org;
-    // Organization id of the influxdb bucket
-    String influx_org_id;
-    // Token to access influxdb bucket
-    String influx_token;
-    // Username for influxdb bucket
-    String influx_username;
-    // Password for influxdb bucket
-    String influx_pwd;
-    // Time in milliseconds after which the request to connect to the influxdb bucket times out
-    int connect_timeout;
-    // Time in milliseconds after which the request to write data to the influxdb bucket times out
-    int write_timeout;
 
     boolean influx_connected;
     InfluxDBClient influxDBClient;
@@ -57,26 +41,25 @@ public class InfluxDataWriter {
     /**
      * Constructor to instantiate InfluxDataWriter object
      */
-    public InfluxDataWriter(String influx_uri, String influx_username, String influx_pwd, String influx_bucket,
-        String influx_bucket_id, String influx_org, String influx_org_id, String influx_token, int connect_timeout, int write_timeout) {
+    public InfluxDataWriter(Config config, Config.BucketType bucket_type) {
         logger.debug("Creating new InfluxDataWriter");
 
-        this.influx_uri = influx_uri;
-        this.influx_username = influx_username;
-        this.influx_pwd = influx_pwd;
-        this.influx_bucket = influx_bucket;
-        this.influx_bucket_id = influx_bucket_id;
-        this.influx_org = influx_org;
-        this.influx_org_id = influx_org_id;
-        this.influx_token = influx_token;
-        this.connect_timeout = connect_timeout;
-        this.write_timeout = write_timeout;
+        if(bucket_type == Config.BucketType.Platform){
+            this.influx_bucket = config.influx_bucket_platform;
+            this.influx_bucket_id = config.influx_bucket_id_platform;
+        }
+        else if(bucket_type == Config.BucketType.Streets){
+            this.influx_bucket = config.influx_bucket_streets;
+            this.influx_bucket_id = config.influx_bucket_id_streets;
+        }
+        
+        config_ = config;
 
         influx_connected = false;
 
-        logger.info("Attempting to connect to InfluxDb at " + influx_uri);
+        logger.info("Attempting to connect to InfluxDb at " + config_.influx_uri);
         logger.info("InfluxDb bucket name: " + influx_bucket);
-        logger.info("InfluxDb org name: " + influx_org);
+        logger.info("InfluxDb org name: " + config_.influx_org);
     }   
 
     /**
@@ -95,13 +78,13 @@ public class InfluxDataWriter {
 
         try {
             OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient().newBuilder()
-                                                            .connectTimeout(connect_timeout, TimeUnit.MILLISECONDS)            
-                                                            .writeTimeout(write_timeout, TimeUnit.MILLISECONDS);
+                                                            .connectTimeout(config_.influx_connect_timeout, TimeUnit.MILLISECONDS)            
+                                                            .writeTimeout(config_.influx_write_timeout, TimeUnit.MILLISECONDS);
             InfluxDBClientOptions options = InfluxDBClientOptions
                                             .builder()
-                                            .url(influx_uri)
-                                            .authenticateToken(influx_token.toCharArray())
-                                            .org(influx_org)
+                                            .url(config_.influx_uri)
+                                            .authenticateToken(config_.influx_token.toCharArray())
+                                            .org(config_.influx_org)
                                             .bucket(influx_bucket)
                                             .okHttpClient(okHttpClientBuilder)
                                             .build();                                                                       
