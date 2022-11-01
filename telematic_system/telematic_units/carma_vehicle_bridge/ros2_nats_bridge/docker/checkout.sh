@@ -71,7 +71,7 @@ cd ..
 sudo git clone https://github.com/novatel/novatel_oem7_driver.git novatel_oem7_driver --branch ros2-dev 
 cd novatel_oem7_driver
 sudo git checkout 3055e220bb9715b59c3ef53ab0aba05a495d9d5
-sudo mv src/novatel_oem7_msgs ../carma-msgs/novatel_oem7_msgs
+sudo mv src/novatel_oem7_msgs ../novatel_oem7_msgs
 cd ..
 sudo rm -rf novatel_oem7_driver
 
