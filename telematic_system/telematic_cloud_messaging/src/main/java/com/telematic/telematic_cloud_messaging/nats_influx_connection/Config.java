@@ -7,9 +7,15 @@ package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
 public class Config {
 
+    public enum BucketType{
+        Platform,
+        Streets,
+        All
+    }
+
     String nats_uri;    
     String influx_uri;
-    String influx_bucket_type;
+    BucketType influx_bucket_type;
     String influx_bucket_streets;
     String influx_bucket_id_streets;
     String influx_bucket_platform;

@@ -9,6 +9,7 @@ import java.util.Properties;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.Config;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.InfluxDataWriter;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.NatsConsumer;
+import com.telematic.telematic_cloud_messaging.nats_influx_connection.Config.BucketType;
 import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
 import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
 import org.slf4j.LoggerFactory;
@@ -55,7 +56,6 @@ public class NatsInfluxPush implements CommandLineRunner {
             config.influx_uri = "http://" + prop.getProperty("INFLUX_URI") + ":" + prop.getProperty("INFLUX_PORT");
             config.influx_username = prop.getProperty("INFLUX_USERNAME");
             config.influx_pwd = prop.getProperty("INFLUX_PWD");
-            config.influx_bucket_type = prop.getProperty("INFLUX_BUCKET_TYPE");
             config.influx_bucket_streets = prop.getProperty("INFLUX_BUCKET");
             config.influx_bucket_id_streets= prop.getProperty("INFLUX_BUCKET_ID");
             config.influx_bucket_platform = prop.getProperty("INFLUX_BUCKET_PLATFORM");
@@ -65,6 +65,12 @@ public class NatsInfluxPush implements CommandLineRunner {
             config.influx_token = prop.getProperty("INFLUX_TOKEN");
             config.influx_connect_timeout = Integer.parseInt(prop.getProperty("INFLUX_CONNECT_TIMEOUT"));
             config.influx_write_timeout = Integer.parseInt(prop.getProperty("INFLUX_WRITE_TIMEOUT"));
+
+            try{
+                config.influx_bucket_type = BucketType.valueOf(prop.getProperty("INFLUX_BUCKET_TYPE"));
+            }catch(Exception e){
+                logger.error("Invalid bucket type defined. Options are Platform, Streets and All");
+            }
             
 
         } catch (Exception e) {
@@ -73,7 +79,7 @@ public class NatsInfluxPush implements CommandLineRunner {
         return config;
     }
     
-    public static void initialize_thread(String bucket_type, Config config) {
+    public static void initialize_thread(Config.BucketType bucket_type, Config config) {
         
         // Create NATS and InfluxWriter
         logger.info("Created thread for " + bucket_type + "Data");
@@ -83,12 +89,12 @@ public class NatsInfluxPush implements CommandLineRunner {
         String influx_bucket_id = "";
         String subscription_topic = "";
 
-        if(bucket_type.equals("Platform")){
+        if(bucket_type == Config.BucketType.Platform){
             influx_bucket = config.influx_bucket_platform;
             influx_bucket_id = config.influx_bucket_id_platform;
             subscription_topic = "*.platform.data.*";
         }
-        else if(bucket_type.equals("Streets")){
+        else if(bucket_type == Config.BucketType.Streets){
             influx_bucket = config.influx_bucket_streets;
             influx_bucket_id = config.influx_bucket_id_streets;
             subscription_topic = "*.streets.data.*";
@@ -133,21 +139,23 @@ public class NatsInfluxPush implements CommandLineRunner {
         config_ = getConfigValues();
         
         
-        if(config_.influx_bucket_type.equals("All")){
+        if(config_.influx_bucket_type == Config.BucketType.All){
             // Create thread for platform
             Thread platform_thread  = new Thread() {
                 public void run(){
-                    initialize_thread("Platform", config_);
+                    initialize_thread(Config.BucketType.Platform, config_);
                 }
             };
-            platform_thread.start();
 
-            // Start thread for streets
+            // Create thread for streets
             Thread streets_thread = new Thread() {
                 public void run() {
-                    initialize_thread("Streets", config_);
+                    initialize_thread(Config.BucketType.Platform, config_);
                 }
             };
+            
+            // Start threads
+            platform_thread.start();
             streets_thread.start();
         }
         else
