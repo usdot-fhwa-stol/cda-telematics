@@ -124,11 +124,11 @@ public class NatsInfluxPush implements CommandLineRunner {
 
         //Wait until we successfully connect to the nats server and InfluxDb
         while(!natsObject.getNatsConnected() & !influxDataWriter.getInfluxConnected()){
-            natsObject.nats_connect();
-            influxDataWriter.influx_connect();
 
             //wait for 100 ms and try to connect again
             try {
+                natsObject.nats_connect();
+                influxDataWriter.influx_connect();
                 Thread.sleep(100);
             } 
             catch (InterruptedException e) 

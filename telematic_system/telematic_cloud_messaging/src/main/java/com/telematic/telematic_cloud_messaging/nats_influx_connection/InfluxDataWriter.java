@@ -26,15 +26,25 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
  * the config.properties file.
  */
 public class InfluxDataWriter {
+    // URI where the influxdb bucket is hosted
     String influx_uri;
+    // Influxdb bucket name
     String influx_bucket;
+    // Influxdb bucket id
     String influx_bucket_id;
+    // Organization for the influxdb bucket
     String influx_org;
+    // Organization id of the influxdb bucket
     String influx_org_id;
+    // Token to access influxdb bucket
     String influx_token;
+    // Username for influxdb bucket
     String influx_username;
+    // Password for influxdb bucket
     String influx_pwd;
+    // Time in milliseconds after which the request to connect to the influxdb bucket times out
     int connect_timeout;
+    // Time in milliseconds after which the request to write data to the influxdb bucket times out
     int write_timeout;
 
     boolean influx_connected;
@@ -49,7 +59,7 @@ public class InfluxDataWriter {
      */
     public InfluxDataWriter(String influx_uri, String influx_username, String influx_pwd, String influx_bucket,
         String influx_bucket_id, String influx_org, String influx_org_id, String influx_token, int connect_timeout, int write_timeout) {
-        logger.info("Creating new InfluxDataWriter");
+        logger.debug("Creating new InfluxDataWriter");
 
         this.influx_uri = influx_uri;
         this.influx_username = influx_username;
@@ -81,7 +91,7 @@ public class InfluxDataWriter {
      * asynchronous writing to the database.
      */
     public void influx_connect() {  
-        logger.info("Attempting to create influxdb client");
+        logger.debug("Attempting to create influxdb client");
 
         try {
             OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient().newBuilder()
@@ -95,7 +105,6 @@ public class InfluxDataWriter {
                                             .bucket(influx_bucket)
                                             .okHttpClient(okHttpClientBuilder)
                                             .build();                                                                       
-            // influxDBClient = InfluxDBClientFactory.create(influx_uri, influx_token.toCharArray(), influx_org, influx_bucket);
             influxDBClient = InfluxDBClientFactory.create(options);
             logger.info("Successfully created influxdb client");
 
