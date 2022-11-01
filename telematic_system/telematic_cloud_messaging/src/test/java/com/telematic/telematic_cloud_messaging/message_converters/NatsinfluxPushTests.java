@@ -9,8 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-// import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
-// import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
+import com.telematic.telematic_cloud_messaging.nats_influx_connection.Config;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.InfluxDataWriter;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.NatsInfluxPush;
 
@@ -38,7 +37,7 @@ public class NatsinfluxPushTests {
     @Test
     public void NatsInfluxPushTest(){
         NatsInfluxPush nats_influx_push = new NatsInfluxPush();
-        NatsInfluxPush.Config configuration = new NatsInfluxPush.Config();
+        Config configuration = new Config();
         
 
         String bucket_type = "Platform";

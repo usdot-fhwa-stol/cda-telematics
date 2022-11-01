@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Profile;
 
 import java.io.*;
 import java.util.Properties;
+import com.telematic.telematic_cloud_messaging.nats_influx_connection.Config;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.InfluxDataWriter;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.NatsConsumer;
 import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
@@ -24,26 +25,6 @@ import java.lang.Thread;
 @Profile("!test") //Skip Unit test on the CommandLineRunner task
 public class NatsInfluxPush implements CommandLineRunner {
     
-
-    public static class Config{
-        String nats_uri;    
-        String influx_uri;
-        String influx_bucket_type;
-        String influx_bucket_streets;
-        String influx_bucket_id_streets;
-        String influx_bucket_platform;
-        String influx_bucket_id_platform;
-        String influx_org;
-        String influx_org_id;
-        String influx_token;
-        String influx_username;
-        String influx_pwd;
-        int nats_max_reconnects;
-        int influx_connect_timeout;
-        int influx_write_timeout;
-
-        public Config(){}
-    }
 
     private static final Logger logger = LoggerFactory.getLogger(NatsInfluxPush.class);
 
@@ -150,19 +131,35 @@ public class NatsInfluxPush implements CommandLineRunner {
     @Override
     public void run(String[] args) {
         config_ = getConfigValues();
-
-        // Create threads depending on push data type
-        Thread worker = new Thread(){
-            public void run(){
-                if(config_.influx_bucket_type.equals("All")){
+        
+        
+        if(config_.influx_bucket_type.equals("All")){
+            // Create thread for platform
+            Thread platform_thread  = new Thread() {
+                public void run(){
                     initialize_thread("Platform", config_);
+                }
+            };
+            platform_thread.start();
+
+            // Start thread for streets
+            Thread streets_thread = new Thread() {
+                public void run() {
                     initialize_thread("Streets", config_);
                 }
-                else{
+            };
+            streets_thread.start();
+        }
+        else
+        {
+            // Create thread for specified type
+            Thread worker_thread  = new Thread() {
+                public void run(){
                     initialize_thread(config_.influx_bucket_type, config_);
                 }
-            }
-        };
-        worker.start();
+            };
+            worker_thread.start();
+        }
+        
     }
 }
