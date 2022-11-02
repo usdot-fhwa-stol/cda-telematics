@@ -52,7 +52,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use("/units", unitsRouter);
-app.use("/testAPI", testAPIRouter);
 require("./routes/events.router")(app);
 require("./routes/locations.router")(app);
 require("./routes/units.router")(app);
