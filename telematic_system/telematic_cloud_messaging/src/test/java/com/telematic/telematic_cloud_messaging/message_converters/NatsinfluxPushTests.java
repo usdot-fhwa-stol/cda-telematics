@@ -24,14 +24,14 @@ public class NatsinfluxPushTests {
         Config configuration = new Config();
         
 
-        Config.BucketType bucket_type = Config.BucketType.valueOf("Platform");
+        Config.BucketType bucket_type = Config.BucketType.PLATFORM;
         try{
             NatsInfluxPush.initialize_data_persistent_service(bucket_type, configuration);
         }catch(Exception e){
             e.printStackTrace();
         }
         
-        bucket_type = Config.BucketType.valueOf("Streets");
+        bucket_type = Config.BucketType.STREETS;
         try{
             NatsInfluxPush.initialize_data_persistent_service(bucket_type, configuration);
         }catch(Exception e){

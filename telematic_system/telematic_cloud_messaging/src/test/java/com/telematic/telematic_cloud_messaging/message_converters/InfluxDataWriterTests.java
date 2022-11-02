@@ -35,7 +35,7 @@ public class InfluxDataWriterTests {
     public void influxConnectTest() {        
         try {
             Config config = new Config();
-            Config.BucketType bucket_type = Config.BucketType.Platform;
+            Config.BucketType bucket_type = Config.BucketType.PLATFORM;
               
             InfluxDataWriter influxDataWriter = new InfluxDataWriter(config, bucket_type);
                   
@@ -52,7 +52,7 @@ public class InfluxDataWriterTests {
     public void influxRecordTest() {        
         try {           
             Config config = new Config();
-            Config.BucketType bucket_type = Config.BucketType.Streets;
+            Config.BucketType bucket_type = Config.BucketType.STREETS;
             InfluxDataWriter influxDataWriter = new InfluxDataWriter(config, bucket_type);
 
             String kafka_str = "{\"payload\":{\"metadata\":{\"timestamp\":\"1664295886951\",\"intersection_type\":\"Carma/stop_controlled_intersection\"}, \"payload\":\"\"}, \"unit_id\":\"streets_id\",\"unit_type\":\"infrastructure\",\"unit_name\":\"West Intersection\",\"event_name\":\"UC3\",\"location\":\"TFHRC\", \"testing_type\":\"Integration\",\"msg_type\":\"v2xhub_scheduling_plan_sub\",\"topic_name\":\"v2xhub_scheduling_plan_sub\",\"timestamp\":\"1664389254620257.0\"}";

@@ -44,11 +44,11 @@ public class InfluxDataWriter {
     public InfluxDataWriter(Config config, Config.BucketType bucket_type) {
         logger.debug("Creating new InfluxDataWriter");
 
-        if(bucket_type == Config.BucketType.Platform){
+        if(bucket_type.equals(Config.BucketType.PLATFORM)){
             this.influx_bucket = config.influx_bucket_platform;
             this.influx_bucket_id = config.influx_bucket_id_platform;
         }
-        else if(bucket_type == Config.BucketType.Streets){
+        else if(bucket_type == Config.BucketType.STREETS){
             this.influx_bucket = config.influx_bucket_streets;
             this.influx_bucket_id = config.influx_bucket_id_streets;
         }

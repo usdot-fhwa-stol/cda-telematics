@@ -8,9 +8,17 @@ package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 public class Config {
 
     public enum BucketType{
-        Platform,
-        Streets,
-        All
+        PLATFORM("Platform"),
+
+        STREETS("Streets"),
+
+        ALL("All");
+
+        private String type;
+
+        BucketType (String type){
+            this.type = type;
+        }
     }
     //URI where the NATS service is hosted
     String nats_uri;
@@ -22,10 +30,14 @@ public class Config {
     String influx_bucket_streets;
     // Influxdb bucket id for CARMA Streets bucket
     String influx_bucket_id_streets;
+    // nats topic carma-streets data is published to. 
+    String streets_subscription_topic;
     // Influxdb bucket name for CARMA Platform bucket
     String influx_bucket_platform;
     // Influxdb bucket id for CARMA Platform bucket
     String influx_bucket_id_platform;
+    // nats topic carma-platform data is published to
+    String platform_subscription_topic;
     // Organization for the influxdb bucket
     String influx_org;
     // Organization id of the influxdb bucket
@@ -44,4 +56,29 @@ public class Config {
     int influx_write_timeout;
 
     public Config(){}
+
+    // Converts config object parameters to a string
+    public String ToString(){
+        
+        String config_str = new String("Configuration: " + 
+        "\nnats_uri: " + nats_uri + 
+        "\ninflux_uri: " + influx_uri + 
+        "\ninflux_bucket_type: " + influx_bucket_type + 
+        "\ninflux_bucket_streets: " + influx_bucket_streets + 
+        "\ninflux_bucket_streets: " + influx_bucket_streets +
+        "\nstreets_subscription_topic: " + streets_subscription_topic +
+        "\ninflux_bucket_platform: " + influx_bucket_platform +
+        "\ninflux_bucket_id_platform: " + influx_bucket_id_platform +
+        "\ninflux_org: " + influx_org +
+        "\ninflux_org_id: " + influx_org_id +
+        "\ninflux_token: " + influx_token +
+        "\ninflux_username:" + influx_username +
+        "\ninflux_pwd: " + influx_pwd +
+        "\nnats_max_reconnects: " + nats_max_reconnects +
+        "\ninflux_connect_timeout: " + influx_connect_timeout +
+        "\ninflux_write_timeout: " + influx_write_timeout);
+
+        return config_str;
+
+    }
 };
