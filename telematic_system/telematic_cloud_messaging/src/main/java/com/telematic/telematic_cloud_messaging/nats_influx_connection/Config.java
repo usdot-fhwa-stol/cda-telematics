@@ -65,7 +65,7 @@ public class Config {
         "\ninflux_uri: " + influx_uri + 
         "\ninflux_bucket_type: " + influx_bucket_type + 
         "\ninflux_bucket_streets: " + influx_bucket_streets + 
-        "\ninflux_bucket_streets: " + influx_bucket_streets +
+        "\ninflux_bucket_id_streets: " + influx_bucket_id_streets +
         "\nstreets_subscription_topic: " + streets_subscription_topic +
         "\ninflux_bucket_platform: " + influx_bucket_platform +
         "\ninflux_bucket_id_platform: " + influx_bucket_id_platform +

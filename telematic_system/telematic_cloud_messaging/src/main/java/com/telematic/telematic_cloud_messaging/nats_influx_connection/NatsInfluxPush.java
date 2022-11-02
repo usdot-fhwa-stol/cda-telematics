@@ -56,8 +56,8 @@ public class NatsInfluxPush implements CommandLineRunner {
             config.influx_uri = "http://" + prop.getProperty("INFLUX_URI") + ":" + prop.getProperty("INFLUX_PORT");
             config.influx_username = prop.getProperty("INFLUX_USERNAME");
             config.influx_pwd = prop.getProperty("INFLUX_PWD");
-            config.influx_bucket_streets = prop.getProperty("INFLUX_BUCKET");
-            config.influx_bucket_id_streets= prop.getProperty("INFLUX_BUCKET_ID");
+            config.influx_bucket_streets = prop.getProperty("INFLUX_BUCKET_STREETS");
+            config.influx_bucket_id_streets= prop.getProperty("INFLUX_BUCKET_ID_STREETS");
             config.streets_subscription_topic = prop.getProperty("STREETS_SUBSCRIPTION_TOPIC");
             config.influx_bucket_platform = prop.getProperty("INFLUX_BUCKET_PLATFORM");
             config.influx_bucket_id_platform = prop.getProperty("INFLUX_BUCKET_ID_PLATFORM");
