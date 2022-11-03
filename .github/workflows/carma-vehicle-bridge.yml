@@ -7,7 +7,7 @@ on:
       - "feature_gha"
 jobs:
   docker:
-    runs-on: usdotfhwastoldev/carma-base:develop
+    runs-on: cimg/python:3.10.2
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -21,7 +21,8 @@ jobs:
       - name: Build
         uses: docker/build-push-action@v3
         with:
-          context: telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile
+          path: telematic_system/telematic_units/carma_vehicle_bridge/
+          #context: telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile
           push: true
           tags: usdotfhwastoldev/carma_vehicle_nats_bridge:${{ github.ref_name }}
       - name: SonarQube Scan
