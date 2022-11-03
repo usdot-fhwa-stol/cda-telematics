@@ -120,10 +120,10 @@ class Ros2NatsBridgeNode(Node):
             try:
                 response = await self.nc.request(self.vehicle_info[UnitKeys.UNIT_ID.value] + ".register_unit",  vehicle_info_message, timeout=5)
                 message = response.data.decode('utf-8')
-                self.logger.warn(
+                self.get_logger().warn(
                     "Registering unit received response: {message}".format(message=message))
                 message_json = json.loads(message)
-                self.vehicle_info[EventKeys.EVENT_NAME.value] = message_json[EventKeys.TESTING_TYPE.value]
+                self.vehicle_info[EventKeys.EVENT_NAME.value] = message_json[EventKeys.EVENT_NAME.value]
                 self.vehicle_info[EventKeys.LOCATION.value] = message_json[EventKeys.LOCATION.value]
                 self.vehicle_info[EventKeys.TESTING_TYPE.value] = message_json[EventKeys.TESTING_TYPE.value]
                 self.registered = True
@@ -208,7 +208,7 @@ class Ros2NatsBridgeNode(Node):
                             f"Create a callback for '{topic} with type {msg_type}'.")
 
         try:
-            self.get_logger().debug("Awaiting for publish_topics")
+            self.get_logger().info("Waiting for publish_topics request")
             await self.nc.subscribe(self.vehicle_info[UnitKeys.UNIT_ID.value] + ".publish_topics", "worker", topic_request)
         except:
             self.get_logger().error("Error for publish_topics")
@@ -231,7 +231,8 @@ class Ros2NatsBridgeNode(Node):
             self.event_name = event_name
             self.testing_type = testing_type
             self.location = location
-            self.topic_name = unit_id + ".data" + topic_name.replace("/", ".")
+            self.topic_name = "platform." + unit_id + ".data" + topic_name.replace("/", ".")
+            print("Publishing on topic: "+ self.topic_name)
             self.nc = nc
 
         async def listener_callback(self, msg):
@@ -247,9 +248,9 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg[UnitKeys.UNIT_NAME.value] = self.unit_name
             ordereddict_msg[TopicKeys.MSG_TYPE.value] = self.msg_type
             ordereddict_msg[TopicKeys.TOPIC_NAME.value] = self.origin_topic_name
-            ordereddict_msg[EventKeys.EVENT_NAME.value] = self.streets_info[EventKeys.EVENT_NAME.value]
-            ordereddict_msg[EventKeys.TESTING_TYPE.value] = self.streets_info[EventKeys.TESTING_TYPE.value]
-            ordereddict_msg[EventKeys.LOCATION.value] = self.streets_info[EventKeys.LOCATION.value]
+            ordereddict_msg[EventKeys.EVENT_NAME.value] = self.event_name
+            ordereddict_msg[EventKeys.TESTING_TYPE.value] = self.testing_type
+            ordereddict_msg[EventKeys.LOCATION.value] = self.location
             ordereddict_msg["timestamp"] = datetime.now(
                 timezone.utc).timestamp()*1000000  # microseconds
             json_message = json.dumps(ordereddict_msg).encode('utf8')
