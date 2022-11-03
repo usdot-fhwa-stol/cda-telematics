@@ -36,7 +36,7 @@ public class JSON2KeyValuePairsConverter {
                     }
                     // If none of the above Regex matches, considering it as string
                     else {
-                        pairs += key + "=\"" + value.toString() + "\"";
+                        pairs += key + "=\"" + value.toString().replaceAll("\\s", "") + "\"";
                     }
                 }              
                 

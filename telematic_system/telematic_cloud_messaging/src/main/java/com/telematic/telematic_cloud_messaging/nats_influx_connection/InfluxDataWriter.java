@@ -29,7 +29,6 @@ public class InfluxDataWriter {
     
     Config config_;
     String influx_bucket;
-    String influx_bucket_id;
 
     boolean influx_connected;
     InfluxDBClient influxDBClient;
@@ -46,11 +45,9 @@ public class InfluxDataWriter {
 
         if(bucket_type.equals(Config.BucketType.PLATFORM)){
             this.influx_bucket = config.influx_bucket_platform;
-            this.influx_bucket_id = config.influx_bucket_id_platform;
         }
         else if(bucket_type == Config.BucketType.STREETS){
             this.influx_bucket = config.influx_bucket_streets;
-            this.influx_bucket_id = config.influx_bucket_id_streets;
         }
         
         config_ = config;
@@ -143,7 +140,7 @@ public class InfluxDataWriter {
         String location = publishDataJson.getString("location").replaceAll("\\s", "_");
         String testing_type = publishDataJson.getString("testing_type").replaceAll("\\s", "_");
         String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
-        String timestamp = Long.toString(publishDataJson.getLong("timestamp")).replaceAll("\\s", "_");
+        String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
 
         String record = event_name + "," + "unit_id=" + unit_id + "," + "unit_type=" + unit_type + "," + "location=" + location
         + "," + "testing_type=" + testing_type + "," + "topic_name=" + topic_name + " " + keyValuePairs + " " + timestamp;

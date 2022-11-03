@@ -21,7 +21,6 @@ public class InfluxDataWriterTests {
     String influx_username = "admin";
     String influx_pwd = "adminpwd";
     String influx_bucket = "infrastructure-dev";
-    String influx_bucket_id = "30c930a3f306cfd6";
     String influx_org =  "my-org";
     String influx_org_id = "12bdc4164c2e8141";
     String influx_token = "iJwbytxMMQ1PpecjvVSRgbK1xUaDeZvU6DLHfXkoezqUfZfVYc8Q1nTIISceFmWvjcJA8NCPX_FMAm2Zw0Q5UA==";

@@ -254,5 +254,5 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg["timestamp"] = datetime.now(
                 timezone.utc).timestamp()*1000000  # microseconds
             json_message = json.dumps(ordereddict_msg).encode('utf8')
-            self.get_logger().debug(json_message)
+            print(json_message)
             await self.nc.publish(self.topic_name, json_message)

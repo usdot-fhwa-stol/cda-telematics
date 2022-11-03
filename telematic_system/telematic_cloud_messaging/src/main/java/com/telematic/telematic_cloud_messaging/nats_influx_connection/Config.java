@@ -28,14 +28,10 @@ public class Config {
     BucketType influx_bucket_type;
     // Influxdb bucket name for CARMA Streets bucket
     String influx_bucket_streets;
-    // Influxdb bucket id for CARMA Streets bucket
-    String influx_bucket_id_streets;
     // nats topic carma-streets data is published to. 
     String streets_subscription_topic;
     // Influxdb bucket name for CARMA Platform bucket
     String influx_bucket_platform;
-    // Influxdb bucket id for CARMA Platform bucket
-    String influx_bucket_id_platform;
     // nats topic carma-platform data is published to
     String platform_subscription_topic;
     // Organization for the influxdb bucket
@@ -65,10 +61,8 @@ public class Config {
         "\ninflux_uri: " + influx_uri + 
         "\ninflux_bucket_type: " + influx_bucket_type + 
         "\ninflux_bucket_streets: " + influx_bucket_streets + 
-        "\ninflux_bucket_id_streets: " + influx_bucket_id_streets +
         "\nstreets_subscription_topic: " + streets_subscription_topic +
         "\ninflux_bucket_platform: " + influx_bucket_platform +
-        "\ninflux_bucket_id_platform: " + influx_bucket_id_platform +
         "\nplatform_subscription_topic: " + platform_subscription_topic +
         "\ninflux_org: " + influx_org +
         "\ninflux_org_id: " + influx_org_id +
