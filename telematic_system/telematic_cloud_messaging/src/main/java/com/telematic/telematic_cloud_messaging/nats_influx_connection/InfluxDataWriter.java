@@ -137,13 +137,13 @@ public class InfluxDataWriter {
         String flattenedPayloadJson = jsonFlattener.flattenJsonStr(payloadJson.toString());
         String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
 
-        String unit_id = publishDataJson.getString("unit_id");
-        String unit_type = publishDataJson.getString("unit_type");
-        String event_name = publishDataJson.getString("event_name");
-        String location = publishDataJson.getString("location");
-        String testing_type = publishDataJson.getString("testing_type");
-        String topic_name = publishDataJson.getString("topic_name");
-        String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
+        String unit_id = publishDataJson.getString("unit_id").replaceAll("\\s", "_");
+        String unit_type = publishDataJson.getString("unit_type").replaceAll("\\s", "_");
+        String event_name = publishDataJson.getString("event_name").replaceAll("\\s", "_");
+        String location = publishDataJson.getString("location").replaceAll("\\s", "_");
+        String testing_type = publishDataJson.getString("testing_type").replaceAll("\\s", "_");
+        String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
+        String timestamp = Long.toString(publishDataJson.getLong("timestamp")).replaceAll("\\s", "_");
 
         String record = event_name + "," + "unit_id=" + unit_id + "," + "unit_type=" + unit_type + "," + "location=" + location
         + "," + "testing_type=" + testing_type + "," + "topic_name=" + topic_name + " " + keyValuePairs + " " + timestamp;
