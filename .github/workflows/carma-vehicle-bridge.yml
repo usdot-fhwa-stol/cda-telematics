@@ -7,7 +7,7 @@ on:
       - "feature_gha"
 jobs:
   docker:
-    runs-on: cimg/python:3.10.2
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -28,7 +28,7 @@ jobs:
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         with:
-          projectBaseDir: /opt/carma/src/cda-telematics/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/
+          projectBaseDir: ./telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/
           args: >
              -Dsonar.python.coverage.reportPaths=coverage.xml
              -Dsonar.tests=tests/

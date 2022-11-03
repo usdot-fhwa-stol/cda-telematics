@@ -46,5 +46,4 @@ jobs:
         run: |
           cd telematic_system/telematic_cloud_messaging/
           mvn install -DskipTests
-          cd ../jpo-geojsonconverter
           mvn -e -X clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.projectKey=usdot-fhwa-stol_cda-telematics -Dsonar.projectName=cda-telematics -Dsonar.organization=usdot-fhwa-stol-1 -Dsonar.host.url=https://sonarcloud.io -Dsonar.branch.name=$GITHUB_REF_NAME

@@ -29,7 +29,7 @@ jobs:
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         with:
-          projectBaseDir: /opt/carma/src/cda-telematics/telematic_system/telematic_units/carma_street_bridge/streets_nats_bridge/
+          projectBaseDir: ./telematic_system/telematic_units/carma_street_bridge/streets_nats_bridge/
           args: >
              -Dsonar.python.coverage.reportPaths=coverage.xml
              -Dsonar.tests=tests/
