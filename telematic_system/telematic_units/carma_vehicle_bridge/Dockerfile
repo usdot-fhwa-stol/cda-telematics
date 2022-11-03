@@ -28,6 +28,7 @@ COPY --from=dep /ws/install /ws/install
 
 COPY ros2_nats_bridge/docker/ros_entrypoint.sh ros_entrypoint.sh
 RUN chmod +x ros_entrypoint.sh
+
 RUN sudo rm -rf src /var/lib/apt/lists/*
 
 RUN echo "source /ws/install/setup.bash" >> ~/.bashrc
