@@ -25,11 +25,15 @@ jobs:
           file: ./telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile
           push: true
           tags: usdotfhwastoldev/carma_vehicle_nats_bridge:${{ github.ref_name }}
-      - name: SonarQube Scan
-        uses: sonarsource/sonarqube-scan-action@master
+
+  sonar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
         with:
-          projectBaseDir: ./telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/
-          args: >
-             -Dsonar.python.coverage.reportPaths=coverage.xml
-             -Dsonar.tests=tests/
-             -Dsonar.verbose=true
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
