@@ -6,8 +6,10 @@ import org.springframework.context.annotation.Profile;
 
 import java.io.*;
 import java.util.Properties;
+import com.telematic.telematic_cloud_messaging.nats_influx_connection.Config;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.InfluxDataWriter;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.NatsConsumer;
+import com.telematic.telematic_cloud_messaging.nats_influx_connection.Config.BucketType;
 import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
 import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
 import org.slf4j.LoggerFactory;
@@ -23,19 +25,11 @@ import java.lang.Thread;
 @Component
 @Profile("!test") //Skip Unit test on the CommandLineRunner task
 public class NatsInfluxPush implements CommandLineRunner {
-    static String nats_uri;    
-    static String influx_uri;
-    static String influx_bucket;
-    static String influx_bucket_id;
-    static String influx_org;
-    static String influx_org_id;
-    static String influx_token;
-    static String influx_username;
-    static String influx_pwd;
-    static int nats_max_reconnects;
-    static String nats_subscribe_str;
+    
 
     private static final Logger logger = LoggerFactory.getLogger(NatsInfluxPush.class);
+
+    private static Config config_;
 
     /**
      * Constructor to instantiate NatsInfluxPush object
@@ -47,49 +41,77 @@ public class NatsInfluxPush implements CommandLineRunner {
     /**
      * Load required configuration values from config.properties file    
      */
-    static void getConfigValues() {
+    static Config getConfigValues() {
+        
+        Config config = new Config();
+
         try {
             String configFilePath = "src/main/resources/application.properties";
             FileInputStream propsInput = new FileInputStream(configFilePath);
             Properties prop = new Properties();
             prop.load(propsInput);
+            
+            config.nats_uri = prop.getProperty("NATS_URI");
+            config.nats_max_reconnects = Integer.parseInt(prop.getProperty("NATS_MAX_RECONNECTS"));
+            config.influx_uri = "http://" + prop.getProperty("INFLUX_URI") + ":" + prop.getProperty("INFLUX_PORT");
+            config.influx_username = prop.getProperty("INFLUX_USERNAME");
+            config.influx_pwd = prop.getProperty("INFLUX_PWD");
+            config.influx_bucket_streets = prop.getProperty("INFLUX_BUCKET_STREETS");
+            config.streets_subscription_topic = prop.getProperty("STREETS_SUBSCRIPTION_TOPIC");
+            config.influx_bucket_platform = prop.getProperty("INFLUX_BUCKET_PLATFORM");
+            config.platform_subscription_topic = prop.getProperty("PLATFORM_SUBSCRIPTION_TOPIC");
+            config.influx_org = prop.getProperty("INFLUX_ORG");
+            config.influx_org_id = prop.getProperty("INFLUX_ORG_ID");
+            config.influx_token = prop.getProperty("INFLUX_TOKEN");
+            config.influx_connect_timeout = Integer.parseInt(prop.getProperty("INFLUX_CONNECT_TIMEOUT"));
+            config.influx_write_timeout = Integer.parseInt(prop.getProperty("INFLUX_WRITE_TIMEOUT"));
 
-            nats_uri = prop.getProperty("NATS_URI");
-            nats_subscribe_str = prop.getProperty("NATS_SUBJECT_SUBSCRIBE");
-            nats_max_reconnects = Integer.parseInt(prop.getProperty("NATS_MAX_RECONNECTS"));
-            influx_uri = "http://" + prop.getProperty("INFLUX_URI") + ":" + prop.getProperty("INFLUX_PORT");
-            influx_username = prop.getProperty("INFLUX_USERNAME");
-            influx_pwd = prop.getProperty("INFLUX_PWD");
-            influx_bucket = prop.getProperty("INFLUX_BUCKET");
-            influx_bucket_id= prop.getProperty("INFLUX_BUCKET_ID");
-            influx_org = prop.getProperty("INFLUX_ORG");
-            influx_org_id = prop.getProperty("INFLUX_ORG_ID");
-            influx_token = prop.getProperty("INFLUX_TOKEN");
+            try{
+                config.influx_bucket_type = BucketType.valueOf(prop.getProperty("INFLUX_BUCKET_TYPE"));
+            }catch(Exception e){
+                logger.error("Invalid bucket type defined. Options are PLATFORM, STREETS and ALL");
+            }
+            
 
         } catch (Exception e) {
             logger.error(ExceptionUtils.getStackTrace(e));
         }
-    }       
+        return config;
+    }
+    
+    public static void initialize_data_persistent_service(Config.BucketType bucket_type, Config config) {
+        
+        // Create NATS and InfluxWriter
+        logger.info("Created thread for " + bucket_type + " Data");
+        
+        
+        String influx_bucket = "";
+        String subscription_topic = "";
 
-    /**
-     * Override run method that instantiates the NatsConsumer and InfluxDataWriter.
-     * @param args 
-     */
-    @Override
-    public void run(String[] args) {
-        getConfigValues();
+        if(bucket_type.equals(Config.BucketType.PLATFORM)){
+            influx_bucket = config.influx_bucket_platform;
+            subscription_topic = config.platform_subscription_topic;
+        }
+        else if(bucket_type.equals(Config.BucketType.STREETS)){
+            influx_bucket = config.influx_bucket_streets;
+            subscription_topic = config.streets_subscription_topic;
+        }
+        else{
+            Thread.currentThread().interrupt();
+            logger.error("Invalid data type for pushing Influx data");
+        }
 
-        NatsConsumer natsObject = new NatsConsumer(nats_uri, nats_subscribe_str, nats_max_reconnects);
-        InfluxDataWriter influxDataWriter = new InfluxDataWriter(influx_uri, influx_username, influx_pwd, influx_bucket,
-        influx_bucket_id, influx_org, influx_org_id, influx_token);
+        NatsConsumer natsObject = new NatsConsumer(config.nats_uri, subscription_topic, config.nats_max_reconnects);
+
+        InfluxDataWriter influxDataWriter = new InfluxDataWriter(config_, bucket_type);
 
         //Wait until we successfully connect to the nats server and InfluxDb
         while(!natsObject.getNatsConnected() & !influxDataWriter.getInfluxConnected()){
-            natsObject.nats_connect();
-            influxDataWriter.influx_connect();
 
             //wait for 100 ms and try to connect again
             try {
+                natsObject.nats_connect();
+                influxDataWriter.influx_connect();
                 Thread.sleep(100);
             } 
             catch (InterruptedException e) 
@@ -102,5 +124,50 @@ public class NatsInfluxPush implements CommandLineRunner {
         //subscribe to data and publish
         natsObject.async_subscribe(influxDataWriter);
         logger.info("Waiting for data from nats..");
+    }
+
+    /**
+     * Override run method that instantiates the NatsConsumer and InfluxDataWriter.
+     * @param args 
+     */
+    @Override
+    public void run(String[] args) {
+        config_ = getConfigValues();
+        
+        logger.info(config_.ToString());
+        
+        if(config_.influx_bucket_type == Config.BucketType.ALL){
+            // Create thread for platform
+            Thread platform_thread  = new Thread() {
+                public void run(){
+                    initialize_data_persistent_service(Config.BucketType.PLATFORM, config_);
+                }
+            };
+
+            // Create thread for streets
+            Thread streets_thread = new Thread() {
+                public void run() {
+                    initialize_data_persistent_service(Config.BucketType.STREETS, config_);
+                }
+            };
+            
+            // Start threads
+            platform_thread.start();
+            streets_thread.start();
+        }
+        else if(config_.influx_bucket_type.equals(Config.BucketType.PLATFORM) || config_.influx_bucket_type.equals(Config.BucketType.STREETS))
+        {
+            // Create thread for specified type
+            Thread worker_thread  = new Thread() {
+                public void run(){
+                    initialize_data_persistent_service(config_.influx_bucket_type, config_);
+                }
+            };
+            worker_thread.start();
+        }
+        else{
+            logger.error("Invalid bucket type requested. Options are PLATFORM, STREETS and ALL");
+        }
+        
     }
 }
