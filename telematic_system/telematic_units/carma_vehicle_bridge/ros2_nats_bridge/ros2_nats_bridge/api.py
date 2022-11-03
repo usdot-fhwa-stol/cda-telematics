@@ -50,7 +50,7 @@ class Ros2NatsBridgeNode(Node):
         super().__init__('ros2_nats_bridge')
         self.nc = NATS()
         self.registered = False
-        self.subsribers_list = {}
+        self.subscribers_list = {}
 
         self.declare_parameter("NATS_SERVER_IP_PORT", "nats://0.0.0.0:4222", ParameterDescriptor(
             description='This parameter sets the ip address and port for nats server.'))
@@ -172,7 +172,7 @@ class Ros2NatsBridgeNode(Node):
 
     async def publish_topics(self):
         """
-            receives request from server to create subscirber to selected topics and publish data
+            receives request from server to create subscriber to selected topics and publish data
         """
         async def topic_request(msg):
             """
@@ -192,14 +192,14 @@ class Ros2NatsBridgeNode(Node):
                 topic = i[0]
                 msg_type = i[1][0]
 
-                if(topic not in self.subsribers_list):
+                if(topic not in self.subscribers_list):
                     msg_type = msg_type.split('/')
                     exec("from " + msg_type[0] + '.' +
                          msg_type[1] + " import " + msg_type[2])
                     call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info[UnitKeys.UNIT_ID.value], self.vehicle_info[UnitKeys.UNIT_TYPE.value],
                                               self.vehicle_info[UnitKeys.UNIT_NAME.value], self.vehicle_info[EventKeys.EVENT_NAME.value], self.vehicle_info[EventKeys.TESTING_TYPE.value], self.vehicle_info[EventKeys.LOCATION.value])
                     try:
-                        self.subsribers_list[topic] = self.create_subscription(
+                        self.subscribers_list[topic] = self.create_subscription(
                             eval(msg_type[2]), topic, call_back.listener_callback, 10)
                     except:
                         self.get_logger().error("got error")
@@ -253,4 +253,45 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg["timestamp"] = datetime.now(
                 timezone.utc).timestamp()*1000000  # microseconds
             json_message = json.dumps(ordereddict_msg).encode('utf8')
+            print(json_message)
             await self.nc.publish(self.topic_name, json_message)
+
+    async def unsubscribe_topics(self):
+        """
+            receives request from server to remove selected topics from subscriber list and stop publishing data
+        """
+
+        async def topic_request(msg):
+            """
+                process request message
+                import message type to scope
+                checks subscriber list for every topic in request message and removes them from subscription
+            """
+
+            self.get_logger().warn(
+                f"Received a message to unsubscribe on '{msg.subject} {msg.reply}': {msg.data.decode()}")
+            await self.nc.publish(msg.reply, b"request received!")
+            data = json.loads(msg.data.decode("utf-8"))
+
+            topics = [v for i, v in enumerate(
+                self.get_topic_names_and_types()) if v[0] in data["topics"]]
+
+            for i in topics:
+                topic = i[0]
+                msg_type = i[1][0]
+
+                if(topic in self.subscribers_list):
+                    try:
+                        self.destroy_subscription(self.subscribers_list[topic])
+                        del self.subscribers_list[topic]
+                    except:
+                        self.get_logger().error("Unable to remove subscription to topic")
+                    
+
+        try:
+            self.get_logger().debug("Awaiting for unsubscribe_topics")
+            await self.nc.subscribe(self.vehicle_info[UnitKeys.UNIT_ID.value] + ".unsubscribe_topics", "worker", topic_request)
+        except:
+            self.get_logger().error("Error for unsubscribe_topics")
+        finally:
+            self.get_logger().debug("unsubscribe_topics")
