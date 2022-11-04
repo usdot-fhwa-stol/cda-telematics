@@ -40,7 +40,6 @@ jobs:
             -Dsonar.projectName=cda-telematics
             -Dsonar.organization=usdot-fhwa-stol
             -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.tests=test/
             -Dsonar.verbose=true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
