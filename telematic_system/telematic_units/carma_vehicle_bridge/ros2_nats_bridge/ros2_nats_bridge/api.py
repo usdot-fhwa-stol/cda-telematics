@@ -182,10 +182,9 @@ class Ros2NatsBridgeNode(Node):
                 checks subscriber list for every topic in request message and removes them from subscription
             """
             try:
-                self.get_logger().debug("Entered topic unsubscribe request")
                 self.destroy_subscription(self.subscribers_list[topic])
                 del self.subscribers_list[topic]
-                self.get_logger().debug("Unsubscribed from topic")
+                self.get_logger().warn('Unsubscribed from "%s"' % topic)
             except:
                 self.get_logger().error("Unable to remove subscription to topic")
 
