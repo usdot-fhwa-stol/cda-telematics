@@ -38,6 +38,7 @@ public class TopicsService {
     // NATS Topics
     private static final String availableTopicSubject = "available_topics";
     private static final String publishDataToTopicSubject = "publish_topics";
+    private static final String unsubscribeFromTopic = "unsubscribe_topics";
 
     /***
      * @brief
@@ -106,6 +107,44 @@ public class TopicsService {
                 return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
             } catch (CancellationException e) {
                 error_msg = "No response from subject: " + publishDataToTopicSubject;
+                logger.error(error_msg, e);
+                return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
+            } catch (ParseException e) {
+                error_msg = "Cannot parse requestSelectTopics body";
+                logger.error(error_msg, e);
+                return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            error_msg = "NATS Connection failed";
+            logger.error(error_msg);
+            return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(value = "stopSelectedTopics")
+    public ResponseEntity<String> stopSelectedTopics(@RequestBody String body) {
+        logger.debug("Stop selected topics request. body: " + body);
+        Connection conn = natsConn.getConnection();
+        String error_msg = "";
+        if (conn != null) {
+            try {
+                JSONParser parser = new JSONParser();
+                JSONObject jsonObj = (JSONObject) parser.parse(body);
+                String unitId = (String) jsonObj.get("unit_id");
+                String subject = unitId + "." + unsubscribeFromTopic;
+                logger.debug("Stop selected topics request. subject: " + subject);
+                Future<Message> future = conn.request(subject,
+                        body.getBytes(StandardCharsets.UTF_8));
+                Message msg = future.get();
+                String reply = new String(msg.getData(), StandardCharsets.UTF_8);
+                logger.debug("Selected topics request. Reply: " + reply);
+                return new ResponseEntity<>(reply, HttpStatus.OK);
+            } catch (InterruptedException | ExecutionException e) {
+                error_msg = "Response interrupted for subject: " + unsubscribeFromTopic;
+                logger.error(error_msg, e);
+                return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
+            } catch (CancellationException e) {
+                error_msg = "No response from subject: " + unsubscribeFromTopic;
                 logger.error(error_msg, e);
                 return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
             } catch (ParseException e) {

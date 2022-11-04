@@ -215,6 +215,46 @@ class Ros2NatsBridgeNode(Node):
         finally:
             self.get_logger().debug("publish_topics")
 
+    async def unsubscribe_topics(self):
+        """
+            receives request from server to remove selected topics from subscriber list and stop publishing data
+        """
+
+        async def topic_unsubscribe_request(msg):
+            """
+                process request message
+                import message type to scope
+                checks subscriber list for every topic in request message and removes them from subscription
+            """
+
+            self.get_logger().warn(
+                f"Received a message to unsubscribe on '{msg.subject} {msg.reply}': {msg.data.decode()}")
+            await self.nc.publish(msg.reply, b"request received!")
+            data = json.loads(msg.data.decode("utf-8"))
+
+            topics = [v for i, v in enumerate(
+                self.get_topic_names_and_types()) if v[0] in data["topics"]]
+
+            for i in topics:
+                topic = i[0]
+                msg_type = i[1][0]
+
+                if(topic in self.subscribers_list):
+                    try:
+                        self.destroy_subscription(self.subscribers_list[topic])
+                        del self.subscribers_list[topic]
+                    except:
+                        self.get_logger().error("Unable to remove subscription to topic")
+
+        try:
+            self.get_logger().info("Waiting for unsubscribe_topics request")
+            await self.nc.subscribe(self.vehicle_info[UnitKeys.UNIT_ID.value] + ".unsubscribe_topics", "worker", topic_unsubscribe_request)
+        except:
+            self.get_logger().error("Error for unsubscribe_topics")
+        finally:
+            self.get_logger().debug("unsubscribe_topics")
+
+
     class CallBack():
         def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name, event_name, testing_type, location):
             """
@@ -254,45 +294,5 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg["timestamp"] = datetime.now(
                 timezone.utc).timestamp()*1000000  # microseconds
             json_message = json.dumps(ordereddict_msg).encode('utf8')
-            print(json_message)
+            # print(json_message)
             await self.nc.publish(self.topic_name, json_message)
-
-    async def unsubscribe_topics(self):
-        """
-            receives request from server to remove selected topics from subscriber list and stop publishing data
-        """
-
-        async def topic_request(msg):
-            """
-                process request message
-                import message type to scope
-                checks subscriber list for every topic in request message and removes them from subscription
-            """
-
-            self.get_logger().warn(
-                f"Received a message to unsubscribe on '{msg.subject} {msg.reply}': {msg.data.decode()}")
-            await self.nc.publish(msg.reply, b"request received!")
-            data = json.loads(msg.data.decode("utf-8"))
-
-            topics = [v for i, v in enumerate(
-                self.get_topic_names_and_types()) if v[0] in data["topics"]]
-
-            for i in topics:
-                topic = i[0]
-                msg_type = i[1][0]
-
-                if(topic in self.subscribers_list):
-                    try:
-                        self.destroy_subscription(self.subscribers_list[topic])
-                        del self.subscribers_list[topic]
-                    except:
-                        self.get_logger().error("Unable to remove subscription to topic")
-                    
-
-        try:
-            self.get_logger().debug("Awaiting for unsubscribe_topics")
-            await self.nc.subscribe(self.vehicle_info[UnitKeys.UNIT_ID.value] + ".unsubscribe_topics", "worker", topic_request)
-        except:
-            self.get_logger().error("Error for unsubscribe_topics")
-        finally:
-            self.get_logger().debug("unsubscribe_topics")
