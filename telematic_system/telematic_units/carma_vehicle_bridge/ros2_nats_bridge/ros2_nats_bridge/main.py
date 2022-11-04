@@ -37,8 +37,7 @@ def main(args=None):
         loop.create_task(ros2_nats_bridge.register_unit()),
         loop.create_task(ros2_nats_bridge.check_status()),
         loop.create_task(ros2_nats_bridge.available_topics()),
-        loop.create_task(ros2_nats_bridge.publish_topics()),
-        loop.create_task(ros2_nats_bridge.unsubscribe_topics())
+        loop.create_task(ros2_nats_bridge.publish_topics())
     ]
 
     loop.run_until_complete(asyncio.wait(tasks))

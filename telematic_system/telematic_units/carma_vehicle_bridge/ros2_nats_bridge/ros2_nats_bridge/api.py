@@ -174,6 +174,21 @@ class Ros2NatsBridgeNode(Node):
         """
             receives request from server to create subscriber to selected topics and publish data
         """
+        
+        async def topic_unsubscribe_request(topic):
+            """
+                process request message
+                import message type to scope
+                checks subscriber list for every topic in request message and removes them from subscription
+            """
+            try:
+                self.get_logger().debug("Entered topic unsubscribe request")
+                self.destroy_subscription(self.subscribers_list[topic])
+                del self.subscribers_list[topic]
+                self.get_logger().debug("Unsubscribed from topic")
+            except:
+                self.get_logger().error("Unable to remove subscription to topic")
+
         async def topic_request(msg):
             """
                 process request message
@@ -206,6 +221,9 @@ class Ros2NatsBridgeNode(Node):
                     finally:
                         self.get_logger().warn(
                             f"Create a callback for '{topic} with type {msg_type}'.")
+                else:
+                    self.get_logger().info("Trying to unsubscribe from topic")
+                    await topic_unsubscribe_request(topic)
 
         try:
             self.get_logger().info("Waiting for publish_topics request")
@@ -215,44 +233,6 @@ class Ros2NatsBridgeNode(Node):
         finally:
             self.get_logger().debug("publish_topics")
 
-    async def unsubscribe_topics(self):
-        """
-            receives request from server to remove selected topics from subscriber list and stop publishing data
-        """
-
-        async def topic_unsubscribe_request(msg):
-            """
-                process request message
-                import message type to scope
-                checks subscriber list for every topic in request message and removes them from subscription
-            """
-
-            self.get_logger().warn(
-                f"Received a message to unsubscribe on '{msg.subject} {msg.reply}': {msg.data.decode()}")
-            await self.nc.publish(msg.reply, b"request received!")
-            data = json.loads(msg.data.decode("utf-8"))
-
-            topics = [v for i, v in enumerate(
-                self.get_topic_names_and_types()) if v[0] in data["topics"]]
-
-            for i in topics:
-                topic = i[0]
-                msg_type = i[1][0]
-
-                if(topic in self.subscribers_list):
-                    try:
-                        self.destroy_subscription(self.subscribers_list[topic])
-                        del self.subscribers_list[topic]
-                    except:
-                        self.get_logger().error("Unable to remove subscription to topic")
-
-        try:
-            self.get_logger().info("Waiting for unsubscribe_topics request")
-            await self.nc.subscribe(self.vehicle_info[UnitKeys.UNIT_ID.value] + ".unsubscribe_topics", "worker", topic_unsubscribe_request)
-        except:
-            self.get_logger().error("Error for unsubscribe_topics")
-        finally:
-            self.get_logger().debug("unsubscribe_topics")
 
 
     class CallBack():
