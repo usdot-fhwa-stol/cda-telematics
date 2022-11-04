@@ -38,6 +38,7 @@ jobs:
           args: >
             -Dsonar.projectKey=usdot-fhwa-stol_cda-telematics
             -Dsonar.projectName=cda-telematics
+            -Dsonar.organization=usdot-fhwa-stol
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.tests=test/
             -Dsonar.verbose=true
