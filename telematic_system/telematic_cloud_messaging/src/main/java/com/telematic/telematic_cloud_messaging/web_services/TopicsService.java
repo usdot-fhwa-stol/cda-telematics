@@ -38,7 +38,6 @@ public class TopicsService {
     // NATS Topics
     private static final String availableTopicSubject = "available_topics";
     private static final String publishDataToTopicSubject = "publish_topics";
-    private static final String unsubscribeFromTopic = "unsubscribe_topics";
 
     /***
      * @brief

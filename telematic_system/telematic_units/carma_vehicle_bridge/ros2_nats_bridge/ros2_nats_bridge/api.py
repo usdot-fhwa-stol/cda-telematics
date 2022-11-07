@@ -211,7 +211,7 @@ class Ros2NatsBridgeNode(Node):
                     exec("from " + msg_type[0] + '.' +
                          msg_type[1] + " import " + msg_type[2])
                     call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info[UnitKeys.UNIT_ID.value], self.vehicle_info[UnitKeys.UNIT_TYPE.value],
-                                              self.vehicle_info[UnitKeys.UNIT_NAME.value], self.vehicle_info[EventKeys.EVENT_NAME.value], self.vehicle_info[EventKeys.TESTING_TYPE.value], self.vehicle_info[EventKeys.LOCATION.value])
+                                              self.vehicle_info[UnitKeys.UNIT_NAME.value], self.vehicle_info[EventKeys.EVENT_NAME.value], self.vehicle_info[EventKeys.TESTING_TYPE.value], self.vehicle_info[EventKeys.LOCATION.value], self.get_logger())
                     try:
                         self.subscribers_list[topic] = self.create_subscription(
                             eval(msg_type[2]), topic, call_back.listener_callback, 10)
@@ -235,7 +235,7 @@ class Ros2NatsBridgeNode(Node):
 
 
     class CallBack():
-        def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name, event_name, testing_type, location):
+        def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name, event_name, testing_type, location, logger):
             """
                 initilize CallBack class
                 declare Nats client 
@@ -251,7 +251,8 @@ class Ros2NatsBridgeNode(Node):
             self.testing_type = testing_type
             self.location = location
             self.topic_name = "platform." + unit_id + ".data" + topic_name.replace("/", ".")
-            print("Publishing on topic: "+ self.topic_name)
+            self.logger = logger
+            self.logger.info("Publishing on topic: "+ self.topic_name)
             self.nc = nc
 
         async def listener_callback(self, msg):
@@ -273,5 +274,5 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg["timestamp"] = datetime.now(
                 timezone.utc).timestamp()*1000000  # microseconds
             json_message = json.dumps(ordereddict_msg).encode('utf8')
-            # print(json_message)
+            self.logger.debug(json_message)
             await self.nc.publish(self.topic_name, json_message)
