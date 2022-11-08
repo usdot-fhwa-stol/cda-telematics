@@ -62,7 +62,7 @@ jobs:
           command: |
             source ${INIT_ENV}
             source ${ROS_2_ENV}
-            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output bash make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
+            make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
 
       # Run SonarCloud analysis
       # PR Branchs and number extracted from Circle variables and github api
