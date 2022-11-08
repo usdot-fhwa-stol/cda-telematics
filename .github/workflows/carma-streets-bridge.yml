@@ -73,14 +73,6 @@ jobs:
         run: |
           gcovr --sonarqube > coverage.xml
       - name: Run sonar-scanner
-        with:
-          args: >
-           -Dsonar.projectKey=usdot-fhwa-stol_cda-telematics
-           -Dsonar.projectName=cda-telematics
-           -Dsonar.organization=usdot-fhwa-stol
-           -Dsonar.host.url=https://sonarcloud.io
-           -Dsonar.verbose=true
-           -Dsonar.java.binaries=.
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }} # Put the name of your token here
@@ -89,7 +81,6 @@ jobs:
             --define sonar.host.url="${{ env.SONAR_SERVER_URL }}" \
             --define sonar.cfamily.build-wrapper-output="${{ env.BUILD_WRAPPER_OUT_DIR }}" \
             --define sonar.coverageReportPaths=coverage.xml
-
       #- name: SonarCloud Scan
         #uses: SonarSource/sonarcloud-github-action@master
         #with:
