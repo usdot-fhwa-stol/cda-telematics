@@ -51,6 +51,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=usdot-fhwa-stol_cda-telematics
+            -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.projectName=cda-telematics
             -Dsonar.organization=usdot-fhwa-stol
             -Dsonar.host.url=https://sonarcloud.io
