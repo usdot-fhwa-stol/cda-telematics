@@ -29,11 +29,6 @@ jobs:
 
   sonar:
     runs-on: ubuntu-latest
-    env:
-      SONAR_SCANNER_VERSION: 4.6.1.2450 # Find the latest version in the "Linux" link on this page:
-                                        # https://docs.sonarcloud.io/advanced-setup/ci-based-analysis/sonarscanner-cli/
-      SONAR_SERVER_URL: "https://sonarcloud.io"
-      BUILD_WRAPPER_OUT_DIR: build_wrapper_output_directory # Directory where build-wrapper output will be placed
     steps:
       - uses: actions/checkout@v2
         with:
@@ -41,7 +36,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
-          python-version: ${{ matrix.python }}
+          python-version: 3.8
       - name: Install tox and any other packages
         run: pip install tox
       - name: Run tox
