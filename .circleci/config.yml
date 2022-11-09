@@ -62,7 +62,7 @@ jobs:
           command: |
             source ${INIT_ENV}
             source ${ROS_2_ENV}
-            build-wrapper-linux-x86-64 --out-dir /opt/carma/bw-output bash make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
+            make_with_coverage.bash -m -e /opt/carma/ -o ./coverage_reports/gcov
 
       # Run SonarCloud analysis
       # PR Branchs and number extracted from Circle variables and github api
@@ -91,7 +91,9 @@ jobs:
             echo "PR number ${PR_NUM}"
             export BASE_BRANCH_URL="https://api.github.com/repos/${CIRCLE_PROJECT_USERNAME}/${CIRCLE_PROJECT_REPONAME}/pulls/${PR_NUM}"
             echo $BASE_BRANCH_URL
-            export TARGET_BRANCH=$(curl "$BASE_BRANCH_URL" | jq '.base.ref' | tr -d '"') 
+            # Uncomment when repo is public
+            #export TARGET_BRANCH=$(curl "$BASE_BRANCH_URL" | jq '.base.ref' | tr -d '"')
+            export TARGET_BRANCH="develop"
             echo "Target Branch = ${TARGET_BRANCH}"
             cd src/cda-telematics
             git fetch --force origin ${TARGET_BRANCH}:${TARGET_BRANCH}
