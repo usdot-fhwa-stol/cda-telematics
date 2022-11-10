@@ -37,11 +37,14 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - run: apt install sudo -y    
       - name: Setup ROS 2
-        uses: ros-tooling/setup-ros@0.0.15
-        with:
-          required-ros-distributions: foxy
+        run: sudo apt install python3-sphinx python3-pip && sudo -H pip3 install sphinx_autodoc_typehints
+        run: source . /opt/ros/foxy/setup.bash
+        run: mkdir -p rclpy_ws/src && cd rclpy_ws/src && git clone https://github.com/ros2/rclpy.git && cd .. && colcon build --symlink-install
+        run: source install/setup.bash && cd src/rclpy/rclpy/docs && make html
+        #uses: ros-tooling/setup-ros@0.0.15
+        #with:
+          #required-ros-distributions: foxy
       - name: Install dependencies
         run: python -m pip install -r telematic_system/telematic_units/carma_street_bridge/requirements.txt
       - name: Install tox and any other packages
