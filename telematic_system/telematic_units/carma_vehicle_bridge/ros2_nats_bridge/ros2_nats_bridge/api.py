@@ -202,6 +202,12 @@ class Ros2NatsBridgeNode(Node):
             topics = [v for i, v in enumerate(
                 self.get_topic_names_and_types()) if v[0] in data["topics"]]
 
+            # Remove topics from subscribers list that weren't called in new request
+            for topic in self.subscribers_list:
+                if (topic not in topics):
+                    self.get_logger().info('Trying to unsubscribe from topic: "%s"' % topic)
+                    await topic_unsubscribe_request(topic)
+
             for i in topics:
                 topic = i[0]
                 msg_type = i[1][0]
@@ -220,9 +226,6 @@ class Ros2NatsBridgeNode(Node):
                     finally:
                         self.get_logger().warn(
                             f"Create a callback for '{topic} with type {msg_type}'.")
-                else:
-                    self.get_logger().info("Trying to unsubscribe from topic")
-                    await topic_unsubscribe_request(topic)
 
         try:
             self.get_logger().info("Waiting for publish_topics request")
@@ -273,6 +276,7 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg[EventKeys.LOCATION.value] = self.location
             ordereddict_msg["timestamp"] = datetime.now(
                 timezone.utc).timestamp()*1000000  # microseconds
-            json_message = json.dumps(ordereddict_msg).encode('utf8')
+            json_message = json.dumps(ordereddict_msg)
             self.logger.debug(json_message)
-            await self.nc.publish(self.topic_name, json_message)
+            json_message_encoded = json_message.encode('utf8')
+            await self.nc.publish(self.topic_name, json_message_encoded)
