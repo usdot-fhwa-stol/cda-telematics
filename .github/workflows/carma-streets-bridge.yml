@@ -37,10 +37,11 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: 3.8
+      - run: apt install sudo -y    
       - name: Setup ROS 2
         uses: ros-tooling/setup-ros@0.0.15
         with:
-          required-ros-distributions: foxy         
+          required-ros-distributions: foxy
       - name: Install dependencies
         run: python -m pip install -r telematic_system/telematic_units/carma_street_bridge/requirements.txt
       - name: Install tox and any other packages
