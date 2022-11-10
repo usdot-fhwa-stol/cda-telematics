@@ -39,9 +39,9 @@ jobs:
           python-version: 3.8
       - name: Setup ROS 2
         run: sudo apt install python3-sphinx python3-pip && sudo -H pip3 install sphinx_autodoc_typehints
-        run: source . /opt/ros/foxy/setup.bash
-        run: mkdir -p rclpy_ws/src && cd rclpy_ws/src && git clone https://github.com/ros2/rclpy.git && cd .. && colcon build --symlink-install
-        run: source install/setup.bash && cd src/rclpy/rclpy/docs && make html
+      - run: source /opt/ros/foxy/setup.bash
+      - run: mkdir -p rclpy_ws/src && cd rclpy_ws/src && git clone https://github.com/ros2/rclpy.git && cd .. && colcon build --symlink-install
+      - run: source install/setup.bash && cd src/rclpy/rclpy/docs && make html
         #uses: ros-tooling/setup-ros@0.0.15
         #with:
           #required-ros-distributions: foxy
