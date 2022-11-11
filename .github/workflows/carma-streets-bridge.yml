@@ -28,7 +28,7 @@ jobs:
           tags: usdotfhwastoldev/carma_street_nats_bridge:${{ github.ref_name }}
 
   sonar:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu:foxy-ros1-bridge
     steps:
       - uses: actions/checkout@v2
         with:
