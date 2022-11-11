@@ -38,9 +38,10 @@ jobs:
         with:
           python-version: 3.8  
       - name: install ROS2    
-      - uses: ros-tooling/setup-ros@v0.3
+        uses: ros-tooling/setup-ros@v0.3
         with:
           required-ros-distributions: Foxy
+      - name: Install ROS2 package
       - uses: ros-tooling/action-ros-ci@v0.2
         with:
           package-name: rclpy
