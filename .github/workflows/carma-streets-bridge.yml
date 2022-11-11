@@ -40,7 +40,7 @@ jobs:
       - name: install ROS2    
         uses: ros-tooling/setup-ros@v0.3
         with:
-          required-ros-distributions: Foxy
+          required-ros-distributions: noetic
       #- name: Install ROS2 package
       #- uses: ros-tooling/action-ros-ci@v0.2
         #with:
