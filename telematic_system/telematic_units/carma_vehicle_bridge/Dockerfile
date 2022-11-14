@@ -24,7 +24,6 @@ RUN source /opt/ros/foxy/setup.bash && \
     colcon build
 
 FROM base AS install
-# COPY --from=dep /opt/ros/foxy /opt/ros/foxy
 
 WORKDIR /ws
 COPY --from=dep /ws/build /ws/build
