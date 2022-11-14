@@ -31,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: usdotfhwastoldev/carma-base:develop
+      options: --user carma
     steps:
       - uses: actions/checkout@v3
         with:
