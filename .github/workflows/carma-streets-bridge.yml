@@ -43,7 +43,7 @@ jobs:
         uses: ros-tooling/action-ros-ci@v0.2
         with:
           package-name: rclpy
-          target-ros2-distro: Foxy
+          target-ros2-distro: foxy
       - name: Install dependencies
         run: python -m pip install -r telematic_system/telematic_units/carma_street_bridge/requirements.txt
       - name: Install tox and any other packages
