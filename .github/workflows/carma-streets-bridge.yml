@@ -29,6 +29,8 @@ jobs:
 
   sonar:
     runs-on: ubuntu-latest
+    container:
+      image: usdotfhwastoldev/carma-base:develop
     steps:
       - uses: actions/checkout@v2
         with:
