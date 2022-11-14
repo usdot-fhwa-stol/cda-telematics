@@ -34,39 +34,16 @@ jobs:
       options: --user root
     steps:
       - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis    
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Permission to cda
-        run: git remote add origin https://{username}:{password}@github.com/{username}/cda-telematics.git
-      - name: install.sh
-        run: ./telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/docker/install.sh
-      - name: Install ROS2 package
-        uses: ros-tooling/action-ros-ci@v0.2
-        with:
-          package-name: rclpy
-          target-ros2-distro: foxy
-      - name: Install dependencies
-        run: python -m pip install -r telematic_system/telematic_units/carma_street_bridge/requirements.txt
-      - name: Install tox and any other packages
-        run: pip install tox
-      - name: Run tox
-        run: tox -e py
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
           args: >
             -Dsonar.projectKey=usdot-fhwa-stol_cda-telematics
-            -Dsonar.python.coverage.reportPaths=coverage.xml
             -Dsonar.projectName=cda-telematics
             -Dsonar.organization=usdot-fhwa-stol
             -Dsonar.host.url=https://sonarcloud.io
             -Dsonar.verbose=true
             -Dsonar.java.binaries=.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-

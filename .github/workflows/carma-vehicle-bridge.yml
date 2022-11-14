@@ -28,18 +28,16 @@ jobs:
 
   sonar:
     runs-on: ubuntu-latest
+    container:
+      image: usdotfhwastoldev/carma-base:develop
+      options: --user root
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: 3.8
-      - name: Install tox and any other packages
-        run: pip install tox
-      - name: Run tox
-        run: tox -e py
+      - uses: actions/checkout@v3
+      - run: sudo apt update && sudo apt -y install python3-coverage python3-pytest ros-foxy-rclpy
+      - run: python3 -m pip install nats-py
+      - run: source /opt/ros/foxy/setup.bash && python3 -m coverage run -m pytest
+        shell: bash
+      - run: python3 -m coverage xml
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
@@ -52,5 +50,5 @@ jobs:
             -Dsonar.verbose=true
             -Dsonar.java.binaries=.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
