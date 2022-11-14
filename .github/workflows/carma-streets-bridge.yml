@@ -40,7 +40,7 @@ jobs:
       #- name: install.sh
         #run: ./telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/docker/install.sh
       - name: Install ROS2 package
-      - uses: ros-tooling/action-ros-ci@v0.2
+        uses: ros-tooling/action-ros-ci@v0.2
         with:
           package-name: rclpy
           target-ros2-distro: Foxy
