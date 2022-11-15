@@ -37,13 +37,19 @@ jobs:
       - run: python3 -m pip install nats-py
       - run: source /opt/ros/foxy/setup.bash && python3 -m coverage run -m pytest
         shell: bash
-      - run: python3 -m coverage xml
+      - name: Build coverage file
+        run: |
+          pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=app tests/ | tee pytest-coverage.txt
+      - name: Pytest coverage comment
+        uses: MishaKav/pytest-coverage-comment@main
+        with:
+          pytest-xml-coverage-path: ./coverage.xml  
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         with:
           args: >
             -Dsonar.projectKey=usdot-fhwa-stol_cda-telematics
-            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.python.coverage.reportPaths=./coverage.xml
             -Dsonar.projectName=cda-telematics
             -Dsonar.organization=usdot-fhwa-stol
             -Dsonar.host.url=https://sonarcloud.io
