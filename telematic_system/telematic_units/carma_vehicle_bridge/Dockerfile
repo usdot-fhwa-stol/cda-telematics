@@ -28,6 +28,7 @@ FROM base AS install
 WORKDIR /ws
 COPY --from=dep /ws/build /ws/build
 COPY --from=dep /ws/install /ws/install
+COPY --from=dep /opt/ros/foxy /opt/ros/foxy
 
 COPY ros2_nats_bridge/docker/ros_entrypoint.sh ros_entrypoint.sh
 RUN chmod +x ros_entrypoint.sh
