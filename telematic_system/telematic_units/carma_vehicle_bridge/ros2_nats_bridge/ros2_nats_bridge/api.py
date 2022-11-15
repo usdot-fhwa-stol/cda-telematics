@@ -203,8 +203,8 @@ class Ros2NatsBridgeNode(Node):
                 self.get_topic_names_and_types()) if v[0] in data["topics"]]
 
             # Remove topics from subscribers list that weren't called in new request
-            for topic in self.subscribers_list:
-                if (topic not in topics):
+            for topic in list(self.subscribers_list):
+                if (topic not in topics[0]):
                     self.get_logger().info('Trying to unsubscribe from topic: "%s"' % topic)
                     await topic_unsubscribe_request(topic)
 
@@ -221,17 +221,17 @@ class Ros2NatsBridgeNode(Node):
                     try:
                         self.subscribers_list[topic] = self.create_subscription(
                             eval(msg_type[2]), topic, call_back.listener_callback, 10)
-                    except:
-                        self.get_logger().error("got error")
+                    except Exception as e:
+                        self.get_logger().error("got error: " + str(e))
                     finally:
                         self.get_logger().warn(
-                            f"Create a callback for '{topic} with type {msg_type}'.")
+                            f"Created a callback for '{topic} with type {msg_type}'.")
 
         try:
             self.get_logger().info("Waiting for publish_topics request")
             await self.nc.subscribe(self.vehicle_info[UnitKeys.UNIT_ID.value] + ".publish_topics", "worker", topic_request)
-        except:
-            self.get_logger().error("Error for publish_topics")
+        except Exception as e:
+            self.get_logger().error("Error for publish_topics: ", str(e))
         finally:
             self.get_logger().debug("publish_topics")
 
