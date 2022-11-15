@@ -28,6 +28,7 @@ FROM base AS install
 WORKDIR /ws
 COPY --from=dep /ws/build /ws/build
 COPY --from=dep /ws/install /ws/install
+#In the dep layer, run the checkout script which installs the apt dependencies to /opt/ros/foxy in dep
 COPY --from=dep /opt/ros/foxy /opt/ros/foxy
 
 COPY ros2_nats_bridge/docker/ros_entrypoint.sh ros_entrypoint.sh
