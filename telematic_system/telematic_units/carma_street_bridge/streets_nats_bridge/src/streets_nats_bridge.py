@@ -168,7 +168,7 @@ class StreetsNatsBridge():
                         timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
 
                     # telematic cloud server will look for topic names with the pattern ".data."
-                    self.topic_name = self.unit_id + ".data." + topic
+                    self.topic_name = "streets." + self.unit_id + ".data." + topic
 
                     # publish the encoded data to the nats server
                     self.logger.info(
