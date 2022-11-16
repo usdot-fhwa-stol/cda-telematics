@@ -17,7 +17,9 @@ WORKDIR /ws
 
 COPY ros2_nats_bridge/docker/checkout.sh src/ros2_nats_bridge/docker/checkout.sh
 RUN sudo src/ros2_nats_bridge/docker/checkout.sh
-# Build packages from checkout.sh
+COPY ros2_nats_bridge/docker/install.sh src/ros2_nats_bridge/docker/install.sh
+RUN src/ros2_nats_bridge/docker/install.sh
+# Build ros2_nats_bridge
 RUN source /opt/ros/foxy/setup.bash && \
     colcon build
 
