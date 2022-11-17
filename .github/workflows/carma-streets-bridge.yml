@@ -1,7 +1,6 @@
 name: "CI: carma-streets-bridge"
 
 on:
-  workflow_dispatch: # Workdlow_dispatch is used to re-run the builds manually.
   pull_request:
   push:
     branches-ignore:
