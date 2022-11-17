@@ -177,12 +177,12 @@ class Ros2NatsBridgeNode(Node):
         
         async def topic_unsubscribe_request(topic):
             """
-                process request message
-                import message type to scope
-                checks subscriber list for every topic in request message and removes them from subscription
+                Method to process unsubscribe requests. Removes the topic from list of subscribed topics and destroys subscription object
             """
             try:
+                # rclpy Node method to stop subscription on specified topic
                 self.destroy_subscription(self.subscribers_list[topic])
+                # Remove iteration with "topic"
                 del self.subscribers_list[topic]
                 self.get_logger().warn('Unsubscribed from "%s"' % topic)
             except:
@@ -199,16 +199,16 @@ class Ros2NatsBridgeNode(Node):
             await self.nc.publish(msg.reply, b"request received!")
             data = json.loads(msg.data.decode("utf-8"))
 
-            topics = [v for i, v in enumerate(
+            incoming_topics = [v for i, v in enumerate(
                 self.get_topic_names_and_types()) if v[0] in data["topics"]]
 
             # Remove topics from subscribers list that weren't called in new request
-            for topic in list(self.subscribers_list):
-                if (topic not in topics[0]):
-                    self.get_logger().info('Trying to unsubscribe from topic: "%s"' % topic)
+            for existing_topic in list(self.subscribers_list):
+                if (existing_topic not in incoming_topics[0]):
+                    self.get_logger().info('Trying to unsubscribe from topic: "%s"' % existing_topic)
                     await topic_unsubscribe_request(topic)
 
-            for i in topics:
+            for i in incoming_topics:
                 topic = i[0]
                 msg_type = i[1][0]
 
@@ -231,7 +231,7 @@ class Ros2NatsBridgeNode(Node):
             self.get_logger().info("Waiting for publish_topics request")
             await self.nc.subscribe(self.vehicle_info[UnitKeys.UNIT_ID.value] + ".publish_topics", "worker", topic_request)
         except Exception as e:
-            self.get_logger().error("Error for publish_topics: ", str(e))
+            self.get_logger().error("Error for publish_topics: " + str(e))
         finally:
             self.get_logger().debug("publish_topics")
 
@@ -277,6 +277,6 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg["timestamp"] = datetime.now(
                 timezone.utc).timestamp()*1000000  # microseconds
             json_message = json.dumps(ordereddict_msg)
-            self.logger.debug(json_message)
+            self.logger.info(json_message)
             json_message_encoded = json_message.encode('utf8')
             await self.nc.publish(self.topic_name, json_message_encoded)
