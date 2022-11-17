@@ -1,0 +1,68 @@
+name: "DockerHub Build and Push"
+
+on:
+  push:
+    branches:
+      - "develop"
+
+jobs:
+  dockerhub-telematic-cloud-messaging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build
+        uses: docker/build-push-action@v3
+        with:
+          context: ./telematic_system/telematic_cloud_messaging/
+          file: ./telematic_system/telematic_cloud_messaging/Dockerfile
+          path: telematic_system/telematic_cloud_messaging/
+          push: true
+          tags: usdotfhwastoldev/telematic_cloud_messaging:${{ github.ref_name }}
+
+  dockerhub-carma-streets-bridge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build
+        uses: docker/build-push-action@v3
+        with:
+          context: ./telematic_system/telematic_units/carma_street_bridge/
+          file: ./telematic_system/telematic_units/carma_street_bridge/Dockerfile
+          push: true
+          tags: usdotfhwastoldev/carma_street_nats_bridge:${{ github.ref_name }}
+
+  dockerhub-carma-vehicle-bridge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build
+        uses: docker/build-push-action@v3
+        with:
+          context: ./telematic_system/telematic_units/carma_vehicle_bridge/
+          file: ./telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile
+          push: true
+          tags: usdotfhwastoldev/carma_vehicle_nats_bridge:${{ github.ref_name }}

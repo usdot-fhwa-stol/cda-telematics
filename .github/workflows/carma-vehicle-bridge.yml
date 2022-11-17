@@ -1,10 +1,10 @@
-name: carma-vehicle-bridge
+name: "CI: carma-vehicle-bridge"
 
 on:
-  workflow_dispatch:
+  pull_request:
   push:
-    branches:
-      - "feature_gha"
+    branches-ignore:
+      - "develop"
 jobs:
   docker:
     runs-on: ubuntu-latest
@@ -13,18 +13,11 @@ jobs:
         uses: actions/checkout@v3
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      - name: Login to DockerHub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build
         uses: docker/build-push-action@v3
         with:
           context: ./telematic_system/telematic_units/carma_vehicle_bridge/
           file: ./telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile
-          push: true
-          tags: usdotfhwastoldev/carma_vehicle_nats_bridge:${{ github.ref_name }}
 
   sonar:
     runs-on: ubuntu-latest
