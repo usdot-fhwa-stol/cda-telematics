@@ -1,6 +1,7 @@
 name: "CI: carma-vehicle-bridge"
 
 on:
+  workflow_dispatch: # Workdlow_dispatch is used to re-run the builds manually.
   pull_request:
   push:
     branches-ignore:
@@ -10,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up Docker Buildx
+        uses: actions/checkout@v3 # This action checks-out repository under $GITHUB_WORKSPACE, so our workflow can access it
+      - name: Set up Docker Buildx # This action will create and boot a builder that can be used as buildx as a docker CLI
         uses: docker/setup-buildx-action@v2
       - name: Build
         uses: docker/build-push-action@v3
@@ -32,7 +33,7 @@ jobs:
         shell: bash
       - run: python3 -m coverage xml
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarcloud-github-action@master # This action will create and boot a builder that can be used as buildx as a docker CLI
         with:
           args: >
             -Dsonar.projectKey=usdot-fhwa-stol_cda-telematics
