@@ -50,7 +50,7 @@ class Ros2NatsBridgeNode(Node):
         super().__init__('ros2_nats_bridge')
         self.nc = NATS()
         self.registered = False
-        self.subsribers_list = {}
+        self.subscribers_list = {}
 
         self.declare_parameter("NATS_SERVER_IP_PORT", "nats://0.0.0.0:4222", ParameterDescriptor(
             description='This parameter sets the ip address and port for nats server.'))
@@ -172,8 +172,22 @@ class Ros2NatsBridgeNode(Node):
 
     async def publish_topics(self):
         """
-            receives request from server to create subscirber to selected topics and publish data
+            receives request from server to create subscriber to selected topics and publish data
         """
+        
+        async def topic_unsubscribe_request(topic):
+            """
+                Method to process unsubscribe requests. Removes the topic from list of subscribed topics and destroys subscription object
+            """
+            try:
+                # rclpy Node method to stop subscription on specified topic
+                self.destroy_subscription(self.subscribers_list[topic])
+                # Remove iteration with "topic"
+                del self.subscribers_list[topic]
+                self.get_logger().warn('Unsubscribed from "%s"' % topic)
+            except:
+                self.get_logger().error("Unable to remove subscription to topic")
+
         async def topic_request(msg):
             """
                 process request message
@@ -185,38 +199,46 @@ class Ros2NatsBridgeNode(Node):
             await self.nc.publish(msg.reply, b"request received!")
             data = json.loads(msg.data.decode("utf-8"))
 
-            topics = [v for i, v in enumerate(
+            incoming_topics = [v for i, v in enumerate(
                 self.get_topic_names_and_types()) if v[0] in data["topics"]]
 
-            for i in topics:
+            # Remove topics from subscribers list that weren't called in new request
+            for existing_topic in list(self.subscribers_list):
+                if (existing_topic not in incoming_topics[0]):
+                    self.get_logger().info('Trying to unsubscribe from topic: "%s"' % existing_topic)
+                    await topic_unsubscribe_request(topic)
+
+            for i in incoming_topics:
                 topic = i[0]
                 msg_type = i[1][0]
 
-                if(topic not in self.subsribers_list):
+                if(topic not in self.subscribers_list):
                     msg_type = msg_type.split('/')
                     exec("from " + msg_type[0] + '.' +
                          msg_type[1] + " import " + msg_type[2])
                     call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info[UnitKeys.UNIT_ID.value], self.vehicle_info[UnitKeys.UNIT_TYPE.value],
-                                              self.vehicle_info[UnitKeys.UNIT_NAME.value], self.vehicle_info[EventKeys.EVENT_NAME.value], self.vehicle_info[EventKeys.TESTING_TYPE.value], self.vehicle_info[EventKeys.LOCATION.value])
+                                              self.vehicle_info[UnitKeys.UNIT_NAME.value], self.vehicle_info[EventKeys.EVENT_NAME.value], self.vehicle_info[EventKeys.TESTING_TYPE.value], self.vehicle_info[EventKeys.LOCATION.value], self.get_logger())
                     try:
-                        self.subsribers_list[topic] = self.create_subscription(
+                        self.subscribers_list[topic] = self.create_subscription(
                             eval(msg_type[2]), topic, call_back.listener_callback, 10)
-                    except:
-                        self.get_logger().error("got error")
+                    except Exception as e:
+                        self.get_logger().error("got error: " + str(e))
                     finally:
                         self.get_logger().warn(
-                            f"Create a callback for '{topic} with type {msg_type}'.")
+                            f"Created a callback for '{topic} with type {msg_type}'.")
 
         try:
             self.get_logger().info("Waiting for publish_topics request")
             await self.nc.subscribe(self.vehicle_info[UnitKeys.UNIT_ID.value] + ".publish_topics", "worker", topic_request)
-        except:
-            self.get_logger().error("Error for publish_topics")
+        except Exception as e:
+            self.get_logger().error("Error for publish_topics: " + str(e))
         finally:
             self.get_logger().debug("publish_topics")
 
+
+
     class CallBack():
-        def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name, event_name, testing_type, location):
+        def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name, event_name, testing_type, location, logger):
             """
                 initilize CallBack class
                 declare Nats client 
@@ -232,7 +254,8 @@ class Ros2NatsBridgeNode(Node):
             self.testing_type = testing_type
             self.location = location
             self.topic_name = "platform." + unit_id + ".data" + topic_name.replace("/", ".")
-            print("Publishing on topic: "+ self.topic_name)
+            self.logger = logger
+            self.logger.info("Publishing on topic: "+ self.topic_name)
             self.nc = nc
 
         async def listener_callback(self, msg):
@@ -253,6 +276,7 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg[EventKeys.LOCATION.value] = self.location
             ordereddict_msg["timestamp"] = datetime.now(
                 timezone.utc).timestamp()*1000000  # microseconds
-            json_message = json.dumps(ordereddict_msg).encode('utf8')
-            print(json_message)
-            await self.nc.publish(self.topic_name, json_message)
+            json_message = json.dumps(ordereddict_msg)
+            self.logger.info(json_message)
+            json_message_encoded = json_message.encode('utf8')
+            await self.nc.publish(self.topic_name, json_message_encoded)
