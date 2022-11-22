@@ -7,7 +7,7 @@ on:
       - "develop"
 
 jobs:
-  docker:
+  docker: # The docker job is to build & push the code for telematic cloud messaging 
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -21,7 +21,7 @@ jobs:
           file: ./telematic_system/telematic_cloud_messaging/Dockerfile
           path: telematic_system/telematic_cloud_messaging/
 
-  sonar:
+  sonar: # sonar job is to setup and run sonar scan analysis on telematic cloud messaging code
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -36,5 +36,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
           cd ./telematic_system/telematic_cloud_messaging/
-          mvn install -DskipTests
           mvn -e -X clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Pcoverage -Dsonar.projectKey=usdot-fhwa-stol_cda-telematics -Dsonar.projectName=cda-telematics -Dsonar.organization=usdot-fhwa-stol-1 -Dsonar.host.url=https://sonarcloud.io
