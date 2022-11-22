@@ -25,6 +25,8 @@ COPY --from=dep /opt/ros/foxy /opt/ros/foxy
 WORKDIR /ws
 COPY --from=dep /ws/build /ws/build
 COPY --from=dep /ws/install /ws/install
+# Make ros2_nats_bridge source code available
+COPY --from=dep /ws/src/ros2_nats_bridge /ws/src/
 
 COPY ros2_nats_bridge/docker/ros_entrypoint.sh ros_entrypoint.sh
 RUN chmod +x ros_entrypoint.sh

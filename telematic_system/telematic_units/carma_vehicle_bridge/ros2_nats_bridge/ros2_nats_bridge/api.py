@@ -276,7 +276,12 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg[EventKeys.LOCATION.value] = self.location
             ordereddict_msg["timestamp"] = datetime.now(
                 timezone.utc).timestamp()*1000000  # microseconds
-            json_message = json.dumps(ordereddict_msg)
-            self.logger.info(json_message)
-            json_message_encoded = json_message.encode('utf8')
-            await self.nc.publish(self.topic_name, json_message_encoded)
+            try:
+                json_message = json.dumps(ordereddict_msg)
+                self.logger.info(json_message)
+                json_message_encoded = json_message.encode('utf8')
+                await self.nc.publish(self.topic_name, json_message_encoded)
+            except Exception as e:
+                self.logger.error("Error while publishing topic: " + str(e))
+            finally:
+                self.logger.debug("published topic")
