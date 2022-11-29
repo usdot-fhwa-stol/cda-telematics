@@ -13,6 +13,10 @@ import time
 from multiprocessing import Lock
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, LoggingEventHandler
+import xmltodict
+
+new_carma_cloud_message = ""
+last_carma_cloud_message = ""
 
 class EventKeys(Enum):
     EVENT_NAME = "event_name"
@@ -35,21 +39,24 @@ class FileListener(FileSystemEventHandler):
     The FileListener class is used to listen to the carma cloud log file for updates and storing 
     them in a variable.
     """
-    def __init__(self, filepath, filename):
+    def __init__(self, filepath, filename, logname):
         self.filepath = filepath
         self.filename = filename
         self.lock = Lock()
 
+        self.logger = logging.getLogger(logname) 
+
         #Need to get current number of lines or characters in file
         with open(f'{self.filepath}/{self.filename}', 'r', encoding="utf-8") as f:
             self.current_lines = len(f.readlines())
-            data = f.read().replace(" ","") #replace spaces with nothing, adds character for newline
         f.close()
 
-        print("Monitoring this carma cloud file: " + str(self.filepath) + "/" + str(self.filename))
+        self.logger.info("Monitoring this carma cloud file: " + str(self.filepath) + "/" + str(self.filename))
 
     #this method gets called when the file of interest is modified
     def on_modified(self, event):
+        global new_carma_cloud_message
+
         #check if the modified file event is the file we are interested in
         if event.src_path == self.filepath:
             
@@ -59,7 +66,16 @@ class FileListener(FileSystemEventHandler):
                     line_count = 1
                     for line in f:
                         if line_count > self.current_lines:
-                            print("New line found with data: " + str(line))
+                            newLine = line
+                            
+                            messageType = "TCR"
+                            #find beginning of TCR/TCM
+                            if "TCM" in newLine:
+                                messageType = "TCM"
+                            startingIndex = newLine.find("<")
+                            new_carma_cloud_message = newLine[startingIndex:]                            
+
+                            self.logger.info("New " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
                             self.current_lines = line_count
 
                         line_count += 1
@@ -145,16 +161,53 @@ class CloudNatsBridge():
         """
             Creates a FileListener object and monitors the carma cloud log assigned in the params yaml file.
         """
-        event_handler = FileListener(self.carma_cloud_directory, self.carma_cloud_log_name)
+        event_handler = FileListener(self.carma_cloud_directory, self.carma_cloud_log_name, self.log_name)
+        self.logger.info(" Creating file listener for " + str(self.carma_cloud_directory) + "/" + str(self.carma_cloud_log_name))
         observer = Observer()
         observer.schedule(event_handler, self.carma_cloud_directory, recursive=True)
         observer.start()
-        # try:
+
+        # while True:
+        await asyncio.sleep(self.async_sleep_rate)
+
+    async def nats_send(self):
+        self.logger.info(" In nats_send")
+
+        global new_carma_cloud_message, last_carma_cloud_message
+
         while True:
-            await asyncio.sleep(self.async_sleep_rate)
-        # except KeyboardInterrupt:
-        #     observer.stop()
-        # observer.join()
+        # try:
+            if new_carma_cloud_message != last_carma_cloud_message:
+                data_dict = xmltodict.parse(new_carma_cloud_message)
+                json_data = json.dumps(data_dict)
+
+                message = {}
+                message["payload"] = json_data
+                last_carma_cloud_message = new_carma_cloud_message
+
+                # Add msg_type to json b/c worker looks for this field
+                message[UnitKeys.UNIT_ID.value] = self.unit_id
+                message[UnitKeys.UNIT_TYPE.value] = self.unit_type
+                message[UnitKeys.UNIT_NAME.value] = self.unit_name
+                message[TopicKeys.MSG_TYPE.value] = "test"
+                # message[EventKeys.EVENT_NAME.value] = self.cloud_info[EventKeys.EVENT_NAME.value]
+                # message[EventKeys.TESTING_TYPE.value] = self.cloud_info[EventKeys.TESTING_TYPE.value]
+                # message[EventKeys.LOCATION.value] = self.cloud_info[EventKeys.LOCATION.value]
+                # message[TopicKeys.TOPIC_NAME.value] = "test"
+                message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
+
+                # telematic cloud server will look for topic names with the pattern ".data."
+                # self.topic_name = "cloud." + self.unit_id + ".data" + topic
+                self.topic_name = "cloud." + self.unit_id + ".data.test"
+
+                # publish the encoded data to the nats server
+                self.logger.info(" In nats_send: Publishing message: " + str(message))
+                # last_message = new_carma_cloud_message
+
+                await asyncio.sleep(self.async_sleep_rate)
+            #         # await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
+        # except:
+        #     self.logger.error("Error publishing message")
 
     async def nats_connect(self):
         """
@@ -202,13 +255,11 @@ class CloudNatsBridge():
             self.logger.info(
                 "In send_list_of_topics: Received a request for available topics")
             # convert nanoseconds to microseconds
-            self.cloud_info["timestamp"] = datetime.now(
-                timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
+            self.cloud_info["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
             self.cloud_info["topics"] = [{"name": topicName} for topicName in self.cloud_topics]
             message = json.dumps(self.cloud_info).encode('utf8')
 
-            self.logger.info(
-                "In send_list_of_topics: Sending available topics message to nats: " + str(message))
+            self.logger.info("In send_list_of_topics: Sending available topics message to nats: " + str(message))
 
             await self.nc.publish(msg.reply, message)
 
@@ -224,8 +275,7 @@ class CloudNatsBridge():
             send request to server to register unit and waits for ack 
         """
         self.logger.info("Entering register unit")
-        cloud_info_message = json.dumps(
-            self.cloud_info, ensure_ascii=False).encode('utf8')
+        cloud_info_message = json.dumps(self.cloud_info, ensure_ascii=False).encode('utf8')
 
         if(not self.registered):
             try:

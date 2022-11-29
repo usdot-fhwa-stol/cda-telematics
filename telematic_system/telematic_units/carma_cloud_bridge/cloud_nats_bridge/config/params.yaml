@@ -4,7 +4,7 @@ cloud_nats_bridge:
     NATS_PORT: "4222"
     UNIT_ID: "cloud_id"
     UNIT_TYPE: "infrastructure"
-    CARMA_CLOUD_LOG_DIR: "."
+    CARMA_CLOUD_LOG_DIR: "." #/opt/tomcat/logs on deployed CC system
     CARMA_CLOUD_LOG_NAME: "carma_cloud.log"
     LOG_LEVEL: "debug"
     LOG_NAME: "cloud_nats_bridge"

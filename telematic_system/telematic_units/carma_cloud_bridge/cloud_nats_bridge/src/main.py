@@ -16,7 +16,6 @@
 from cloud_nats_bridge import CloudNatsBridge
 import asyncio
 
-
 #This creates a carma cloud to nats server bridge. It will initiate communication with the
 #carma-streets kafka broker and the telematic cloud nats server. Users can subscribe to carma streets 
 #topics from the telematics UI, which will be streamed to the nats server.
@@ -31,8 +30,9 @@ def main():
     #carma streets data that has been subscribed to
     tasks = [
         loop.create_task(cloud_nats_bridge.nats_connect()),
-        loop.create_task(cloud_nats_bridge.file_listener())
-        # loop.create_task(cloud_nats_bridge.register_unit()),
+        loop.create_task(cloud_nats_bridge.register_unit()),
+        loop.create_task(cloud_nats_bridge.file_listener()),
+        loop.create_task(cloud_nats_bridge.nats_send())
         # loop.create_task(cloud_nats_bridge.check_status()),
         # loop.create_task(cloud_nats_bridge.available_topics()),
         # loop.create_task(cloud_nats_bridge.publish_topics())
