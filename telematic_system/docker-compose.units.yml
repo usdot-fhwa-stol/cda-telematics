@@ -8,6 +8,8 @@ services:
     container_name: carma_vehicle_bridge
     network_mode: host
     entrypoint: /ws/ros_entrypoint.sh
+    volumes:
+           - ./logs:/var/logs
   
   streets-nats-bridge:
     build:
