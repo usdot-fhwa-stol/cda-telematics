@@ -74,47 +74,32 @@ class StreetsNatsBridge():
         self.logger.info(" Created Streets-NATS bridge object")
 
     def createLogger(self):
-        """Creates log file for the StreetsNatsBridge with configuration items based on the settings input in the params.yaml file"""
-        # create log file and set log levels
+        """Creates log file for the CloudNatsBridge with configuration items based on the settings input in the params.yaml file"""
         self.logger = logging.getLogger(self.log_name)
         now = datetime.now()
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")
         log_name = self.log_name + dt_string + ".log"
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.console_handler = logging.StreamHandler()
-        self.console_handler.setFormatter(formatter)
-
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
-        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size
-        if(self.log_handler == "file"):
-            self.file_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
-            self.file_handler.setFormatter(formatter)
-            
-            if(self.log_level == "debug"):
-                self.logger.setLevel(logging.DEBUG)
-                self.file_handler.setLevel(logging.DEBUG)
-            elif(self.log_level == "info"):
-                self.logger.setLevel(logging.INFO)
-                self.file_handler.setLevel(logging.INFO)
-            elif(self.log_level == "error"):
-                self.logger.setLevel(logging.ERROR)
-                self.file_handler.setLevel(logging.ERROR)
+        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
+        if self.log_handler_type == "file":
+            self.log_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
+        else:
+            self.log_handler = logging.StreamHandler()
+        self.log_handler.setFormatter(formatter)
 
-            self.logger.addHandler(self.file_handler)
+        if(self.log_level == "debug"):
+            self.logger.setLevel(logging.DEBUG)
+            self.log_handler.setLevel(logging.DEBUG)
+        elif(self.log_level == "info"):
+            self.logger.setLevel(logging.INFO)
+            self.log_handler.setLevel(logging.INFO)
+        elif(self.log_level == "error"):
+            self.logger.setLevel(logging.ERROR)
+            self.log_handler.setLevel(logging.ERROR)
 
-        elif self.log_handler == "console":
-            if(self.log_level == "debug"):
-                self.logger.setLevel(logging.DEBUG)
-                self.console_handler.setLevel(logging.DEBUG)
-            elif(self.log_level == "info"):
-                self.logger.setLevel(logging.INFO)
-                self.console_handler.setLevel(logging.INFO)
-            elif(self.log_level == "error"):
-                self.logger.setLevel(logging.ERROR)
-                self.console_handler.setLevel(logging.ERROR)
-
-            self.logger.addHandler(self.console_handler)
+        self.logger.addHandler(self.log_handler)  
 
 
     async def run_async_kafka_consumer(self):
