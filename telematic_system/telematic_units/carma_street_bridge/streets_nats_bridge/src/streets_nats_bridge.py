@@ -87,27 +87,35 @@ class StreetsNatsBridge():
 
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
         # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size
-        self.file_handler = RotatingFileHandler(
-            self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
-        self.file_handler.setFormatter(formatter)
+        if(self.log_handler == "file"):
+            self.file_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
+            self.file_handler.setFormatter(formatter)
+            
+            if(self.log_level == "debug"):
+                self.logger.setLevel(logging.DEBUG)
+                self.file_handler.setLevel(logging.DEBUG)
+            elif(self.log_level == "info"):
+                self.logger.setLevel(logging.INFO)
+                self.file_handler.setLevel(logging.INFO)
+            elif(self.log_level == "error"):
+                self.logger.setLevel(logging.ERROR)
+                self.file_handler.setLevel(logging.ERROR)
 
-        if(self.log_level == "debug"):
-            self.logger.setLevel(logging.DEBUG)
-            self.file_handler.setLevel(logging.DEBUG)
-            self.console_handler.setLevel(logging.DEBUG)
-        elif(self.log_level == "info"):
-            self.logger.setLevel(logging.INFO)
-            self.file_handler.setLevel(logging.INFO)
-            self.console_handler.setLevel(logging.INFO)
-        elif(self.log_level == "error"):
-            self.logger.setLevel(logging.ERROR)
-            self.file_handler.setLevel(logging.ERROR)
-            self.console_handler.setLevel(logging.ERROR)
-
-        if self.log_handler == "console":
-            self.logger.addHandler(self.console_handler)
-        else:
             self.logger.addHandler(self.file_handler)
+
+        elif self.log_handler == "console":
+            if(self.log_level == "debug"):
+                self.logger.setLevel(logging.DEBUG)
+                self.console_handler.setLevel(logging.DEBUG)
+            elif(self.log_level == "info"):
+                self.logger.setLevel(logging.INFO)
+                self.console_handler.setLevel(logging.INFO)
+            elif(self.log_level == "error"):
+                self.logger.setLevel(logging.ERROR)
+                self.console_handler.setLevel(logging.ERROR)
+
+            self.logger.addHandler(self.console_handler)
+
 
     async def run_async_kafka_consumer(self):
         """Create Async Kafka consumer object to read carma-streets kafka traffic"""
@@ -298,6 +306,12 @@ class StreetsNatsBridge():
             requested_topics = data['topics']
             self.logger.info(
                 " In topic_request: Received a request to publish the following topics: " + str(requested_topics))
+
+            # Remove topics from subscribers list that weren't called in new request
+            for existing_topic in list(self.subscribers_list):
+                if (existing_topic not in requested_topics[0]):
+                    self.logger.info('Trying to unsubscribe from topic: "%s"' % existing_topic)
+                    self.subscribers_list.remove(existing_topic)
 
             # Add requested topics to subscriber list if not already there
             for topic in requested_topics:
