@@ -91,7 +91,7 @@ class Ros2NatsBridgeNode(Node):
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0
-        # Create StreetsNatsBridge logger
+        # Create ROS2NatsBridge logger
         self.createLogger()
 
     def timer_callback(self):
@@ -101,7 +101,7 @@ class Ros2NatsBridgeNode(Node):
         self.i += 1
 
     def createLogger(self):
-        """Creates log file for the StreetsNatsBridge with configuration items based on the settings input in the params.yaml file"""
+        """Creates log file for the ROS2NatsBridge with configuration items based on the settings input in the params.yaml file"""
         # create log file and set log levels
         self.logger = logging.getLogger(self.log_name)
         now = datetime.now()
