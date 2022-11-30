@@ -31,10 +31,10 @@ class mockLogger:
         self.log_name = "test"
         self.log_path = "./logs"      
         self.log_rotation = 2147483648
-        self.log_handler = "console"
+        self.log_handler_type = "console"
         
     def createLogger(self):
-        """Creates log file for the StreetsNatsBridge with configuration items based on the settings input in the params.yaml file"""
+        """Creates log file for the ROS2NatsBridge with configuration items based on the settings input in the params.yaml file"""
         # create log file and set log levels
         self.logger = logging.getLogger(self.log_name)
         now = datetime.now()
@@ -42,32 +42,27 @@ class mockLogger:
         log_name = self.log_name + dt_string + ".log"
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.console_handler = logging.StreamHandler()
-        self.console_handler.setFormatter(formatter)
 
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
-        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size
-        self.file_handler = RotatingFileHandler(
-            self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
-        self.file_handler.setFormatter(formatter)
+        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
+        if self.log_handler_type == "file":
+            self.log_handler = RotatingFileHandler(
+                self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
+        else:
+             self.log_handler = logging.StreamHandler()
+        self.log_handler.setFormatter(formatter)
 
         if(self.log_level == "debug"):
             self.logger.setLevel(logging.DEBUG)
-            self.file_handler.setLevel(logging.DEBUG)
-            self.console_handler.setLevel(logging.DEBUG)
+            self.log_handler.setLevel(logging.DEBUG)
         elif(self.log_level == "info"):
             self.logger.setLevel(logging.INFO)
-            self.file_handler.setLevel(logging.INFO)
-            self.console_handler.setLevel(logging.INFO)
+            self.log_handler.setLevel(logging.INFO)
         elif(self.log_level == "error"):
             self.logger.setLevel(logging.ERROR)
-            self.file_handler.setLevel(logging.ERROR)
-            self.console_handler.setLevel(logging.ERROR)
+            self.log_handler.setLevel(logging.ERROR)
 
-        if self.log_handler == "console":
-            self.logger.addHandler(self.console_handler)
-        else:
-            self.logger.addHandler(self.file_handler)
+        self.logger.addHandler(self.log_handler)     
 
 def test_logger():
     mocklog = mockLogger()

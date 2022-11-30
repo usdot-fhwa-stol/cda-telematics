@@ -69,7 +69,7 @@ class Ros2NatsBridgeNode(Node):
             description='This parameter is for location where the log file is stored.'))
         self.declare_parameter("LOG_ROTATION_SIZE_BYTES", "2147483648", ParameterDescriptor(
             description='This parameter is for size of each log file.'))
-        self.declare_parameter("LOG_HANDLER", "console", ParameterDescriptor(
+        self.declare_parameter("LOG_HANDLER_TYPE", "console", ParameterDescriptor(
             description='This parameter is for printing the log to console or file.'))
 
         self.vehicle_info = {
@@ -86,7 +86,7 @@ class Ros2NatsBridgeNode(Node):
         self.log_name = self.get_parameter("LOG_NAME").get_parameter_value().string_value
         self.log_path = self.get_parameter("LOG_PATH").get_parameter_value().string_value       
         self.log_rotation = int(self.get_parameter("LOG_ROTATION_SIZE_BYTES").get_parameter_value().string_value)
-        self.log_handler = self.get_parameter("LOG_HANDLER").get_parameter_value().string_value
+        self.log_handler_type = self.get_parameter("LOG_HANDLER_TYPE").get_parameter_value().string_value
 
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
@@ -109,32 +109,27 @@ class Ros2NatsBridgeNode(Node):
         log_name = self.log_name + dt_string + ".log"
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.console_handler = logging.StreamHandler()
-        self.console_handler.setFormatter(formatter)
 
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
-        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size
-        self.file_handler = RotatingFileHandler(
-            self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
-        self.file_handler.setFormatter(formatter)
+        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
+        if self.log_handler_type == "file":
+            self.log_handler = RotatingFileHandler(
+                self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
+        else:
+             self.log_handler = logging.StreamHandler()
+        self.log_handler.setFormatter(formatter)
 
         if(self.log_level == "debug"):
             self.logger.setLevel(logging.DEBUG)
-            self.file_handler.setLevel(logging.DEBUG)
-            self.console_handler.setLevel(logging.DEBUG)
+            self.log_handler.setLevel(logging.DEBUG)
         elif(self.log_level == "info"):
             self.logger.setLevel(logging.INFO)
-            self.file_handler.setLevel(logging.INFO)
-            self.console_handler.setLevel(logging.INFO)
+            self.log_handler.setLevel(logging.INFO)
         elif(self.log_level == "error"):
             self.logger.setLevel(logging.ERROR)
-            self.file_handler.setLevel(logging.ERROR)
-            self.console_handler.setLevel(logging.ERROR)
+            self.log_handler.setLevel(logging.ERROR)
 
-        if self.log_handler == "console":
-            self.logger.addHandler(self.console_handler)
-        else:
-            self.logger.addHandler(self.file_handler)
+        self.logger.addHandler(self.log_handler)    
 
     async def nats_connect(self):
         """

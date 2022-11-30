@@ -53,6 +53,7 @@ Run the unit tests with
 
 Run pytest for individual file:
 	python3 -m pytest test_messages.py
+	python3 -m pytest test_logger.py
 	
 ## Usage
 
