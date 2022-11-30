@@ -18,3 +18,14 @@ services:
     network_mode: host
     volumes:
            - ./logs:/var/logs
+  
+  cloud-nats-bridge:
+    build:
+          context: ./telematic_units/carma_cloud_bridge
+          dockerfile: Dockerfile
+    image: usdotfhwastoldev/carma_cloud_bridge
+    container_name: carma_cloud_bridge
+    network_mode: host
+    volumes:
+           - ./logs:/var/logs           
+           - /opt/tomcat/logs:/opt/tomcat/logs

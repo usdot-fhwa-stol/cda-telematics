@@ -4,11 +4,10 @@ cloud_nats_bridge:
     NATS_PORT: "4222"
     UNIT_ID: "cloud_id"
     UNIT_TYPE: "infrastructure"
-    CARMA_CLOUD_LOG_DIR: "." #/opt/tomcat/logs on deployed CC system
+    CARMA_CLOUD_LOG_DIR: "/opt/tomcat/logs" #/opt/tomcat/logs on deployed CC system
     CARMA_CLOUD_LOG_NAME: "carma_cloud.log"
     LOG_LEVEL: "debug"
     LOG_NAME: "cloud_nats_bridge"
     LOG_PATH: "/tmp/logs/" 
     LOG_ROTATION_SIZE_BYTES: "2147483648" #2 gigabytes
     LOG_HANDLER: "console" #console: Print logs on console; file: Save logs to file. 
-    KAFKA_CONSUMER_RESET: "earliest"

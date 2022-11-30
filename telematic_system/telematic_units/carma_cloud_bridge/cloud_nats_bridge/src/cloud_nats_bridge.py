@@ -15,6 +15,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, LoggingEventHandler
 import xmltodict
 
+#global variables used to store TCR/TCM strings for publishing to nats
 new_carma_cloud_message_type = ""
 new_carma_cloud_message = ""
 last_carma_cloud_message = ""
@@ -24,12 +25,10 @@ class EventKeys(Enum):
     TESTING_TYPE = "testing_type"
     LOCATION = "location"
 
-
 class UnitKeys(Enum):
     UNIT_ID = "unit_id"
     UNIT_TYPE = "unit_type"
     UNIT_NAME = "unit_name"
-
 
 class TopicKeys(Enum):
     TOPIC_NAME = "topic_name"
@@ -37,14 +36,12 @@ class TopicKeys(Enum):
     
 class FileListener(FileSystemEventHandler):
     """
-    The FileListener class is used to listen to the carma cloud log file for updates and storing 
-    them in a variable.
+    The FileListener class is used to listen to the carma cloud log file for new TCR/TCM messages.
     """
     def __init__(self, filepath, filename, logname):
         self.filepath = filepath
         self.filename = filename
         self.lock = Lock()
-
         self.logger = logging.getLogger(logname) 
 
         #Need to get current number of lines or characters in file
@@ -54,14 +51,14 @@ class FileListener(FileSystemEventHandler):
 
         self.logger.info("Monitoring this carma cloud file: " + str(self.filepath) + "/" + str(self.filename))
 
-    #this method gets called when the file of interest is modified
+    #this method gets called when the log file of interest is modified
     def on_modified(self, event):
         global new_carma_cloud_message, new_carma_cloud_message_type
 
         #check if the modified file event is the file we are interested in
         if event.src_path == self.filepath:
             
-            #print new line of data
+            #Get the newly printed line and parse out the TCR/TCM
             with self.lock:
                 with open(f'{event.src_path}/{self.filename}', 'r', encoding="utf-8") as f:
                     line_count = 1
@@ -108,7 +105,7 @@ class CloudNatsBridge():
         self.log_name = config['cloud_nats_bridge']['cloud_parameters']['LOG_NAME']
         self.log_path = config['cloud_nats_bridge']['cloud_parameters']['LOG_PATH']
         self.log_rotation = int(config['cloud_nats_bridge']['cloud_parameters']['LOG_ROTATION_SIZE_BYTES'])
-        self.log_handler = config['cloud_nats_bridge']['cloud_parameters']['LOG_HANDLER']
+        self.log_handler_type = config['cloud_nats_bridge']['cloud_parameters']['LOG_HANDLER']
 
         self.unit_name = "Dev CC"
         self.nc = NATS()
@@ -117,7 +114,6 @@ class CloudNatsBridge():
         self.async_sleep_rate = 0.0001  # asyncio sleep rate
         self.registered = False
 
-        # Placeholder info for now
         self.cloud_info = {
             UnitKeys.UNIT_ID.value: self.unit_id,
             UnitKeys.UNIT_TYPE.value: self.unit_type,
@@ -127,50 +123,37 @@ class CloudNatsBridge():
         self.createLogger()
         self.logger.info(" Created Cloud-NATS bridge object")
 
+        # Start listening to the carma cloud log file
         self.file_listener_start()
 
 
     def createLogger(self):
         """Creates log file for the CloudNatsBridge with configuration items based on the settings input in the params.yaml file"""
-        # create log file and set log levels
         self.logger = logging.getLogger(self.log_name)
         now = datetime.now()
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")
         log_name = self.log_name + dt_string + ".log"
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.console_handler = logging.StreamHandler()
-        self.console_handler.setFormatter(formatter)
-
+        
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
-        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size
-        if self.log_handler == "file":
-            self.file_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
-            self.file_handler.setFormatter(formatter)
+        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
+        if self.log_handler_type == "file":
+            self.log_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
+        else:
+            self.log_handler = logging.StreamHandler()
+        self.log_handler.setFormatter(formatter)
 
-            if(self.log_level == "debug"):
-                self.logger.setLevel(logging.DEBUG)
-                self.file_handler.setLevel(logging.DEBUG)
-            elif(self.log_level == "info"):
-                self.logger.setLevel(logging.INFO)
-                self.file_handler.setLevel(logging.INFO)
-            elif(self.log_level == "error"):
-                self.logger.setLevel(logging.ERROR)
-                self.file_handler.setLevel(logging.ERROR)
+        if(self.log_level == "debug"):
+            self.logger.setLevel(logging.DEBUG)
+            self.log_handler.setLevel(logging.DEBUG)
+        elif(self.log_level == "info"):
+            self.logger.setLevel(logging.INFO)
+            self.log_handler.setLevel(logging.INFO)
+        elif(self.log_level == "error"):
+            self.logger.setLevel(logging.ERROR)
+            self.log_handler.setLevel(logging.ERROR)
 
-            self.logger.addHandler(self.file_handler)
-
-        elif self.log_handler == "console":
-            if(self.log_level == "debug"):
-                self.logger.setLevel(logging.DEBUG)
-                self.console_handler.setLevel(logging.DEBUG)
-            elif(self.log_level == "info"):
-                self.logger.setLevel(logging.INFO)
-                self.console_handler.setLevel(logging.INFO)
-            elif(self.log_level == "error"):
-                self.logger.setLevel(logging.ERROR)
-                self.console_handler.setLevel(logging.ERROR)
-
-            self.logger.addHandler(self.console_handler)
+        self.logger.addHandler(self.log_handler)  
 
 
     def file_listener_start(self):
@@ -184,6 +167,9 @@ class CloudNatsBridge():
         observer.start()
 
     async def nats_send(self):
+        """
+            Sends newly generated TCR/TCMs to nats based on the current subscriber list.
+        """
         self.logger.info(" In nats_send: Ready to send to nats")
 
         global new_carma_cloud_message_type, new_carma_cloud_message, last_carma_cloud_message
@@ -191,7 +177,9 @@ class CloudNatsBridge():
         try:
             while(True):
                 topic = new_carma_cloud_message_type
+                #check if topic in subscriber list and compare the new cc message with the last
                 if topic in self.subscribers_list and (new_carma_cloud_message != last_carma_cloud_message):
+                    #convert the TCR/TCM xml to dictionary, then to json
                     data_dict = xmltodict.parse(new_carma_cloud_message)
                     json_data = json.dumps(data_dict)
 
