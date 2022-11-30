@@ -15,6 +15,7 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, LoggingEventHandler
 import xmltodict
 
+new_carma_cloud_message_type = ""
 new_carma_cloud_message = ""
 last_carma_cloud_message = ""
 
@@ -55,7 +56,7 @@ class FileListener(FileSystemEventHandler):
 
     #this method gets called when the file of interest is modified
     def on_modified(self, event):
-        global new_carma_cloud_message
+        global new_carma_cloud_message, new_carma_cloud_message_type
 
         #check if the modified file event is the file we are interested in
         if event.src_path == self.filepath:
@@ -68,14 +69,17 @@ class FileListener(FileSystemEventHandler):
                         if line_count > self.current_lines:
                             newLine = line
                             
-                            messageType = "TCR"
+                            messageType = ""
                             #find beginning of TCR/TCM
                             if "TCM" in newLine:
                                 messageType = "TCM"
+                            elif "TCR" in newLine:
+                                messageType = "TCR"
                             startingIndex = newLine.find("<")
+                            new_carma_cloud_message_type = messageType
                             new_carma_cloud_message = newLine[startingIndex:]                            
 
-                            self.logger.info("New " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
+                            self.logger.info("Carma Cloud generated new " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
                             self.current_lines = line_count
 
                         line_count += 1
@@ -108,7 +112,7 @@ class CloudNatsBridge():
 
         self.unit_name = "Dev CC"
         self.nc = NATS()
-        self.cloud_topics = ["TCR" "TCM"]  # list of available carma-cloud topic
+        self.cloud_topics = ["TCR","TCM"]  # list of available carma-cloud topic
         self.subscribers_list = []  # list of topics the user has requested to publish
         self.async_sleep_rate = 0.0001  # asyncio sleep rate
         self.registered = False
@@ -123,6 +127,9 @@ class CloudNatsBridge():
         self.createLogger()
         self.logger.info(" Created Cloud-NATS bridge object")
 
+        self.file_listener_start()
+
+
     def createLogger(self):
         """Creates log file for the CloudNatsBridge with configuration items based on the settings input in the params.yaml file"""
         # create log file and set log levels
@@ -136,28 +143,37 @@ class CloudNatsBridge():
 
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
         # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size
-        self.file_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
-        self.file_handler.setFormatter(formatter)
+        if self.log_handler == "file":
+            self.file_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
+            self.file_handler.setFormatter(formatter)
 
-        if(self.log_level == "debug"):
-            self.logger.setLevel(logging.DEBUG)
-            self.file_handler.setLevel(logging.DEBUG)
-            self.console_handler.setLevel(logging.DEBUG)
-        elif(self.log_level == "info"):
-            self.logger.setLevel(logging.INFO)
-            self.file_handler.setLevel(logging.INFO)
-            self.console_handler.setLevel(logging.INFO)
-        elif(self.log_level == "error"):
-            self.logger.setLevel(logging.ERROR)
-            self.file_handler.setLevel(logging.ERROR)
-            self.console_handler.setLevel(logging.ERROR)
+            if(self.log_level == "debug"):
+                self.logger.setLevel(logging.DEBUG)
+                self.file_handler.setLevel(logging.DEBUG)
+            elif(self.log_level == "info"):
+                self.logger.setLevel(logging.INFO)
+                self.file_handler.setLevel(logging.INFO)
+            elif(self.log_level == "error"):
+                self.logger.setLevel(logging.ERROR)
+                self.file_handler.setLevel(logging.ERROR)
 
-        if self.log_handler == "console":
-            self.logger.addHandler(self.console_handler)
-        else:
             self.logger.addHandler(self.file_handler)
 
-    async def file_listener(self):
+        elif self.log_handler == "console":
+            if(self.log_level == "debug"):
+                self.logger.setLevel(logging.DEBUG)
+                self.console_handler.setLevel(logging.DEBUG)
+            elif(self.log_level == "info"):
+                self.logger.setLevel(logging.INFO)
+                self.console_handler.setLevel(logging.INFO)
+            elif(self.log_level == "error"):
+                self.logger.setLevel(logging.ERROR)
+                self.console_handler.setLevel(logging.ERROR)
+
+            self.logger.addHandler(self.console_handler)
+
+
+    def file_listener_start(self):
         """
             Creates a FileListener object and monitors the carma cloud log assigned in the params yaml file.
         """
@@ -167,47 +183,44 @@ class CloudNatsBridge():
         observer.schedule(event_handler, self.carma_cloud_directory, recursive=True)
         observer.start()
 
-        # while True:
-        await asyncio.sleep(self.async_sleep_rate)
-
     async def nats_send(self):
-        self.logger.info(" In nats_send")
+        self.logger.info(" In nats_send: Ready to send to nats")
 
-        global new_carma_cloud_message, last_carma_cloud_message
+        global new_carma_cloud_message_type, new_carma_cloud_message, last_carma_cloud_message
 
-        while True:
-        # try:
-            if new_carma_cloud_message != last_carma_cloud_message:
-                data_dict = xmltodict.parse(new_carma_cloud_message)
-                json_data = json.dumps(data_dict)
+        try:
+            while(True):
+                topic = new_carma_cloud_message_type
+                if topic in self.subscribers_list and (new_carma_cloud_message != last_carma_cloud_message):
+                    data_dict = xmltodict.parse(new_carma_cloud_message)
+                    json_data = json.dumps(data_dict)
 
-                message = {}
-                message["payload"] = json_data
-                last_carma_cloud_message = new_carma_cloud_message
+                    message = {}
+                    message["payload"] = json_data
+                    message[UnitKeys.UNIT_ID.value] = self.unit_id
+                    message[UnitKeys.UNIT_TYPE.value] = self.unit_type
+                    message[UnitKeys.UNIT_NAME.value] = self.unit_name
+                    message[TopicKeys.MSG_TYPE.value] = new_carma_cloud_message_type
+                    message[EventKeys.EVENT_NAME.value] = self.cloud_info[EventKeys.EVENT_NAME.value]
+                    message[EventKeys.TESTING_TYPE.value] = self.cloud_info[EventKeys.TESTING_TYPE.value]
+                    message[EventKeys.LOCATION.value] = self.cloud_info[EventKeys.LOCATION.value]
+                    message[TopicKeys.TOPIC_NAME.value] = topic
+                    message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
 
-                # Add msg_type to json b/c worker looks for this field
-                message[UnitKeys.UNIT_ID.value] = self.unit_id
-                message[UnitKeys.UNIT_TYPE.value] = self.unit_type
-                message[UnitKeys.UNIT_NAME.value] = self.unit_name
-                message[TopicKeys.MSG_TYPE.value] = "test"
-                # message[EventKeys.EVENT_NAME.value] = self.cloud_info[EventKeys.EVENT_NAME.value]
-                # message[EventKeys.TESTING_TYPE.value] = self.cloud_info[EventKeys.TESTING_TYPE.value]
-                # message[EventKeys.LOCATION.value] = self.cloud_info[EventKeys.LOCATION.value]
-                # message[TopicKeys.TOPIC_NAME.value] = "test"
-                message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
+                    # telematic cloud server will look for topic names with the pattern ".data."
+                    self.topic_name = "cloud." + self.unit_id + ".data" + topic
 
-                # telematic cloud server will look for topic names with the pattern ".data."
-                # self.topic_name = "cloud." + self.unit_id + ".data" + topic
-                self.topic_name = "cloud." + self.unit_id + ".data.test"
+                    # publish the encoded data to the nats server
+                    self.logger.info(" In nats_send: Publishing to nats: " + str(message))
 
-                # publish the encoded data to the nats server
-                self.logger.info(" In nats_send: Publishing message: " + str(message))
-                # last_message = new_carma_cloud_message
+                    last_carma_cloud_message = new_carma_cloud_message
 
+                    await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
+                
                 await asyncio.sleep(self.async_sleep_rate)
-            #         # await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
-        # except:
-        #     self.logger.error("Error publishing message")
+        except:
+            self.logger.error("Error publishing message")
+            pass
 
     async def nats_connect(self):
         """
@@ -247,13 +260,12 @@ class CloudNatsBridge():
     async def available_topics(self):
         """
         Waits for request from telematic server to publish available topics. When a request has been received, it responds
-        with all available carma-streets kafka topics.
+        with all available carma-cloud topics.
         """
 
         async def send_list_of_topics(msg):
             """Send available list of carma cloud topics"""
-            self.logger.info(
-                "In send_list_of_topics: Received a request for available topics")
+            self.logger.info("In send_list_of_topics: Received a request for available topics")
             # convert nanoseconds to microseconds
             self.cloud_info["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
             self.cloud_info["topics"] = [{"name": topicName} for topicName in self.cloud_topics]
@@ -267,8 +279,7 @@ class CloudNatsBridge():
         try:
             await self.nc.subscribe(self.cloud_info[UnitKeys.UNIT_ID.value] + ".available_topics", self.cloud_info[UnitKeys.UNIT_ID.value], send_list_of_topics)
         except:
-            self.logger.error(
-                " In send_list_of_topics: ERROR sending list of available topics to nats server")
+            self.logger.error(" In send_list_of_topics: ERROR sending list of available topics to nats server")
 
     async def register_unit(self):
         """
@@ -313,7 +324,6 @@ class CloudNatsBridge():
         has been received, the topic name is then added to the CloudNatsBridge subscribers_list variable, which will
         trigger publishing of that data.
         """
-
         async def topic_request(msg):
             """Add to subscriber_list for every topic in request message"""
             # Alert the nats server that the request has been received and store the requested topics
@@ -321,12 +331,16 @@ class CloudNatsBridge():
             data = json.loads(msg.data.decode("utf-8"))
 
             requested_topics = data['topics']
-            self.logger.info(" In topic_request: Received a request to publish the following topics: " + str(requested_topics))
+            self.logger.info(" In topic_request: Received a request to publish/remove the following topics: " + str(requested_topics))
 
-            # Add requested topics to subscriber list if not already there
+            # Add requested topics to subscriber list if not already there, remove if already there
             for topic in requested_topics:
                 if topic not in self.subscribers_list:
                     self.subscribers_list.append(topic)
+
+            for subscribed_topic in self.subscribers_list:
+                if subscribed_topic not in requested_topics:
+                    self.subscribers_list.remove(subscribed_topic)
 
             self.logger.info(" In topic_request: UPDATED subscriber list: " + str(self.subscribers_list))
 

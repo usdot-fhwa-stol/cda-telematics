@@ -31,11 +31,10 @@ def main():
     tasks = [
         loop.create_task(cloud_nats_bridge.nats_connect()),
         loop.create_task(cloud_nats_bridge.register_unit()),
-        loop.create_task(cloud_nats_bridge.file_listener()),
-        loop.create_task(cloud_nats_bridge.nats_send())
-        # loop.create_task(cloud_nats_bridge.check_status()),
-        # loop.create_task(cloud_nats_bridge.available_topics()),
-        # loop.create_task(cloud_nats_bridge.publish_topics())
+        loop.create_task(cloud_nats_bridge.nats_send()),
+        loop.create_task(cloud_nats_bridge.check_status()),
+        loop.create_task(cloud_nats_bridge.available_topics()),
+        loop.create_task(cloud_nats_bridge.publish_topics())
     ]
 
     #Run asyncio until tasks are complete
