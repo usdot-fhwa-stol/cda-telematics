@@ -5,7 +5,7 @@ cloud_nats_bridge:
     UNIT_ID: "cloud_id"
     UNIT_TYPE: "infrastructure"
     CARMA_CLOUD_LOG_DIR: "/opt/tomcat/logs" #/opt/tomcat/logs on deployed CC system
-    CARMA_CLOUD_LOG_NAME: "carmacloud-20221130.log"
+    CARMA_CLOUD_LOG_NAME: "carmacloud.log"
     LOG_LEVEL: "debug"
     LOG_NAME: "cloud_nats_bridge"
     LOG_PATH: "/tmp/logs/" 

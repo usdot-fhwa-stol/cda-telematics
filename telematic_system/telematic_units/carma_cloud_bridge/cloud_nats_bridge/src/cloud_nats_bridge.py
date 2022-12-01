@@ -58,26 +58,31 @@ class FileListener(FileSystemEventHandler):
         global new_carma_cloud_message, new_carma_cloud_message_type
 
         #check if the modified file event is the file we are interested in
-        if event.src_path == self.filepath:
+        log_path = self.filepath+"/"+self.filename
+        if event.src_path == log_path:
             #Get the newly printed line and parse out the TCR/TCM
             with self.lock:
-                with open(f'{event.src_path}/{self.filename}', 'r', encoding="utf-8") as f:
+                with open(f'{log_path}', 'r', encoding="utf-8") as f:
                     line_count = 1
                     for line in f:
                         if line_count > self.current_lines:
                             newLine = line
-                            
                             messageType = ""
                             #find beginning of TCR/TCM
                             if self.tcm_search_string in newLine:
                                 messageType = "TCM"
+                                startingIndex = newLine.find("<")
+                                new_carma_cloud_message_type = messageType
+                                new_carma_cloud_message = newLine[startingIndex:]
+                                
+                                self.logger.info("Carma Cloud generated new " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
                             elif self.tcr_search_string in newLine:
                                 messageType = "TCR"
-                            startingIndex = newLine.find("<")
-                            new_carma_cloud_message_type = messageType
-                            new_carma_cloud_message = newLine[startingIndex:]                            
+                                startingIndex = newLine.find("<")
+                                new_carma_cloud_message_type = messageType
+                                new_carma_cloud_message = newLine[startingIndex:]                            
 
-                            self.logger.info("Carma Cloud generated new " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
+                                self.logger.info("Carma Cloud generated new " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
                             self.current_lines = line_count
 
                         line_count += 1
