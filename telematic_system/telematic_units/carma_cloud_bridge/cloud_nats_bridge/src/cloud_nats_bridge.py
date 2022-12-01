@@ -38,11 +38,13 @@ class FileListener(FileSystemEventHandler):
     """
     The FileListener class is used to listen to the carma cloud log file for new TCR/TCM messages.
     """
-    def __init__(self, filepath, filename, logname):
+    def __init__(self, filepath, filename, logname, tcr_search_string, tcm_search_string):
         self.filepath = filepath
         self.filename = filename
         self.lock = Lock()
         self.logger = logging.getLogger(logname) 
+        self.tcr_search_string = tcr_search_string
+        self.tcm_search_string = tcm_search_string
 
         #Need to get current number of lines or characters in file
         with open(f'{self.filepath}/{self.filename}', 'r', encoding="utf-8") as f:
@@ -67,9 +69,9 @@ class FileListener(FileSystemEventHandler):
                             
                             messageType = ""
                             #find beginning of TCR/TCM
-                            if "TCM" in newLine:
+                            if self.tcm_search_string in newLine:
                                 messageType = "TCM"
-                            elif "TCR" in newLine:
+                            elif self.tcr_search_string in newLine:
                                 messageType = "TCR"
                             startingIndex = newLine.find("<")
                             new_carma_cloud_message_type = messageType
@@ -109,6 +111,8 @@ class CloudNatsBridge():
         self.log_path = config['cloud_nats_bridge']['cloud_parameters']['LOG_PATH']
         self.log_rotation = int(config['cloud_nats_bridge']['cloud_parameters']['LOG_ROTATION_SIZE_BYTES'])
         self.log_handler_type = config['cloud_nats_bridge']['cloud_parameters']['LOG_HANDLER']
+        self.tcr_search_string = config['cloud_nats_bridge']['cloud_parameters']['TCR_STRING']
+        self.tcm_search_string = config['cloud_nats_bridge']['cloud_parameters']['TCM_STRING']
 
         self.unit_name = "Dev CC"
         self.nc = NATS()
@@ -163,7 +167,7 @@ class CloudNatsBridge():
         """
             Creates a FileListener object and monitors the carma cloud log assigned in the params yaml file.
         """
-        event_handler = FileListener(self.carma_cloud_directory, self.carma_cloud_log_name, self.log_name)
+        event_handler = FileListener(self.carma_cloud_directory, self.carma_cloud_log_name, self.log_name, self.tcr_search_string, self.tcm_search_string)
         self.logger.info(" Creating file listener for " + str(self.carma_cloud_directory) + "/" + str(self.carma_cloud_log_name))
         observer = Observer()
         observer.schedule(event_handler, self.carma_cloud_directory, recursive=True)
