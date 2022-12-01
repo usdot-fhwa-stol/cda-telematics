@@ -53,7 +53,7 @@ class StreetsNatsBridge():
         self.log_path = config['streets_nats_bridge']['streets_parameters']['LOG_PATH']
         self.log_rotation = int(
             config['streets_nats_bridge']['streets_parameters']['LOG_ROTATION_SIZE_BYTES'])
-        self.log_handler = config['streets_nats_bridge']['streets_parameters']['LOG_HANDLER']
+        self.log_handler_type = config['streets_nats_bridge']['streets_parameters']['LOG_HANDLER_TYPE']
         self.kafka_offset_reset = config['streets_nats_bridge']['streets_parameters']['KAFKA_CONSUMER_RESET']
 
         self.unit_name = "West Intersection"
