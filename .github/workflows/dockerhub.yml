@@ -3,7 +3,7 @@ name: "DockerHub Build and Push"
 on:
   push:
     branches:
-      - "develop"
+      - "feature-unsubscribe-streets-topics"
 
 jobs:
   dockerhub-telematic-cloud-messaging:
