@@ -57,7 +57,6 @@ class FileListener(FileSystemEventHandler):
 
         #check if the modified file event is the file we are interested in
         if event.src_path == self.filepath:
-            
             #Get the newly printed line and parse out the TCR/TCM
             with self.lock:
                 with open(f'{event.src_path}/{self.filename}', 'r', encoding="utf-8") as f:
@@ -80,6 +79,10 @@ class FileListener(FileSystemEventHandler):
                             self.current_lines = line_count
 
                         line_count += 1
+
+    #Getter method for testing    
+    def getNewCarmaCloudMessageType(self):
+        return new_carma_cloud_message_type
 
 class CloudNatsBridge():
     """
