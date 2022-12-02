@@ -4,3 +4,8 @@ ros2_nats_bridge:
     NATS_SERVER_IP_PORT: "nats://44.206.13.7:4222"
     UNIT_TYPE: "platform"
     UNIT_NAME: "Black_Pacifica"
+    LOG_LEVEL: "debug"
+    LOG_NAME: "ros2_nats_bridge"
+    LOG_PATH: "/var/logs/" 
+    LOG_ROTATION_SIZE_BYTES: "2147483648" #2 gigabytes
+    LOG_HANDLER_TYPE: "console" #console: Print logs on console; file: Save logs to file. 
