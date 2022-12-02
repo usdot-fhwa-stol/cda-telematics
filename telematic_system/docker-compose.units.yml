@@ -18,3 +18,6 @@ services:
     network_mode: host
     volumes:
            - ./logs:/var/logs
+    environment:
+    #console: Print logs on console; file: Save logs to file; both: Prints logs on console and file
+    - LOG_HANDLER_TYPE=console

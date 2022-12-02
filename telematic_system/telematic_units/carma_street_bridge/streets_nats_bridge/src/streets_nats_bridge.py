@@ -9,6 +9,7 @@ import yaml
 from logging.handlers import RotatingFileHandler
 from aiokafka import AIOKafkaConsumer
 from enum import Enum
+import os
 
 
 class EventKeys(Enum):
@@ -53,7 +54,6 @@ class StreetsNatsBridge():
         self.log_path = config['streets_nats_bridge']['streets_parameters']['LOG_PATH']
         self.log_rotation = int(
             config['streets_nats_bridge']['streets_parameters']['LOG_ROTATION_SIZE_BYTES'])
-        self.log_handler_type = config['streets_nats_bridge']['streets_parameters']['LOG_HANDLER_TYPE']
         self.kafka_offset_reset = config['streets_nats_bridge']['streets_parameters']['KAFKA_CONSUMER_RESET']
 
         self.unit_name = "West Intersection"
@@ -63,6 +63,8 @@ class StreetsNatsBridge():
         self.async_sleep_rate = 0.0001  # asyncio sleep rate
         self.registered = False
 
+        self.log_handler_type = os.getenv('LOG_HANDLER_TYPE')
+
         # Placeholder info for now
         self.streets_info = {
             UnitKeys.UNIT_ID.value: self.unit_id,
@@ -70,10 +72,15 @@ class StreetsNatsBridge():
             UnitKeys.UNIT_NAME.value: self.unit_name}
 
         # Create StreetsNatsBridge logger
-        self.createLogger()
+        if self.log_handler_type == "both":
+            self.createLogger("file")
+            self.createLogger("console")
+        else:
+            self.createLogger(self.log_handler_type)
+
         self.logger.info(" Created Streets-NATS bridge object")
 
-    def createLogger(self):
+    def createLogger(self, log_type):
         """Creates log file for the CloudNatsBridge with configuration items based on the settings input in the params.yaml file"""
         self.logger = logging.getLogger(self.log_name)
         now = datetime.now()
@@ -83,7 +90,7 @@ class StreetsNatsBridge():
         
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
         # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
-        if self.log_handler_type == "file":
+        if log_type == "file":
             self.log_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
         else:
             self.log_handler = logging.StreamHandler()
