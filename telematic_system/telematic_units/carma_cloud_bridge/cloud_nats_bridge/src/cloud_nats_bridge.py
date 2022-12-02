@@ -45,21 +45,21 @@ class FileListener(FileSystemEventHandler):
         self.logger = logging.getLogger(logname) 
         self.tcr_search_string = tcr_search_string
         self.tcm_search_string = tcm_search_string
+        self.log_path = self.filepath+"/"+self.filename
 
         #Need to get current number of lines or characters in file
-        with open(f'{self.filepath}/{self.filename}', 'r', encoding="utf-8") as f:
+        with open(f'{self.log_path}', 'r', encoding="utf-8") as f:
             self.current_lines = len(f.readlines())
         f.close()
 
         self.logger.info("Monitoring this carma cloud file: " + str(self.filepath) + "/" + str(self.filename))
 
-    #this method gets called when the log file of interest is modified
+    #this method gets called when the log file is modified
     def on_modified(self, event):
         global new_carma_cloud_message, new_carma_cloud_message_type
 
         #check if the modified file event is the file we are interested in
-        log_path = self.filepath+"/"+self.filename
-        if event.src_path == log_path:
+        if event.src_path == self.log_path:
             #Get the newly printed line and parse out the TCR/TCM
             with self.lock:
                 with open(f'{log_path}', 'r', encoding="utf-8") as f:
@@ -73,15 +73,13 @@ class FileListener(FileSystemEventHandler):
                                 messageType = "TCM"
                                 startingIndex = newLine.find("<")
                                 new_carma_cloud_message_type = messageType
-                                new_carma_cloud_message = newLine[startingIndex:]
-                                
+                                new_carma_cloud_message = newLine[startingIndex:]                                
                                 self.logger.info("Carma Cloud generated new " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
                             elif self.tcr_search_string in newLine:
                                 messageType = "TCR"
                                 startingIndex = newLine.find("<")
                                 new_carma_cloud_message_type = messageType
-                                new_carma_cloud_message = newLine[startingIndex:]                            
-
+                                new_carma_cloud_message = newLine[startingIndex:]                        
                                 self.logger.info("Carma Cloud generated new " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
                             self.current_lines = line_count
 
@@ -121,7 +119,7 @@ class CloudNatsBridge():
 
         self.unit_name = "Dev CC"
         self.nc = NATS()
-        self.cloud_topics = ["TCR","TCM"]  # list of available carma-cloud topic
+        self.cloud_topics = ["TCR","TCM"]  # list of available carma-cloud topics
         self.subscribers_list = []  # list of topics the user has requested to publish
         self.async_sleep_rate = 0.0001  # asyncio sleep rate
         self.registered = False
