@@ -3,7 +3,7 @@ from xmlrpc.client import SYSTEM_ERROR
 from nats.aio.client import Client as NATS
 import json
 import asyncio
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 import logging
 import yaml
 from logging.handlers import RotatingFileHandler
@@ -14,11 +14,13 @@ from multiprocessing import Lock
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, LoggingEventHandler
 import xmltodict
+import pandas as pd
 
 #global variables used to store TCR/TCM strings for publishing to nats
 new_carma_cloud_message_type = ""
 new_carma_cloud_message = ""
 last_carma_cloud_message = ""
+epoch_time = ""
 
 class EventKeys(Enum):
     EVENT_NAME = "event_name"
@@ -46,6 +48,7 @@ class FileListener(FileSystemEventHandler):
         self.tcr_search_string = tcr_search_string
         self.tcm_search_string = tcm_search_string
         self.log_path = self.filepath+"/"+self.filename
+        self.today = date.today()
 
         #Need to get current number of lines or characters in file
         with open(f'{self.log_path}', 'r', encoding="utf-8") as f:
@@ -56,17 +59,25 @@ class FileListener(FileSystemEventHandler):
 
     #this method gets called when the log file is modified
     def on_modified(self, event):
-        global new_carma_cloud_message, new_carma_cloud_message_type
+        global new_carma_cloud_message, new_carma_cloud_message_type, epoch_time
 
         #check if the modified file event is the file we are interested in
         if event.src_path == self.log_path:
             #Get the newly printed line and parse out the TCR/TCM
             with self.lock:
-                with open(f'{log_path}', 'r', encoding="utf-8") as f:
+                with open(f'{self.log_path}', 'r', encoding="utf-8") as f:
                     line_count = 1
                     for line in f:
                         if line_count > self.current_lines:
                             newLine = line
+
+                            #convert carma cloud timestamp and current date to time since epoch
+                            timestamp = newLine.split(" ")[1]
+                            date = self.today.strftime("%m/%d/%y")
+                            datetime = date + " " + timestamp
+                            datetime_converted = pd.to_datetime(datetime)
+                            epoch_time = datetime_converted.timestamp() * 1000000 #convert to microseconds
+
                             messageType = ""
                             #find beginning of TCR/TCM
                             if self.tcm_search_string in newLine:
@@ -182,7 +193,7 @@ class CloudNatsBridge():
         """
         self.logger.info(" In nats_send: Ready to send to nats")
 
-        global new_carma_cloud_message_type, new_carma_cloud_message, last_carma_cloud_message
+        global new_carma_cloud_message_type, new_carma_cloud_message, last_carma_cloud_message, epoch_time
 
         try:
             while(True):
@@ -204,6 +215,7 @@ class CloudNatsBridge():
                     message[EventKeys.LOCATION.value] = self.cloud_info[EventKeys.LOCATION.value]
                     message[TopicKeys.TOPIC_NAME.value] = topic
                     message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
+                    message["log_timestamp"] = epoch_time 
 
                     # telematic cloud server will look for topic names with the pattern ".data."
                     self.topic_name = "cloud." + self.unit_id + ".data" + topic

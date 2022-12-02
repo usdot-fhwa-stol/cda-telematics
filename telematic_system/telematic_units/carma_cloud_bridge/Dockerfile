@@ -10,7 +10,6 @@ RUN set -xe \
     
 COPY requirements.txt /tmp
 WORKDIR /tmp
-RUN pip3 install --upgrade certifi
 RUN pip3 install --upgrade -r requirements.txt
 
 WORKDIR /ws
