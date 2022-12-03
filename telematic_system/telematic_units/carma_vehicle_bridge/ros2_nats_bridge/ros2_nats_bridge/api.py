@@ -27,6 +27,7 @@ import rosidl_runtime_py
 from rcl_interfaces.msg import ParameterDescriptor
 from logging.handlers import RotatingFileHandler
 import logging
+import os
 
 class EventKeys(Enum):
     EVENT_NAME = "event_name"
@@ -86,13 +87,19 @@ class Ros2NatsBridgeNode(Node):
         self.log_name = self.get_parameter("LOG_NAME").get_parameter_value().string_value
         self.log_path = self.get_parameter("LOG_PATH").get_parameter_value().string_value       
         self.log_rotation = int(self.get_parameter("LOG_ROTATION_SIZE_BYTES").get_parameter_value().string_value)
-        self.log_handler_type = self.get_parameter("LOG_HANDLER_TYPE").get_parameter_value().string_value
+        
+        self.log_handler_type = os.getenv('LOG_HANDLER_TYPE')
 
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0
         # Create ROS2NatsBridge logger
-        self.createLogger()
+        if self.log_handler_type == "both":
+            # If both create log handler for both file and console
+            self.createLogger("file")
+            self.createLogger("console")
+        else:
+            self.createLogger(self.log_handler_type)
 
     def timer_callback(self):
         msg = String()
@@ -100,7 +107,7 @@ class Ros2NatsBridgeNode(Node):
         self.logger.debug('"%s"' % msg.data)
         self.i += 1
 
-    def createLogger(self):
+    def createLogger(self, log_type):
         """Creates log file for the ROS2NatsBridge with configuration items based on the settings input in the params.yaml file"""
         # create log file and set log levels
         self.logger = logging.getLogger(self.log_name)
@@ -112,7 +119,7 @@ class Ros2NatsBridgeNode(Node):
 
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
         # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
-        if self.log_handler_type == "file":
+        if log_type == "file":
             self.log_handler = RotatingFileHandler(
                 self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
         else:

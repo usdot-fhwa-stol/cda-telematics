@@ -73,6 +73,7 @@ class StreetsNatsBridge():
 
         # Create StreetsNatsBridge logger
         if self.log_handler_type == "both":
+            # If both create log handler for both file and console
             self.createLogger("file")
             self.createLogger("console")
         else:

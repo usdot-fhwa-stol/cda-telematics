@@ -10,6 +10,9 @@ services:
     entrypoint: /ws/ros_entrypoint.sh
     volumes:
            - ./logs:/var/logs
+    environment:
+    #console: Print logs on console; file: Save logs to file; both: Prints logs on console and file
+    - LOG_HANDLER_TYPE=console
   
   streets-nats-bridge:
     build:
