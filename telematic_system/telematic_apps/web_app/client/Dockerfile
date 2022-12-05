@@ -10,11 +10,25 @@ RUN npm install --force
 
 # Bundle app source
 COPY . .
+
+# Read environment variables during build stage
+ARG REACT_APP_NODE_SERVER_URI
+ENV REACT_APP_NODE_SERVER_URI $REACT_APP_NODE_SERVER_URI
+RUN echo $REACT_APP_NODE_SERVER_URI
+ARG REACT_APP_MESSAGING_SERVER_URI
+ENV REACT_APP_MESSAGING_SERVER_URI $REACT_APP_MESSAGING_SERVER_URI
+ARG REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL
+ENV REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL $REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL
+
 RUN npm run build
 
 # production environment
 FROM nginx:stable-alpine
-COPY --from=builder /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/build/ /usr/share/nginx/html
+
+WORKDIR /usr/share/nginx/html
 EXPOSE 80
+
 #run in foreground
 CMD ["nginx", "-g", "daemon off;"] 

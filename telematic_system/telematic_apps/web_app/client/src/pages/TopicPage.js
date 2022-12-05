@@ -64,7 +64,7 @@ const TopicPage = React.memo(() => {
               || element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.NON_CAV_VEHICLE.toLocaleLowerCase())) {
             filteredVehicles = [...filteredVehicles, element];
           } else if (element.unit_type !== undefined &&
-            (element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.CLOUD_INFRASTRUCTURERE.toLocaleLowerCase()
+            (element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.CLOUD_INFRASTRUCTURE.toLocaleLowerCase()
               || element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.STREETS_INFRASTRUCTURE.toLocaleLowerCase()
               || element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.V2XHUB_INFRASTRUCTURE.toLocaleLowerCase())) {
             filteredInfrastructures = [...filteredInfrastructures, element];
