@@ -94,7 +94,7 @@ class Ros2NatsBridgeNode(Node):
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0
         # Create ROS2NatsBridge logger
-        if self.log_handler_type == "both":
+        if self.log_handler_type == "file_and_console":
             # If both create log handler for both file and console
             self.createLogger("file")
             self.createLogger("console")

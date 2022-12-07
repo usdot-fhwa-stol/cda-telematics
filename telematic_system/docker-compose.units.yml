@@ -11,7 +11,7 @@ services:
     volumes:
            - ./logs:/var/logs
     environment:
-    #console: Print logs on console; file: Save logs to file; both: Prints logs on console and file
+    #console: Print logs on console; file: Save logs to file; file_and_console: Prints logs on console and file
     - LOG_HANDLER_TYPE=console
   
   streets-nats-bridge:
@@ -24,5 +24,5 @@ services:
     volumes:
            - ./logs:/var/logs
     environment:
-    #console: Print logs on console; file: Save logs to file; both: Prints logs on console and file
+    #console: Print logs on console; file: Save logs to file; file_and_console: Prints logs on console and file
     - LOG_HANDLER_TYPE=console

@@ -9,6 +9,8 @@ services:
       - ./cyclone_config.xml:/ws/cyclone_config.xml
     environment:
       - CYCLONEDDS_URI=/ws/cyclone_config.xml
+      #console: Print logs on console; file: Save logs to file; both: Prints logs on console and file
+      - LOG_HANDLER_TYPE=console
     container_name: carma_vehicle_bridge
     network_mode: host
     entrypoint: /ws/ros_entrypoint.sh
@@ -18,6 +20,10 @@ services:
           context: ./carma_street_bridge
           dockerfile: Dockerfile
     image: usdot-fhwa-stol/carma_street_bridge
+    environment:
+      - CYCLONEDDS_URI=/ws/cyclone_config.xml
+      #console: Print logs on console; file: Save logs to file; both: Prints logs on console and file
+      - LOG_HANDLER_TYPE=console
     container_name: carma_street_bridge
     volumes:
            - ./logs:/var/logs
