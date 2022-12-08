@@ -128,6 +128,10 @@ class CloudNatsBridge():
         self.tcr_search_string = config['cloud_nats_bridge']['cloud_parameters']['TCR_STRING']
         self.tcm_search_string = config['cloud_nats_bridge']['cloud_parameters']['TCM_STRING']
 
+        print("search strings: " + self.tcr_search_string + " " + self.tcm_search_string)
+        #Gets the log type from environment variable in docker-compose.units.yml file (will override params.yaml)
+        self.log_handler_type = os.getenv('LOG_HANDLER_TYPE')
+
         self.unit_name = "Dev CC"
         self.nc = NATS()
         self.cloud_topics = ["TCR","TCM"]  # list of available carma-cloud topics
@@ -141,27 +145,35 @@ class CloudNatsBridge():
             UnitKeys.UNIT_NAME.value: self.unit_name}
 
         # Create CloudNatsBridge logger
-        self.createLogger()
+        if self.log_handler_type == "file_and_console":
+            # If both create log handler for both file and console
+            self.createLogger("file")
+            self.createLogger("console")
+        else:
+            self.createLogger(self.log_handler_type)
+
         self.logger.info(" Created Cloud-NATS bridge object")
 
         # Start listening to the carma cloud log file
         self.file_listener_start()
 
-
-    def createLogger(self):
-        """Creates log file for the CloudNatsBridge with configuration items based on the settings input in the params.yaml file"""
+    def createLogger(self, log_type):
+        """Creates log file for the Carma cloud bridge with configuration items based on the settings input in the params.yaml file"""
+        # create log file and set log levels
         self.logger = logging.getLogger(self.log_name)
         now = datetime.now()
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")
         log_name = self.log_name + dt_string + ".log"
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
+        formatter = logging.Formatter(
+            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
         # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
-        if self.log_handler_type == "file":
-            self.log_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
+        if log_type == "file":
+            self.log_handler = RotatingFileHandler(
+                self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
         else:
-            self.log_handler = logging.StreamHandler()
+             self.log_handler = logging.StreamHandler()
         self.log_handler.setFormatter(formatter)
 
         if(self.log_level == "debug"):
@@ -175,7 +187,6 @@ class CloudNatsBridge():
             self.log_handler.setLevel(logging.ERROR)
 
         self.logger.addHandler(self.log_handler)  
-
 
     def file_listener_start(self):
         """
