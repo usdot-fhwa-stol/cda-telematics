@@ -39,6 +39,9 @@ if __name__ == '__main__':
     
     test_setup(event_handler)
 
+    #Verify new carma cloud message type is empty prior to adding TCR/TCM to the log file
+    assert (str(event_handler.getNewCarmaCloudMessageType()) == "")
+
     #Append a TCR to the logfile and verify the new carma cloud message type updates appropriately
     append_TCR(newTCRLine)
     time.sleep(1)
