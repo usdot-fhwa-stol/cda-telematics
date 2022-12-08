@@ -128,7 +128,6 @@ class CloudNatsBridge():
         self.tcr_search_string = config['cloud_nats_bridge']['cloud_parameters']['TCR_STRING']
         self.tcm_search_string = config['cloud_nats_bridge']['cloud_parameters']['TCM_STRING']
 
-        print("search strings: " + self.tcr_search_string + " " + self.tcm_search_string)
         #Gets the log type from environment variable in docker-compose.units.yml file (will override params.yaml)
         self.log_handler_type = os.getenv('LOG_HANDLER_TYPE')
 

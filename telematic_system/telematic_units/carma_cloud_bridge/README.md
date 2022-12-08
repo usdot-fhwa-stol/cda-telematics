@@ -12,4 +12,5 @@ Edit params.yaml:
 If edits to the /config/params.yaml are required, rebuild the bridge with "sudo docker-compose -f docker-compose.units.yml build cloud-nats-bridge".
 Then re-run the bridge with the above command.
 
-	
+Run the unit test:
+Navigate to the "test" directory in the "carma_cloud_bridge" directory. Run the file_listener_test script with "python3 file_listener_test.py"
