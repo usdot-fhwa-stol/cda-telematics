@@ -23,12 +23,22 @@ services:
     build:
           context: ./telematic_units/carma_cloud_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastoldev/carma_cloud_bridge
+    image: usdotfhwastoldev/carma_cloud_bridge:develop
     container_name: carma_cloud_bridge
     network_mode: host
     volumes:
            - ./logs:/var/logs           
            - /opt/tomcat/logs:/opt/tomcat/logs
     environment:
-      #"console": Print logs on console; "file": Save logs to file; "file_and_console": Prints logs on console and file
-      - LOG_HANDLER_TYPE=console
+      - NATS_IP=44.206.13.7 #change to amazon ec2 ipv4 address
+      - NATS_PORT=4222
+      - CARMA_CLOUD_LOG=/opt/tomcat/logs/carmacloud.log #Required for carma cloud bridge, containing the directory where carma cloud log is located
+      - CARMA_CLOUD_BRIDGE_UNIT_ID=cloud_id
+      - CARMA_CLOUD_BRIDGE_UNIT_TYPE=infrastructure
+      - CARMA_CLOUD_BRIDGE_LOG_LEVEL=debug
+      - CARMA_CLOUD_BRIDGE_LOG_NAME=cloud_nats_bridge
+      - CARMA_CLOUD_BRIDGE_LOG_PATH=/tmp/logs
+      - CARMA_CLOUD_BRIDGE_LOG_ROTATION_SIZE_BYTES=2147483648 #2 gigabytes
+      - CARMA_CLOUD_BRIDGE_LOG_HANDLER=console #"console": Print logs on console; "file": Save logs to file; "both": Prints logs on console and file
+      - CARMA_CLOUD_BRIDGE_TCR_STRING=TrafficControlRequest #TCR string to search for in carma cloud log
+      - CARMA_CLOUD_BRIDGE_TCM_STRING=TrafficControlMessage #TCM string to search for in carma cloud log

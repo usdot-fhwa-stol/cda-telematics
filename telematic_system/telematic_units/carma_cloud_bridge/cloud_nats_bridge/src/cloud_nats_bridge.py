@@ -40,64 +40,71 @@ class FileListener(FileSystemEventHandler):
     """
     The FileListener class is used to listen to the carma cloud log file for new TCR/TCM messages.
     """
-    def __init__(self, filepath, filename, logname, tcr_search_string, tcm_search_string):
-        self.filepath = filepath
-        self.filename = filename
+    def __init__(self, cc_logpath, bridge_logname, tcr_search_string, tcm_search_string):
         self.lock = Lock()
-        self.logger = logging.getLogger(logname) 
+        self.logger = logging.getLogger(bridge_logname) 
         self.tcr_search_string = tcr_search_string
         self.tcm_search_string = tcm_search_string
-        self.log_path = self.filepath+"/"+self.filename
+        self.cc_log_path = cc_logpath
         self.today = date.today()
 
-        #Need to get current number of lines or characters in file
-        with open(f'{self.log_path}', 'r', encoding="utf-8") as f:
+        #Need to get current number of lines in file for future comparison
+        with open(f'{self.cc_log_path}', 'r', encoding="utf-8") as f:
             self.current_lines = len(f.readlines())
         f.close()
 
-        self.logger.info("Monitoring this carma cloud file: " + str(self.filepath) + "/" + str(self.filename))
+        self.logger.info("Monitoring this carma cloud file: " + str(self.cc_log_path))
 
-    #this method gets called when the log file is modified
-    def on_modified(self, event):
+    def findNewCarmaCloudMessage(self):
+        """This method will parse the newly generated line in the carma cloud log file and assign
+        the xml and message type to the appropriate global variables. It also assigns the epoch_time
+        variable which will be used to create a bridge timestamp that will be added to the message sent
+        to nats """   
         global new_carma_cloud_message, new_carma_cloud_message_type, epoch_time
 
+        with open(f'{self.cc_log_path}', 'r', encoding="utf-8") as f:
+            line_count = 1
+            for line in f:
+                if line_count > self.current_lines:
+                    newLine = line
+
+                    #convert carma cloud timestamp and current date to time since epoch
+                    timestamp = newLine.split(" ")[1]
+                    date = self.today.strftime("%m/%d/%y")
+                    datetime = date + " " + timestamp
+                    datetime_converted = pd.to_datetime(datetime)
+                    epoch_time = datetime_converted.timestamp() * 1000000 #convert to microseconds
+
+                    messageType = ""
+                    #find beginning of TCR/TCM
+                    if self.tcm_search_string in newLine:
+                        messageType = "TCM"
+                        startingIndex = newLine.find("<")
+                        new_carma_cloud_message_type = messageType
+                        new_carma_cloud_message = newLine[startingIndex:]                                
+                        self.logger.info("Carma Cloud generated new " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
+                    elif self.tcr_search_string in newLine:
+                        messageType = "TCR"
+                        startingIndex = newLine.find("<")
+                        new_carma_cloud_message_type = messageType
+                        new_carma_cloud_message = newLine[startingIndex:]                        
+                        self.logger.info("Carma Cloud generated new " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
+                    self.current_lines = line_count
+
+                line_count += 1
+
+    def on_modified(self, event):
+        """this method gets called when the log file is modified"""
+
         #check if the modified file event is the file we are interested in
-        if event.src_path == self.log_path:
+        if event.src_path == self.cc_log_path:
             #Get the newly printed line and parse out the TCR/TCM
             with self.lock:
-                with open(f'{self.log_path}', 'r', encoding="utf-8") as f:
-                    line_count = 1
-                    for line in f:
-                        if line_count > self.current_lines:
-                            newLine = line
-
-                            #convert carma cloud timestamp and current date to time since epoch
-                            timestamp = newLine.split(" ")[1]
-                            date = self.today.strftime("%m/%d/%y")
-                            datetime = date + " " + timestamp
-                            datetime_converted = pd.to_datetime(datetime)
-                            epoch_time = datetime_converted.timestamp() * 1000000 #convert to microseconds
-
-                            messageType = ""
-                            #find beginning of TCR/TCM
-                            if self.tcm_search_string in newLine:
-                                messageType = "TCM"
-                                startingIndex = newLine.find("<")
-                                new_carma_cloud_message_type = messageType
-                                new_carma_cloud_message = newLine[startingIndex:]                                
-                                self.logger.info("Carma Cloud generated new " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
-                            elif self.tcr_search_string in newLine:
-                                messageType = "TCR"
-                                startingIndex = newLine.find("<")
-                                new_carma_cloud_message_type = messageType
-                                new_carma_cloud_message = newLine[startingIndex:]                        
-                                self.logger.info("Carma Cloud generated new " + str(messageType) + " message with payload: " + str(new_carma_cloud_message))
-                            self.current_lines = line_count
-
-                        line_count += 1
+                self.findNewCarmaCloudMessage()
 
     #Getter method for testing    
     def getNewCarmaCloudMessageType(self):
+        global new_carma_cloud_message_type
         return new_carma_cloud_message_type
 
 class CloudNatsBridge():
@@ -110,26 +117,19 @@ class CloudNatsBridge():
     # Creates a Streets-NATS bridge object that connects to the NATS server
     def __init__(self):
 
-        # Retrieve config values
-        with open('../config/params.yaml', 'r') as file:
-            config = yaml.safe_load(file)
-
-        self.nats_ip = config['cloud_nats_bridge']['cloud_parameters']['NATS_IP']
-        self.nats_port = config['cloud_nats_bridge']['cloud_parameters']['NATS_PORT']
-        self.unit_id = config['cloud_nats_bridge']['cloud_parameters']['UNIT_ID']
-        self.unit_type = config['cloud_nats_bridge']['cloud_parameters']['UNIT_TYPE']
-        self.carma_cloud_directory = config['cloud_nats_bridge']['cloud_parameters']['CARMA_CLOUD_LOG_DIR']
-        self.carma_cloud_log_name = config['cloud_nats_bridge']['cloud_parameters']['CARMA_CLOUD_LOG_NAME']
-        self.log_level = config['cloud_nats_bridge']['cloud_parameters']['LOG_LEVEL']
-        self.log_name = config['cloud_nats_bridge']['cloud_parameters']['LOG_NAME']
-        self.log_path = config['cloud_nats_bridge']['cloud_parameters']['LOG_PATH']
-        self.log_rotation = int(config['cloud_nats_bridge']['cloud_parameters']['LOG_ROTATION_SIZE_BYTES'])
-        self.log_handler_type = config['cloud_nats_bridge']['cloud_parameters']['LOG_HANDLER']
-        self.tcr_search_string = config['cloud_nats_bridge']['cloud_parameters']['TCR_STRING']
-        self.tcm_search_string = config['cloud_nats_bridge']['cloud_parameters']['TCM_STRING']
-
-        #Gets the log type from environment variable in docker-compose.units.yml file (will override params.yaml)
-        self.log_handler_type = os.getenv('LOG_HANDLER_TYPE')
+        # Retrieve config values from environment variables
+        self.nats_ip = os.getenv('NATS_IP')
+        self.nats_port = os.getenv('NATS_PORT')
+        self.unit_id = os.getenv('CARMA_CLOUD_BRIDGE_UNIT_ID')
+        self.unit_type = os.getenv('CARMA_CLOUD_BRIDGE_UNIT_TYPE')
+        self.carma_cloud_log = os.getenv('CARMA_CLOUD_LOG')
+        self.log_level = os.getenv('CARMA_CLOUD_BRIDGE_LOG_LEVEL')
+        self.log_name = os.getenv('CARMA_CLOUD_BRIDGE_LOG_NAME')
+        self.log_path = os.getenv('CARMA_CLOUD_BRIDGE_LOG_PATH')
+        self.log_rotation = int(os.getenv('CARMA_CLOUD_BRIDGE_LOG_ROTATION_SIZE_BYTES'))
+        self.log_handler_type = os.getenv('CARMA_CLOUD_BRIDGE_LOG_HANDLER')
+        self.tcr_search_string = os.getenv('CARMA_CLOUD_BRIDGE_TCR_STRING')
+        self.tcm_search_string = os.getenv('CARMA_CLOUD_BRIDGE_TCM_STRING')
 
         self.unit_name = "Dev CC"
         self.nc = NATS()
@@ -144,7 +144,7 @@ class CloudNatsBridge():
             UnitKeys.UNIT_NAME.value: self.unit_name}
 
         # Create CloudNatsBridge logger
-        if self.log_handler_type == "file_and_console":
+        if self.log_handler_type == "both":
             # If both create log handler for both file and console
             self.createLogger("file")
             self.createLogger("console")
@@ -191,11 +191,27 @@ class CloudNatsBridge():
         """
             Creates a FileListener object and monitors the carma cloud log assigned in the params yaml file.
         """
-        event_handler = FileListener(self.carma_cloud_directory, self.carma_cloud_log_name, self.log_name, self.tcr_search_string, self.tcm_search_string)
-        self.logger.info(" Creating file listener for " + str(self.carma_cloud_directory) + "/" + str(self.carma_cloud_log_name))
-        observer = Observer()
-        observer.schedule(event_handler, self.carma_cloud_directory, recursive=True)
+        self.logger.info(" Creating file listener for " + str(self.carma_cloud_log))
+        splitter = self.carma_cloud_log.split("/")
+        directory = "/" + splitter[1] + "/" + splitter[2] + "/" + splitter[3]
+
+        event_handler = FileListener(self.carma_cloud_log, self.log_name, self.tcr_search_string, self.tcm_search_string)
+        observer = Observer()        
+        observer.schedule(event_handler, directory, recursive=True)
         observer.start()
+
+    def xmlToJson(self, xmlString):
+        """
+            Convert the TCR/TCM xml to dictionary, then to json. If xml is invalid, return empty string.
+        """
+        json_data = ""
+        try:
+            data_dict = xmltodict.parse(xmlString)
+            json_data = json.dumps(data_dict)
+        except:
+            self.logger.info("Error converting xml to json for: " + str(xmlString))
+
+        return json_data
 
     async def nats_send(self):
         """
@@ -210,32 +226,36 @@ class CloudNatsBridge():
                 topic = new_carma_cloud_message_type
                 #check if topic in subscriber list and compare the new cc message with the last
                 if topic in self.subscribers_list and (new_carma_cloud_message != last_carma_cloud_message):
-                    #convert the TCR/TCM xml to dictionary, then to json
-                    data_dict = xmltodict.parse(new_carma_cloud_message)
-                    json_data = json.dumps(data_dict)
+                    #convert the new TCR/TCM to a json
+                    json_data = self.xmlToJson(new_carma_cloud_message)
 
-                    message = {}
-                    message["payload"] = json_data
-                    message[UnitKeys.UNIT_ID.value] = self.unit_id
-                    message[UnitKeys.UNIT_TYPE.value] = self.unit_type
-                    message[UnitKeys.UNIT_NAME.value] = self.unit_name
-                    message[TopicKeys.MSG_TYPE.value] = new_carma_cloud_message_type
-                    message[EventKeys.EVENT_NAME.value] = self.cloud_info[EventKeys.EVENT_NAME.value]
-                    message[EventKeys.TESTING_TYPE.value] = self.cloud_info[EventKeys.TESTING_TYPE.value]
-                    message[EventKeys.LOCATION.value] = self.cloud_info[EventKeys.LOCATION.value]
-                    message[TopicKeys.TOPIC_NAME.value] = topic
-                    message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
-                    message["log_timestamp"] = epoch_time 
+                    #publish to nats if a valid xml was received
+                    if json_data != "":                    
+                        #add required metadata to TCR/TCM payload
+                        message = {}
+                        message["payload"] = json_data
+                        message[UnitKeys.UNIT_ID.value] = self.unit_id
+                        message[UnitKeys.UNIT_TYPE.value] = self.unit_type
+                        message[UnitKeys.UNIT_NAME.value] = self.unit_name
+                        message[TopicKeys.MSG_TYPE.value] = new_carma_cloud_message_type
+                        message[EventKeys.EVENT_NAME.value] = self.cloud_info[EventKeys.EVENT_NAME.value]
+                        message[EventKeys.TESTING_TYPE.value] = self.cloud_info[EventKeys.TESTING_TYPE.value]
+                        message[EventKeys.LOCATION.value] = self.cloud_info[EventKeys.LOCATION.value]
+                        message[TopicKeys.TOPIC_NAME.value] = topic
+                        message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
+                        message["log_timestamp"] = epoch_time 
 
-                    # telematic cloud server will look for topic names with the pattern ".data."
-                    self.topic_name = "cloud." + self.unit_id + ".data" + topic
+                        # telematic cloud server will look for topic names with the pattern ".data."
+                        self.topic_name = "cloud." + self.unit_id + ".data" + topic
 
-                    # publish the encoded data to the nats server
-                    self.logger.info(" In nats_send: Publishing to nats: " + str(message))
+                        # publish the encoded data to the nats server
+                        self.logger.info(" In nats_send: Publishing to nats: " + str(message))
 
-                    last_carma_cloud_message = new_carma_cloud_message
+                        last_carma_cloud_message = new_carma_cloud_message
 
-                    await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
+                        await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
+                    else:
+                        last_carma_cloud_message = new_carma_cloud_message
                 
                 await asyncio.sleep(self.async_sleep_rate)
         except:
