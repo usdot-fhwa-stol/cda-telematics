@@ -4,7 +4,7 @@ services:
     build:
           context: ./telematic_units/carma_vehicle_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastoldev/carma_vehicle_bridge
+    image: usdotfhwastoldev/carma_vehicle_bridge:develop
     container_name: carma_vehicle_bridge
     network_mode: host
     entrypoint: /ws/ros_entrypoint.sh
@@ -25,7 +25,7 @@ services:
     build:
           context: ./telematic_units/carma_street_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastoldev/carma_street_bridge
+    image: usdotfhwastoldev/carma_street_bridge:develop
     container_name: carma_street_bridge
     network_mode: host
     volumes:
