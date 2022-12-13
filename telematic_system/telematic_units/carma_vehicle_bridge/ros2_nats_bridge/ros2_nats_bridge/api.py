@@ -79,14 +79,14 @@ class Ros2NatsBridgeNode(Node):
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0
         # Create ROS2NatsBridge logger
-        if self.log_handler_type == LogType.ALL:
+        if self.log_handler_type == LogType.ALL.value:
             # If all create log handler for both file and console
-            self.createLogger(LogType.FILE)
-            self.createLogger(LogType.CONSOLE)
-        elif self.log_handler_type == LogType.FILE or self.log_handler_type == LogType.CONSOLE:
+            self.createLogger(LogType.FILE.value)
+            self.createLogger(LogType.CONSOLE.value)
+        elif self.log_handler_type == LogType.FILE.value or self.log_handler_type == LogType.CONSOLE.value:
             self.createLogger(self.log_handler_type)
         else:
-            self.createLogger(LogType.CONSOLE)
+            self.createLogger(LogType.CONSOLE.value)
             self.logger.warn("Incorrect Log type defined, defaulting to console")
 
     def timer_callback(self):
@@ -107,7 +107,7 @@ class Ros2NatsBridgeNode(Node):
 
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
         # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
-        if log_type == LogType.FILE:
+        if log_type == LogType.FILE.value:
             self.log_handler = RotatingFileHandler(
                 self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
         else:
