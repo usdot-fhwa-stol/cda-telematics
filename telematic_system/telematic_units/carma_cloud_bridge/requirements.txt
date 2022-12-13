@@ -1,0 +1,6 @@
+pip
+nats-py
+pyyaml
+xmltodict
+watchdog
+pandas

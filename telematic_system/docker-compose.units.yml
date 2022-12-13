@@ -11,8 +11,15 @@ services:
     volumes:
            - ./logs:/var/logs
     environment:
-    #console: Print logs on console; file: Save logs to file; file_and_console: Prints logs on console and file
-    - LOG_HANDLER_TYPE=console
+    - VEHICLE_BRIDGE_UNIT_ID=vehicle_id
+    - NATS_SERVER_IP_PORT=nats://44.206.13.7:4222
+    - VEHICLE_BRIDGE_UNIT_TYPE=platform
+    - VEHICLE_BRIDGE_UNIT_NAME=Black_Pacifica
+    - VEHICLE_BRIDGE_LOG_LEVEL=debug
+    - VEHICLE_BRIDGE_LOG_NAME=ros2_nats_bridge
+    - VEHICLE_BRIDGE_LOG_PATH=/var/logs/
+    - VEHICLE_BRIDGE_LOG_ROTATION_SIZE_BYTES=2147483648 #2 gigabytes
+    - VEHICLE_BRIDGE_LOG_HANDLER_TYPE=console #console: Print logs on console; file: Save logs to file; all: Prints logs on console and file
   
   streets-nats-bridge:
     build:
@@ -24,5 +31,40 @@ services:
     volumes:
            - ./logs:/var/logs
     environment:
-    #console: Print logs on console; file: Save logs to file; file_and_console: Prints logs on console and file
-    - LOG_HANDLER_TYPE=console
+    - STREETS_BRIDGE_UNIT_ID=streets_id
+    - NATS_SERVER_IP_PORT=nats://44.206.13.7:4222
+    - STREETS_BRIDGE_UNIT_TYPE=infrastructure
+    - STREETS_BRIDGE_LOG_LEVEL=debug
+    - STREETS_BRIDGE_LOG_NAME=streets_nats_bridge
+    - STREETS_BRIDGE_LOG_PATH=/var/logs/
+    - STREETS_BRIDGE_LOG_ROTATION_SIZE_BYTES=2147483648 #2 gigabytes
+    - STREETS_BRIDGE_LOG_HANDLER_TYPE=console #console: Print logs on console; file: Save logs to file; all: Prints logs on console and file
+    - KAFKA_BROKER_IP=localhost
+    - KAFKA_BROKER_PORT=9092
+    - NATS_IP=44.206.13.7
+    - NATS_PORT=4222
+    - KAFKA_CONSUMER_RESET=earliest
+  
+  cloud-nats-bridge:
+    build:
+          context: ./telematic_units/carma_cloud_bridge
+          dockerfile: Dockerfile
+    image: usdotfhwastoldev/carma_cloud_bridge:develop
+    container_name: carma_cloud_bridge
+    network_mode: host
+    volumes:
+           - ./logs:/var/logs           
+           - /opt/tomcat/logs:/opt/tomcat/logs
+    environment:
+      - NATS_IP=44.206.13.7 #change to amazon ec2 ipv4 address
+      - NATS_PORT=4222
+      - CARMA_CLOUD_LOG=/opt/tomcat/logs/carmacloud.log #Required for carma cloud bridge, containing the directory where carma cloud log is located
+      - CARMA_CLOUD_BRIDGE_UNIT_ID=cloud_id
+      - CARMA_CLOUD_BRIDGE_UNIT_TYPE=infrastructure
+      - CARMA_CLOUD_BRIDGE_LOG_LEVEL=debug
+      - CARMA_CLOUD_BRIDGE_LOG_NAME=cloud_nats_bridge
+      - CARMA_CLOUD_BRIDGE_LOG_PATH=/tmp/logs
+      - CARMA_CLOUD_BRIDGE_LOG_ROTATION_SIZE_BYTES=2147483648 #2 gigabytes
+      - CARMA_CLOUD_BRIDGE_LOG_HANDLER=console #"console": Print logs on console; "file": Save logs to file; "all": Prints logs on console and file
+      - CARMA_CLOUD_BRIDGE_TCR_STRING=TrafficControlRequest #TCR string to search for in carma cloud log
+      - CARMA_CLOUD_BRIDGE_TCM_STRING=TrafficControlMessage #TCM string to search for in carma cloud log

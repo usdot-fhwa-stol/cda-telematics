@@ -35,18 +35,16 @@ services:
   telematic_web_client:
     build:
       context: "./telematic_apps/web_app/client"
+      args:
+        REACT_APP_NODE_SERVER_URI: "http://ec2-44-206-13-7.compute-1.amazonaws.com:9010"
+        REACT_APP_MESSAGING_SERVER_URI: "http://ec2-44-206-13-7.compute-1.amazonaws.com:8080"
+        REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL: "http://ec2-44-206-13-7.compute-1.amazonaws.com:3000/d/_HrLXUI4k/default-dashboard-uc3?orgId=1&from=now-10d&to=now&kiosk&theme=light"
     restart: always
     network_mode: host
     depends_on:
       - telematic_messaging_server
       - telematic_web_server
-    environment:
-      # Server port
-      - PORT=80
-      - REACT_APP_NODE_SERVER_URI=http://ec2-44-206-13-7.compute-1.amazonaws.com:9010
-      - REACT_APP_MESSAGING_SERVER_URI=http://ec2-44-206-13-7.compute-1.amazonaws.com:8080
-      - REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL=http://ec2-44-206-13-7.compute-1.amazonaws.com:9000/d/_HrLXUI4k/default-dashboard-uc3?orgId=1&from=now-10d&to=now&kiosk&theme=light
-  
+
   grafana:
     build:
       context: "./telematic_apps/grafana"

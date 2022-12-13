@@ -72,8 +72,8 @@ class StreetsNatsBridge():
             UnitKeys.UNIT_NAME.value: self.unit_name}
 
         # Create StreetsNatsBridge logger
-        if self.log_handler_type == "both":
-            # If both create log handler for both file and console
+        if self.log_handler_type == "all":
+            # If all create log handler for both file and console
             self.createLogger("file")
             self.createLogger("console")
         else:
@@ -82,7 +82,7 @@ class StreetsNatsBridge():
         self.logger.info(" Created Streets-NATS bridge object")
 
     def createLogger(self, log_type):
-        """Creates log file for the CloudNatsBridge with configuration items based on the settings input in the params.yaml file"""
+        """Creates log file for the StreetsNatsBridge with configuration items based on the settings input in the params.yaml file"""
         self.logger = logging.getLogger(self.log_name)
         now = datetime.now()
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")

@@ -54,48 +54,28 @@ class Ros2NatsBridgeNode(Node):
         self.registered = False
         self.subscribers_list = {}
 
-        self.declare_parameter("NATS_SERVER_IP_PORT", "nats://0.0.0.0:4222", ParameterDescriptor(
-            description='This parameter sets the ip address and port for nats server.'))
-        self.declare_parameter("UNIT_ID", "vehicle_id", ParameterDescriptor(
-            description='This parameter is a Unique id for the node.'))
-        self.declare_parameter("UNIT_TYPE", "platform", ParameterDescriptor(
-            description='This parameter is for type of platform is deployed on (platform or messager)'))
-        self.declare_parameter("UNIT_NAME", "Black_Pacifica", ParameterDescriptor(
-            description='This parameter is for the vehicle name that is running the ROS application.'))
-        self.declare_parameter("LOG_LEVEL", "debug", ParameterDescriptor(
-            description='This parameter is for log level.'))
-        self.declare_parameter("LOG_NAME", "ros2_nats_bridge", ParameterDescriptor(
-            description='This parameter is for log file name.'))        
-        self.declare_parameter("LOG_PATH", "/var/logs", ParameterDescriptor(
-            description='This parameter is for location where the log file is stored.'))
-        self.declare_parameter("LOG_ROTATION_SIZE_BYTES", "2147483648", ParameterDescriptor(
-            description='This parameter is for size of each log file.'))
-        self.declare_parameter("LOG_HANDLER_TYPE", "console", ParameterDescriptor(
-            description='This parameter is for printing the log to console or file.'))
-
         self.vehicle_info = {
-            UnitKeys.UNIT_ID.value: self.get_parameter("UNIT_ID").get_parameter_value().string_value,
-            UnitKeys.UNIT_TYPE.value: self.get_parameter("UNIT_TYPE").get_parameter_value().string_value,
-            UnitKeys.UNIT_NAME.value: self.get_parameter("UNIT_NAME").get_parameter_value().string_value,
+            UnitKeys.UNIT_ID.value: os.getenv("VEHICLE_BRIDGE_UNIT_ID"),
+            UnitKeys.UNIT_TYPE.value: os.getenv("VEHICLE_BRIDGE_UNIT_TYPE"),
+            UnitKeys.UNIT_NAME.value: os.getenv("VEHICLE_BRIDGE_UNIT_NAME"),
             "timestamp": ""}
 
-        self.nats_ip_port = self.get_parameter(
-            "NATS_SERVER_IP_PORT").get_parameter_value().string_value
+        self.nats_ip_port = os.getenv("NATS_SERVER_IP_PORT")
         
         #Logging configuration parameters
-        self.log_level = self.get_parameter("LOG_LEVEL").get_parameter_value().string_value
-        self.log_name = self.get_parameter("LOG_NAME").get_parameter_value().string_value
-        self.log_path = self.get_parameter("LOG_PATH").get_parameter_value().string_value       
-        self.log_rotation = int(self.get_parameter("LOG_ROTATION_SIZE_BYTES").get_parameter_value().string_value)
+        self.log_level = os.getenv("VEHICLE_BRIDGE_LOG_LEVEL")
+        self.log_name = os.getenv("VEHICLE_BRIDGE_LOG_NAME")
+        self.log_path = os.getenv("VEHICLE_BRIDGE_LOG_PATH")       
+        self.log_rotation = int(os.getenv("VEHICLE_BRIDGE_LOG_ROTATION_SIZE_BYTES"))
         
-        self.log_handler_type = os.getenv('LOG_HANDLER_TYPE')
+        self.log_handler_type = os.getenv('VEHICLE_BRIDGE_LOG_HANDLER_TYPE')
 
         timer_period = 0.5  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         self.i = 0
         # Create ROS2NatsBridge logger
-        if self.log_handler_type == "file_and_console":
-            # If both create log handler for both file and console
+        if self.log_handler_type == "all":
+            # If all create log handler for both file and console
             self.createLogger("file")
             self.createLogger("console")
         else:
