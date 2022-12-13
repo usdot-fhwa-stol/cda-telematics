@@ -35,6 +35,11 @@ class UnitKeys(Enum):
 class TopicKeys(Enum):
     TOPIC_NAME = "topic_name"
     MSG_TYPE = "msg_type"
+
+class LogType(Enum):
+    FILE = "file"
+    CONSOLE = "console"
+    ALL = "all"
     
 class FileListener(FileSystemEventHandler):
     """
@@ -144,12 +149,15 @@ class CloudNatsBridge():
             UnitKeys.UNIT_NAME.value: self.unit_name}
 
         # Create CloudNatsBridge logger
-        if self.log_handler_type == "all":
+        if self.log_handler_type == LogType.ALL:
             # If both create log handler for both file and console
-            self.createLogger("file")
-            self.createLogger("console")
-        else:
+            self.createLogger(LogType.FILE)
+            self.createLogger(LogType.CONSOLE)
+        elif self.log_handler_type == LogType.FILE or self.log_handler_type == LogType.CONSOLE:
             self.createLogger(self.log_handler_type)
+        else:
+            self.createLogger(LogType.CONSOLE)
+            self.logger.warn("Incorrect Log type defined, defaulting to console")
 
         self.logger.info(" Created Cloud-NATS bridge object")
 
@@ -168,7 +176,7 @@ class CloudNatsBridge():
 
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
         # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
-        if log_type == "file":
+        if log_type == LogType.FILE:
             self.log_handler = RotatingFileHandler(
                 self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
         else:
