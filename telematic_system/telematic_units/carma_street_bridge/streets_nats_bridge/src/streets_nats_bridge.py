@@ -9,6 +9,7 @@ import yaml
 from logging.handlers import RotatingFileHandler
 from aiokafka import AIOKafkaConsumer
 from enum import Enum
+import os
 
 
 class EventKeys(Enum):
@@ -27,6 +28,10 @@ class TopicKeys(Enum):
     TOPIC_NAME = "topic_name"
     MSG_TYPE = "msg_type"
 
+class LogType(Enum):
+    FILE = "file"
+    CONSOLE = "console"
+    ALL = "all"
 
 class StreetsNatsBridge():
     """
@@ -53,7 +58,6 @@ class StreetsNatsBridge():
         self.log_path = config['streets_nats_bridge']['streets_parameters']['LOG_PATH']
         self.log_rotation = int(
             config['streets_nats_bridge']['streets_parameters']['LOG_ROTATION_SIZE_BYTES'])
-        self.log_handler = config['streets_nats_bridge']['streets_parameters']['LOG_HANDLER']
         self.kafka_offset_reset = config['streets_nats_bridge']['streets_parameters']['KAFKA_CONSUMER_RESET']
 
         self.unit_name = "West Intersection"
@@ -63,6 +67,8 @@ class StreetsNatsBridge():
         self.async_sleep_rate = 0.0001  # asyncio sleep rate
         self.registered = False
 
+        self.log_handler_type = os.getenv('LOG_HANDLER_TYPE')
+
         # Placeholder info for now
         self.streets_info = {
             UnitKeys.UNIT_ID.value: self.unit_id,
@@ -70,44 +76,46 @@ class StreetsNatsBridge():
             UnitKeys.UNIT_NAME.value: self.unit_name}
 
         # Create StreetsNatsBridge logger
-        self.createLogger()
+        if self.log_handler_type == LogType.ALL.value:
+            # If all create log handler for both file and console
+            self.createLogger(LogType.FILE.value)
+            self.createLogger(LogType.CONSOLE.value)
+        elif self.log_handler_type == LogType.FILE.value or self.log_handler_type == LogType.CONSOLE.value:
+            self.createLogger(self.log_handler_type)
+        else:
+            self.createLogger(LogType.CONSOLE.value)
+            self.logger.warn("Incorrect Log type defined, defaulting to console")
+
         self.logger.info(" Created Streets-NATS bridge object")
 
-    def createLogger(self):
+    def createLogger(self, log_type):
         """Creates log file for the StreetsNatsBridge with configuration items based on the settings input in the params.yaml file"""
-        # create log file and set log levels
         self.logger = logging.getLogger(self.log_name)
         now = datetime.now()
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")
         log_name = self.log_name + dt_string + ".log"
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        self.console_handler = logging.StreamHandler()
-        self.console_handler.setFormatter(formatter)
-
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
-        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size
-        self.file_handler = RotatingFileHandler(
-            self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
-        self.file_handler.setFormatter(formatter)
+        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
+        if log_type == LogType.FILE.value:
+            self.log_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
+        else:
+            self.log_handler = logging.StreamHandler()
+        self.log_handler.setFormatter(formatter)
 
         if(self.log_level == "debug"):
             self.logger.setLevel(logging.DEBUG)
-            self.file_handler.setLevel(logging.DEBUG)
-            self.console_handler.setLevel(logging.DEBUG)
+            self.log_handler.setLevel(logging.DEBUG)
         elif(self.log_level == "info"):
             self.logger.setLevel(logging.INFO)
-            self.file_handler.setLevel(logging.INFO)
-            self.console_handler.setLevel(logging.INFO)
+            self.log_handler.setLevel(logging.INFO)
         elif(self.log_level == "error"):
             self.logger.setLevel(logging.ERROR)
-            self.file_handler.setLevel(logging.ERROR)
-            self.console_handler.setLevel(logging.ERROR)
+            self.log_handler.setLevel(logging.ERROR)
 
-        if self.log_handler == "console":
-            self.logger.addHandler(self.console_handler)
-        else:
-            self.logger.addHandler(self.file_handler)
+        self.logger.addHandler(self.log_handler)  
+
 
     async def run_async_kafka_consumer(self):
         """Create Async Kafka consumer object to read carma-streets kafka traffic"""
@@ -298,6 +306,15 @@ class StreetsNatsBridge():
             requested_topics = data['topics']
             self.logger.info(
                 " In topic_request: Received a request to publish the following topics: " + str(requested_topics))
+
+            # Remove topics from subscribers list that weren't called in new request
+            for existing_topic in list(self.subscribers_list):
+                if (existing_topic not in requested_topics[0]):
+                    try:
+                        self.logger.info('Trying to unsubscribe from topic: "%s"' % existing_topic)
+                        self.subscribers_list.remove(existing_topic)
+                    except:
+                        self.logger.error('Unable to unsubscribe from topic: "%s" '% existing_topic)
 
             # Add requested topics to subscriber list if not already there
             for topic in requested_topics:
