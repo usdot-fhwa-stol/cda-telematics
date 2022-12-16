@@ -62,7 +62,7 @@ class StreetsNatsBridge():
         self.async_sleep_rate = 0.0001  # asyncio sleep rate
         self.registered = False
 
-        self.log_handler_type = os.getenv('LOG_HANDLER_TYPE')
+        self.log_handler_type = os.getenv('STREETS_BRIDGE_LOG_HANDLER_TYPE')
 
         # Placeholder info for now
         self.streets_info = {
