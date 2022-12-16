@@ -43,22 +43,17 @@ class StreetsNatsBridge():
     # Creates a Streets-NATS bridge object that connects to the NATS server
     def __init__(self):
 
-        # Retrieve config values
-        with open('../config/params.yaml', 'r') as file:
-            config = yaml.safe_load(file)
-
-        self.nats_ip = config['streets_nats_bridge']['streets_parameters']['NATS_IP']
-        self.nats_port = config['streets_nats_bridge']['streets_parameters']['NATS_PORT']
-        self.kafka_ip = config['streets_nats_bridge']['streets_parameters']['KAFKA_BROKER_IP']
-        self.kafka_port = config['streets_nats_bridge']['streets_parameters']['KAFKA_BROKER_PORT']
-        self.unit_id = config['streets_nats_bridge']['streets_parameters']['UNIT_ID']
-        self.unit_type = config['streets_nats_bridge']['streets_parameters']['UNIT_TYPE']
-        self.log_level = config['streets_nats_bridge']['streets_parameters']['LOG_LEVEL']
-        self.log_name = config['streets_nats_bridge']['streets_parameters']['LOG_NAME']
-        self.log_path = config['streets_nats_bridge']['streets_parameters']['LOG_PATH']
-        self.log_rotation = int(
-            config['streets_nats_bridge']['streets_parameters']['LOG_ROTATION_SIZE_BYTES'])
-        self.kafka_offset_reset = config['streets_nats_bridge']['streets_parameters']['KAFKA_CONSUMER_RESET']
+        self.nats_ip = os.getenv('NATS_IP')
+        self.nats_port = os.getenv('NATS_PORT')
+        self.kafka_ip = os.getenv('KAFKA_BROKER_IP')
+        self.kafka_port = os.getenv('KAFKA_BROKER_PORT')
+        self.unit_id = os.getenv('STREETS_BRIDGE_UNIT_ID')
+        self.unit_type = os.getenv('STREETS_BRIDGE_UNIT_TYPE')
+        self.log_level = os.getenv('STREETS_BRIDGE_LOG_LEVEL')
+        self.log_name = os.getenv('STREETS_BRIDGE_LOG_NAME')
+        self.log_path = os.getenv('STREETS_BRIDGE_LOG_PATH')
+        self.log_rotation = int(os.getenv('STREETS_BRIDGE_LOG_ROTATION_SIZE_BYTES'))
+        self.kafka_offset_reset = os.getenv('KAFKA_CONSUMER_RESET')
 
         self.unit_name = "West Intersection"
         self.nc = NATS()
@@ -89,15 +84,15 @@ class StreetsNatsBridge():
         self.logger.info(" Created Streets-NATS bridge object")
 
     def createLogger(self, log_type):
-        """Creates log file for the StreetsNatsBridge with configuration items based on the settings input in the params.yaml file"""
+        """Creates log file for the StreetsNatsBridge with configuration items based on the environment variables set in docker-compose.units.yml"""
         self.logger = logging.getLogger(self.log_name)
         now = datetime.now()
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")
         log_name = self.log_name + dt_string + ".log"
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         
-        # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
-        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
+        # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in docker-compose.units.yml.
+        # The backup count is how many rotating logs will be created after reaching the maxBytes size       
         if log_type == LogType.FILE.value:
             self.log_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
         else:
@@ -190,7 +185,7 @@ class StreetsNatsBridge():
     async def nats_connect(self):
         """
             Attempt to connect to the NATS server with logging callbacks, The IP address and port of the
-            NATS server are configurable items in the params.yaml. For a remote NATS server on the AWS EC2 instance,
+            NATS server are configurable items in docker-compose.units.yml. For a remote NATS server on the AWS EC2 instance,
             the public ipv4 address of the EC2 instance should be used.
         """
         self.logger.info(" In nats_connect: Attempting to connect to nats server at: " +
