@@ -34,6 +34,8 @@ public class InfluxDataWriter {
     InfluxDBClient influxDBClient;
     InfluxDBClientOptions adminClientOptions;
     WriteApi writeApi;
+    int flattenJsonCounter;
+    int influxWriteCounter;
 
     private static final Logger logger = LoggerFactory.getLogger(InfluxDataWriter.class);
 
@@ -54,9 +56,14 @@ public class InfluxDataWriter {
 
         influx_connected = false;
 
+        flattenJsonCounter = 0;
+        influxWriteCounter = 0;
+
         logger.info("Attempting to connect to InfluxDb at " + config_.influx_uri);
         logger.info("InfluxDb bucket name: " + influx_bucket);
         logger.info("InfluxDb org name: " + config_.influx_org);
+        logger.info("Flatten json count: " + flattenJsonCounter);
+        logger.info("Influx write count: " + influxWriteCounter);
     }   
 
     /**
@@ -129,9 +136,20 @@ public class InfluxDataWriter {
         JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
 
         JSONObject publishDataJson = new JSONObject(publishData);
+
+        String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
+        if (topic_name == "tsc_config_state") {
+            flattenJsonCounter += 1;
+            logger.info("Flatten json count: " + flattenJsonCounter);
+        }
         JSONObject payloadJson = publishDataJson.getJSONObject("payload");
         
         String flattenedPayloadJson = jsonFlattener.flattenJsonStr(payloadJson.toString());
+        if (topic_name == "tsc_config_state" && flattenedPayloadJson != "") {
+            influxWriteCounter += 1;
+            logger.info("Influx write count: " + influxWriteCounter);
+        }
+
         String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
 
         String unit_id = publishDataJson.getString("unit_id").replaceAll("\\s", "_");
@@ -139,7 +157,7 @@ public class InfluxDataWriter {
         String event_name = publishDataJson.getString("event_name").replaceAll("\\s", "_");
         String location = publishDataJson.getString("location").replaceAll("\\s", "_");
         String testing_type = publishDataJson.getString("testing_type").replaceAll("\\s", "_");
-        String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
+        // String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
         String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
 
         String record = event_name + "," + "unit_id=" + unit_id + "," + "unit_type=" + unit_type + "," + "location=" + location

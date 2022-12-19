@@ -6,9 +6,14 @@ import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Component;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 @Component
 public class JSONFlattenerHelper {
+    private static final Logger logger = LoggerFactory.getLogger(JSONFlattenerHelper.class);
+
     /***
      * 
      * @param Nested JSON string consumed from NATS subject
@@ -21,7 +26,7 @@ public class JSONFlattenerHelper {
             String flattened_json_str = JsonFlattener.flatten(json_obj.toString());
             return flattened_json_str;
         } catch (ParseException e) {
-            e.printStackTrace();
+            logger.info(ExceptionUtils.getStackTrace(e));
         }
         return "";
     }
