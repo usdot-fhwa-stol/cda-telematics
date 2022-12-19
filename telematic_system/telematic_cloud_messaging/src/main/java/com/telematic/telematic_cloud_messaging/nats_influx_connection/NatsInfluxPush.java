@@ -96,6 +96,10 @@ public class NatsInfluxPush implements CommandLineRunner {
             influx_bucket = config.influx_bucket_streets;
             subscription_topic = config.streets_subscription_topic;
         }
+        else if(bucket_type.equals(Config.BucketType.CLOUD)){
+            influx_bucket = config.influx_bucket_cloud;
+            subscription_topic = config.cloud_subscription_topic;
+        }
         else{
             Thread.currentThread().interrupt();
             logger.error("Invalid data type for pushing Influx data");
@@ -150,10 +154,17 @@ public class NatsInfluxPush implements CommandLineRunner {
                     initialize_data_persistent_service(Config.BucketType.STREETS, config_);
                 }
             };
+
+            Thread cloud_thread = new Thread() {
+                public void run() {
+                    initialize_data_persistent_service(Config.BucketType.CLOUD, config_);
+                }
+            };
             
             // Start threads
             platform_thread.start();
             streets_thread.start();
+            cloud_thread.start();
         }
         else if(config_.influx_bucket_type.equals(Config.BucketType.PLATFORM) || config_.influx_bucket_type.equals(Config.BucketType.STREETS))
         {

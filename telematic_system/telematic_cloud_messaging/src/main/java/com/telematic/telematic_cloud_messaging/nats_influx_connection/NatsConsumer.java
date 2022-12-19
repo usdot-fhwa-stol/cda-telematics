@@ -79,7 +79,14 @@ public class NatsConsumer {
         //message has been received
         Dispatcher d = nc.createDispatcher((msg) -> {
             String str = new String(msg.getData(), StandardCharsets.UTF_8);
-            influxDataWriter.publish(str);
+            
+            if(influxDataWriter.config_.influx_bucket_type == Config.BucketType.CLOUD){
+                // If its TCMList break it into separate messages
+                influxDataWriter.publishCloudData(str);
+            }
+            else{
+                influxDataWriter.publish(str);
+            }
         });  
 
         try {

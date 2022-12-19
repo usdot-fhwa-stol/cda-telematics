@@ -5,6 +5,10 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
+
+import com.fasterxml.jackson.annotation.JsonValue;
 import com.influxdb.client.*;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.domain.Authorization;
@@ -14,6 +18,8 @@ import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerH
 import okhttp3.OkHttpClient;
 
 import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
+
+import org.json.simple.JSONValue;
 import org.json.simple.parser.JSONParser;
 import org.json.*;  
 import org.slf4j.LoggerFactory;
@@ -49,6 +55,9 @@ public class InfluxDataWriter {
         else if(bucket_type == Config.BucketType.STREETS){
             this.influx_bucket = config.influx_bucket_streets;
         }
+        else if(bucket_type == Config.BucketType.CLOUD){
+            this.influx_bucket = config.influx_bucket_cloud;
+        }
         
         config_ = config;
 
@@ -57,7 +66,80 @@ public class InfluxDataWriter {
         logger.info("Attempting to connect to InfluxDb at " + config_.influx_uri);
         logger.info("InfluxDb bucket name: " + influx_bucket);
         logger.info("InfluxDb org name: " + config_.influx_org);
-    }   
+    }
+    
+    public List<String> splitCloudTCMList(String incoming_cloud_data){
+        // This method returns a list of TCM messages breaking the list into individual components
+        List<String> output_tcm_msgs = new ArrayList<String>();
+        
+        JSONObject publishDataJson = new JSONObject(incoming_cloud_data);
+        JSONObject payloadJson = publishDataJson.getJSONObject("payload");
+
+        if(payloadJson.has("TrafficControlMessageList")){
+
+            // Get header from cloud tcm 
+            String unit_id = publishDataJson.getString("unit_id").replaceAll("\\s", "_");
+            String unit_type = publishDataJson.getString("unit_type").replaceAll("\\s", "_");
+            String event_name = publishDataJson.getString("event_name").replaceAll("\\s", "_");
+            String location = publishDataJson.getString("location").replaceAll("\\s", "_");
+            String testing_type = publishDataJson.getString("testing_type").replaceAll("\\s", "_");
+            String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
+            String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
+
+            // Get each val from this key and create a new message from it
+            JSONObject TCMList = payloadJson.getJSONObject("TrafficControlMessageList");
+
+            try{
+                Object item = TCMList.get("TrafficControlMessage");
+                
+                if(item instanceof JSONArray){
+                    JSONArray TCMArray = TCMList.getJSONArray("TrafficControlMessage");
+
+                    for(int i = 0; i < TCMArray.length(); i++)
+                    {
+                        JSONObject obj = TCMArray.getJSONObject(i);
+                        // Extract each TCM into separate object and then convert to key-value pair
+
+                        // Helpers
+                        JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
+                        JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
+
+                        String flattenedPayloadJson = jsonFlattener.flattenJsonStr(obj.toString());
+                        String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
+                        
+                        String record = event_name + "," + "unit_id=" + unit_id + "," + "unit_type=" + unit_type + "," + "location=" + location
+                        + "," + "testing_type=" + testing_type + "," + "topic_name=" + topic_name + " " + keyValuePairs + " " + timestamp;
+                        output_tcm_msgs.add(record);
+
+                    }
+                }
+                else{
+                    // If object is not a JSONArray it must be JSONObject
+                    JSONObject TCM = TCMList.getJSONObject("TrafficControlMessage");
+                    JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
+                    JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
+
+                    String flattenedPayloadJson = jsonFlattener.flattenJsonStr(TCM.toString());
+                    String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
+                    
+                    String record = event_name + "," + "unit_id=" + unit_id + "," + "unit_type=" + unit_type + "," + "location=" + location
+                    + "," + "testing_type=" + testing_type + "," + "topic_name=" + topic_name + " " + keyValuePairs + " " + timestamp;
+                    output_tcm_msgs.add(record);
+
+                }
+            }
+            catch (Exception e) {
+                logger.error(ExceptionUtils.getStackTrace(e));
+            }
+  
+        }
+        else{
+            output_tcm_msgs.add(influxStringConverter(incoming_cloud_data));
+        }
+        
+        return output_tcm_msgs;
+        
+    }
 
     /**
      * @return nats_uri ip address of nats server
@@ -110,6 +192,26 @@ public class InfluxDataWriter {
             logger.info("Sending to influxdb: " + influxRecord);
             writeApi.writeRecord(WritePrecision.US, influxRecord);
             writeApi.flush();
+        }
+        catch (Exception e) {
+            logger.error(ExceptionUtils.getStackTrace(e));
+        }       
+    }
+
+    /**
+     * @param publishData The data from carma-cloud unit to publish to influxdb
+     */
+    public void publishCloudData(String publishData) {
+        try {
+            List<String> influxRecords = splitCloudTCMList(publishData);
+            
+            for(String influxRecord : influxRecords){
+
+                logger.info("Sending to influxdb: " + influxRecord);
+                writeApi.writeRecord(WritePrecision.US, influxRecord);
+                writeApi.flush();
+            }
+            
         }
         catch (Exception e) {
             logger.error(ExceptionUtils.getStackTrace(e));
