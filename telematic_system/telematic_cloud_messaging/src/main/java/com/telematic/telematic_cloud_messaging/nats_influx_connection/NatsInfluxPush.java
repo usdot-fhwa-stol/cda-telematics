@@ -60,6 +60,8 @@ public class NatsInfluxPush implements CommandLineRunner {
             config.streets_subscription_topic = prop.getProperty("STREETS_SUBSCRIPTION_TOPIC");
             config.influx_bucket_platform = prop.getProperty("INFLUX_BUCKET_PLATFORM");
             config.platform_subscription_topic = prop.getProperty("PLATFORM_SUBSCRIPTION_TOPIC");
+            config.influx_bucket_cloud = prop.getProperty("INFLUX_BUCKET_CLOUD");
+            config.cloud_subscription_topic = prop.getProperty("CLOUD_SUBSCRIPTION_TOPIC");
             config.influx_org = prop.getProperty("INFLUX_ORG");
             config.influx_org_id = prop.getProperty("INFLUX_ORG_ID");
             config.influx_token = prop.getProperty("INFLUX_TOKEN");
@@ -69,7 +71,7 @@ public class NatsInfluxPush implements CommandLineRunner {
             try{
                 config.influx_bucket_type = BucketType.valueOf(prop.getProperty("INFLUX_BUCKET_TYPE"));
             }catch(Exception e){
-                logger.error("Invalid bucket type defined. Options are PLATFORM, STREETS and ALL");
+                logger.error("Invalid bucket type defined. Options are PLATFORM, STREETS, CLOUD and ALL");
             }
             
 
@@ -83,7 +85,6 @@ public class NatsInfluxPush implements CommandLineRunner {
         
         // Create NATS and InfluxWriter
         logger.info("Created thread for " + bucket_type + " Data");
-        
         
         String influx_bucket = "";
         String subscription_topic = "";
@@ -155,6 +156,7 @@ public class NatsInfluxPush implements CommandLineRunner {
                 }
             };
 
+            // Create thread for cloud
             Thread cloud_thread = new Thread() {
                 public void run() {
                     initialize_data_persistent_service(Config.BucketType.CLOUD, config_);
@@ -166,7 +168,8 @@ public class NatsInfluxPush implements CommandLineRunner {
             streets_thread.start();
             cloud_thread.start();
         }
-        else if(config_.influx_bucket_type.equals(Config.BucketType.PLATFORM) || config_.influx_bucket_type.equals(Config.BucketType.STREETS))
+        else if(config_.influx_bucket_type.equals(Config.BucketType.PLATFORM) || config_.influx_bucket_type.equals(Config.BucketType.STREETS) || 
+            config_.influx_bucket_type.equals(Config.BucketType.CLOUD))
         {
             // Create thread for specified type
             Thread worker_thread  = new Thread() {
@@ -177,7 +180,7 @@ public class NatsInfluxPush implements CommandLineRunner {
             worker_thread.start();
         }
         else{
-            logger.error("Invalid bucket type requested. Options are PLATFORM, STREETS and ALL");
+            logger.error("Invalid bucket type requested. Options are PLATFORM, STREETS, CLOUD and ALL");
         }
         
     }

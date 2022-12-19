@@ -81,7 +81,6 @@ public class NatsConsumer {
             String str = new String(msg.getData(), StandardCharsets.UTF_8);
             
             if(influxDataWriter.config_.influx_bucket_type == Config.BucketType.CLOUD){
-                // If its TCMList break it into separate messages
                 influxDataWriter.publishCloudData(str);
             }
             else{
