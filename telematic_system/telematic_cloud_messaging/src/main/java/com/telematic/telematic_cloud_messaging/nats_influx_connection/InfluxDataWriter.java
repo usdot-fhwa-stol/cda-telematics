@@ -69,6 +69,7 @@ public class InfluxDataWriter {
     }
     
     public List<String> splitCloudTCMList(String incoming_cloud_data){
+        logger.info("Entering split cloud TCM");
         // This method returns a list of TCM messages breaking the list into individual components
         List<String> output_tcm_msgs = new ArrayList<String>();
         
@@ -136,7 +137,7 @@ public class InfluxDataWriter {
         else{
             output_tcm_msgs.add(influxStringConverter(incoming_cloud_data));
         }
-        
+        logger.info("Size of output: " + String.valueOf(output_tcm_msgs.size()));
         return output_tcm_msgs;
         
     }
@@ -203,8 +204,9 @@ public class InfluxDataWriter {
      */
     public void publishCloudData(String publishData) {
         try {
+            logger.info("Entering publish Cloud Data");
             List<String> influxRecords = splitCloudTCMList(publishData);
-            
+            logger.info("Completed split cloud tcm");
             for(String influxRecord : influxRecords){
 
                 logger.info("Sending to influxdb: " + influxRecord);

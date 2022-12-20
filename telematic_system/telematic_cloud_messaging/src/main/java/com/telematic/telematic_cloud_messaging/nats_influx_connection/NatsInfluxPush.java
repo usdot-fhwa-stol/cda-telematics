@@ -159,6 +159,7 @@ public class NatsInfluxPush implements CommandLineRunner {
             // Create thread for cloud
             Thread cloud_thread = new Thread() {
                 public void run() {
+                    logger.info("Creating thread for cloud");
                     initialize_data_persistent_service(Config.BucketType.CLOUD, config_);
                 }
             };
