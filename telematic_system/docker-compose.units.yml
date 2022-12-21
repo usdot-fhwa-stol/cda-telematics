@@ -32,7 +32,6 @@ services:
            - ./logs:/var/logs
     environment:
     - STREETS_BRIDGE_UNIT_ID=streets_id
-    - NATS_SERVER_IP_PORT=nats://44.206.13.7:4222
     - STREETS_BRIDGE_UNIT_TYPE=infrastructure
     - STREETS_BRIDGE_LOG_LEVEL=debug
     - STREETS_BRIDGE_LOG_NAME=streets_nats_bridge
