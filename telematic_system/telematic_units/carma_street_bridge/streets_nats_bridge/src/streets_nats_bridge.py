@@ -43,15 +43,26 @@ class StreetsNatsBridge():
     # Creates a Streets-NATS bridge object that connects to the NATS server
     def __init__(self):
 
+        # Load parameters defined as environment variables. Defined the docker-compose file.
+        # IP addr where the NATS server is hosted. 
         self.nats_ip = os.getenv('NATS_IP')
+        # Port at which NATS is communicating on the speficied IP.
         self.nats_port = os.getenv('NATS_PORT')
+        # IP addr where the kafka broker is hosted.
         self.kafka_ip = os.getenv('KAFKA_BROKER_IP')
+        # Port at which kafka broker communicates.
         self.kafka_port = os.getenv('KAFKA_BROKER_PORT')
+        # Unit ID for the streets nats bride. 
         self.unit_id = os.getenv('STREETS_BRIDGE_UNIT_ID')
+        # Unit type for the streets bridge.
         self.unit_type = os.getenv('STREETS_BRIDGE_UNIT_TYPE')
+        # Log level for the streets bridge.
         self.log_level = os.getenv('STREETS_BRIDGE_LOG_LEVEL')
+        # Name of the log file where logs from the unit will be stored
         self.log_name = os.getenv('STREETS_BRIDGE_LOG_NAME')
+        # Path to the log file 
         self.log_path = os.getenv('STREETS_BRIDGE_LOG_PATH')
+        # Size of data which can be stored in the log file, before it is refreshed
         self.log_rotation = int(os.getenv('STREETS_BRIDGE_LOG_ROTATION_SIZE_BYTES'))
         self.kafka_offset_reset = os.getenv('KAFKA_CONSUMER_RESET')
 
@@ -91,7 +102,7 @@ class StreetsNatsBridge():
         log_name = self.log_name + dt_string + ".log"
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         
-        # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in docker-compose.units.yml.
+        # Create a rotating log handler that will rotate after maxBytes rotation
         # The backup count is how many rotating logs will be created after reaching the maxBytes size       
         if log_type == LogType.FILE.value:
             self.log_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
