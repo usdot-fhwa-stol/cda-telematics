@@ -80,7 +80,7 @@ public class NatsConsumer {
         Dispatcher d = nc.createDispatcher((msg) -> {
             String str = new String(msg.getData(), StandardCharsets.UTF_8);
             logger.info("Entering dispatcher, Bucket type: " + Config.BucketType.CLOUD.toString());
-            if(influxDataWriter.config_.influx_bucket_type == Config.BucketType.CLOUD){
+            if(influxDataWriter.config_.influx_bucket_type.equals(Config.BucketType.CLOUD)){
                 logger.info("Received cloud data");
                 influxDataWriter.publishCloudData(str);
             }
