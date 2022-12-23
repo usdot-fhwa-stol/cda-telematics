@@ -74,7 +74,8 @@ public class InfluxDataWriter {
         List<String> output_tcm_msgs = new ArrayList<String>();
         
         JSONObject publishDataJson = new JSONObject(incoming_cloud_data);
-        JSONObject payloadJson = publishDataJson.getJSONObject("payload");
+        String payloadJsonString = publishDataJson.getString("payload");
+        JSONObject payloadJson = new JSONObject(payloadJsonString);
 
         if(payloadJson.has("TrafficControlMessageList")){
 
