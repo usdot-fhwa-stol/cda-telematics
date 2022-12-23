@@ -30,7 +30,7 @@ public class NatsConsumer {
      * Constructor to instantiate NatsConsumer object
      */
     public NatsConsumer(String nats_uri, String nats_subscribe_str, int nats_max_reconnects) {
-        logger.info("Creating new NatsConsumer");
+        logger.info("Creating new NatsConsumer with sub str: " + nats_subscribe_str);
 
         this.nats_uri = nats_uri;
         this.nats_subscribe_str = nats_subscribe_str;
