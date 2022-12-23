@@ -136,7 +136,10 @@ public class InfluxDataWriter {
   
         }
         else{
-            output_tcm_msgs.add(influxStringConverter(incoming_cloud_data));
+            //Replace payload value in string to json object
+            publishDataJson.remove("payload");
+            publishDataJson.put("payload", payloadJson);
+            output_tcm_msgs.add(influxStringConverter(publishDataJson.toString()));
         }
         logger.info("Size of output: " + String.valueOf(output_tcm_msgs.size()));
         return output_tcm_msgs;
