@@ -91,6 +91,7 @@ public class NatsConsumer {
 
         try {
             //subscribe to all available subjects on nats server
+            logger.info("Entering try");
             d.subscribe(nats_subscribe_str); //subject example: "streets_id.data.v2xhub_scheduling_plan_sub"
             logger.info("Successfully subscribed to nats server data");
         }
