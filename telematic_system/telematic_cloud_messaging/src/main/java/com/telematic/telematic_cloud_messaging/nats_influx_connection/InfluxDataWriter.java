@@ -133,20 +133,20 @@ public class InfluxDataWriter {
   
         }
         else{
-            Object item = payloadJson.get("payload");
-            //Replace payload value in string to json object
-            if(item instanceof JSONArray){
-                logger.info("Object is a JSON Array");
-            }
-            else if(item instanceof JSONObject){
-                logger.info("Object is a JSON Object");
-            }
-            else if(item instanceof JSONString){
-                logger.info("Object is a json string");
-            }
-            else{
-                logger.info("Object of unknown type");
-            }
+            // Object item = payloadJson.get("payload");
+            // //Replace payload value in string to json object
+            // if(item instanceof JSONArray){
+            //     logger.info("Object is a JSON Array");
+            // }
+            // else if(item instanceof JSONObject){
+            //     logger.info("Object is a JSON Object");
+            // }
+            // else if(item instanceof JSONString){
+            //     logger.info("Object is a json string");
+            // }
+            // else{
+            //     logger.info("Object of unknown type");
+            // }
             
             String flattenedPayloadJson = jsonFlattener.flattenJsonStr(payloadJson.toString());
             String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
