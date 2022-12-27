@@ -67,6 +67,8 @@ public class Config {
         "\nstreets_subscription_topic: " + streets_subscription_topic +
         "\ninflux_bucket_platform: " + influx_bucket_platform +
         "\nplatform_subscription_topic: " + platform_subscription_topic +
+        "\ninflux_bucket_cloud: " + influx_bucket_cloud + 
+        "\ncloud_subscription_topic: " + cloud_subscription_topic + 
         "\ninflux_org: " + influx_org +
         "\ninflux_org_id: " + influx_org_id +
         "\ninflux_token: " + influx_token +

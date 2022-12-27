@@ -68,23 +68,49 @@ public class InfluxDataWriter {
         logger.info("InfluxDb org name: " + config_.influx_org);
     }
     
-    public List<String> splitCloudTCMList(String incoming_cloud_data){
+    public List<String> convertCloudDatatoString(String incoming_cloud_data){
+
         // This method returns a list of TCM messages breaking the list into individual components
         List<String> output_tcm_msgs = new ArrayList<String>();
         
         JSONObject publishDataJson = new JSONObject(incoming_cloud_data);
-        JSONObject payloadJson = publishDataJson.getJSONObject("payload");
+        String payloadJsonString = publishDataJson.getString("payload");
+        JSONObject payloadJson = new JSONObject(payloadJsonString);
+
+        // Get header from cloud tcm 
+        String unit_id = publishDataJson.getString("unit_id").replaceAll("\\s", "_");
+        String unit_type = publishDataJson.getString("unit_type").replaceAll("\\s", "_");
+        String event_name = publishDataJson.getString("event_name").replaceAll("\\s", "_");
+        String location = publishDataJson.getString("location").replaceAll("\\s", "_");
+        String testing_type = publishDataJson.getString("testing_type").replaceAll("\\s", "_");
+        String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
+        // String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
+        String timestamp = Long.toString(128912);
+
+        Object time = publishDataJson.get("timestamp");
+        if(time instanceof Long){
+            System.out.println("time is a long");
+        }
+        else if (time instanceof String){
+            System.out.println("time is a String");
+        }
+        else if (time instanceof JSONObject){
+            System.out.println("time is a JSONObject");
+        }
+        else if (time instanceof JSONArray){
+            System.out.println("time is a JSONArray");
+        }
+        else if (time instanceof Integer){
+            System.out.println("time is a Integer");
+        }
+        else{
+            System.out.println("Unknown time type");
+        }
+
+        JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
+        JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
 
         if(payloadJson.has("TrafficControlMessageList")){
-
-            // Get header from cloud tcm 
-            String unit_id = publishDataJson.getString("unit_id").replaceAll("\\s", "_");
-            String unit_type = publishDataJson.getString("unit_type").replaceAll("\\s", "_");
-            String event_name = publishDataJson.getString("event_name").replaceAll("\\s", "_");
-            String location = publishDataJson.getString("location").replaceAll("\\s", "_");
-            String testing_type = publishDataJson.getString("testing_type").replaceAll("\\s", "_");
-            String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
-            String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
 
             // Get each val from this key and create a new message from it
             JSONObject TCMList = payloadJson.getJSONObject("TrafficControlMessageList");
@@ -98,12 +124,8 @@ public class InfluxDataWriter {
                     for(int i = 0; i < TCMArray.length(); i++)
                     {
                         JSONObject obj = TCMArray.getJSONObject(i);
+
                         // Extract each TCM into separate object and then convert to key-value pair
-
-                        // Helpers
-                        JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
-                        JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
-
                         String flattenedPayloadJson = jsonFlattener.flattenJsonStr(obj.toString());
                         String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
                         
@@ -116,8 +138,6 @@ public class InfluxDataWriter {
                 else{
                     // If object is not a JSONArray it must be JSONObject
                     JSONObject TCM = TCMList.getJSONObject("TrafficControlMessage");
-                    JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
-                    JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
 
                     String flattenedPayloadJson = jsonFlattener.flattenJsonStr(TCM.toString());
                     String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
@@ -134,7 +154,14 @@ public class InfluxDataWriter {
   
         }
         else{
-            output_tcm_msgs.add(influxStringConverter(incoming_cloud_data));
+            
+            String flattenedPayloadJson = jsonFlattener.flattenJsonStr(payloadJson.toString());
+            String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
+
+            String record = event_name + "," + "unit_id=" + unit_id + "," + "unit_type=" + unit_type + "," + "location=" + location
+                    + "," + "testing_type=" + testing_type + "," + "topic_name=" + topic_name + " " + keyValuePairs + " " + timestamp;
+            
+            output_tcm_msgs.add(record);
         }
         
         return output_tcm_msgs;
@@ -203,7 +230,7 @@ public class InfluxDataWriter {
      */
     public void publishCloudData(String publishData) {
         try {
-            List<String> influxRecords = splitCloudTCMList(publishData);
+            List<String> influxRecords = convertCloudDatatoString(publishData);
             
             for(String influxRecord : influxRecords){
 
