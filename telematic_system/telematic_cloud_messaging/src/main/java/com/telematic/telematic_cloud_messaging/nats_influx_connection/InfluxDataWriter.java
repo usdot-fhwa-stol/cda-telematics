@@ -84,28 +84,7 @@ public class InfluxDataWriter {
         String location = publishDataJson.getString("location").replaceAll("\\s", "_");
         String testing_type = publishDataJson.getString("testing_type").replaceAll("\\s", "_");
         String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
-        // String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
-        String timestamp = Long.toString(128912);
-
-        Object time = publishDataJson.get("timestamp");
-        if(time instanceof Long){
-            System.out.println("time is a long");
-        }
-        else if (time instanceof String){
-            System.out.println("time is a String");
-        }
-        else if (time instanceof JSONObject){
-            System.out.println("time is a JSONObject");
-        }
-        else if (time instanceof JSONArray){
-            System.out.println("time is a JSONArray");
-        }
-        else if (time instanceof Integer){
-            System.out.println("time is a Integer");
-        }
-        else{
-            System.out.println("Unknown time type");
-        }
+        String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
 
         JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
         JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
