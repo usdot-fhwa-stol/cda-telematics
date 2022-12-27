@@ -254,7 +254,7 @@ class CloudNatsBridge():
                         message["log_timestamp"] = epoch_time 
 
                         # telematic cloud server will look for topic names with the pattern ".data."
-                        self.topic_name = "cloud." + self.unit_id + ".data" + topic
+                        self.topic_name = "cloud." + self.unit_id + ".data." + topic
 
                         # publish the encoded data to the nats server
                         self.logger.info(" In nats_send: Publishing to nats: " + str(message))
