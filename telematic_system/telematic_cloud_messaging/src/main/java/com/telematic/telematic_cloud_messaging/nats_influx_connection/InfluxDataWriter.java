@@ -104,7 +104,8 @@ public class InfluxDataWriter {
                 }
                 else{
                     // If object is not a JSONArray it must be JSONObject
-                    String record = influxStringConverter(publishDataJson.toString());
+                    logger.info("Incoming String: ", incoming_cloud_data);
+                    String record = influxStringConverter(incoming_cloud_data);
                     output_tcm_msgs.add(record);
                     
                 }
@@ -115,7 +116,8 @@ public class InfluxDataWriter {
   
         }
         else{
-            String record = influxStringConverter(publishDataJson.toString());
+            logger.info("Incoming String: ", incoming_cloud_data);
+            String record = influxStringConverter(incoming_cloud_data);
             output_tcm_msgs.add(record);
         }
         
@@ -189,9 +191,6 @@ public class InfluxDataWriter {
             
             for(String cloudData : cloudDataList){
 
-                // logger.info("Sending to influxdb: " + influxRecord);
-                // writeApi.writeRecord(WritePrecision.US, influxRecord);
-                // writeApi.flush();
                 publish(cloudData);
             }
             
