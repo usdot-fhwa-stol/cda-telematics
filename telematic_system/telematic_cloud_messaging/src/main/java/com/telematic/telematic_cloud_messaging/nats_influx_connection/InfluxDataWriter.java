@@ -104,9 +104,7 @@ public class InfluxDataWriter {
                 }
                 else{
                     // If object is not a JSONArray it must be JSONObject
-                    logger.info("Incoming String: ", incoming_cloud_data);
-                    String record = influxStringConverter(incoming_cloud_data);
-                    output_tcm_msgs.add(record);
+                    output_tcm_msgs.add(incoming_cloud_data);
                     
                 }
             }
@@ -116,9 +114,7 @@ public class InfluxDataWriter {
   
         }
         else{
-            logger.info("Incoming String: ", incoming_cloud_data);
-            String record = influxStringConverter(incoming_cloud_data);
-            output_tcm_msgs.add(record);
+            output_tcm_msgs.add(incoming_cloud_data);
         }
         
         return output_tcm_msgs;
