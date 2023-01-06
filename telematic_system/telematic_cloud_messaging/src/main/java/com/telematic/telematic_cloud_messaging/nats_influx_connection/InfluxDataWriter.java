@@ -74,22 +74,21 @@ public class InfluxDataWriter {
         List<String> output_tcm_msgs = new ArrayList<String>();
         
         JSONObject publishDataJson = new JSONObject(incoming_cloud_data);
-        String payloadJsonString = publishDataJson.getString("payload");
-        JSONObject payloadJson = new JSONObject(payloadJsonString);
-
-        // Get header from cloud tcm 
-        String unit_id = publishDataJson.getString("unit_id").replaceAll("\\s", "_");
-        String unit_type = publishDataJson.getString("unit_type").replaceAll("\\s", "_");
-        String event_name = publishDataJson.getString("event_name").replaceAll("\\s", "_");
-        String location = publishDataJson.getString("location").replaceAll("\\s", "_");
-        String testing_type = publishDataJson.getString("testing_type").replaceAll("\\s", "_");
-        String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
-        String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
-
-        JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
-        JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
+        JSONObject payloadJson = publishDataJson.getJSONObject("payload");
 
         if(payloadJson.has("TrafficControlMessageList")){
+
+            // Get header from cloud tcm 
+            String unit_id = publishDataJson.getString("unit_id").replaceAll("\\s", "_");
+            String unit_type = publishDataJson.getString("unit_type").replaceAll("\\s", "_");
+            String event_name = publishDataJson.getString("event_name").replaceAll("\\s", "_");
+            String location = publishDataJson.getString("location").replaceAll("\\s", "_");
+            String testing_type = publishDataJson.getString("testing_type").replaceAll("\\s", "_");
+            String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
+            String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
+
+            JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
+            JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
 
             // Get each val from this key and create a new message from it
             JSONObject TCMList = payloadJson.getJSONObject("TrafficControlMessageList");
@@ -133,13 +132,7 @@ public class InfluxDataWriter {
   
         }
         else{
-            
-            String flattenedPayloadJson = jsonFlattener.flattenJsonStr(payloadJson.toString());
-            String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
-
-            String record = event_name + "," + "unit_id=" + unit_id + "," + "unit_type=" + unit_type + "," + "location=" + location
-                    + "," + "testing_type=" + testing_type + "," + "topic_name=" + topic_name + " " + keyValuePairs + " " + timestamp;
-            
+            String record = influxStringConverter(incoming_cloud_data);
             output_tcm_msgs.add(record);
         }
         
