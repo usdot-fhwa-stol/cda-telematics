@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.gson.JsonObject;
 import com.influxdb.client.*;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.domain.Authorization;
@@ -78,17 +79,6 @@ public class InfluxDataWriter {
 
         if(payloadJson.has("TrafficControlMessageList")){
 
-            // Get header from cloud tcm 
-            String unit_id = publishDataJson.getString("unit_id").replaceAll("\\s", "_");
-            String unit_type = publishDataJson.getString("unit_type").replaceAll("\\s", "_");
-            String event_name = publishDataJson.getString("event_name").replaceAll("\\s", "_");
-            String location = publishDataJson.getString("location").replaceAll("\\s", "_");
-            String testing_type = publishDataJson.getString("testing_type").replaceAll("\\s", "_");
-            String topic_name = publishDataJson.getString("topic_name").replaceAll("\\s", "_");
-            String timestamp = Long.toString(publishDataJson.getLong("timestamp"));
-
-            JSONFlattenerHelper jsonFlattener = new JSONFlattenerHelper();
-            JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
 
             // Get each val from this key and create a new message from it
             JSONObject TCMList = payloadJson.getJSONObject("TrafficControlMessageList");
@@ -102,28 +92,21 @@ public class InfluxDataWriter {
                     for(int i = 0; i < TCMArray.length(); i++)
                     {
                         JSONObject obj = TCMArray.getJSONObject(i);
-
-                        // Extract each TCM into separate object and then convert to key-value pair
-                        String flattenedPayloadJson = jsonFlattener.flattenJsonStr(obj.toString());
-                        String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
                         
-                        String record = event_name + "," + "unit_id=" + unit_id + "," + "unit_type=" + unit_type + "," + "location=" + location
-                        + "," + "testing_type=" + testing_type + "," + "topic_name=" + topic_name + " " + keyValuePairs + " " + timestamp;
-                        output_tcm_msgs.add(record);
-
+                        // Create copy of incoming Json
+                        JSONObject publishDatacopy = new JSONObject(incoming_cloud_data);
+                        // Replace payload with single TCM
+                        publishDatacopy.remove("payload");
+                        publishDatacopy.put("payload",obj);
+                        output_tcm_msgs.add(publishDatacopy.toString());
+                        
                     }
                 }
                 else{
                     // If object is not a JSONArray it must be JSONObject
-                    JSONObject TCM = TCMList.getJSONObject("TrafficControlMessage");
-
-                    String flattenedPayloadJson = jsonFlattener.flattenJsonStr(TCM.toString());
-                    String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
-                    
-                    String record = event_name + "," + "unit_id=" + unit_id + "," + "unit_type=" + unit_type + "," + "location=" + location
-                    + "," + "testing_type=" + testing_type + "," + "topic_name=" + topic_name + " " + keyValuePairs + " " + timestamp;
+                    String record = influxStringConverter(incoming_cloud_data);
                     output_tcm_msgs.add(record);
-
+                    
                 }
             }
             catch (Exception e) {
@@ -202,13 +185,14 @@ public class InfluxDataWriter {
      */
     public void publishCloudData(String publishData) {
         try {
-            List<String> influxRecords = convertCloudDatatoString(publishData);
+            List<String> cloudDataList = convertCloudDatatoString(publishData);
             
-            for(String influxRecord : influxRecords){
+            for(String cloudData : cloudDataList){
 
-                logger.info("Sending to influxdb: " + influxRecord);
-                writeApi.writeRecord(WritePrecision.US, influxRecord);
-                writeApi.flush();
+                // logger.info("Sending to influxdb: " + influxRecord);
+                // writeApi.writeRecord(WritePrecision.US, influxRecord);
+                // writeApi.flush();
+                publish(cloudData);
             }
             
         }
