@@ -79,7 +79,14 @@ public class NatsConsumer {
         //message has been received
         Dispatcher d = nc.createDispatcher((msg) -> {
             String str = new String(msg.getData(), StandardCharsets.UTF_8);
-            influxDataWriter.publish(str);
+            
+            if(nats_subscribe_str.equals(influxDataWriter.config_.cloud_subscription_topic)){
+                logger.info("Received cloud data");
+                influxDataWriter.publishCloudData(str);
+            }
+            else{
+                influxDataWriter.publish(str);
+            }
         });  
 
         try {
