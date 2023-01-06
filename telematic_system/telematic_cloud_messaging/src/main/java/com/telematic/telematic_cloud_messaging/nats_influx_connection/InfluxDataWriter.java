@@ -73,16 +73,13 @@ public class InfluxDataWriter {
 
         // This method returns a list of TCM messages breaking the list into individual components
         List<String> output_tcm_msgs = new ArrayList<String>();
-        
         JSONObject publishDataJson = new JSONObject(incoming_cloud_data);
         JSONObject payloadJson = publishDataJson.getJSONObject("payload");
 
         if(payloadJson.has("TrafficControlMessageList")){
 
-
             // Get each val from this key and create a new message from it
             JSONObject TCMList = payloadJson.getJSONObject("TrafficControlMessageList");
-
             try{
                 Object item = TCMList.get("TrafficControlMessage");
                 
@@ -92,26 +89,22 @@ public class InfluxDataWriter {
                     for(int i = 0; i < TCMArray.length(); i++)
                     {
                         JSONObject obj = TCMArray.getJSONObject(i);
-                        
                         // Create copy of incoming Json
                         JSONObject publishDatacopy = new JSONObject(incoming_cloud_data);
                         // Replace payload with single TCM
                         publishDatacopy.remove("payload");
                         publishDatacopy.put("payload",obj);
                         output_tcm_msgs.add(publishDatacopy.toString());
-                        
                     }
                 }
                 else{
                     // If object is not a JSONArray it must be JSONObject
-                    output_tcm_msgs.add(incoming_cloud_data);
-                    
+                    output_tcm_msgs.add(incoming_cloud_data); 
                 }
             }
             catch (Exception e) {
                 logger.error(ExceptionUtils.getStackTrace(e));
             }
-  
         }
         else{
             output_tcm_msgs.add(incoming_cloud_data);
@@ -184,9 +177,7 @@ public class InfluxDataWriter {
     public void publishCloudData(String publishData) {
         try {
             List<String> cloudDataList = convertCloudDatatoString(publishData);
-            
             for(String cloudData : cloudDataList){
-
                 publish(cloudData);
             }
             
