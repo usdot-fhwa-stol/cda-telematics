@@ -241,7 +241,7 @@ class CloudNatsBridge():
                     if json_data != "":                    
                         #add required metadata to TCR/TCM payload
                         message = {}
-                        message["payload"] = json_data
+                        message["payload"] = json.loads(json_data)
                         message[UnitKeys.UNIT_ID.value] = self.unit_id
                         message[UnitKeys.UNIT_TYPE.value] = self.unit_type
                         message[UnitKeys.UNIT_NAME.value] = self.unit_name
