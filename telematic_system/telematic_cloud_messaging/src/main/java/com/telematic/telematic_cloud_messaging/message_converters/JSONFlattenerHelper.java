@@ -9,8 +9,6 @@ import com.github.wnameless.json.flattener.JsonFlattener;
 
 @Component
 public class JSONFlattenerHelper {
-    private static final Logger logger = LoggerFactory.getLogger(JSONFlattenerHelper.class);
-
     /***
      * 
      * @param Nested JSON string consumed from NATS subject
