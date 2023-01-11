@@ -174,8 +174,6 @@ class StreetsNatsBridge():
                     self.logger.info(
                         " In kafka_read: Publishing message: " + str(message))
                     await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
-
-                await asyncio.sleep(self.async_sleep_rate)
         except:
             self.logger.error(" In kafka_read: Error reading kafka traffic")
 
