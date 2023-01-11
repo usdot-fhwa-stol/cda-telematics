@@ -6,9 +6,6 @@ import org.json.simple.parser.ParseException;
 import org.springframework.stereotype.Component;
 
 import com.github.wnameless.json.flattener.JsonFlattener;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 
 @Component
 public class JSONFlattenerHelper {
