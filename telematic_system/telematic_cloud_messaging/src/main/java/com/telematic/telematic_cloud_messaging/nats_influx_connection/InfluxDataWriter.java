@@ -34,8 +34,6 @@ public class InfluxDataWriter {
     InfluxDBClient influxDBClient;
     InfluxDBClientOptions adminClientOptions;
     WriteApi writeApi;
-    int flattenJsonCounter;
-    int influxWriteCounter;
 
     private static final Logger logger = LoggerFactory.getLogger(InfluxDataWriter.class);
 

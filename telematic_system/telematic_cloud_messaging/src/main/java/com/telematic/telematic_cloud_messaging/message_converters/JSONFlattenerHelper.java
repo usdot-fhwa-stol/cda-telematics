@@ -26,7 +26,7 @@ public class JSONFlattenerHelper {
             String flattened_json_str = JsonFlattener.flatten(json_obj.toString());
             return flattened_json_str;
         } catch (ParseException e) {
-            logger.info(ExceptionUtils.getStackTrace(e));
+            e.printStackTrace();
         }
         return "";
     }
