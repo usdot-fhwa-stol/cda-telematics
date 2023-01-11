@@ -61,7 +61,6 @@ public class InfluxDataWriter {
         }
         
         config_ = config;
-
         influx_connected = false;
 
         logger.info("Attempting to connect to InfluxDb at " + config_.influx_uri);
