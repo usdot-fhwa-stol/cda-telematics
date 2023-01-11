@@ -128,6 +128,9 @@ public class InfluxDataWriter {
         JSON2KeyValuePairsConverter keyValueConverter = new JSON2KeyValuePairsConverter();
 
         JSONObject publishDataJson = new JSONObject(publishData);
+        JSONObject payloadJson = publishDataJson.getJSONObject("payload");
+        
+        String flattenedPayloadJson = jsonFlattener.flattenJsonStr(payloadJson.toString());
         String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
 
         String unit_id = publishDataJson.getString("unit_id").replaceAll("\\s", "_");
