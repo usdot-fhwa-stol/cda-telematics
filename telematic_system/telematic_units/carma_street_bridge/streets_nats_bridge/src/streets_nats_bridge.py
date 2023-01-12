@@ -315,7 +315,7 @@ class StreetsNatsBridge():
             for existing_topic in list(self.subscribers_list):
                 if (existing_topic not in requested_topics):
                     try:
-                        self.logger.info('Trying to unsubscribe from topic update: "%s"' % existing_topic)
+                        self.logger.info('Trying to unsubscribe from topic: "%s"' % existing_topic)
                         self.subscribers_list.remove(existing_topic)
                     except:
                         self.logger.error('Unable to unsubscribe from topic: "%s" '% existing_topic)
