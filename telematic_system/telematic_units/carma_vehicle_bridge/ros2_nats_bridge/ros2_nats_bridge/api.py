@@ -300,7 +300,7 @@ class Ros2NatsBridgeNode(Node):
             self.event_name = event_name
             self.testing_type = testing_type
             self.location = location
-            self.topic_name = "platform." + unit_id + ".data" + topic_name.replace("/", ".")
+            self.topic_name = "platform." + unit_id + ".data." + topic_name.replace("/", ".")
             self.logger = logger
             self.logger.info("Publishing on topic: "+ self.topic_name)
             self.nc = nc
