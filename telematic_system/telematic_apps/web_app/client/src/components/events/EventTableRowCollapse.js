@@ -13,10 +13,9 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import DeleteIcon from '@mui/icons-material/Delete';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { Button, Collapse, IconButton, Tooltip, Typography } from '@mui/material';
+import { Collapse, IconButton, Typography } from '@mui/material';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
@@ -24,30 +23,16 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { Box } from '@mui/system';
 import * as React from 'react';
-import WarningDialog from '../ui/WarningDialog';
 import { ACTIVE_EVENT, DEFAULT_NA, INVALID_LOCATION_ID, INVALID_LOCATION_ID_STR, INVALID_TESTING_TYPE_ID, INVALID_TESTING_TYPE_ID_STR, LIVE_EVENT, PAST_EVENT, UNKNOW_DATE, UNKNOW_EVENT } from './EventMetadata';
 import EventTableControlsItem from './EventTableControlsItem';
 import EventTableItemPopover from './EventTableItemPopover';
+import EventTableRowCollapseDialog from './EventTableRowCollapseDialog';
 
 const EventTableRowCollapse = (props) => {
     //Collapse Open/close
     const [open, setOpen] = React.useState(false);
-
-    //Open Warning Dialog
-    const [openWarningDialog, setOpenWarningDialog] = React.useState(false);
-    const handleOpenWarningDialog = () => {
-        setOpenWarningDialog(true);
-    }
-    const handleCloseWarningDialog = () => {
-        setOpenWarningDialog(false);
-    }
-    const onConfirmUnassignUnitHandler = (event, eventRow, unit) => {
-        const event_unit = {
-            event_id: eventRow.id,
-            unit: unit
-        }
+    const onConfirmUnassignUnitHandler = (event_unit) => {
         props.onConfirmUnassignUnitHandler(event_unit);
-        setOpenWarningDialog(false);
     }
     return (
         <React.Fragment>
@@ -162,14 +147,7 @@ const EventTableRowCollapse = (props) => {
                                                         </TableCell>
                                                     </React.Fragment>
                                                 }
-                                                <TableCell key={`${props.eventRow.id}-Unit-${unit.unit_identifier}-controls`}>
-                                                    <WarningDialog open={openWarningDialog} onConfirm={event => onConfirmUnassignUnitHandler(event, props.eventRow, unit)} onCloseWarning={handleCloseWarningDialog} title="Unassign Unit Alert" description={`Are you sure to unassign ${unit.unit_identifier} from event ${props.eventRow.name}?`} />
-                                                    <Tooltip title="Unassign Unit" placement="top" arrow>
-                                                        <Button variant='outlined' size="small" key={`${props.eventRow.id}-Unit-${unit.unit_identifier}-unassign`} onClick={handleOpenWarningDialog}>
-                                                            <DeleteIcon sx={{ color: "primary.main" }} />
-                                                        </Button>
-                                                    </Tooltip>
-                                                </TableCell>
+                                                <EventTableRowCollapseDialog unit={unit} eventRow={props.eventRow}   key={`${props.eventRow.id}-Unit-name-${unit.unit_identifier}-dialog`} onConfirmUnassignUnitHandler={onConfirmUnassignUnitHandler}/>
                                             </TableRow>
                                         ))}
                                 </TableBody>
