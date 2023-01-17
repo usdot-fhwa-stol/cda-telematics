@@ -86,6 +86,18 @@ const TopicPage = React.memo(() => {
   //Send topic request to the server
   const confirmSelectedTopicHandler = () => {
     const seletedUnitTopicListToConfirm = TopicCtx.selected_unit_topics_list;
+    let isClear = false;
+    if (seletedUnitTopicListToConfirm.length === 0) {
+      isClear = true;
+      for (let vehicle of vehicles) {
+        let clearUnits = { unit_identifier: vehicle.unit_identifier, unit_name: vehicle.unit_name };
+        seletedUnitTopicListToConfirm.push(clearUnits);
+      }
+      for (let infrastructure of infrastructures) {
+        let clearUnits = { unit_identifier: infrastructure.unit_identifier, unit_name: infrastructure.unit_name };
+        seletedUnitTopicListToConfirm.push(clearUnits);
+      }
+    }
     const response_data = requestSelectedLiveUnitsTopics(seletedUnitTopicListToConfirm);
     let messageList = [];
     let num_failed = 0;
@@ -96,7 +108,7 @@ const TopicPage = React.memo(() => {
           if (item.data !== undefined) {
             messageList.push(item.data);
             num_success += 1;
-          } else if (item.errCode !== undefined) {
+          } else if (!isClear && item.errCode !== undefined) {
             messageList.push(item.errMsg);
             num_failed += 1;
           }
