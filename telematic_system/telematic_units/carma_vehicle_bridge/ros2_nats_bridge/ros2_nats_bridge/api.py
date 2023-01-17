@@ -250,10 +250,11 @@ class Ros2NatsBridgeNode(Node):
                 self.get_topic_names_and_types()) if v[0] in data["topics"]]
 
             # Remove topics from subscribers list that weren't called in new request
-            for existing_topic in list(self.subscribers_list):
-                if (existing_topic not in incoming_topics[0]):
-                    self.logger.info('Trying to unsubscribe from topic: "%s"' % existing_topic)
-                    await topic_unsubscribe_request(topic)
+            for existing_topic in list(self.subscribers_list.keys()):
+                for topics in incoming_topics:
+                    if (existing_topic != topics[0]):
+                        self.logger.info('Trying to unsubscribe from topic: "%s"' % existing_topic)
+                        await topic_unsubscribe_request(existing_topic)
 
             for i in incoming_topics:
                 topic = i[0]
