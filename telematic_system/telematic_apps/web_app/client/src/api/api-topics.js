@@ -45,18 +45,16 @@ const requestSelectedLiveUnitsTopics = async (seletedUnitTopicListToConfirm) => 
                 });
             });
 
-            //Only send request to stream data for selected topics if there are selected topics
-            if (body.topics.length !== 0) {
-                let unitStatus = body.unit_name + " (" + body.unit_id + "): ";
-                try {
-                    const { data } = await axios.post(URL, body);
-                    sentStatus.push({ data: unitStatus + data });
-                } catch (err) {
-                    sentStatus.push({
-                        errCode: err.response !== undefined ? err.response.status : "404",
-                        errMsg: err.response !== undefined ? unitStatus + err.response.statusText + err.response.data : unitStatus + "No reponse from server."
-                    });
-                }
+            //Send request to stream data 
+            let unitStatus = body.unit_name + " (" + body.unit_id + "): ";
+            try {
+                const { data } = await axios.post(URL, body);
+                sentStatus.push({ data: unitStatus + data });
+            } catch (err) {
+                sentStatus.push({
+                    errCode: err.response !== undefined ? err.response.status : "404",
+                    errMsg: err.response !== undefined ? unitStatus + err.response.statusText + err.response.data : unitStatus + "No reponse from server."
+                });
             }
         }
     }));
