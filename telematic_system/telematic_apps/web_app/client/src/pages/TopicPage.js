@@ -99,16 +99,17 @@ const TopicPage = React.memo(() => {
       }
     }
     const response_data = requestSelectedLiveUnitsTopics(seletedUnitTopicListToConfirm);
+    seletedUnitTopicListToConfirm.splice(0, seletedUnitTopicListToConfirm.length);
     let messageList = [];
     let num_failed = 0;
     let num_success = 0;
     response_data.then(json => {
-      if (json !== undefined) {
+      if (!isClear && json !== undefined) {
         json.forEach(item => {
           if (item.data !== undefined) {
             messageList.push(item.data);
             num_success += 1;
-          } else if (!isClear && item.errCode !== undefined) {
+          } else if (item.errCode !== undefined) {
             messageList.push(item.errMsg);
             num_failed += 1;
           }
