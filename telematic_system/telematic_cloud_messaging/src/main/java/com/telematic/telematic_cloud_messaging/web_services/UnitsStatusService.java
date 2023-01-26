@@ -18,11 +18,12 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -39,6 +40,7 @@ import io.nats.client.Message;
  * UnitsStatusService
  */
 @RestController
+@EnableAsync
 @Profile("!test") // Skip Unit test on the CommandLineRunner task
 public class UnitsStatusService implements CommandLineRunner {
     private static Logger logger = LoggerFactory.getLogger(UnitsStatusService.class);
@@ -84,7 +86,8 @@ public class UnitsStatusService implements CommandLineRunner {
      *        the list a units from registeredUnitList. If failed the status check,
      *        it will remove the registered units from the list.
      */
-    @Scheduled(fixedRate = 5000)
+    @Async
+    @Scheduled(fixedRate = 30000)
     public void checkUnitsStatus() throws IOException, InterruptedException {
         Connection conn = natsConn.getConnection();
         if (conn != null) {
