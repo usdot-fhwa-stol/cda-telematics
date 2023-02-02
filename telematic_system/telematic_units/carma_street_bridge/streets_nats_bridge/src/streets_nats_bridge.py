@@ -192,7 +192,8 @@ class StreetsNatsBridge():
                     #if no timestamp is provided in the kafka data, use the bridge time
                     else:
                         message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
-
+                        print("No timestamp found in kafka record for topic: " + str(topic))
+                        
                     # telematic cloud server will look for topic names with the pattern ".data."
                     self.topic_name = "streets." + self.unit_id + ".data." + topic
 
