@@ -3,13 +3,14 @@ from xmlrpc.client import SYSTEM_ERROR
 from nats.aio.client import Client as NATS
 import json
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 import logging
 import yaml
 from logging.handlers import RotatingFileHandler
 from aiokafka import AIOKafkaConsumer
 from enum import Enum
 import os
+import pytz
 
 
 class EventKeys(Enum):
@@ -162,6 +163,13 @@ class StreetsNatsBridge():
     # Read the carma streets kafka data and publish to nats if the topic is in the subscribed list
     async def kafka_read(self):
         self.logger.info(" In kafka_read: Reading carma-streets kafka traffic")
+
+        year = date.today().year
+        naive = datetime(int(year), 1, 1, 0, 0, 0)
+        utc = pytz.utc
+        gmt5 = pytz.timezone('Etc/GMT+5')
+        first_day_epoch = utc.localize(naive).astimezone(gmt5).timestamp()*1000
+
         try:
             async for consumed_msg in self.kafka_consumer:
                 topic = consumed_msg.topic
@@ -181,19 +189,25 @@ class StreetsNatsBridge():
 
                     #Check if metadata sections exists, if it does use this timestamp for message sent to NATS
                     if "metadata" in message["payload"]:
-                        timestamp = str(message["payload"]["metadata"]["timestamp"]).lstrip("0")
+                        timestamp = int(str(message["payload"]["metadata"]["timestamp"]).lstrip("0"))*1000 #convert to microseconds
                         print("topic: " + str(topic))
                         print("Metadata timestamp: " + str(timestamp))
                     #need to check if there is a "timestamp" key --> desired phase plan message
                     elif "timestamp" in message["payload"]:
-                        timestamp = str(message["payload"]["timestamp"]).lstrip("0")
+                        timestamp = int(str(message["payload"]["timestamp"]).lstrip("0"))*1000 #convert to microseconds
                         print("topic: " + str(topic))
                         print("Metadata timestamp: " + str(timestamp))
+                    #do special conversion for spat message using moy
+                    elif topic == "modified_spat":
+                        timestamp = int(message["payload"]["time_stamp"])
+                        moy = int(message["payload"]["intersections"]["moy"])
+                        #Use moy and timestamp fields to get epoch time for each record
+                        epoch_ms = ((moy* 60000) + timestamp + first_day_epoch)*1000 #convert moy to microseconds              
                     #if no timestamp is provided in the kafka data, use the bridge time
                     else:
                         message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
                         print("No timestamp found in kafka record for topic: " + str(topic))
-                        
+
                     # telematic cloud server will look for topic names with the pattern ".data."
                     self.topic_name = "streets." + self.unit_id + ".data." + topic
 
