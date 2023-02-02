@@ -178,8 +178,20 @@ class StreetsNatsBridge():
                     message[EventKeys.TESTING_TYPE.value] = self.streets_info[EventKeys.TESTING_TYPE.value]
                     message[EventKeys.LOCATION.value] = self.streets_info[EventKeys.LOCATION.value]
                     message[TopicKeys.TOPIC_NAME.value] = topic
-                    message["timestamp"] = datetime.now(
-                        timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
+
+                    #Check if metadata sections exists, if it does use this timestamp for message sent to NATS
+                    if "metadata" in message["payload"]:
+                        timestamp = str(message["payload"]["metadata"]["timestamp"]).lstrip("0")
+                        print("topic: " + str(topic))
+                        print("Metadata timestamp: " + str(timestamp))
+                    #need to check if there is a "timestamp" key --> desired phase plan message
+                    elif "timestamp" in message["payload"]:
+                        timestamp = str(message["payload"]["timestamp"]).lstrip("0")
+                        print("topic: " + str(topic))
+                        print("Metadata timestamp: " + str(timestamp))
+                    #if no timestamp is provided in the kafka data, use the bridge time
+                    else:
+                        message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
 
                     # telematic cloud server will look for topic names with the pattern ".data."
                     self.topic_name = "streets." + self.unit_id + ".data." + topic
