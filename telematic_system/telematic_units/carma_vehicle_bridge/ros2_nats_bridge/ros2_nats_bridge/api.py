@@ -332,8 +332,27 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg[EventKeys.EVENT_NAME.value] = self.event_name
             ordereddict_msg[EventKeys.TESTING_TYPE.value] = self.testing_type
             ordereddict_msg[EventKeys.LOCATION.value] = self.location
-            ordereddict_msg["timestamp"] = datetime.now(
-                timezone.utc).timestamp()*1000000  # microseconds
+
+            print("Payload: " + str(ordereddict_msg["payload"]))
+            if "header" in ordereddict_msg["payload"]:
+                timestamp_seconds = ordereddict_msg["payload"]["header"]["stamp"]["sec"]
+                timestamp_nanoseconds = ordereddict_msg["payload"]["header"]["stamp"]["nanosec"]
+
+                print("Timestamp seconds: " + str(timestamp_seconds))
+                print("Timestamp nanoseconds: " + str(timestamp_nanoseconds))
+
+                combined_timestamp = timestamp_seconds + "." + timestamp_nanoseconds
+                print("Combined timestamp: " + str(combined_timestamp))
+                timestamp_microseconds = float(combined_timestamp)*1000000
+                print("Final timestamp: " + str(timestamp_microseconds))
+
+                ordereddict_msg["timestamp"] = timestamp_microseconds
+            else:
+                ordereddict_msg["timestamp"] = datetime.now(
+                    timezone.utc).timestamp()*1000000  # microseconds
+            
+            print("Publishing message: " + str(ordereddict_msg))
+
             try:
                 json_message = json.dumps(ordereddict_msg)
                 self.logger.info(json_message)
