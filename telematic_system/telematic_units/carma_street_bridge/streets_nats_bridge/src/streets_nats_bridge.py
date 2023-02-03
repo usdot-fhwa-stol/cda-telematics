@@ -164,57 +164,60 @@ class StreetsNatsBridge():
     async def kafka_read(self):
         self.logger.info(" In kafka_read: Reading carma-streets kafka traffic")
 
-        year = date.today().year
-        naive = datetime(int(year), 1, 1, 0, 0, 0)
+        #Need to get utc epoch time of first day of year to use with moy and timestamp
+        #Our local timezone GMT-5 actually needs to be implemented as GMT+5 with pytz library
+        #documentation: https://stackoverflow.com/questions/54842491/printing-datetime-as-pytz-timezoneetc-gmt-5-yields-incorrect-result
+                
+        naive = datetime(int(date.today().year), 1, 1, 0, 0, 0)
         utc = pytz.utc
         gmt5 = pytz.timezone('Etc/GMT+5')
         first_day_epoch = utc.localize(naive).astimezone(gmt5).timestamp()*1000
 
-        # try:
-        async for consumed_msg in self.kafka_consumer:
-            topic = consumed_msg.topic
-            # Publish customized message to correlating NATS topics when subscribe list is not empty
-            if topic in self.subscribers_list:
-                message = {}
-                message["payload"] = consumed_msg.value
-                # Add msg_type to json b/c worker looks for this field
-                message[UnitKeys.UNIT_ID.value] = self.unit_id
-                message[UnitKeys.UNIT_TYPE.value] = self.unit_type
-                message[UnitKeys.UNIT_NAME.value] = self.unit_name
-                message[TopicKeys.MSG_TYPE.value] = topic
-                message[EventKeys.EVENT_NAME.value] = self.streets_info[EventKeys.EVENT_NAME.value]
-                message[EventKeys.TESTING_TYPE.value] = self.streets_info[EventKeys.TESTING_TYPE.value]
-                message[EventKeys.LOCATION.value] = self.streets_info[EventKeys.LOCATION.value]
-                message[TopicKeys.TOPIC_NAME.value] = topic
+        try:
+            async for consumed_msg in self.kafka_consumer:
+                topic = consumed_msg.topic
+                # Publish customized message to correlating NATS topics when subscribe list is not empty
+                if topic in self.subscribers_list:
+                    message = {}
+                    message["payload"] = consumed_msg.value
+                    # Add msg_type to json b/c worker looks for this field
+                    message[UnitKeys.UNIT_ID.value] = self.unit_id
+                    message[UnitKeys.UNIT_TYPE.value] = self.unit_type
+                    message[UnitKeys.UNIT_NAME.value] = self.unit_name
+                    message[TopicKeys.MSG_TYPE.value] = topic
+                    message[EventKeys.EVENT_NAME.value] = self.streets_info[EventKeys.EVENT_NAME.value]
+                    message[EventKeys.TESTING_TYPE.value] = self.streets_info[EventKeys.TESTING_TYPE.value]
+                    message[EventKeys.LOCATION.value] = self.streets_info[EventKeys.LOCATION.value]
+                    message[TopicKeys.TOPIC_NAME.value] = topic
 
-                #Check if metadata sections exists, if it does use this timestamp for message sent to NATS
-                if "metadata" in message["payload"]:
-                    timestamp = int(str(message["payload"]["metadata"]["timestamp"]).lstrip("0"))*1000 #convert to microseconds
-                    message["timestamp"] = timestamp
-                #need to check if there is a "timestamp" key --> desired phase plan message
-                elif "timestamp" in message["payload"]:
-                    timestamp = int(str(message["payload"]["timestamp"]).lstrip("0"))*1000 #convert to microseconds
-                    message["timestamp"] = timestamp
-                #do special conversion for spat message using moy
-                elif topic == "modified_spat":
-                    timestamp = int(message["payload"]["time_stamp"])
-                    moy = int(message["payload"]["intersections"][0]["moy"])
-                    #Use moy and timestamp fields to get epoch time for each record
-                    epoch_micro = ((moy* 60000) + timestamp + first_day_epoch)*1000 #convert moy to microseconds    
+                    #Check if metadata sections exists, if it does use this timestamp for message sent to NATS
+                    if "metadata" in message["payload"]:
+                        timestamp = int(str(message["payload"]["metadata"]["timestamp"]).lstrip("0"))*1000 #convert to microseconds
+                        message["timestamp"] = timestamp
+                    #need to check if there is a "timestamp" key --> desired phase plan message
+                    elif "timestamp" in message["payload"]:
+                        timestamp = int(str(message["payload"]["timestamp"]).lstrip("0"))*1000 #convert to microseconds
+                        message["timestamp"] = timestamp
+                    #do special conversion for spat message using moy
+                    elif topic == "modified_spat":
+                        timestamp = int(message["payload"]["time_stamp"])
+                        moy = int(message["payload"]["intersections"][0]["moy"])
+                        #Use moy and timestamp fields to get epoch time for each record
+                        epoch_micro = ((moy* 60000) + timestamp + first_day_epoch)*1000 #convert moy to microseconds    
 
-                    message["timestamp"] = epoch_micro          
-                #if no timestamp is provided in the kafka data, use the bridge time
-                else:
-                    message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
+                        message["timestamp"] = epoch_micro          
+                    #if no timestamp is provided in the kafka data, use the bridge time
+                    else:
+                        message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
 
-                # telematic cloud server will look for topic names with the pattern ".data."
-                self.topic_name = "streets." + self.unit_id + ".data." + topic
+                    # telematic cloud server will look for topic names with the pattern ".data."
+                    self.topic_name = "streets." + self.unit_id + ".data." + topic
 
-                # publish the encoded data to the nats server
-                self.logger.info(" In kafka_read: Publishing message: " + str(message))
-                await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
-        # except:
-        #     self.logger.error(" In kafka_read: Error reading kafka traffic")
+                    # publish the encoded data to the nats server
+                    self.logger.info(" In kafka_read: Publishing message: " + str(message))
+                    await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
+        except:
+            self.logger.error(" In kafka_read: Error reading kafka traffic")
 
     async def nats_connect(self):
         """
