@@ -75,9 +75,6 @@ class Ros2NatsBridgeNode(Node):
         
         self.log_handler_type = os.getenv('VEHICLE_BRIDGE_LOG_HANDLER_TYPE')
 
-        timer_period = 0.5  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.i = 0
         # Create ROS2NatsBridge logger
         if self.log_handler_type == LogType.ALL.value:
             # If all create log handler for both file and console
@@ -88,12 +85,6 @@ class Ros2NatsBridgeNode(Node):
         else:
             self.createLogger(LogType.CONSOLE.value)
             self.logger.warn("Incorrect Log type defined, defaulting to console")
-
-    def timer_callback(self):
-        msg = String()  
-        msg.data = 'heartbeat: %d' % self.i
-        self.logger.debug('"%s"' % msg.data)
-        self.i += 1
 
     def createLogger(self, log_type):
         """Creates log file for the ROS2NatsBridge with configuration items based on the settings input in the params.yaml file"""
@@ -364,5 +355,3 @@ class Ros2NatsBridgeNode(Node):
                 await self.nc.publish(self.topic_name, json_message_encoded)
             except Exception as e:
                 self.logger.error("Error while publishing topic: " + str(e))
-            finally:
-                self.logger.debug("published topic")
