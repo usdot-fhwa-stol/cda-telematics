@@ -333,23 +333,27 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg[EventKeys.TESTING_TYPE.value] = self.testing_type
             ordereddict_msg[EventKeys.LOCATION.value] = self.location
 
-            print("Payload: " + str(ordereddict_msg["payload"]))
+            #Check if the ROS message has a timestamp and use it for the NATS message
             if "header" in ordereddict_msg["payload"]:
                 timestamp_seconds = ordereddict_msg["payload"]["header"]["stamp"]["sec"]
                 timestamp_nanoseconds = ordereddict_msg["payload"]["header"]["stamp"]["nanosec"]
 
-                print("Timestamp seconds: " + str(timestamp_seconds))
-                print("Timestamp nanoseconds: " + str(timestamp_nanoseconds))
-
-                combined_timestamp = timestamp_seconds + "." + timestamp_nanoseconds
-                print("Combined timestamp: " + str(combined_timestamp))
+                combined_timestamp = str(timestamp_seconds) + "." + str(timestamp_nanoseconds)
                 timestamp_microseconds = float(combined_timestamp)*1000000
-                print("Final timestamp: " + str(timestamp_microseconds))
 
                 ordereddict_msg["timestamp"] = timestamp_microseconds
+            #Check for "stamp" if the ROS message doesn't utilize the standard message header
+            elif "stamp" in ordereddict_msg["payload"]:
+                timestamp_seconds = ordereddict_msg["payload"]["stamp"]["sec"]
+                timestamp_nanoseconds = ordereddict_msg["payload"]["stamp"]["nanosec"]
+
+                combined_timestamp = str(timestamp_seconds) + "." + str(timestamp_nanoseconds)
+                timestamp_microseconds = float(combined_timestamp)*1000000
+
+                ordereddict_msg["timestamp"] = timestamp_microseconds
+            #If no ROS timestamp is available, use the bridge time for the NATS message
             else:
-                ordereddict_msg["timestamp"] = datetime.now(
-                    timezone.utc).timestamp()*1000000  # microseconds
+                ordereddict_msg["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # microseconds
             
             print("Publishing message: " + str(ordereddict_msg))
 
