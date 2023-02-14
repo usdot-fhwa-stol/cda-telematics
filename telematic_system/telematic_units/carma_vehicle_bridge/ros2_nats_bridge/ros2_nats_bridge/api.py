@@ -329,20 +329,20 @@ class Ros2NatsBridgeNode(Node):
 
             #Check if the ROS message has a timestamp and use it for the NATS message
             if "header" in ordereddict_msg["payload"]:
-                timestamp_seconds = ordereddict_msg["payload"]["header"]["stamp"]["sec"]
+                timestamp_seconds = int(ordereddict_msg["payload"]["header"]["stamp"]["sec"])
                 timestamp_nanoseconds_converted = int(ordereddict_msg["payload"]["header"]["stamp"]["nanosec"])*nanosecondToSecond
 
-                combined_timestamp = str(timestamp_seconds) + "." + str(timestamp_nanoseconds_converted)
-                timestamp_microseconds = float(combined_timestamp)*secondToMicro
+                combined_timestamp = timestamp_seconds + timestamp_nanoseconds_converted
+                timestamp_microseconds = combined_timestamp*secondToMicro
 
                 ordereddict_msg["timestamp"] = timestamp_microseconds
             #Check for "stamp" if the ROS message doesn't utilize the standard message header
             elif "stamp" in ordereddict_msg["payload"]:
-                timestamp_seconds = ordereddict_msg["payload"]["stamp"]["sec"]
+                timestamp_seconds = int(ordereddict_msg["payload"]["stamp"]["sec"])
                 timestamp_nanoseconds_converted = int(ordereddict_msg["payload"]["stamp"]["nanosec"])*nanosecondToSecond
 
-                combined_timestamp = str(timestamp_seconds) + "." + str(timestamp_nanoseconds_converted)
-                timestamp_microseconds = float(combined_timestamp)*secondToMicro
+                combined_timestamp = timestamp_seconds + timestamp_nanoseconds_converted
+                timestamp_microseconds = combined_timestamp*secondToMicro
 
                 ordereddict_msg["timestamp"] = timestamp_microseconds
             #If no ROS timestamp is available, use the bridge time for the NATS message
