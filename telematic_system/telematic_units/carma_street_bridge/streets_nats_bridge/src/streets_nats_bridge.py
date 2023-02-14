@@ -71,7 +71,6 @@ class StreetsNatsBridge():
         self.nc = NATS()
         self.streets_topics = []  # list of available carma-streets topic
         self.subscribers_list = []  # list of topics the user has requested to publish
-        self.async_sleep_rate = 0.0001  # asyncio sleep rate
         self.registered = False
 
         self.log_handler_type = os.getenv('STREETS_BRIDGE_LOG_HANDLER_TYPE')
@@ -173,6 +172,10 @@ class StreetsNatsBridge():
         gmt5 = pytz.timezone('Etc/GMT+5')
         first_day_epoch = utc.localize(naive).astimezone(gmt5).timestamp()*1000
 
+        milliToMicro = 1000 #convert milliseconds to microseconds
+        minuteToMilli = 60000 #convert minutes to milliseconds
+        secondToMicro = 1000000 #convert seconds to microseconds
+
         try:
             async for consumed_msg in self.kafka_consumer:
                 topic = consumed_msg.topic
@@ -192,23 +195,23 @@ class StreetsNatsBridge():
 
                     #Check if metadata sections exists, if it does use this timestamp for message sent to NATS
                     if "metadata" in message["payload"]:
-                        timestamp = int(str(message["payload"]["metadata"]["timestamp"]).lstrip("0"))*1000 #convert to microseconds
+                        timestamp = int(str(message["payload"]["metadata"]["timestamp"]).lstrip("0"))*milliToMicro #convert to microseconds
                         message["timestamp"] = timestamp
                     #need to check if there is a "timestamp" key --> desired phase plan message
                     elif "timestamp" in message["payload"]:
-                        timestamp = int(str(message["payload"]["timestamp"]).lstrip("0"))*1000 #convert to microseconds
+                        timestamp = int(str(message["payload"]["timestamp"]).lstrip("0"))*milliToMicro #convert to microseconds
                         message["timestamp"] = timestamp
                     #do special conversion for spat message using moy
                     elif topic == "modified_spat":
                         timestamp = int(message["payload"]["time_stamp"])
                         moy = int(message["payload"]["intersections"][0]["moy"])
                         #Use moy and timestamp fields to get epoch time for each record
-                        epoch_micro = ((moy* 60000) + timestamp + first_day_epoch)*1000 #convert moy to microseconds    
+                        epoch_micro = ((moy* minuteToMilli) + timestamp + first_day_epoch)*milliToMicro #convert moy to microseconds    
 
                         message["timestamp"] = epoch_micro          
                     #if no timestamp is provided in the kafka data, use the bridge time
                     else:
-                        message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
+                        message["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # utc timestamp in microseconds
 
                     # telematic cloud server will look for topic names with the pattern ".data."
                     self.topic_name = "streets." + self.unit_id + ".data." + topic
