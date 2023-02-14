@@ -166,8 +166,7 @@ class StreetsNatsBridge():
         #Need to get utc epoch time of first day of year to use with moy and timestamp               
         naive = datetime(int(date.today().year), 1, 1, 0, 0, 0) #datetime format (year, month, day, hour, minute, second)
         utc = pytz.utc
-        bridge_timezone = pytz.timezone(str(datetime.now().astimezone().tzinfo))
-        first_day_epoch = utc.localize(naive).astimezone(bridge_timezone).timestamp()*1000
+        first_day_epoch = utc.localize(naive).timestamp()*1000
 
         milliToMicro = 1000 #convert milliseconds to microseconds
         minuteToMilli = 60000 #convert minutes to milliseconds
@@ -203,7 +202,7 @@ class StreetsNatsBridge():
                         timestamp = int(message["payload"]["time_stamp"])
                         moy = int(message["payload"]["intersections"][0]["moy"])
                         #Use moy and timestamp fields to get epoch time for each record
-                        epoch_micro = ((moy* minuteToMilli) + timestamp + first_day_epoch)*milliToMicro #convert moy to microseconds    
+                        epoch_micro = int((moy* minuteToMilli) + timestamp + first_day_epoch)*milliToMicro #convert moy to microseconds    
 
                         message["timestamp"] = epoch_micro          
                     #if no timestamp is provided in the kafka data, use the bridge time
