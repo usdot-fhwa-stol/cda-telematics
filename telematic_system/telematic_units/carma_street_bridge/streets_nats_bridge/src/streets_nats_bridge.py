@@ -3,13 +3,14 @@ from xmlrpc.client import SYSTEM_ERROR
 from nats.aio.client import Client as NATS
 import json
 import asyncio
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 import logging
 import yaml
 from logging.handlers import RotatingFileHandler
 from aiokafka import AIOKafkaConsumer
 from enum import Enum
 import os
+import pytz
 
 
 class EventKeys(Enum):
@@ -70,7 +71,6 @@ class StreetsNatsBridge():
         self.nc = NATS()
         self.streets_topics = []  # list of available carma-streets topic
         self.subscribers_list = []  # list of topics the user has requested to publish
-        self.async_sleep_rate = 0.0001  # asyncio sleep rate
         self.registered = False
 
         self.log_handler_type = os.getenv('STREETS_BRIDGE_LOG_HANDLER_TYPE')
@@ -162,6 +162,16 @@ class StreetsNatsBridge():
     # Read the carma streets kafka data and publish to nats if the topic is in the subscribed list
     async def kafka_read(self):
         self.logger.info(" In kafka_read: Reading carma-streets kafka traffic")
+
+        #Need to get utc epoch time of first day of year to use with moy and timestamp               
+        naive = datetime(int(date.today().year), 1, 1, 0, 0, 0) #datetime format (year, month, day, hour, minute, second)
+        utc = pytz.utc
+        first_day_epoch = utc.localize(naive).timestamp()*1000
+
+        milliToMicro = 1000 #convert milliseconds to microseconds
+        minuteToMilli = 60000 #convert minutes to milliseconds
+        secondToMicro = 1000000 #convert seconds to microseconds
+
         try:
             async for consumed_msg in self.kafka_consumer:
                 topic = consumed_msg.topic
@@ -178,15 +188,32 @@ class StreetsNatsBridge():
                     message[EventKeys.TESTING_TYPE.value] = self.streets_info[EventKeys.TESTING_TYPE.value]
                     message[EventKeys.LOCATION.value] = self.streets_info[EventKeys.LOCATION.value]
                     message[TopicKeys.TOPIC_NAME.value] = topic
-                    message["timestamp"] = datetime.now(
-                        timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
+
+                    #Check if metadata sections exists, if it does use this timestamp for message sent to NATS
+                    if "metadata" in message["payload"]:
+                        timestamp = int(str(message["payload"]["metadata"]["timestamp"]).lstrip("0"))*milliToMicro #convert to microseconds
+                        message["timestamp"] = timestamp
+                    #need to check if there is a "timestamp" key --> desired phase plan message
+                    elif "timestamp" in message["payload"]:
+                        timestamp = int(str(message["payload"]["timestamp"]).lstrip("0"))*milliToMicro #convert to microseconds
+                        message["timestamp"] = timestamp
+                    #do special conversion for spat message using moy
+                    elif topic == "modified_spat":
+                        timestamp = int(message["payload"]["time_stamp"])
+                        moy = int(message["payload"]["intersections"][0]["moy"])
+                        #Use moy and timestamp fields to get epoch time for each record
+                        epoch_micro = int((moy* minuteToMilli) + timestamp + first_day_epoch)*milliToMicro #convert moy to microseconds    
+
+                        message["timestamp"] = epoch_micro          
+                    #if no timestamp is provided in the kafka data, use the bridge time
+                    else:
+                        message["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # utc timestamp in microseconds
 
                     # telematic cloud server will look for topic names with the pattern ".data."
                     self.topic_name = "streets." + self.unit_id + ".data." + topic
 
                     # publish the encoded data to the nats server
-                    self.logger.info(
-                        " In kafka_read: Publishing message: " + str(message))
+                    self.logger.info(" In kafka_read: Publishing message: " + str(message))
                     await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
         except:
             self.logger.error(" In kafka_read: Error reading kafka traffic")

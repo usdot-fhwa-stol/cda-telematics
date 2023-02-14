@@ -75,9 +75,6 @@ class Ros2NatsBridgeNode(Node):
         
         self.log_handler_type = os.getenv('VEHICLE_BRIDGE_LOG_HANDLER_TYPE')
 
-        timer_period = 0.5  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
-        self.i = 0
         # Create ROS2NatsBridge logger
         if self.log_handler_type == LogType.ALL.value:
             # If all create log handler for both file and console
@@ -88,12 +85,6 @@ class Ros2NatsBridgeNode(Node):
         else:
             self.createLogger(LogType.CONSOLE.value)
             self.logger.warn("Incorrect Log type defined, defaulting to console")
-
-    def timer_callback(self):
-        msg = String()  
-        msg.data = 'heartbeat: %d' % self.i
-        self.logger.debug('"%s"' % msg.data)
-        self.i += 1
 
     def createLogger(self, log_type):
         """Creates log file for the ROS2NatsBridge with configuration items based on the settings input in the params.yaml file"""
@@ -332,14 +323,36 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg[EventKeys.EVENT_NAME.value] = self.event_name
             ordereddict_msg[EventKeys.TESTING_TYPE.value] = self.testing_type
             ordereddict_msg[EventKeys.LOCATION.value] = self.location
-            ordereddict_msg["timestamp"] = datetime.now(
-                timezone.utc).timestamp()*1000000  # microseconds
+
+            nanosecondToSecond = 0.000000001 #convert nanoseconds to seconds
+            secondToMicro = 1000000 #convert seconds to microseconds
+
+            #Check if the ROS message has a timestamp and use it for the NATS message
+            if "header" in ordereddict_msg["payload"]:
+                timestamp_seconds = int(ordereddict_msg["payload"]["header"]["stamp"]["sec"])
+                timestamp_nanoseconds_converted = int(ordereddict_msg["payload"]["header"]["stamp"]["nanosec"])*nanosecondToSecond
+
+                combined_timestamp = timestamp_seconds + timestamp_nanoseconds_converted
+                timestamp_microseconds = combined_timestamp*secondToMicro
+
+                ordereddict_msg["timestamp"] = timestamp_microseconds
+            #Check for "stamp" if the ROS message doesn't utilize the standard message header
+            elif "stamp" in ordereddict_msg["payload"]:
+                timestamp_seconds = int(ordereddict_msg["payload"]["stamp"]["sec"])
+                timestamp_nanoseconds_converted = int(ordereddict_msg["payload"]["stamp"]["nanosec"])*nanosecondToSecond
+
+                combined_timestamp = timestamp_seconds + timestamp_nanoseconds_converted
+                timestamp_microseconds = combined_timestamp*secondToMicro
+
+                ordereddict_msg["timestamp"] = timestamp_microseconds
+            #If no ROS timestamp is available, use the bridge time for the NATS message
+            else:
+                ordereddict_msg["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # microseconds
+            
             try:
                 json_message = json.dumps(ordereddict_msg)
-                self.logger.info(json_message)
+                self.logger.info("Publishing message: " + str(json_message))
                 json_message_encoded = json_message.encode('utf8')
                 await self.nc.publish(self.topic_name, json_message_encoded)
             except Exception as e:
                 self.logger.error("Error while publishing topic: " + str(e))
-            finally:
-                self.logger.debug("published topic")
