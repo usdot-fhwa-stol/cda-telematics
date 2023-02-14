@@ -163,14 +163,11 @@ class StreetsNatsBridge():
     async def kafka_read(self):
         self.logger.info(" In kafka_read: Reading carma-streets kafka traffic")
 
-        #Need to get utc epoch time of first day of year to use with moy and timestamp
-        #Our local timezone GMT-5 actually needs to be implemented as GMT+5 with pytz library
-        #documentation: https://stackoverflow.com/questions/54842491/printing-datetime-as-pytz-timezoneetc-gmt-5-yields-incorrect-result
-                
-        naive = datetime(int(date.today().year), 1, 1, 0, 0, 0)
+        #Need to get utc epoch time of first day of year to use with moy and timestamp               
+        naive = datetime(int(date.today().year), 1, 1, 0, 0, 0) #datetime format (year, month, day, hour, minute, second)
         utc = pytz.utc
-        gmt5 = pytz.timezone('Etc/GMT+5')
-        first_day_epoch = utc.localize(naive).astimezone(gmt5).timestamp()*1000
+        bridge_timezone = pytz.timezone(str(datetime.now().astimezone().tzinfo))
+        first_day_epoch = utc.localize(naive).astimezone(bridge_timezone).timestamp()*1000
 
         milliToMicro = 1000 #convert milliseconds to microseconds
         minuteToMilli = 60000 #convert minutes to milliseconds

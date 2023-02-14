@@ -324,27 +324,30 @@ class Ros2NatsBridgeNode(Node):
             ordereddict_msg[EventKeys.TESTING_TYPE.value] = self.testing_type
             ordereddict_msg[EventKeys.LOCATION.value] = self.location
 
+            nanosecondToSecond = 0.000000001 #convert nanoseconds to seconds
+            secondToMicro = 1000000 #convert seconds to microseconds
+
             #Check if the ROS message has a timestamp and use it for the NATS message
             if "header" in ordereddict_msg["payload"]:
                 timestamp_seconds = ordereddict_msg["payload"]["header"]["stamp"]["sec"]
-                timestamp_nanoseconds = ordereddict_msg["payload"]["header"]["stamp"]["nanosec"]
+                timestamp_nanoseconds_converted = int(ordereddict_msg["payload"]["header"]["stamp"]["nanosec"])*nanosecondToSecond
 
-                combined_timestamp = str(timestamp_seconds) + "." + str(timestamp_nanoseconds)
-                timestamp_microseconds = float(combined_timestamp)*1000000
+                combined_timestamp = str(timestamp_seconds) + "." + str(timestamp_nanoseconds_converted)
+                timestamp_microseconds = float(combined_timestamp)*secondToMicro
 
                 ordereddict_msg["timestamp"] = timestamp_microseconds
             #Check for "stamp" if the ROS message doesn't utilize the standard message header
             elif "stamp" in ordereddict_msg["payload"]:
                 timestamp_seconds = ordereddict_msg["payload"]["stamp"]["sec"]
-                timestamp_nanoseconds = ordereddict_msg["payload"]["stamp"]["nanosec"]
+                timestamp_nanoseconds_converted = int(ordereddict_msg["payload"]["stamp"]["nanosec"])*nanosecondToSecond
 
-                combined_timestamp = str(timestamp_seconds) + "." + str(timestamp_nanoseconds)
-                timestamp_microseconds = float(combined_timestamp)*1000000
+                combined_timestamp = str(timestamp_seconds) + "." + str(timestamp_nanoseconds_converted)
+                timestamp_microseconds = float(combined_timestamp)*secondToMicro
 
                 ordereddict_msg["timestamp"] = timestamp_microseconds
             #If no ROS timestamp is available, use the bridge time for the NATS message
             else:
-                ordereddict_msg["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # microseconds
+                ordereddict_msg["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # microseconds
             
             try:
                 json_message = json.dumps(ordereddict_msg)
