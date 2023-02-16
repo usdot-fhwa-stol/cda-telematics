@@ -24,18 +24,18 @@ services:
       /environment/map_filtered_points,
       /environment/points_clustered,
       /environment/points_in_map,
-      /environment/detected_objects(autoware_msgs/DetectedObject),
-      /environment/roadway_objects(cav_msgs/RoadwayObstacle),
+      /environment/detected_objects,
+      /environment/roadway_objects,
       /environment/motion_computation_visualization,
-      /hardware_interface/lidar/points_raw(std_msgs/Header),
-      /environment/points_ground(std_msgs/Header),
-      /environment/points_no_ground(std_msgs/Header),
+      /hardware_interface/lidar/points_raw,
+      /environment/points_ground,
+      /environment/points_no_ground,
       /environment/points_in_base_link,
       /environment/lidar_detected_objects,
       /environment/map_update,
-      /environment/semantic_map(Time format),
-      /environment/base_map(Time format)
-    - VEHICLE_BRIDGE_PRESELECTION_LIST=None
+      /environment/semantic_map,
+      /environment/base_map
+    - VEHICLE_BRIDGE_PRESELECTION_LIST=/parameter_events
 
   streets-nats-bridge:
     build:

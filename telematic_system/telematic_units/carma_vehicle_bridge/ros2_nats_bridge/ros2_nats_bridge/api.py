@@ -92,15 +92,16 @@ class Ros2NatsBridgeNode(Node):
         excludedTopics = os.getenv("VEHICLE_BRIDGE_EXCLUSION_LIST")
         preselectedTopics = os.getenv("VEHICLE_BRIDGE_PRESELECTION_LIST")
 
-        #Add these topics to class member variables
+        #Add excluded/preselected topics and their type to class member variables
         if excludedTopics != "None":
             for excluded in excludedTopics.split(","):
                 self.exclusion_list.append(excluded.strip())
-        
+
+        print("Exclusion: " + str(self.exclusion_list))
         if preselectedTopics != "None":
             for preselected in preselectedTopics.split(","):
                 self.preselection_list.append(preselected.strip())
-                #Also add the topic to the subscriber list member variable
+        print("Preselection: " + str(self.preselection_list))
 
     def createLogger(self, log_type):
         """Creates log file for the ROS2NatsBridge with configuration items based on the settings input in the params.yaml file"""
@@ -132,6 +133,31 @@ class Ros2NatsBridgeNode(Node):
             self.log_handler.setLevel(logging.ERROR)
 
         self.logger.addHandler(self.log_handler)    
+    
+    def subscribeHelper(self, topic_name, topic_type):
+        """Helper method that contains functionality to create a subscription to ROS topic"""
+        msg_type_split = topic_type.split('/')
+        exec("from " + msg_type_split[0] + '.' + msg_type_split[1] + " import " + msg_type_split[2])       
+        call_back = self.CallBack(topic_type, topic_name, self.nc, self.vehicle_info[UnitKeys.UNIT_ID.value], self.vehicle_info[UnitKeys.UNIT_TYPE.value],
+                                    self.vehicle_info[UnitKeys.UNIT_NAME.value], self.vehicle_info[EventKeys.EVENT_NAME.value], self.vehicle_info[EventKeys.TESTING_TYPE.value], self.vehicle_info[EventKeys.LOCATION.value], self.logger)
+
+        try:
+            self.subscribers_list[topic_name] = self.create_subscription(eval(msg_type_split[2]), topic_name, call_back.listener_callback, 10)
+        except Exception as e:
+            self.logger.error("Error subscribing to: " + str(e))
+        finally:
+            self.logger.warn(f"Subscribing to '{topic_name} with type {topic_type}'")
+
+    def subscribePreselected(self):
+        """Subscribe to all preselected topics"""
+        incoming_topics = [v for i, v in enumerate(self.get_topic_names_and_types())]
+        for i in incoming_topics:
+            topic = i[0]
+            msg_type = i[1][0]
+
+            #Subscribe to topic if is in preselection list
+            if(topic in self.preselection_list):
+                self.subscribeHelper(topic, msg_type)
 
     async def nats_connect(self):
         """
@@ -185,6 +211,10 @@ class Ros2NatsBridgeNode(Node):
                 self.logger.warn("Registering unit failed")
                 self.registered = False
                 pass
+        
+        #If bridge is registered, subscribe to preselected topics
+        if (self.registered):
+            self.subscribePreselected()    
 
     async def check_status(self):
         """
@@ -211,8 +241,9 @@ class Ros2NatsBridgeNode(Node):
 
             self.vehicle_info["timestamp"] = str(
                 self.get_clock().now().nanoseconds)
+            #Don't send topics in the exclusion list
             self.vehicle_info["topics"] = [
-                {"name": name, "type": types[0]} for name, types in self.get_topic_names_and_types()]
+                {"name": name, "type": types[0]} for name, types in self.get_topic_names_and_types() if name not in self.exclusion_list]
             message = json.dumps(self.vehicle_info).encode('utf8')
             await self.nc.publish(msg.reply, message)
 
@@ -271,28 +302,13 @@ class Ros2NatsBridgeNode(Node):
                         self.logger.info('Trying to unsubscribe from topic: "%s"' % existing_topic)
                         await topic_unsubscribe_request(existing_topic)
 
-
-            # Subscribe to topics not in subscriber list and not in exclusion list
+            # Subscribe to topics not in subscriber list
             for i in incoming_topics:
                 topic = i[0]
                 msg_type = i[1][0]
 
-                if(topic not in self.subscribers_list and topic not in self.exclusion_list):
-                    msg_type = msg_type.split('/')
-                    print("Topic: " + str(topic))
-                    print("Message type: " + str(msg_type))
-                    exec("from " + msg_type[0] + '.' +
-                         msg_type[1] + " import " + msg_type[2])
-                    call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info[UnitKeys.UNIT_ID.value], self.vehicle_info[UnitKeys.UNIT_TYPE.value],
-                                              self.vehicle_info[UnitKeys.UNIT_NAME.value], self.vehicle_info[EventKeys.EVENT_NAME.value], self.vehicle_info[EventKeys.TESTING_TYPE.value], self.vehicle_info[EventKeys.LOCATION.value], self.logger)
-                    try:
-                        self.subscribers_list[topic] = self.create_subscription(
-                            eval(msg_type[2]), topic, call_back.listener_callback, 10)
-                    except Exception as e:
-                        self.logger.error("got error: " + str(e))
-                    finally:
-                        self.logger.warn(
-                            f"Created a callback for '{topic} with type {msg_type}'.")
+                if(topic not in self.subscribers_list):
+                    self.subscribeHelper(topic, msg_type)
 
         try:
             self.logger.info("Waiting for publish_topics request")
@@ -311,7 +327,6 @@ class Ros2NatsBridgeNode(Node):
                 declare Nats client 
                 publish message to nats server
             """
-
             self.unit_id = unit_id
             self.unit_type = unit_type
             self.unit_name = unit_name
