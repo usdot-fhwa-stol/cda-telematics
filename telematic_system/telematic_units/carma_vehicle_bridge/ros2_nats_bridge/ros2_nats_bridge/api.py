@@ -96,12 +96,12 @@ class Ros2NatsBridgeNode(Node):
         if excludedTopics != "None":
             for excluded in excludedTopics.split(","):
                 self.exclusion_list.append(excluded.strip())
+        self.logger.info("Exclusion list: " + str(self.exclusion_list))
 
-        print("Exclusion: " + str(self.exclusion_list))
         if preselectedTopics != "None":
             for preselected in preselectedTopics.split(","):
                 self.preselection_list.append(preselected.strip())
-        print("Preselection: " + str(self.preselection_list))
+        self.logger.info("Preselection list: " + str(self.preselection_list))
 
     def createLogger(self, log_type):
         """Creates log file for the ROS2NatsBridge with configuration items based on the settings input in the params.yaml file"""
