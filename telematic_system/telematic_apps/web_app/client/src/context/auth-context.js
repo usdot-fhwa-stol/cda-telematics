@@ -19,6 +19,7 @@ import { useSessionStorageString, useClearSessionStorage } from "react-use-windo
 const AuthContext = React.createContext({
   isAuth: false,
   username: null,
+  password: null,
   sessionToken: null,
   login: (username, password, sessionToken) => { },
   logout: () => { }
@@ -27,13 +28,15 @@ const AuthContext = React.createContext({
 export const AuthContextProvider = (props) => {
   const [isAuthenticated, setIsAuthenticated] = useSessionStorageString("isAuth", false);
   const [username, setUsername] = useSessionStorageString("username", null);
+  const [password, setPassword] = useSessionStorageString("password", null);
   const [sessionToken, setSessionToken] = useSessionStorageString("sessionToken", null);
   const clearSessionStorage = useClearSessionStorage();
 
   const loginHandler = (username, password, sessionToken) => {
-    if (username === "admin" && password === "admin") {
+    if (username !== undefined && username !== "" && password !== undefined  && password !== "") {
       setIsAuthenticated(true);
       setUsername(username);
+      setPassword(password);
       setSessionToken(sessionToken);
       return true;
     } else {
@@ -51,6 +54,7 @@ export const AuthContextProvider = (props) => {
   return <AuthContext.Provider value={{
     isAuth: isAuthenticated,
     username: username,
+    password: password,
     sessionToken: sessionToken,
     login: loginHandler,
     logout: logoutHandler

@@ -15,33 +15,39 @@
  */
 import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
-import React, { useRef, useState } from 'react';
+import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { VALID_UNIT_TYPES } from './EventMetadata';
 
 export const UnitFormDialog = (props) => {
-    const unitIdRef = useRef(null);
-    const unitNameRef = useRef(null);
+    const [unitId, setUnitId] = useState('');
+    const [unitName, setUnitName] = useState('');
     const [unitType, setUnitType] = useState('');
 
     const onCloseHandler = () => {
-        setUnitType('');
+        resetUnitForm();
         props.onClose();
     }
-    const handleUnitTypeChange = (event)=>{
+    const handleUnitIdChange = (event) => {
+        setUnitId(event.target.value);
+    }
+    const handleUnitNameChange = (event) => {
+        setUnitName(event.target.value);
+    }
+    const handleUnitTypeChange = (event) => {
         setUnitType(event.target.value);
     }
 
     const onSaveHandler = () => {
         const unit = {
-            unit_identifier: unitIdRef.current.value,
-            unit_name: unitNameRef.current.value,
+            unit_identifier: unitId,
+            unit_name: unitName,
             unit_type: unitType
         }
         props.onSave(unit);
+        resetUnitForm();
     }
-
     const validationSchema = Yup.object().shape({
         unitId: Yup.string().required('Unit id is required'),
         unitName: Yup.string().required('Unit name is required'),
@@ -50,13 +56,24 @@ export const UnitFormDialog = (props) => {
 
     const {
         register,
-        control,
         handleSubmit,
-        formState: { errors }
+        control,
+        formState: { errors },
+        clearErrors,
+        resetField
     } = useForm({
         resolver: yupResolver(validationSchema)
     });
 
+    const resetUnitForm = () => {
+        setUnitType('');
+        setUnitId('');
+        setUnitName('');
+        clearErrors();
+        resetField("unitId");
+        resetField("unitName");
+        resetField("unitTypeId");
+    }
 
     return (
         <React.Fragment>
@@ -70,12 +87,12 @@ export const UnitFormDialog = (props) => {
                         <TextField
                             {...register('unitId')}
                             error={errors.unitId ? true : false}
-                            autoFocus
                             margin="dense"
                             id="unitId"
                             label="Unit ID*"
                             variant="standard"
-                            inputRef={unitIdRef}
+                            value={unitId}
+                            onChange={handleUnitIdChange}
                             sx={{ marginBottom: 5 }} />
                     </FormControl>
 
@@ -83,12 +100,12 @@ export const UnitFormDialog = (props) => {
                         <TextField
                             {...register('unitName')}
                             error={errors.unitName ? true : false}
-                            autoFocus
                             margin="dense"
                             id="unitName"
                             label="Unit Name*"
                             variant="standard"
-                            inputRef={unitNameRef}
+                            value={unitName}
+                            onChange={handleUnitNameChange}
                             sx={{ marginBottom: 5 }} />
                     </FormControl>
 

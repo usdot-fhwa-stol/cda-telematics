@@ -159,7 +159,6 @@ const EventsFilterForm = (props) => {
 
       <FormControl sx={{ margin: 1 }}>
         <TextField
-          autoFocus
           margin="dense"
           id="name"
           label="Event Name*"

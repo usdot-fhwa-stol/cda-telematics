@@ -69,7 +69,7 @@ const EventTableRowCollapse = (props) => {
                             } else {
                                 const start_ts = new Date(props.eventRow['start_at']).getTime();
                                 const end_ts = new Date(props.eventRow['end_at']).getTime();
-                                if (new Date().getTime() <= end_ts && new Date().getTime() >= start_ts) {
+                                if (new Date().getTime() <= end_ts) {
                                     value = ACTIVE_EVENT;
                                 } else if (new Date().getTime() > end_ts || new Date().getTime() < start_ts) {
                                     value = PAST_EVENT;
@@ -123,8 +123,8 @@ const EventTableRowCollapse = (props) => {
                                                 <TableCell component="th" scope="row" key={`${props.eventRow.id}-Unit-name-${unit.unit_identifier}`}>
                                                     {unit.unit_name} ({unit.unit_identifier} )
                                                 </TableCell>
-                                                <TableCell component="th" scope="row" key={`${props.eventRow.id}-Unit-type-${unit.unit_type}-${Math.random()*100}`}>
-                                                    {unit.unit_type} 
+                                                <TableCell component="th" scope="row" key={`${props.eventRow.id}-Unit-type-${unit.unit_type}-${Math.random() * 100}`}>
+                                                    {unit.unit_type}
                                                 </TableCell>
                                                 {props.eventRow.event_units !== undefined &&
                                                     <React.Fragment>
@@ -147,7 +147,7 @@ const EventTableRowCollapse = (props) => {
                                                         </TableCell>
                                                     </React.Fragment>
                                                 }
-                                                <EventTableRowCollapseDialog unit={unit} eventRow={props.eventRow}   key={`${props.eventRow.id}-Unit-name-${unit.unit_identifier}-dialog`} onConfirmUnassignUnitHandler={onConfirmUnassignUnitHandler}/>
+                                                <EventTableRowCollapseDialog unit={unit} eventRow={props.eventRow} key={`${props.eventRow.id}-Unit-name-${unit.unit_identifier}-dialog`} onConfirmUnassignUnitHandler={onConfirmUnassignUnitHandler} />
                                             </TableRow>
                                         ))}
                                 </TableBody>

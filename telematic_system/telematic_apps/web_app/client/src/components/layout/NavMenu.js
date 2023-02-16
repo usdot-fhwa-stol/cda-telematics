@@ -22,12 +22,18 @@ import { styled } from '@mui/material/styles';
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AuthContext from '../../context/auth-context';
+import { deleteUser } from '../../api/api-user';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 const NavMenu = React.memo(() => {
     const authCtx = React.useContext(AuthContext);
     const location = useLocation();
     const logoutHandler = React.useCallback(() => {
-        authCtx.logout();
+        deleteUser(authCtx.username).then(status => {
+            authCtx.logout();
+        }).catch(error => {
+            console.log("error logout: " + error);
+        });
     }, [authCtx]);
 
     const closedMixin = (theme) => ({
@@ -76,6 +82,18 @@ const NavMenu = React.memo(() => {
                             <Tooltip title="Topics" placement="right-start" arrow>
                                 <ListItemIcon>
                                     <StreamIcon />
+                                </ListItemIcon>
+                            </Tooltip>
+                            <ListItemText primary="Topics" />
+                        </ListItemButton>
+                    </ListItem>
+                    <ListItem key="admin" disablePadding sx={{ display: 'block' }}>
+                        <ListItemButton
+                            component={Link} to="/telematic/admin"
+                            selected={"/telematic/admin" === location.pathname}>
+                            <Tooltip title="Administrators" placement="right-start" arrow>
+                                <ListItemIcon>
+                                    <AdminPanelSettingsIcon />
                                 </ListItemIcon>
                             </Tooltip>
                             <ListItemText primary="Topics" />

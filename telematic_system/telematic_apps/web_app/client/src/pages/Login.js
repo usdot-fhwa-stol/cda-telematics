@@ -14,7 +14,7 @@
  * the License.
  */
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import { Alert, Snackbar } from '@mui/material';
+import { Alert, Grid, Link, Snackbar } from '@mui/material';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
@@ -23,7 +23,7 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import * as React from 'react';
 import AuthContext from '../context/auth-context';
-
+import { createUpdateUser } from '../api/api-user';
 
 const theme = createTheme();
 
@@ -34,10 +34,13 @@ const Login = React.memo(() => {
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        const isLogin = authContext.login(data.get('username'), data.get("password"), "NA");
-        if (!isLogin) {
+        const status = createUpdateUser(data.get('username'),data.get('username'), data.get("password"));
+        status.then(resData => {
+            authContext.login(resData.username, resData.password, "NA");
+            setLoginState(true);
+        }).catch(error => {
             setLoginState(false);
-        }
+        });
     };
     const handleClose = () => {
         setLoginState(true);
@@ -95,10 +98,20 @@ const Login = React.memo(() => {
                                 Sign In
                             </Button>
                         </Box>
+                        <Box component="div">
+                            <Grid container spacing={1} >
+                                <Grid item xs={6}>
+                                    <Link href="/telematic/forget/password">Forget Password?</Link>
+                                </Grid>
+                                <Grid item xs={6}>
+                                    <Link href="/telematic/register/user">Register user</Link>
+                                </Grid>
+                            </Grid>
+                        </Box>
                     </Box>
                 </Container>
             </ThemeProvider>
-        </React.Fragment>
+        </React.Fragment >
     );
 });
 export default Login;
