@@ -14,13 +14,29 @@ services:
     - VEHICLE_BRIDGE_UNIT_ID=vehicle_id
     - NATS_SERVER_IP_PORT=nats://44.206.13.7:4222
     - VEHICLE_BRIDGE_UNIT_TYPE=platform
-    - VEHICLE_BRIDGE_UNIT_NAME=Black_Pacifica
+    - VEHICLE_BRIDGE_UNIT_NAME=vehicle_id
     - VEHICLE_BRIDGE_LOG_LEVEL=debug
     - VEHICLE_BRIDGE_LOG_NAME=ros2_nats_bridge
     - VEHICLE_BRIDGE_LOG_PATH=/var/logs/
     - VEHICLE_BRIDGE_LOG_ROTATION_SIZE_BYTES=2147483648 #2 gigabytes
     - VEHICLE_BRIDGE_LOG_HANDLER_TYPE=console #console: Print logs on console; file: Save logs to file; all: Prints logs on console and file
-  
+    - VEHICLE_BRIDGE_EXCLUSION_LIST=
+      /environment/map_filtered_points,
+      /environment/points_clustered,
+      /environment/points_in_map,
+      /environment/detected_objects(autoware_msgs/DetectedObject),
+      /environment/roadway_objects(cav_msgs/RoadwayObstacle),
+      /environment/motion_computation_visualization,
+      /hardware_interface/lidar/points_raw(std_msgs/Header),
+      /environment/points_ground(std_msgs/Header),
+      /environment/points_no_ground(std_msgs/Header),
+      /environment/points_in_base_link,
+      /environment/lidar_detected_objects,
+      /environment/map_update,
+      /environment/semantic_map(Time format),
+      /environment/base_map(Time format)
+    - VEHICLE_BRIDGE_PRESELECTION_LIST=None
+
   streets-nats-bridge:
     build:
           context: ./telematic_units/carma_street_bridge

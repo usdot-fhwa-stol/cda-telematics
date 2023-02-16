@@ -58,6 +58,8 @@ class Ros2NatsBridgeNode(Node):
         self.nc = NATS()
         self.registered = False
         self.subscribers_list = {}
+        self.exclusion_list = []
+        self.preselection_list = []
 
         self.vehicle_info = {
             UnitKeys.UNIT_ID.value: os.getenv("VEHICLE_BRIDGE_UNIT_ID"),
@@ -85,6 +87,20 @@ class Ros2NatsBridgeNode(Node):
         else:
             self.createLogger(LogType.CONSOLE.value)
             self.logger.warn("Incorrect Log type defined, defaulting to console")
+
+        #Get the topics that should be excluded and preselected
+        excludedTopics = os.getenv("VEHICLE_BRIDGE_EXCLUSION_LIST")
+        preselectedTopics = os.getenv("VEHICLE_BRIDGE_PRESELECTION_LIST")
+
+        #Add these topics to class member variables
+        if excludedTopics != "None":
+            for excluded in excludedTopics.split(","):
+                self.exclusion_list.append(excluded.strip())
+        
+        if preselectedTopics != "None":
+            for preselected in preselectedTopics.split(","):
+                self.preselection_list.append(preselected.strip())
+                #Also add the topic to the subscriber list member variable
 
     def createLogger(self, log_type):
         """Creates log file for the ROS2NatsBridge with configuration items based on the settings input in the params.yaml file"""
@@ -256,13 +272,15 @@ class Ros2NatsBridgeNode(Node):
                         await topic_unsubscribe_request(existing_topic)
 
 
-            # Subscribe to topics not in subscriber list
+            # Subscribe to topics not in subscriber list and not in exclusion list
             for i in incoming_topics:
                 topic = i[0]
                 msg_type = i[1][0]
 
-                if(topic not in self.subscribers_list):
+                if(topic not in self.subscribers_list and topic not in self.exclusion_list):
                     msg_type = msg_type.split('/')
+                    print("Topic: " + str(topic))
+                    print("Message type: " + str(msg_type))
                     exec("from " + msg_type[0] + '.' +
                          msg_type[1] + " import " + msg_type[2])
                     call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info[UnitKeys.UNIT_ID.value], self.vehicle_info[UnitKeys.UNIT_TYPE.value],
