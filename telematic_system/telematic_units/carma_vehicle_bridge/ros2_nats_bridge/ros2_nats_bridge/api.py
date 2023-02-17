@@ -89,17 +89,17 @@ class Ros2NatsBridgeNode(Node):
             self.logger.warn("Incorrect Log type defined, defaulting to console")
 
         #Get the topics that should be excluded and preselected
-        excludedTopics = os.getenv("VEHICLE_BRIDGE_EXCLUSION_LIST")
-        preselectedTopics = os.getenv("VEHICLE_BRIDGE_PRESELECTION_LIST")
+        self.excludedTopics = os.getenv("VEHICLE_BRIDGE_EXCLUSION_LIST")
+        self.preselectedTopics = os.getenv("VEHICLE_BRIDGE_PRESELECTION_LIST")
 
         #Add excluded/preselected topics and their type to class member variables
-        if excludedTopics != "None":
-            for excluded in excludedTopics.split(","):
+        if self.excludedTopics != "None":
+            for excluded in self.excludedTopics.split(","):
                 self.exclusion_list.append(excluded.strip())
         self.logger.info("Exclusion list: " + str(self.exclusion_list))
 
-        if preselectedTopics != "None":
-            for preselected in preselectedTopics.split(","):
+        if self.preselectedTopics != "None":
+            for preselected in self.preselectedTopics.split(","):
                 self.preselection_list.append(preselected.strip())
         self.logger.info("Preselection list: " + str(self.preselection_list))
 

@@ -74,6 +74,10 @@ class StreetsNatsBridge():
         self.registered = False
 
         self.log_handler_type = os.getenv('STREETS_BRIDGE_LOG_HANDLER_TYPE')
+        
+        #Member variables to store the exclusion and preselection lists
+        self.exclusion_list = []
+        self.preselection_list = []
 
         # Placeholder info for now
         self.streets_info = {
@@ -91,6 +95,21 @@ class StreetsNatsBridge():
         else:
             self.createLogger(LogType.CONSOLE.value)
             self.logger.warn("Incorrect Log type defined, defaulting to console")
+
+        #Get the topics that should be excluded and preselected
+        self.excludedTopics = os.getenv("STREETS_BRIDGE_EXCLUSION_LIST")
+        self.preselectedTopics = os.getenv("STREETS_BRIDGE_PRESELECTION_LIST")
+
+        #Add excluded/preselected topics and their type to class member variables
+        if self.excludedTopics != "None":
+            for excluded in self.excludedTopics.split(","):
+                self.exclusion_list.append(excluded.strip())
+        self.logger.info("Exclusion list: " + str(self.exclusion_list))
+
+        if self.preselectedTopics != "None":
+            for preselected in self.preselectedTopics.split(","):
+                self.preselection_list.append(preselected.strip())
+        self.logger.info("Preselection list: " + str(self.preselection_list))
 
         self.logger.info(" Created Streets-NATS bridge object")
 
@@ -141,17 +160,19 @@ class StreetsNatsBridge():
 
             await self.kafka_consumer.start()
 
-            # Get all kafka topics and update the streets Kafka topic list
+            # Get all kafka topics and update the streets Kafka topic list if the topic is in the preselection list
             self.streets_topics = []
             for topic in await self.kafka_consumer.topics():
                 self.streets_topics.append(topic)
+                if topic in self.preselection_list:
+                    self.subscribers_list.append(topic)
             self.logger.info(
-                " In createAsyncKafkaConsumer: All topics = " + str(self.streets_topics))
+                " In createAsyncKafkaConsumer: All available Kafka topics = " + str(self.streets_topics))
 
             # Subscribe to streets Kafka topic list
-            self.kafka_consumer.subscribe(topics=self.streets_topics)
+            self.kafka_consumer.subscribe(topics=self.subscribers_list)
             self.logger.info(
-                " In createAsyncKafkaConsumer: Successfully subscribed to the following topics: " + str(self.streets_topics))
+                " In createAsyncKafkaConsumer: Successfully subscribed to the following topics: " + str(self.subscribers_list))
 
             await self.kafka_read()
         except:
@@ -176,7 +197,8 @@ class StreetsNatsBridge():
             async for consumed_msg in self.kafka_consumer:
                 topic = consumed_msg.topic
                 # Publish customized message to correlating NATS topics when subscribe list is not empty
-                if topic in self.subscribers_list:
+                # Need to add check if registered b/c of pre-selected topics (need event name, etc.)
+                if topic in self.subscribers_list and self.registered:
                     message = {}
                     message["payload"] = consumed_msg.value
                     # Add msg_type to json b/c worker looks for this field
@@ -267,7 +289,7 @@ class StreetsNatsBridge():
             self.streets_info["timestamp"] = datetime.now(
                 timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
             self.streets_info["topics"] = [
-                {"name": topicName} for topicName in self.streets_topics]
+                {"name": topicName} for topicName in self.streets_topics if topicName not in self.exclusion_list]
             message = json.dumps(self.streets_info).encode('utf8')
 
             self.logger.info(

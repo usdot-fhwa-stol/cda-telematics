@@ -59,6 +59,8 @@ services:
     - NATS_IP=44.206.13.7
     - NATS_PORT=4222
     - KAFKA_CONSUMER_RESET=earliest
+    - STREETS_BRIDGE_EXCLUSION_LIST=None
+    - STREETS_BRIDGE_PRESELECTION_LIST=vehicle_status_intent_output
   
   cloud-nats-bridge:
     build:
