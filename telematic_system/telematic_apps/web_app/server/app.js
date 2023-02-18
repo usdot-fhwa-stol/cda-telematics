@@ -20,7 +20,6 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 
 var app = express();
 const cors = require('cors')
@@ -48,8 +47,9 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+require('./routes/users')(app);
 require("./routes/events.router")(app);
+require("./routes/org.router")(app);
 require("./routes/locations.router")(app);
 require("./routes/units.router")(app);
 require("./routes/default_event_topics.router")(app);

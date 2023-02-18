@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const createUpdateUser = async (username, email, password) => {
-    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/users/upsert`
+    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/users/upsert`
     try {
         const { data } = await axios.post(URL, {
             username: username,
@@ -17,7 +17,7 @@ const createUpdateUser = async (username, email, password) => {
 
 
 const createUser = async (username, email, password) => {
-    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/users/create`
+    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/users/create`
 
     try {
         const { data } = await axios.post(URL, {
@@ -33,7 +33,7 @@ const createUser = async (username, email, password) => {
 }
 
 const updatePassword = async (username, email, password) => {
-    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/users/upsert/password`
+    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/users/upsert/password`
     try {
         const { data } = await axios.post(URL, {
             username: username,
@@ -48,7 +48,7 @@ const updatePassword = async (username, email, password) => {
 }
 
 const deleteUser = async (username) => {
-    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/users/delete`
+    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/users/delete`
 
     try {
         const { data } = await axios.delete(URL + "?username=" + username);
@@ -59,4 +59,27 @@ const deleteUser = async (username) => {
     }
 }
 
-export { createUpdateUser, deleteUser, updatePassword ,createUser}
+
+const listUsers = async () => {
+    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/users/all`
+
+    try {
+        const { data } = await axios.get(URL);
+        return data;
+    } catch (err) {
+        console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.statusText }
+    }
+}
+const updateUserServerAdmin = async (req) => {
+    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/users/update/server/admin`
+    try {
+        const { data } = await axios.post(URL, req);
+        return data;
+    } catch (err) {
+        console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.statusText }
+    }
+}
+
+export { createUpdateUser, deleteUser, updatePassword, createUser, listUsers, updateUserServerAdmin }

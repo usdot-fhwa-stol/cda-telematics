@@ -14,26 +14,20 @@
  * the License.
  */
 module.exports = app => {
-  const users = require("../controllers/user.controller");
+  const org = require("../controllers/org.controller");
   var router = require('express').Router();
 
-  /* GET users listing. */
-  router.get('/', function (req, res, next) {
-    res.sendStatus(200);
-  });
-
-  /* POST users creation. */
-  router.post("/create", users.createUser);
-  //Update existing or create a new user
-  router.post('/upsert', users.createOrUpdateUser);
-  //Update existing or create a new user
-  router.post('/update/server/admin', users.updateUserServerAdmin)
-  //Delete a user
-  router.delete('/delete', users.deleteUser);
-  //Retrieve all users
-  router.get("/all", users.findAll);
-
-  app.use('/api/users', router);
+  /* GET all organizations. */
+  router.get('/all', org.findAll);
+  /***POST add user to organization */
+  router.post('/user/add', org.addOrgUser);
+  /***POST update user for organization */
+  router.post('/user/update', org.updateOrgUser);
+  /***DELETE delete user from organization */
+  router.delete('/user/delete', org.delOrgUser);
+  /***Get all organization users */
+  router.get('/all/users', org.findAllOrgUsers);
+  app.use('/api/org', router);
 
   module.exports = router;
 }

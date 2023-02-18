@@ -1,8 +1,19 @@
-import React from 'react'
 
-const UserRoleManagement = () => {
+import React from 'react';
+import UserTable from './UserTable';
+
+const UserRoleManagement = (props) => {
   return (
-    <div>UserRoleManagement</div>
+    <React.Fragment>
+      <UserTable key={`user-table`}
+        users={props.users}
+        orgs={props.orgs}
+        orgsUsers={props.orgsUsers}
+        onAddUserToOrg={props.onAddUserToOrg}
+        onUserOrgRoleChange={props.onUserOrgRoleChange}
+        onUserOrgRoleDelete={props.onUserOrgRoleDelete}
+        onChangeServerAdmin ={props.onChangeServerAdmin} />
+    </React.Fragment>
   )
 }
 

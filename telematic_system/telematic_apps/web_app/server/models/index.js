@@ -39,6 +39,9 @@ grafana_db.default_event_topics = require('./default_event_topics.model')(seq, S
 grafana_db.testing_types = require('./testing_types.model')(seq, Sequelize);
 grafana_db.event_units = require('./event_units.model')(seq, Sequelize);
 grafana_db.states = require('./states.model')(seq, Sequelize);
+grafana_db.user = require('./user.model')(seq, Sequelize);
+grafana_db.org = require('./org.model')(seq, Sequelize);
+grafana_db.org_user = require('./org_user.model')(seq, Sequelize);
 
 //Associations
 grafana_db.events.belongsToMany(grafana_db.units, {

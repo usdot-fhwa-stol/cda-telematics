@@ -140,7 +140,6 @@ const RegisterUser = () => {
                         <Box sx={{
                             "marginTop": 2,
                             alignItems: "left",
-                            color: 'gray',
                             fontStyle: "italic"
                         }}>
                             A user is by default assigned with viewer role. Please send email to
