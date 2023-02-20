@@ -59,7 +59,7 @@ services:
     - NATS_IP=44.206.13.7
     - NATS_PORT=4222
     - KAFKA_CONSUMER_RESET=earliest
-    - STREETS_BRIDGE_EXCLUSION_LIST=None
+    - STREETS_BRIDGE_EXCLUSION_LIST=modified_spat
     - STREETS_BRIDGE_PRESELECTION_LIST=vehicle_status_intent_output
   
   cloud-nats-bridge:
@@ -85,3 +85,5 @@ services:
       - CARMA_CLOUD_BRIDGE_LOG_HANDLER=console #"console": Print logs on console; "file": Save logs to file; "all": Prints logs on console and file
       - CARMA_CLOUD_BRIDGE_TCR_STRING=TrafficControlRequest #TCR string to search for in carma cloud log
       - CARMA_CLOUD_BRIDGE_TCM_STRING=TrafficControlMessage #TCM string to search for in carma cloud log
+      - CLOUD_BRIDGE_EXCLUSION_LIST=TCR
+      - CLOUD_BRIDGE_PRESELECTION_LIST=TCM
