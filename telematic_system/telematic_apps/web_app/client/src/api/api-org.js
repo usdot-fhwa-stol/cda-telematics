@@ -6,7 +6,7 @@ const listOrgs = async () => {
         return data;
     } catch (err) {
         console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.statusText }
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 }
 
@@ -17,7 +17,7 @@ const listOrgUsers = async () => {
         return data;
     } catch (err) {
         console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.statusText }
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 }
 
@@ -31,7 +31,21 @@ const addOrgUser = async (reqData) => {
         return data;
     } catch (err) {
         console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.statusText }
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    }
+}
+
+const getUserRole = async (reqData) => {
+    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/org/role/get`
+
+    try {
+        const { data } = await axios.post(URL, {
+            data: reqData
+        });
+        return data;
+    } catch (err) {
+        console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 }
 
@@ -45,7 +59,7 @@ const updateOrgUser = async (reqData) => {
         return data;
     } catch (err) {
         console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.statusText }
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 }
 
@@ -60,7 +74,7 @@ const deleteOrgUser = async (req) => {
         return data;
     } catch (err) {
         console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.statusText }
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 }
 

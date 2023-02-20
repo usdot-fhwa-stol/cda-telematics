@@ -21,7 +21,8 @@
     "pug": "2.0.0-beta11",
     "request": "^2.88.2",
     "rest-request": "^1.0.12",
-    "sequelize": "^6.25.2"
+    "sequelize": "^6.25.2",
+    "uuid-by-string": "^4.0.0"
   },
   "author": "Samir Tabriz",
   "license": "Apache-2.0",

@@ -41,6 +41,30 @@ exports.findAllOrgUsers = (req, res) => {
         });
 }
 
+
+exports.getUserRole = (req, res) => {
+    if (!req.body || !req.body.data || !req.body.data.org_id || !req.body.data.user_id) {
+        res.status(400).send({
+            message: "Content cannot be empty."
+        });
+        return;
+    }
+    org_user.findAll({
+        where: {
+            org_id: req.body.org_id,
+            user_id: req.body.user_id
+        }
+    })
+        .then(data => {
+            console.log(data)
+            res.status(200).send(data);
+        }).catch(err => {
+            res.status(500).send({
+                message: err.message || "Error while findAll organizations."
+            });
+        });
+}
+
 exports.addOrgUser = (req, res) => {
     if (!req.body || !req.body.data || !req.body.data.org_id || !req.body.data.user_id) {
         res.status(400).send({
@@ -114,11 +138,11 @@ exports.delOrgUser = (req, res) => {
         }
     })
         .then(num => {
-        if (num == 1) {
-            res.status(200).send({ message: "Org user was deleted successfully." });
-        }else{
-            res.status(400).send({ message: `Cannot delete Org user id =${req.query.user_id}. Maybe Org user was not found or request body was empty.` });
-        }
+            if (num == 1) {
+                res.status(200).send({ message: "Org user was deleted successfully." });
+            } else {
+                res.status(400).send({ message: `Cannot delete Org user id =${req.query.user_id}. Maybe Org user was not found or request body was empty.` });
+            }
         }).catch(err => {
             res.status(500).send({
                 message: err.message || "Error while updating user for an organization."

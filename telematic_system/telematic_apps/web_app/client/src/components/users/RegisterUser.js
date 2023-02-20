@@ -1,19 +1,25 @@
-import { Alert, Avatar, Button, Checkbox, Chip, Container, FormControl, FormControlLabel, IconButton, InputLabel, Link, Paper, Snackbar, TextField, Tooltip } from '@mui/material';
-import { Box } from '@mui/system';
-import React, { useState } from 'react';
-import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { createUpdateUser, createUser } from '../../api/api-user';
 import { yupResolver } from '@hookform/resolvers/yup';
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import { Alert, Avatar, Button, Chip, Container, FormControl, InputLabel, Link, MenuItem, Select, Snackbar, TextField, Tooltip } from '@mui/material';
+import { Box } from '@mui/system';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { listOrgs } from '../../api/api-org';
+import { registerNewUser } from '../../api/api-user';
+import { SEVERITY } from './UserMetadata';
 
 const RegisterUser = () => {
     const [open, setOpen] = useState(false);
     const [password, setPwd] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
     const [username, setUsername] = useState('');
+    const [errStatus, setErrorStatus] = useState('');
     const [email, setEmail] = useState('');
+    const [selectedOrg, setSelectedOrg] = useState('');
+    const [allOrgs, setAllOrgs] = useState([]);    
+    const [adminEmails, setAdminEmails] = useState(['Ankur.Tyagi@leidos.com', 'dan.du@leidos.com', 'abey.yoseph@leidos.com', 'anish.deva@leidos.com']);
     const handleClose = () => {
         setErrorMsg('')
         setOpen(false);
@@ -28,15 +34,21 @@ const RegisterUser = () => {
     const handleCurrentPassword = (event) => {
         setPwd(event.target.value);
     }
+    const handleOrgChange = (event)=>{
+        setSelectedOrg(event.target.value);
+    }
 
     const saveUser = () => {
-        const response = createUser(username, email, password);
+        const response = registerNewUser(username, email, password, selectedOrg);
         response.then(status => {
-            console.log(status);
             if (status.errCode !== undefined && status.errMsg !== undefined) {
                 setErrorMsg(status.errMsg);
+                setErrorStatus(SEVERITY.ERROR);
                 setOpen(true);
             } else {
+                setOpen(true);
+                setErrorStatus(SEVERITY.SUCCESS);
+                setErrorMsg(status.message);
                 //successfully change password, and reset the form
                 resetForgetPwdForm();
             }
@@ -44,11 +56,30 @@ const RegisterUser = () => {
             console.error(error);
         })
     }
+    const getAllOrgs = ()=>{
+        const response = listOrgs();
+        response.then(status => {
+            if (status.errCode !== undefined && status.errMsg !== undefined) {
+                setErrorMsg(status.errMsg);
+                setErrorStatus(SEVERITY.ERROR);
+                setOpen(true);
+            } else {
+                setAllOrgs(status);
+            }
+        }).catch(error => {
+            console.error(error);
+        })        
+    }
+
+    useEffect(()=>{
+        getAllOrgs();
+    },[])
 
     const validationSchema = Yup.object().shape({
         username: Yup.string().required('User username is required'),
         email: Yup.string().required('Email is required'),
         password: Yup.string().required('Password is required'),
+        selectedOrg: Yup.string().required('Organization is required'),
     });
 
     const {
@@ -63,13 +94,14 @@ const RegisterUser = () => {
 
     const resetForgetPwdForm = () => {
         setPwd('');
-        setErrorMsg('');
         setUsername('');
         setEmail('');
+        setSelectedOrg('');
         clearErrors();
         resetField("username");
         resetField("email");
         resetField("password");
+        resetField('selectedOrg');
     }
 
     return (
@@ -79,7 +111,7 @@ const RegisterUser = () => {
                 open={open}
                 autoHideDuration={6000}
                 key="Login">
-                <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                <Alert onClose={handleClose} severity={errStatus} sx={{ width: '100%' }}>
                     {errorMsg}
                 </Alert>
             </Snackbar>
@@ -91,7 +123,6 @@ const RegisterUser = () => {
                         flexDirection: 'column',
                         alignItems: 'center',
                     }} >
-
                     <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
                         <PersonAddIcon />
                     </Avatar>
@@ -132,6 +163,26 @@ const RegisterUser = () => {
                                 variant='outlined'
                                 onChange={handleCurrentPassword} />
                         </FormControl>
+                        <FormControl
+                            size='small'
+                            fullWidth
+                            margin='normal'>
+                            <InputLabel id="org-selection-label">All Organizations *</InputLabel>
+                            <Select
+                                {...register('selectedOrg')}
+                                error={errors.selectedOrg ? true : false}
+                                labelId='all-orgs'
+                                id='org-selection'
+                                label='All Organizations *'
+                                value={selectedOrg}
+                                onChange={handleOrgChange}>
+                                {
+                                    allOrgs.map(org => {
+                                        return <MenuItem value={org.id} key={org.id}>{org.name}</MenuItem>
+                                    })
+                                }
+                            </Select>
+                        </FormControl>
                         <FormControl>
                             <Tooltip title="User is assigned with default viewer role." placement="top-start">
                                 <Chip label="Viewer" sx={{ marginTop: 2 }} icon={<VisibilityIcon />} variant="outlined" />
@@ -142,9 +193,9 @@ const RegisterUser = () => {
                             alignItems: "left",
                             fontStyle: "italic"
                         }}>
-                            A user is by default assigned with viewer role. Please send email to
-                            <Link href={`mailto:dan.du@leidos.com?subject=Role update request&body=Request`}> administrators </Link>
-                            &nbsp;to update your role.
+                            A user is by default assigned viewer role. Please send email to
+                            <Link href={`mailto:${adminEmails.join(',')}?subject=Role update request&body=Request`}> administrators </Link>
+                            &nbsp;request to update your role.
                         </Box>
                         <Button variant='contained' sx={{ marginTop: 2 }} margin="normal" fullWidth onClick={handleSubmit(saveUser)}>
                             Create User

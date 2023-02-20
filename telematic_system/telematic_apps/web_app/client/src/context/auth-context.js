@@ -19,25 +19,37 @@ import { useSessionStorageString, useClearSessionStorage } from "react-use-windo
 const AuthContext = React.createContext({
   isAuth: false,
   username: null,
-  password: null,
+  email: null,
   sessionToken: null,
-  login: (username, password, sessionToken) => { },
+  last_seen_at: null,
+  org_id: null,
+  org_name: null,
+  login: (username, sessionToken, email, last_seen_at, org_id, org_name, name) => { },
   logout: () => { }
 })
 
 export const AuthContextProvider = (props) => {
   const [isAuthenticated, setIsAuthenticated] = useSessionStorageString("isAuth", false);
   const [username, setUsername] = useSessionStorageString("username", null);
-  const [password, setPassword] = useSessionStorageString("password", null);
+  const [email, setEmail] = useSessionStorageString("email", null);
+  const [last_seen_at, setLastSeenAt] = useSessionStorageString("last_seen_at", null);
+  const [org_id, setOrgId] = useSessionStorageString("org_id", null);
+  const [org_name, setOrgName] = useSessionStorageString("org_name", null);
+  const [name, setName] = useSessionStorageString("name", null);
   const [sessionToken, setSessionToken] = useSessionStorageString("sessionToken", null);
   const clearSessionStorage = useClearSessionStorage();
 
-  const loginHandler = (username, password, sessionToken) => {
-    if (username !== undefined && username !== "" && password !== undefined  && password !== "") {
+  const loginHandler = (username, sessionToken, email, last_seen_at, org_id, org_name, name) => {
+    if (username !== undefined && username !== ""
+      && sessionToken !== undefined && sessionToken !== "") {
       setIsAuthenticated(true);
       setUsername(username);
-      setPassword(password);
+      setEmail(email);
       setSessionToken(sessionToken);
+      setOrgName(org_name);
+      setLastSeenAt(last_seen_at);
+      setOrgId(org_id);
+      setName(name);
       return true;
     } else {
       setIsAuthenticated(false);
@@ -54,8 +66,12 @@ export const AuthContextProvider = (props) => {
   return <AuthContext.Provider value={{
     isAuth: isAuthenticated,
     username: username,
-    password: password,
+    email: email,
     sessionToken: sessionToken,
+    last_seen_at: last_seen_at,
+    org_id: org_id,
+    name: name,
+    org_name: org_name,
     login: loginHandler,
     logout: logoutHandler
   }}>{props.children}</AuthContext.Provider>

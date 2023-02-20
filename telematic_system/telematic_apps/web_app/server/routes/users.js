@@ -23,9 +23,11 @@ module.exports = app => {
   });
 
   /* POST users creation. */
-  router.post("/create", users.createUser);
+  router.post("/register", users.registerUser);
   //Update existing or create a new user
-  router.post('/upsert', users.createOrUpdateUser);
+  router.post('/forget/password', users.forgetPwd);
+  //authenticate user
+  router.post('/login', users.loginUser);
   //Update existing or create a new user
   router.post('/update/server/admin', users.updateUserServerAdmin)
   //Delete a user

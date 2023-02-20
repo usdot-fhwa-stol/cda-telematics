@@ -89,8 +89,8 @@ module.exports = (seq, Sequelize) => {
             allowNull: false
         },
         updated: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0,
+            type: 'TIMESTAMP',
+            defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
             allowNull: false,
         },
         help_flags1: {

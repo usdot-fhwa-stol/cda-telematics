@@ -19,6 +19,8 @@ module.exports = app => {
 
   /* GET all organizations. */
   router.get('/all', org.findAll);
+  //POST retrieve user role
+  router.post('/role/get',org.getUserRole);
   /***POST add user to organization */
   router.post('/user/add', org.addOrgUser);
   /***POST update user for organization */

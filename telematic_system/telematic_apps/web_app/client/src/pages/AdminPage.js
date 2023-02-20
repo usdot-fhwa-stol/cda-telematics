@@ -7,6 +7,7 @@ import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
 import { Grid, Typography } from '@mui/material';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import AuthContext from '../context/auth-context';
 
 const AdminPage = () => {
     //Add Alert notification
@@ -14,6 +15,7 @@ const AdminPage = () => {
     const [users, setUsers] = useState([]);
     const [orgs, setOrgs] = useState([]);
     const [orgsUsers, setOrgsUsers] = useState([]);
+    const authContxt = React.useContext(AuthContext);
 
     const closeAlertHandler = () => {
         setAlertStatus({
@@ -117,7 +119,7 @@ const AdminPage = () => {
                 });
             }
         });
-    }, [])
+    }, [authContxt.org_id])
     return (
         <React.Fragment>
             <Notification open={alertStatus.open}
@@ -130,7 +132,7 @@ const AdminPage = () => {
                     <PageAvatar icon={<AdminPanelSettingsIcon />} title="Administrator" />
                 </Grid>
                 <Grid item xs={12}>
-                    <Typography sx={{ marginLeft: 2 }}>Current Organization: </Typography>
+                    <Typography sx={{ marginLeft: 2}}>Current Organization: {authContxt.org_name} </Typography>
                 </Grid>
             </Grid>
             <UserRoleManagement

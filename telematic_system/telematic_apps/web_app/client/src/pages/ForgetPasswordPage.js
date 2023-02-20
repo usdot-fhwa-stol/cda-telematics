@@ -6,12 +6,14 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { updatePassword } from '../api/api-user';
+import { SEVERITY } from '../components/users/UserMetadata';
 
 const ForgetPasswordPage = () => {
   const [open, setOpen] = useState(false);
   const [curPwd, setCurPwd] = useState('');
   const [confirmCurPwd, setConfirmCurPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
+  const [errStatus, setErrorStatus] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -42,25 +44,30 @@ const ForgetPasswordPage = () => {
     //Current password and confirm password shall match
     if (curPwd !== "" && confirmCurPwd !== "" && curPwd !== confirmCurPwd) {
       setErrorMsg('Current passwords do not match.')
+      setErrorStatus(SEVERITY.ERROR);
       setOpen(true);
       return;
-    } else {
-      setErrorMsg('');
-      setOpen(false);
     }
 
-    const response = updatePassword(username, email, newPwd);
+    const response = updatePassword(username, email, curPwd, newPwd);
     response.then(status => {
-      console.log(status);
+      console.log(status)
       if (status.errCode !== undefined && status.errMsg !== undefined) {
         setErrorMsg(status.errMsg);
         setOpen(true);
+        setErrorStatus(SEVERITY.ERROR);
       } else {
         //successfully change password, and reset the form
         resetForgetPwdForm();
+        setErrorMsg(status.message);
+        setOpen(true);
+        setErrorStatus(SEVERITY.SUCCESS);
       }
     }).catch(error => {
       console.error(error);
+      setErrorMsg(error);
+      setOpen(true);
+      setErrorStatus(SEVERITY.ERROR);
     })
 
   }
@@ -87,7 +94,6 @@ const ForgetPasswordPage = () => {
     setCurPwd('');
     setConfirmCurPwd('');
     setNewPwd('');
-    setErrorMsg('');
     setUsername('');
     setEmail('');
     clearErrors();
@@ -106,7 +112,7 @@ const ForgetPasswordPage = () => {
           open={open}
           autoHideDuration={6000}
           key="Login">
-          <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+          <Alert onClose={handleClose} severity={errStatus} sx={{ width: '100%' }}>
             {errorMsg}
           </Alert>
         </Snackbar>
@@ -124,7 +130,7 @@ const ForgetPasswordPage = () => {
             <Box component="form" sx={{ mt: 1 }}>
               <FormControl fullWidth>
                 <TextField id="name"
-                  label="Name *"
+                  label="User Name *"
                   variant='outlined'
                   fullWidth
                   {...register('name')}

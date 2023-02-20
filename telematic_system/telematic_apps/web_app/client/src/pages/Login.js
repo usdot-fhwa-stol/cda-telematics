@@ -23,7 +23,8 @@ import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import * as React from 'react';
 import AuthContext from '../context/auth-context';
-import { createUpdateUser } from '../api/api-user';
+import { loginUser } from '../api/api-user';
+import { listOrgs } from '../api/api-org';
 
 const theme = createTheme();
 
@@ -34,11 +35,30 @@ const Login = React.memo(() => {
     const handleSubmit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        const status = createUpdateUser(data.get('username'),data.get('username'), data.get("password"));
+        const status = loginUser(data.get('username'), data.get("password"));
+        // let login
         status.then(resData => {
-            authContext.login(resData.username, resData.password, "NA");
             setLoginState(true);
+            //Checking if login is successful
+            const org_response = listOrgs();
+            org_response.then(data => {
+                if (data !== undefined && Array.isArray(data) && data.length !== 0) {
+                    //Get current user organization name
+                    data.forEach(item => {
+                        if (item !== undefined && item.id !== undefined && parseInt(item.id) === parseInt(resData.org_id)) {
+                            authContext.login(resData.login, resData.session_token, resData.email,
+                                resData.last_seen_at, resData.org_id, item.name, resData.name);
+                        }
+                    });
+                }
+            }).catch(err => {
+                console.error(err);
+            });
+
+            //Get current user role
+
         }).catch(error => {
+            console.error(error);
             setLoginState(false);
         });
     };
