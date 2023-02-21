@@ -18,12 +18,15 @@ import { Button, Card, CardContent, CardHeader, FormControl, Grid, InputLabel, M
 import { Box } from '@mui/system';
 import React, { useContext, useEffect, useState } from 'react';
 import { getAvailableLiveTopicsByEventUnits } from '../../api/api-topics';
+import AuthContext from '../../context/auth-context';
 import TopicContext from '../../context/topic-context';
+import { USER_ROLES } from '../users/UserMetadata';
 import DefaultTopicSettings from './DefaultTopicSettings';
 import TopicList from './TopicList';
 import { DEFAULT_TOPIC_CATEGORY_NAME } from './TopicMetadata';
 
 const UnitTopicList = React.memo((props) => {
+    const authCtx = React.useContext(AuthContext)
     const TopicCtx = useContext(TopicContext);
     const ITEM_HEIGHT = 48;
     const ITEM_PADDING_TOP = 8;
@@ -269,9 +272,12 @@ const UnitTopicList = React.memo((props) => {
                                         {!isRefreshed && refreshMsg.length > 0 && <Typography sx={{ color: 'red' }} style={{ flex: 1 }}>{refreshMsg}</Typography>}
                                     </FormControl>
                                 </Grid>
-                                <Grid item xs={4}>
-                                    {selectedUnits !== undefined && <DefaultTopicSettings selectedUnits={selectedUnits} />}
-                                </Grid>
+                                {
+                                    authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+                                    <Grid item xs={4}>
+                                        {selectedUnits !== undefined && <DefaultTopicSettings selectedUnits={selectedUnits} />}
+                                    </Grid>
+                                }
                                 {selectedUnits !== undefined && <TopicList selectedUnits={selectedUnits} />}
                             </Grid>
                         </CardContent>

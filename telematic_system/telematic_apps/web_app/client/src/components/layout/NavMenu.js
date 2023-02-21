@@ -19,14 +19,32 @@ import StreamIcon from '@mui/icons-material/Stream';
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Tooltip } from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer';
 import { styled } from '@mui/material/styles';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import AuthContext from '../../context/auth-context';
 import { deleteUser } from '../../api/api-user';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import { getUserRole } from '../../api/api-org';
+import { USER_ROLES } from '../users/UserMetadata';
 
 const NavMenu = React.memo(() => {
     const authCtx = React.useContext(AuthContext);
+    useEffect(() => {
+        //update user role if changed
+        if (authCtx.user_id !== null && authCtx.user_id !== undefined && authCtx.org_id !== null
+            && authCtx.org_id !== undefined && parseInt(authCtx.org_id) !== 0) {
+            getUserRole({
+                user_id: parseInt(authCtx.user_id),
+                org_id: parseInt(authCtx.org_id)
+            }).then(data => {
+                console.log(data)
+                if (data !== undefined && data.errCode === undefined && Array.isArray(data) && data.length > 0) {
+                    authCtx.updateRole(data[0].role);
+                }
+            });
+        }
+    }, [])
+
     const location = useLocation();
     const logoutHandler = React.useCallback(() => {
         deleteUser(authCtx.username).then(status => {
@@ -88,7 +106,7 @@ const NavMenu = React.memo(() => {
                         </ListItemButton>
                     </ListItem>
                     {
-                        (parseInt(authCtx.is_admin) === 1 || authCtx.role === 'Admin') &&
+                        (parseInt(authCtx.is_admin) === 1 || authCtx.role === USER_ROLES.ADMIN) &&
                         <ListItem key="admin" disablePadding sx={{ display: 'block' }}>
                             <ListItemButton
                                 component={Link} to="/telematic/admin"

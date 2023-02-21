@@ -73,8 +73,8 @@ exports.getUserRole = (req, res) => {
     }
     org_user.findAll({
         where: {
-            org_id: req.body.org_id,
-            user_id: req.body.user_id
+            org_id: req.body.data.org_id,
+            user_id: req.body.data.user_id
         }
     })
         .then(data => {

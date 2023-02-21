@@ -19,7 +19,6 @@ import { Button, Grid } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { assignUnit2Event, createEvent, deleteEvent, editEvent, findAllEvents, unAssignUnit2Event } from '../api/api-events';
 import { createLocation, findAllLocations } from '../api/api-locations';
-import { getOrgsByUser, listOrgs } from '../api/api-org';
 import { findAllStates } from '../api/api-states';
 import { findAllTestingTypes } from '../api/api-testing-types';
 import { createUnit, findAllUnits } from '../api/api-units';
@@ -31,10 +30,11 @@ import EventTable from '../components/events/EventTable';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
 import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
+import { USER_ROLES } from '../components/users/UserMetadata';
 import AuthContext from '../context/auth-context';
 
 const EventPage = React.memo(() => {
-  const authContext = React.useContext(AuthContext);
+  const authCtx = React.useContext(AuthContext)
   //Add Alert notification
   const [alertStatus, setAlertStatus] = useState({});
   const closeAlertHandler = () => {
@@ -340,20 +340,23 @@ const EventPage = React.memo(() => {
       <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
         <PageAvatar icon={<EventIcon />} title="Event Management" />
         <Grid item xs={4}></Grid>
-        <Grid item xs={12} justifyContent="flex-end" display="flex">
-          <Button variant="outlined" onClick={handleAddUnitDialog} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />}>
-            Add Unit
-          </Button>
-          <AddUnitDialog close={!openAddUnitDialog} open={openAddUnitDialog} onSave={onSaveUnitHandler} onCloseAddUnitDialog={handleCloseUnitDialog} />
-          <Button variant="outlined" onClick={handleOpenLocation} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />} >
-            Add Location
-          </Button>
-          <AddLocationDialog stateList={stateList} close={!openAddLocationDialog} open={openAddLocationDialog} onSaveLocation={onSaveLocationHandler} onCloseAddLocationDialog={handleCloseLocation} />
-          <Button variant="outlined" onClick={handleAddEventDialog} startIcon={<AddCircleIcon />} fullWidth={false} >
-            Add Event
-          </Button>
-          <AddEventDialog title="Add Event" locationList={locationList} testingTypeList={testingTypeList} onEventSaveHandler={onEventSaveHandler} close={!openAddEventDialog} open={openAddEventDialog} onCloseEventDialog={handleCloseAddEventDialog} />
-        </Grid>
+        {
+          authCtx.role !== USER_ROLES.VIEWER &&  authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+          <Grid item xs={12} justifyContent="flex-end" display="flex">
+            <Button variant="outlined" onClick={handleAddUnitDialog} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />}>
+              Add Unit
+            </Button>
+            <AddUnitDialog close={!openAddUnitDialog} open={openAddUnitDialog} onSave={onSaveUnitHandler} onCloseAddUnitDialog={handleCloseUnitDialog} />
+            <Button variant="outlined" onClick={handleOpenLocation} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />} >
+              Add Location
+            </Button>
+            <AddLocationDialog stateList={stateList} close={!openAddLocationDialog} open={openAddLocationDialog} onSaveLocation={onSaveLocationHandler} onCloseAddLocationDialog={handleCloseLocation} />
+            <Button variant="outlined" onClick={handleAddEventDialog} startIcon={<AddCircleIcon />} fullWidth={false} >
+              Add Event
+            </Button>
+            <AddEventDialog title="Add Event" locationList={locationList} testingTypeList={testingTypeList} onEventSaveHandler={onEventSaveHandler} close={!openAddEventDialog} open={openAddEventDialog} onCloseEventDialog={handleCloseAddEventDialog} />
+          </Grid>
+        }
 
         <EventsFilter eventInfoList={eventInfoList} onFilterEvents={onFilterEventsHandler} testingTypeList={testingTypeList} locationList={locationList} />
         <Grid container item xs={12}>

@@ -23,12 +23,15 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import { Box } from '@mui/system';
 import * as React from 'react';
+import AuthContext from '../../context/auth-context';
+import { USER_ROLES } from '../users/UserMetadata';
 import { ACTIVE_EVENT, DEFAULT_NA, INVALID_LOCATION_ID, INVALID_LOCATION_ID_STR, INVALID_TESTING_TYPE_ID, INVALID_TESTING_TYPE_ID_STR, LIVE_EVENT, PAST_EVENT, UNKNOW_DATE, UNKNOW_EVENT } from './EventMetadata';
 import EventTableControlsItem from './EventTableControlsItem';
 import EventTableItemPopover from './EventTableItemPopover';
 import EventTableRowCollapseDialog from './EventTableRowCollapseDialog';
 
 const EventTableRowCollapse = (props) => {
+    const authCtx = React.useContext(AuthContext)
     //Collapse Open/close
     const [open, setOpen] = React.useState(false);
     const onConfirmUnassignUnitHandler = (event_unit) => {
@@ -111,7 +114,10 @@ const EventTableRowCollapse = (props) => {
                                         <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-type`}>Unit Type</TableCell>
                                         <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-start-date`}>Start Time & Date</TableCell>
                                         <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-end-date`}>End Time & Date</TableCell>
-                                        <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-controls`}>Controls</TableCell>
+                                        {
+                                            authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+                                            <TableCell sx={{ fontWeight: 'bolder' }} key={`Unit-controls`}>Controls</TableCell>
+                                        }
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -147,7 +153,10 @@ const EventTableRowCollapse = (props) => {
                                                         </TableCell>
                                                     </React.Fragment>
                                                 }
-                                                <EventTableRowCollapseDialog unit={unit} eventRow={props.eventRow} key={`${props.eventRow.id}-Unit-name-${unit.unit_identifier}-dialog`} onConfirmUnassignUnitHandler={onConfirmUnassignUnitHandler} />
+                                                {
+                                                    authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+                                                    <EventTableRowCollapseDialog unit={unit} eventRow={props.eventRow} key={`${props.eventRow.id}-Unit-name-${unit.unit_identifier}-dialog`} onConfirmUnassignUnitHandler={onConfirmUnassignUnitHandler} />
+                                                }
                                             </TableRow>
                                         ))}
                                 </TableBody>

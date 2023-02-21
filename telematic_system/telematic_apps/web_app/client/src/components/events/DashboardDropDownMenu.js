@@ -21,8 +21,12 @@ import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import AuthContext from '../../context/auth-context';
+import { USER_ROLES } from '../users/UserMetadata';
 
 export default function DashboardDropDownMenu(props) {
+    const authCtx = React.useContext(AuthContext)
+    //Assign a dashboard Dialog
     const [anchorEl, setAnchorEl] = React.useState(null);
     const open = Boolean(anchorEl);
     const handleClick = (event) => {
@@ -60,9 +64,12 @@ export default function DashboardDropDownMenu(props) {
                     Default dashboard
                 </MenuItem>
                 <Divider sx={{ my: 0.5 }} />
-                <MenuItem onClick={handleClose} disableRipple>
-                    <Button size="small" variant='outlined' onClick={onOpenAssignDashboardDialog}>(Un)Assign Dashboards</Button>
-                </MenuItem>
+                {
+                    authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+                    <MenuItem onClick={handleClose} disableRipple>
+                        <Button size="small" variant='outlined' onClick={onOpenAssignDashboardDialog}>(Un)Assign Dashboards</Button>
+                    </MenuItem>
+                }
             </Menu>
         </React.Fragment>
     );

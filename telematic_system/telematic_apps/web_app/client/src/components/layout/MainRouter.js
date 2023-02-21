@@ -23,6 +23,7 @@ import Grafana from '../../pages/Grafana';
 import Login from '../../pages/Login';
 import RegisterUserPage from '../../pages/RegisterUserPage';
 import TopicPage from '../../pages/TopicPage';
+import { USER_ROLES } from '../users/UserMetadata';
 
 const MainRouter = React.memo(() => {
   const authContext = useContext(AuthContext);
@@ -32,7 +33,7 @@ const MainRouter = React.memo(() => {
       <Routes>
         {authContext.sessionToken !== null && <Route path="/telematic/events" element={<EventPage />} />}
         {authContext.sessionToken !== null && <Route path="/telematic/topics" element={<TopicPage />} />}
-        {authContext.sessionToken !== null && (parseInt(authContext.is_admin)===1 || authContext.role==='Admin') && <Route path="/telematic/admin" element={<AdminPage />} />}
+        {authContext.sessionToken !== null && (parseInt(authContext.is_admin) === 1 || authContext.role === USER_ROLES.ADMIN) && <Route path="/telematic/admin" element={<AdminPage />} />}
         {authContext.sessionToken !== null && <Route path="/grafana" element={<Grafana />} />}
         {authContext.sessionToken === null && <Route path="/telematic/login" element={<Login />} />}
         {authContext.sessionToken !== null && <Route path="/telematic/login" element={<Navigate to="/telematic/events" replace></Navigate>}></Route>}

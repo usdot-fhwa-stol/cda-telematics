@@ -27,9 +27,12 @@ import TopicsFilter from '../components/topics/TopicsFilter';
 import VehicleTopicList from '../components/topics/VehicleTopicList';
 import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
+import { USER_ROLES } from '../components/users/UserMetadata';
+import AuthContext from '../context/auth-context';
 import TopicContext from '../context/topic-context';
 
 const TopicPage = React.memo(() => {
+  const authCtx = React.useContext(AuthContext)
   const TopicCtx = useContext(TopicContext);
   //Add Alert notification
   const [alertStatus, setAlertStatus] = useState({});
@@ -177,13 +180,16 @@ const TopicPage = React.memo(() => {
         <TopicsFilter eventInfoList={eventInfoList} onSelectEvents={onSelectEventsHandler} testingTypeList={testingTypeList} locationList={locationList} />
         <VehicleTopicList availableUnits={vehicles} />
         <InfrastructureTopicList availableUnits={infrastructures} />
-        <Grid item xs={12} sx={{ textAlign: 'center' }}>
-          <FormControl>
-            <Tooltip title="Send a request with a list of selected topics, and request telematic server to stream data for the selected topics." placement="top" arrow>
-              <Button variant="outlined" onClick={confirmSelectedTopicHandler}>Confirm Selected Topics</Button>
-            </Tooltip>
-          </FormControl>
-        </Grid>
+        {
+          authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+          <Grid item xs={12} sx={{ textAlign: 'center' }}>
+            <FormControl>
+              <Tooltip title="Send a request with a list of selected topics, and request telematic server to stream data for the selected topics." placement="top" arrow>
+                <Button variant="outlined" onClick={confirmSelectedTopicHandler}>Confirm Selected Topics</Button>
+              </Tooltip>
+            </FormControl>
+          </Grid>
+        }
       </Grid>
     </React.Fragment>
   )
