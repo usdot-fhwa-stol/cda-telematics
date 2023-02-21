@@ -1,4 +1,18 @@
-
+/*
+ * Copyright (C) 2019-2023 LEIDOS.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may not
+ * use this file except in compliance with the License. You may obtain a copy of
+ * the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+ * License for the specific language governing permissions and limitations under
+ * the License.
+ */
 var manager = require('htpasswd-mgr');
 var htpasswordManager = manager('/etc/apache2/grafana_htpasswd')
 const { org_user, user, Sequelize } = require("../models");
@@ -73,15 +87,7 @@ exports.registerUser = (req, res) => {
                 }
                 org_user.create(registerOrgUser)
                     .then(data => {
-                        //Add user to credential file
-                        htpasswordManager.upsertUser(req.body.username, req.body.password).then((status) => {
-                            res.status(201).send({ message: "Successfully registered user." });
-                        }).catch((err) => {
-                            console.log(err)
-                            res.status(400).send({
-                                message: "Error while registering user."
-                            });
-                        });
+                        res.status(201).send({ message: "Successfully registered user." });
                     }).catch(err => {
                         res.status(500).send("Error while adding user to an organization.");
                     });
@@ -165,7 +171,7 @@ exports.loginUser = (req, res) => {
             //Update user credential file
             htpasswordManager.upsertUser(req.body.username, req.body.password).then((status) => {
                 var result = {
-                    id:  data[0].id,
+                    id: data[0].id,
                     last_seen_at: data[0].last_seen_at,
                     is_admin: data[0].is_admin,
                     email: data[0].email,

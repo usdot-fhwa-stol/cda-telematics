@@ -13,6 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import EventIcon from '@mui/icons-material/Event';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StreamIcon from '@mui/icons-material/Stream';
@@ -21,10 +22,9 @@ import MuiDrawer from '@mui/material/Drawer';
 import { styled } from '@mui/material/styles';
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import AuthContext from '../../context/auth-context';
-import { deleteUser } from '../../api/api-user';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { getUserRole } from '../../api/api-org';
+import { deleteUser } from '../../api/api-user';
+import AuthContext from '../../context/auth-context';
 import { USER_ROLES } from '../users/UserMetadata';
 
 const NavMenu = React.memo(() => {
@@ -37,13 +37,12 @@ const NavMenu = React.memo(() => {
                 user_id: parseInt(authCtx.user_id),
                 org_id: parseInt(authCtx.org_id)
             }).then(data => {
-                console.log(data)
                 if (data !== undefined && data.errCode === undefined && Array.isArray(data) && data.length > 0) {
                     authCtx.updateRole(data[0].role);
                 }
             });
         }
-    }, [])
+    })
 
     const location = useLocation();
     const logoutHandler = React.useCallback(() => {

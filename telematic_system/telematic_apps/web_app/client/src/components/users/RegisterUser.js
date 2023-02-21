@@ -1,6 +1,7 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import { Alert, Avatar, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, InputLabel, Link, MenuItem, Select, Snackbar, TextField, Tooltip } from '@mui/material';
+import { Alert, Avatar, Button, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, InputLabel, Link, MenuItem, Select, Snackbar, TextField } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -8,7 +9,6 @@ import * as Yup from 'yup';
 import { listOrgs } from '../../api/api-org';
 import { registerNewUser } from '../../api/api-user';
 import { SEVERITY } from './UserMetadata';
-import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 
 const RegisterUser = () => {
     const [open, setOpen] = useState(false);

@@ -61,7 +61,6 @@ const Login = React.memo(() => {
                         if (data !== undefined && Array.isArray(data) && data.length !== 0) {
                             data.forEach(item => {
                                 if (item !== undefined && item.id !== undefined && parseInt(item.id) === parseInt(resData.org_id)) {
-                                  console.log(item.name)
                                     authContext.updateOrg(resData.org_id, item.name);
                                 }
                             });
