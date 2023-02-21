@@ -1,17 +1,17 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import PasswordIcon from '@mui/icons-material/Password';
-import { Alert, Avatar, Box, Button, Container, FormControl, Link, Snackbar, TextField } from '@mui/material';
+import { Alert, Avatar, Box, Button, Container, FormControl, Grid, Snackbar, TextField } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { updatePassword } from '../api/api-user';
 import { SEVERITY } from '../components/users/UserMetadata';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 
 const ForgetPasswordPage = () => {
   const [open, setOpen] = useState(false);
-  const [curPwd, setCurPwd] = useState('');
-  const [confirmCurPwd, setConfirmCurPwd] = useState('');
+  const [confirmNewPwd, setconfirmNewPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
   const [errStatus, setErrorStatus] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -29,12 +29,9 @@ const ForgetPasswordPage = () => {
   const handleEmail = (event) => {
     setEmail(event.target.value);
   }
-  const handleCurrentPassword = (event) => {
-    setCurPwd(event.target.value);
-  }
 
   const handleConfirmPassword = (event) => {
-    setConfirmCurPwd(event.target.value);
+    setconfirmNewPwd(event.target.value);
   }
   const handleNewPassword = (event) => {
     setNewPwd(event.target.value);
@@ -42,14 +39,14 @@ const ForgetPasswordPage = () => {
 
   const changePassword = (event) => {
     //Current password and confirm password shall match
-    if (curPwd !== "" && confirmCurPwd !== "" && curPwd !== confirmCurPwd) {
-      setErrorMsg('Current passwords do not match.')
+    if (newPwd !== "" && confirmNewPwd !== "" && newPwd !== confirmNewPwd) {
+      setErrorMsg('Passwords do not match.')
       setErrorStatus(SEVERITY.ERROR);
       setOpen(true);
       return;
     }
 
-    const response = updatePassword(username, email, curPwd, newPwd);
+    const response = updatePassword(username, email, newPwd);
     response.then(status => {
       console.log(status)
       if (status.errCode !== undefined && status.errMsg !== undefined) {
@@ -75,8 +72,7 @@ const ForgetPasswordPage = () => {
   const validationSchema = Yup.object().shape({
     name: Yup.string().required('Name is required'),
     email: Yup.string().required('Email is required'),
-    current_password: Yup.string().required('Current password is required'),
-    confirm_current_password: Yup.string().required('Confirm password is required'),
+    confirm_new_password: Yup.string().required('Confirm password is required'),
     new_password: Yup.string().required('New password is required'),
   });
 
@@ -91,8 +87,7 @@ const ForgetPasswordPage = () => {
   });
 
   const resetForgetPwdForm = () => {
-    setCurPwd('');
-    setConfirmCurPwd('');
+    setconfirmNewPwd('');
     setNewPwd('');
     setUsername('');
     setEmail('');
@@ -100,7 +95,7 @@ const ForgetPasswordPage = () => {
     resetField("name");
     resetField("email");
     resetField("current_password");
-    resetField("confirm_current_password");
+    resetField("confirm_new_password");
     resetField("new_password");
   }
 
@@ -151,35 +146,6 @@ const ForgetPasswordPage = () => {
                   error={errors.email ? true : false}
                   onChange={handleEmail} />
               </FormControl>
-              <FormControl fullWidth>
-                <TextField
-                  id="current_password"
-                  label="Current Password *"
-                  fullWidth
-                  name="current_password"
-                  margin="normal"
-                  type="password"
-                  variant='outlined'
-                  value={curPwd}
-                  {...register('current_password')}
-                  error={errors.current_password ? true : false}
-                  onChange={handleCurrentPassword} />
-              </FormControl>
-
-              <FormControl fullWidth>
-                <TextField
-                  id="confirm_current_password"
-                  label="Confirm Current Password *"
-                  fullWidth
-                  margin="normal"
-                  name="confirm_current_password"
-                  type="password"
-                  {...register('confirm_current_password')}
-                  error={errors.confirm_current_password ? true : false}
-                  variant='outlined'
-                  value={confirmCurPwd}
-                  onChange={handleConfirmPassword} />
-              </FormControl>
 
               <FormControl fullWidth>
                 <TextField
@@ -196,21 +162,37 @@ const ForgetPasswordPage = () => {
                   onChange={handleNewPassword} />
               </FormControl>
 
-              <Button
-                variant='contained'
-                fullWidth
-                margin="normal"
-                onClick={handleSubmit(changePassword)}>
-                Change Password
-              </Button>
-
-              <Box sx={{
-                "marginTop": 2,
-                flexDirection: 'column',
-                display: 'flex',
-                alignItems: "center"
-              }}>
-                <Link href='/telematic/login' >Back to login</Link>
+              <FormControl fullWidth>
+                <TextField
+                  id="confirm_new_password"
+                  label="Confirm New Password *"
+                  fullWidth
+                  margin="normal"
+                  name="confirm_new_password"
+                  type="password"
+                  {...register('confirm_new_password')}
+                  error={errors.confirm_new_password ? true : false}
+                  variant='outlined'
+                  value={confirmNewPwd}
+                  onChange={handleConfirmPassword} />
+              </FormControl>
+              <Box>
+                <Grid container>
+                  <Grid item xs={6}>
+                    <Button sx={{ float: 'left' }} href="/telematic/login" variant='outlined'>
+                    <KeyboardDoubleArrowLeftIcon/>
+                    Back To Login</Button>
+                  </Grid>
+                  <Grid item xs={6} >
+                    <Button
+                      sx={{ float: 'right' }}
+                      variant='contained'
+                      margin="normal"
+                      onClick={handleSubmit(changePassword)}>
+                      Reset Password
+                    </Button>
+                  </Grid>
+                </Grid>
               </Box>
             </Box>
           </Box>

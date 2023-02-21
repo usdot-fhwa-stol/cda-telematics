@@ -87,18 +87,21 @@ const NavMenu = React.memo(() => {
                             <ListItemText primary="Topics" />
                         </ListItemButton>
                     </ListItem>
-                    <ListItem key="admin" disablePadding sx={{ display: 'block' }}>
-                        <ListItemButton
-                            component={Link} to="/telematic/admin"
-                            selected={"/telematic/admin" === location.pathname}>
-                            <Tooltip title="Administrators" placement="right-start" arrow>
-                                <ListItemIcon>
-                                    <AdminPanelSettingsIcon />
-                                </ListItemIcon>
-                            </Tooltip>
-                            <ListItemText primary="Topics" />
-                        </ListItemButton>
-                    </ListItem>
+                    {
+                        (parseInt(authCtx.is_admin) === 1 || authCtx.role === 'Admin') &&
+                        <ListItem key="admin" disablePadding sx={{ display: 'block' }}>
+                            <ListItemButton
+                                component={Link} to="/telematic/admin"
+                                selected={"/telematic/admin" === location.pathname}>
+                                <Tooltip title="Administrators" placement="right-start" arrow>
+                                    <ListItemIcon>
+                                        <AdminPanelSettingsIcon />
+                                    </ListItemIcon>
+                                </Tooltip>
+                                <ListItemText primary="Topics" />
+                            </ListItemButton>
+                        </ListItem>
+                    }
                 </List>
                 <ListItemButton onClick={logoutHandler} sx={{
                     position: "absolute",

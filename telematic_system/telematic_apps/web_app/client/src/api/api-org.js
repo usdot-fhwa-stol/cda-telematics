@@ -49,6 +49,21 @@ const getUserRole = async (reqData) => {
     }
 }
 
+
+const getOrgsByUser = async (userId) => {
+    const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/org/user/find`
+
+    try {
+        const { data } = await axios.post(URL, {
+            data: { user_id: userId }
+        });
+        return data;
+    } catch (err) {
+        console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    }
+}
+
 const updateOrgUser = async (reqData) => {
     const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/org/user/update`
 
@@ -80,4 +95,4 @@ const deleteOrgUser = async (req) => {
 
 
 
-export { listOrgs, listOrgUsers, addOrgUser, updateOrgUser, deleteOrgUser }
+export { listOrgs, listOrgUsers, addOrgUser, updateOrgUser, deleteOrgUser, getUserRole, getOrgsByUser }

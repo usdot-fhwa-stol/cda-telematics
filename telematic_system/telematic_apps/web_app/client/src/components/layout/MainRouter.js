@@ -32,7 +32,7 @@ const MainRouter = React.memo(() => {
       <Routes>
         {authContext.sessionToken !== null && <Route path="/telematic/events" element={<EventPage />} />}
         {authContext.sessionToken !== null && <Route path="/telematic/topics" element={<TopicPage />} />}
-        {authContext.sessionToken !== null && <Route path="/telematic/admin" element={<AdminPage />} />}
+        {authContext.sessionToken !== null && (parseInt(authContext.is_admin)===1 || authContext.role==='Admin') && <Route path="/telematic/admin" element={<AdminPage />} />}
         {authContext.sessionToken !== null && <Route path="/grafana" element={<Grafana />} />}
         {authContext.sessionToken === null && <Route path="/telematic/login" element={<Login />} />}
         {authContext.sessionToken !== null && <Route path="/telematic/login" element={<Navigate to="/telematic/events" replace></Navigate>}></Route>}

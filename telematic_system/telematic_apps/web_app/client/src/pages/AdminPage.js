@@ -75,7 +75,14 @@ const AdminPage = () => {
         const user_response = listUsers();
         user_response.then(data => {
             if (data !== undefined && Array.isArray(data) && data.length !== 0) {
-                setUsers(data);
+                let userList = [];
+                data.forEach(user => {
+                    if ((parseInt(authContxt.is_admin) === 1)
+                        || (parseInt(authContxt.is_admin) !== 1 && user.org_id === parseInt(authContxt.org_id))) {
+                        userList.push(user);
+                    }
+                })
+                setUsers(userList);
             }
         }).catch(err => {
             if (err.errCode !== undefined && err.errMsg !== undefined) {
@@ -119,7 +126,7 @@ const AdminPage = () => {
                 });
             }
         });
-    }, [authContxt.org_id])
+    }, [authContxt.org_id, authContxt.is_admin])
     return (
         <React.Fragment>
             <Notification open={alertStatus.open}
@@ -132,7 +139,8 @@ const AdminPage = () => {
                     <PageAvatar icon={<AdminPanelSettingsIcon />} title="Administrator" />
                 </Grid>
                 <Grid item xs={12}>
-                    <Typography sx={{ marginLeft: 2}}>Current Organization: {authContxt.org_name} </Typography>
+                    <Typography sx={{ marginLeft: 2 }}>Current Organization: {authContxt.org_name != null && authContxt.org_name.length > 0 ? authContxt.org_name : "Org missing"} </Typography>
+                    <Typography sx={{ marginLeft: 2 }}>Current User Name: {authContxt.username} </Typography>
                 </Grid>
             </Grid>
             <UserRoleManagement

@@ -17,13 +17,12 @@ const registerNewUser = async (username, email, password, org_id) => {
     }
 }
 
-const updatePassword = async (username, email, password, new_password) => {
+const updatePassword = async (username, email, new_password) => {
     const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/users/forget/password`
     try {
         const { data } = await axios.post(URL, {
             username: username,
             email: email,
-            password: password,
             new_password: new_password
         });
         return data;

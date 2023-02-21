@@ -24,14 +24,22 @@ const AuthContext = React.createContext({
   last_seen_at: null,
   org_id: null,
   org_name: null,
-  login: (username, sessionToken, email, last_seen_at, org_id, org_name, name) => { },
-  logout: () => { }
+  is_admin: null,
+  user_id: null,
+  role: null,
+  login: (id, username, sessionToken, email, last_seen_at, org_id, name, is_admin) => { },
+  logout: () => { },
+  updateRole: (role) => { },
+  updateOrg: (org_id, org_name) => { }
 })
 
 export const AuthContextProvider = (props) => {
   const [isAuthenticated, setIsAuthenticated] = useSessionStorageString("isAuth", false);
   const [username, setUsername] = useSessionStorageString("username", null);
   const [email, setEmail] = useSessionStorageString("email", null);
+  const [role, setRole] = useSessionStorageString("role", null);
+  const [is_admin, setIsAdmin] = useSessionStorageString("is_admin", null);
+  const [user_id, setUserId] = useSessionStorageString("user_id", null);
   const [last_seen_at, setLastSeenAt] = useSessionStorageString("last_seen_at", null);
   const [org_id, setOrgId] = useSessionStorageString("org_id", null);
   const [org_name, setOrgName] = useSessionStorageString("org_name", null);
@@ -39,17 +47,18 @@ export const AuthContextProvider = (props) => {
   const [sessionToken, setSessionToken] = useSessionStorageString("sessionToken", null);
   const clearSessionStorage = useClearSessionStorage();
 
-  const loginHandler = (username, sessionToken, email, last_seen_at, org_id, org_name, name) => {
+  const loginHandler = (user_id, username, sessionToken, email, last_seen_at, org_id, name, is_admin) => {
     if (username !== undefined && username !== ""
       && sessionToken !== undefined && sessionToken !== "") {
+      setUserId(user_id);
       setIsAuthenticated(true);
       setUsername(username);
       setEmail(email);
       setSessionToken(sessionToken);
-      setOrgName(org_name);
       setLastSeenAt(last_seen_at);
       setOrgId(org_id);
       setName(name);
+      setIsAdmin(is_admin);
       return true;
     } else {
       setIsAuthenticated(false);
@@ -63,7 +72,17 @@ export const AuthContextProvider = (props) => {
     clearSessionStorage();
   }
 
+  const updateRoleHandler = (role) => {
+    setRole(role);
+  }
+
+  const updateOrgHandler = (org_id, org_name) => {
+    setOrgName(org_name);
+    setOrgId(org_id);
+  }
+
   return <AuthContext.Provider value={{
+    user_id: user_id,
     isAuth: isAuthenticated,
     username: username,
     email: email,
@@ -72,8 +91,12 @@ export const AuthContextProvider = (props) => {
     org_id: org_id,
     name: name,
     org_name: org_name,
+    is_admin: is_admin,
+    role: role,
     login: loginHandler,
-    logout: logoutHandler
+    logout: logoutHandler,
+    updateRole: updateRoleHandler,
+    updateOrg: updateOrgHandler
   }}>{props.children}</AuthContext.Provider>
 }
 

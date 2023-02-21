@@ -1,6 +1,7 @@
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
+import AuthContext from '../../../context/auth-context';
 import RolesDropDown from './RolesDropDown';
 import UserOrgRoleTable from './UserOrgRoleTable';
 
@@ -10,6 +11,7 @@ const UserOrgRoleEditDialog = (props) => {
     const [selectedOrg, setSelectedOrg] = useState('');
     const [orgAssignErr, setOrgAssignErr] = useState({});
     const [selectedOrgRole, setSelectedOrgRole] = useState('');
+    const authContxt = React.useContext(AuthContext);
     const handleUserRoleChange = (role) => {
         setSelectedOrgRole(role);
     }
@@ -124,102 +126,121 @@ const UserOrgRoleEditDialog = (props) => {
                     </Box>
                 </DialogTitle>
                 <DialogContent>
-                    <DialogContentText sx={{ fontStyle: "italic", color: "#444444" }}>
-                        Server administrators are allowed to access the list of all existing organizations and assign organizations to all users.
-                        The server admin can also set other users as server admin.
-                    </DialogContentText>
-                    <Box
-                        sx={{ marginTop: 2, marginBottom: 2 }}>
-                        <Typography sx={{ fontWeight: 'bolder', display: "block" }}>Organizations</Typography>
-                        <FormControl
-                            size='small'
-                            fullWidth
-                            margin='normal'>
-                            <InputLabel id="org-selection-label">All Organizations</InputLabel>
-                            <Select
-                                labelId='all-orgs'
-                                id='org-selection'
-                                label='All Organizations'
-                                value={selectedOrg}
-                                onChange={handleOrgChange}>
-                                {
-                                    props.orgs !== undefined && props.orgs.map(org => {
-                                        return <MenuItem value={org.id} key={org.id}>{org.name}</MenuItem>
-                                    })
-                                }
-                            </Select>
-                        </FormControl>
-                        <RolesDropDown role={selectedOrgRole} onUserOrgRoleChange={handleUserRoleChange} />
-                        <Tooltip title="Click assign button to add user to the selected organizations." placement="top-start">
-                            <Button onClick={handleAddUserToOrg} variant="outlined" sx={{ marginTop: 1 }}>Assign</Button>
-                        </Tooltip>
-                        {
-                            orgAssignErr.color !== undefined && orgAssignErr.message !== undefined &&
-                            <FormHelperText sx={{
-                                color: orgAssignErr.color,
-                                display: 'inline',
-                                marginLeft: 2,
-                                fontSize: '110%'
-                            }}>
-                                {orgAssignErr.message}
-                            </FormHelperText>
-                        }
-                    </Box>
-                    <Divider />
-                    <FormControl fullWidth>
-                        <Box component="div" sx={{ marginTop: 2, marginBottom: 1 }}>
-                            <Typography sx={{ fontWeight: 'bolder', display: "block" }}>Server Admin</Typography>
-                            <Grid container spacing={1} >
-                                <Grid item xs={8}>
-                                    Is Server Admin : {
-                                        props.userRow !== undefined && !isChangeAdmin
-                                        && props.userRow.is_admin.toUpperCase()
-                                    }
+                    {
+                        parseInt(authContxt.is_admin) === 1 &&
+                        <DialogContentText sx={{ fontStyle: "italic", color: "#444444" }}>
+                            Server administrators are allowed to access the list of all existing organizations and assign organizations to all users.
+                            The server admin can also set other users as server admin.
+                        </DialogContentText>
+
+                    }
+                    {
+                        parseInt(authContxt.is_admin) === 1 &&
+                        <Box
+                            sx={{ marginTop: 2, marginBottom: 2 }}>
+                            <Typography sx={{ fontWeight: 'bolder', display: "block" }}>Organizations</Typography>
+                            <FormControl
+                                size='small'
+                                fullWidth
+                                margin='normal'>
+                                <InputLabel id="org-selection-label">All Organizations</InputLabel>
+                                <Select
+                                    labelId='all-orgs'
+                                    id='org-selection'
+                                    label='All Organizations'
+                                    value={selectedOrg}
+                                    onChange={handleOrgChange}>
                                     {
-                                        props.userRow !== undefined && isChangeAdmin &&
-                                        <ToggleButtonGroup
-                                            color="primary"
-                                            value={isAdmin}
-                                            exclusive
-                                            onChange={handleAdminValue}
-                                            aria-label="text alignment">
-                                            <ToggleButton value="YES" aria-label="YES aligned" >
-                                                Yes
-                                            </ToggleButton>
-                                            <ToggleButton value="NO" aria-label="NO aligned">
-                                                No
-                                            </ToggleButton>
-                                        </ToggleButtonGroup>
+                                        props.orgs !== undefined && props.orgs.map(org => {
+                                            return <MenuItem value={org.id} key={org.id}>{org.name}</MenuItem>
+                                        })
                                     }
-                                </Grid>
-                                <Grid item xs={4}>
-                                    {!isChangeAdmin && <Button onClick={onClickisChangeAdmin} >Change</Button>}
-                                    {
-                                        isChangeAdmin &&
-                                        <ToggleButtonGroup
-                                            size="small"
-                                            color="primary"
-                                            value='y'
-                                            exclusive
-                                            onChange={handleIsChangeAdminConfirm}
-                                            aria-label="text alignment">
-                                            <ToggleButton value="y" aria-label="Change aligned">
-                                                Change
-                                            </ToggleButton>
-                                            <ToggleButton value="n" aria-label="Cancel aligned">
-                                                Cancel
-                                            </ToggleButton>
-                                        </ToggleButtonGroup>
-                                    }
-                                </Grid>
-                            </Grid>
+                                </Select>
+                            </FormControl>
+                            <RolesDropDown role={selectedOrgRole} onUserOrgRoleChange={handleUserRoleChange} />
+                            <Tooltip title="Click assign button to add user to the selected organizations." placement="top-start">
+                                <Button onClick={handleAddUserToOrg} variant="outlined" sx={{ marginTop: 1 }}>Assign</Button>
+                            </Tooltip>
+                            {
+                                orgAssignErr.color !== undefined && orgAssignErr.message !== undefined &&
+                                <FormHelperText sx={{
+                                    color: orgAssignErr.color,
+                                    display: 'inline',
+                                    marginLeft: 2,
+                                    fontSize: '110%'
+                                }}>
+                                    {orgAssignErr.message}
+                                </FormHelperText>
+                            }
                         </Box>
-                    </FormControl>
-                    <Divider />
-                    <Box sx={{ marginTop: 2, marginBottom: 1 }}>
-                        <Typography sx={{ fontWeight: 'bolder', display: "block" }}>User organization roles</Typography>
-                        <Typography sx={{ fontStyle: "italic", color: "#444444" }}>Note: Change the user role dropdown will update user role. Clicking the trash icon to remove the user from the selected organization.</Typography>
-                    </Box>
+                    }
+                    {
+                        parseInt(authContxt.is_admin) === 1 &&
+                        <Divider />
+                    }
+                    {
+                        parseInt(authContxt.is_admin) === 1 &&
+                        <FormControl fullWidth>
+                            <Box component="div" sx={{ marginTop: 2, marginBottom: 1 }}>
+                                <Typography sx={{ fontWeight: 'bolder', display: "block" }}>Server Admin</Typography>
+                                <Grid container spacing={1} >
+                                    <Grid item xs={8}>
+                                        Is Server Admin : {
+                                            props.userRow !== undefined && !isChangeAdmin
+                                            && props.userRow.is_admin.toUpperCase()
+                                        }
+                                        {
+                                            props.userRow !== undefined && isChangeAdmin &&
+                                            <ToggleButtonGroup
+                                                color="primary"
+                                                value={isAdmin}
+                                                exclusive
+                                                onChange={handleAdminValue}
+                                                aria-label="text alignment">
+                                                <ToggleButton value="YES" aria-label="YES aligned" >
+                                                    Yes
+                                                </ToggleButton>
+                                                <ToggleButton value="NO" aria-label="NO aligned">
+                                                    No
+                                                </ToggleButton>
+                                            </ToggleButtonGroup>
+                                        }
+                                    </Grid>
+                                    <Grid item xs={4}>
+                                        {!isChangeAdmin && <Button onClick={onClickisChangeAdmin} >Change</Button>}
+                                        {
+                                            isChangeAdmin &&
+                                            <ToggleButtonGroup
+                                                size="small"
+                                                color="primary"
+                                                value='y'
+                                                exclusive
+                                                onChange={handleIsChangeAdminConfirm}
+                                                aria-label="text alignment">
+                                                <ToggleButton value="y" aria-label="Change aligned">
+                                                    Change
+                                                </ToggleButton>
+                                                <ToggleButton value="n" aria-label="Cancel aligned">
+                                                    Cancel
+                                                </ToggleButton>
+                                            </ToggleButtonGroup>
+                                        }
+                                    </Grid>
+                                </Grid>
+                            </Box>
+                        </FormControl>
+                    }
+                    {
+                        parseInt(authContxt.is_admin) === 1 &&
+                        <Divider />
+                    }
+                    {
+                        parseInt(authContxt.is_admin) === 1 &&
+                        <Box sx={{ marginTop: 2, marginBottom: 1 }}>
+                            <Typography sx={{ fontWeight: 'bolder', display: "block" }}>User organization roles</Typography>
+                            <Typography sx={{ fontStyle: "italic", color: "#444444" }}>Note: Change the user role dropdown will update user role. Clicking the trash icon to remove the user from the selected organization.</Typography>
+                        </Box>
+                    }
                     <UserOrgRoleTable
                         userCurOrgsRoles={props.curSelectedOrgsRoles}
                         onUserOrgRoleChange={props.onUserOrgRoleChange}

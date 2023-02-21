@@ -75,7 +75,7 @@ exports.registerUser = (req, res) => {
                     .then(data => {
                         //Add user to credential file
                         htpasswordManager.upsertUser(req.body.username, req.body.password).then((status) => {
-                            res.status(201).send({ message: "Successfully register user." });
+                            res.status(201).send({ message: "Successfully registered user." });
                         }).catch((err) => {
                             console.log(err)
                             res.status(400).send({
@@ -101,9 +101,10 @@ exports.registerUser = (req, res) => {
 };
 
 exports.forgetPwd = (req, res) => {
-    if (req.body == undefined || req.body.password == undefined
-        || req.body.username == undefined
+    if (req.body == undefined || req.body.username == undefined
         || req.body.email == undefined || req.body.new_password == undefined) {
+
+        console.log(req.body)
         res.sendStatus(400);
         return;
     }
@@ -111,8 +112,7 @@ exports.forgetPwd = (req, res) => {
         where: {
             [Op.and]: [
                 { login: req.body.username },
-                { email: req.body.email },
-                { password: req.body.password }
+                { email: req.body.email }
             ]
         }
     }).then(data => {
@@ -125,24 +125,24 @@ exports.forgetPwd = (req, res) => {
                 .then(data => {
                     if (data > 0) {
                         //Update user credential file
-                        htpasswordManager.upsertUser(req.body.username, req.body.password).then((status) => {
-                            res.status(200).send({ message: `Successfully updated user password for user ${req.body.username}` });
+                        htpasswordManager.upsertUser(req.body.username, req.body.new_password).then((status) => {
+                            res.status(200).send({ message: `Successfully updated password for user ${req.body.username}` });
                         }).catch((err) => {
                             console.log(err)
-                            res.status(400).send({ message: "Error while registering user." });
+                            res.status(500).send({ message: "Server error while registering user." });
                         });
                     } else {
-                        res.status(400).send({ message: `Failed to update user password for user id = ${req.body.username}.` });
+                        res.status(500).send({ message: `Server cannot update password.` });
                     }
                 }).catch(err => {
-                    res.status(500).send({ message: "Error while updating user password." });
+                    res.status(500).send({ message: "Server Error while updating user password." });
                 });
         } else {
-            res.status(400).send({ message: `Failed to update user password due to incorrect username, email , and password combintation.` });
+            res.status(400).send({ message: `Failed to update user password due to incorrect username or email.` });
         }
     }).catch(err => {
         console.log(err)
-        res.status(500).send({ message: "Error while updating user password." });
+        res.status(500).send({ message: "Server error while updating user password." });
     });
 }
 
@@ -162,17 +162,24 @@ exports.loginUser = (req, res) => {
         }
     }).then(data => {
         if (data !== undefined && Array.isArray(data) && data.length > 0) {
-            var result = {
-                last_seen_at: data[0].last_seen_at,
-                is_admin: data[0].is_admin,
-                email: data[0].email,
-                name: data[0].name,
-                org_id: data[0].org_id,
-                login: data[0].login,
-                username: data[0].login,
-                session_token: getUuid(data[0].login + data[0].email)
-            }
-            res.status(200).send(result);
+            //Update user credential file
+            htpasswordManager.upsertUser(req.body.username, req.body.password).then((status) => {
+                var result = {
+                    id:  data[0].id,
+                    last_seen_at: data[0].last_seen_at,
+                    is_admin: data[0].is_admin,
+                    email: data[0].email,
+                    name: data[0].name,
+                    org_id: data[0].org_id,
+                    login: data[0].login,
+                    username: data[0].login,
+                    session_token: getUuid(data[0].login + data[0].email)
+                }
+                res.status(200).send(result);
+            }).catch((err) => {
+                console.log(err)
+                res.status(500).send({ message: "Server error while user login." });
+            });
         } else {
             res.status(401).send({ message: `Failed to authenticate user = ${req.body.username} , password = ${req.body.password} ` });
         }

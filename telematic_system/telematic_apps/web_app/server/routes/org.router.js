@@ -25,6 +25,8 @@ module.exports = app => {
   router.post('/user/add', org.addOrgUser);
   /***POST update user for organization */
   router.post('/user/update', org.updateOrgUser);
+  /***POST update user for organization */
+  router.post('/user/find', org.findAllOrgsByUser);
   /***DELETE delete user from organization */
   router.delete('/user/delete', org.delOrgUser);
   /***Get all organization users */

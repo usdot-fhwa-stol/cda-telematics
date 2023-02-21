@@ -14,7 +14,7 @@
  * the License.
  */
 
-const { org_user, org, Sequelize } = require("../models");
+const { user, org_user, org, Sequelize } = require("../models");
 /**
  *@brief Find all organizations
  * @Return Response status and a list of organizations
@@ -37,6 +37,28 @@ exports.findAllOrgUsers = (req, res) => {
         }).catch(err => {
             res.status(500).send({
                 message: err.message || "Error while findAll organizations."
+            });
+        });
+}
+
+
+exports.findAllOrgsByUser = (req, res) => {
+    if (!req.body || req.body.data === undefined || !req.body.data.user_id) {
+        res.status(400).send({
+            message: "Content cannot be empty."
+        });
+        return;
+    }
+    org_user.findAll({
+        where: {
+            user_id: req.body.data.user_id
+        }
+    })
+        .then(data => {
+            res.status(200).send(data);
+        }).catch(err => {
+            res.status(500).send({
+                message: err.message || "Error while find user organizations."
             });
         });
 }
@@ -139,13 +161,25 @@ exports.delOrgUser = (req, res) => {
     })
         .then(num => {
             if (num == 1) {
-                res.status(200).send({ message: "Org user was deleted successfully." });
+                //After delete the user organization, Remove the same organization id from user table by set it to 0
+                user.update({ org_id: 0 }, {
+                    where: {
+                        id: req.query.user_id
+                    }
+                })
+                    .then(data => {
+                        res.status(200).send({ message: "Org user was deleted successfully." });
+                    }).catch(err => {
+                        res.status(500).send({
+                            message: err.message || "Error while updating user for an organization."
+                        });
+                    });
             } else {
                 res.status(400).send({ message: `Cannot delete Org user id =${req.query.user_id}. Maybe Org user was not found or request body was empty.` });
             }
         }).catch(err => {
             res.status(500).send({
-                message: err.message || "Error while updating user for an organization."
+                message: err.message || "Error while remove user for an organization."
             });
         });
 }

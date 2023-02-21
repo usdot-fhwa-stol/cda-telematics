@@ -1,12 +1,13 @@
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { Button, ButtonGroup, TableCell, TableRow, Tooltip } from '@mui/material';
 import React, { useState } from 'react';
+import AuthContext from '../../../context/auth-context';
 import UserOrgRoleEditDialog from './UserOrgRoleEditDialog';
 
 const UserTableRow = (props) => {
     const [open, setOpen] = useState(false);
     const [curSelectedOrgsRoles, setSelectedUserOrgsRole] = useState([]);
-
+    const authCtx = React.useContext(AuthContext);
     const handleClose = () => {
         setSelectedUserOrgsRole([]);
         setOpen(false)
@@ -18,7 +19,12 @@ const UserTableRow = (props) => {
     const updateSelectedUserOrgsRoles = () => {
         let userOrgs = [];
         props.orgsUsers !== undefined && props.userRow !== undefined && props.orgsUsers.forEach(orgUser => {
-            if (orgUser.user_id === props.userRow["id"]) {
+            //Checking whether current user is server admin or not. 
+            //If the user is server admin, the user can see users from all organizations
+            //If the user is not server admin, the user can only manage users from their own organizations
+            if (((parseInt(authCtx.is_admin) === 1 && orgUser.user_id === props.userRow["id"]))
+                || (parseInt(authCtx.is_admin) !== 1 && orgUser.user_id === props.userRow["id"]
+                    && orgUser.org_id === parseInt(authCtx.org_id))) {
                 let org_name = getOrgNameById(orgUser.org_id);
                 userOrgs.push({
                     user_id: orgUser.user_id,
@@ -74,7 +80,7 @@ const UserTableRow = (props) => {
 
     const handleUserOrgRoleDelete = (data) => {
         setSelectedUserOrgsRole(prev => [...prev.filter(item => {
-            if (data !== undefined && data.user_id === item.user_id && data.org_id===item.org_id) {
+            if (data !== undefined && data.user_id === item.user_id && data.org_id === item.org_id) {
                 return false;
             }
             return true;
@@ -94,6 +100,9 @@ const UserTableRow = (props) => {
                                     key={`user-org-role-${props.userRow.id}-${column.id}`} align={column.align}>
                                     {
                                         props.orgsUsers !== undefined && props.orgsUsers.map(orgUser => {
+                                            if (parseInt(authCtx.is_admin) !== 1 && parseInt(authCtx.org_id) !== orgUser.org_id) {
+                                                return null;
+                                            }
                                             //Find roles for current user
                                             let org_name_role = "";
                                             if (orgUser.user_id === props.userRow["id"]) {
@@ -142,8 +151,8 @@ const UserTableRow = (props) => {
                 onAddUserToOrg={handleAddUserToOrg}
                 curSelectedOrgsRoles={curSelectedOrgsRoles}
                 onUserOrgRoleChange={handleUserOrgRoleUpdate}
-                onUserOrgRoleDelete={handleUserOrgRoleDelete} 
-                onChangeServerAdmin ={props.onChangeServerAdmin}/>}
+                onUserOrgRoleDelete={handleUserOrgRoleDelete}
+                onChangeServerAdmin={props.onChangeServerAdmin} />}
         </React.Fragment>
     )
 }

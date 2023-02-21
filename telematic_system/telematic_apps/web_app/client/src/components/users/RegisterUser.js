@@ -1,7 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup';
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Alert, Avatar, Button, Chip, Container, FormControl, InputLabel, Link, MenuItem, Select, Snackbar, TextField, Tooltip } from '@mui/material';
+import { Alert, Avatar, Button, Chip, Container, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, Grid, InputLabel, Link, MenuItem, Select, Snackbar, TextField, Tooltip } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
@@ -9,21 +8,28 @@ import * as Yup from 'yup';
 import { listOrgs } from '../../api/api-org';
 import { registerNewUser } from '../../api/api-user';
 import { SEVERITY } from './UserMetadata';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 
 const RegisterUser = () => {
     const [open, setOpen] = useState(false);
+    const [openSuccessDialog, setOpenSuccessDialog] = useState(false);
     const [password, setPwd] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
     const [username, setUsername] = useState('');
     const [errStatus, setErrorStatus] = useState('');
     const [email, setEmail] = useState('');
     const [selectedOrg, setSelectedOrg] = useState('');
-    const [allOrgs, setAllOrgs] = useState([]);    
+    const [allOrgs, setAllOrgs] = useState([]);
     const [adminEmails, setAdminEmails] = useState(['Ankur.Tyagi@leidos.com', 'dan.du@leidos.com', 'abey.yoseph@leidos.com', 'anish.deva@leidos.com']);
     const handleClose = () => {
         setErrorMsg('')
         setOpen(false);
     }
+
+    const handleSuccessDialogClose = () => {
+        setOpenSuccessDialog(false);
+    }
+
     const handleusername = (event) => {
         setUsername(event.target.value);
     }
@@ -34,7 +40,7 @@ const RegisterUser = () => {
     const handleCurrentPassword = (event) => {
         setPwd(event.target.value);
     }
-    const handleOrgChange = (event)=>{
+    const handleOrgChange = (event) => {
         setSelectedOrg(event.target.value);
     }
 
@@ -49,6 +55,7 @@ const RegisterUser = () => {
                 setOpen(true);
                 setErrorStatus(SEVERITY.SUCCESS);
                 setErrorMsg(status.message);
+                setOpenSuccessDialog(true);
                 //successfully change password, and reset the form
                 resetForgetPwdForm();
             }
@@ -56,7 +63,7 @@ const RegisterUser = () => {
             console.error(error);
         })
     }
-    const getAllOrgs = ()=>{
+    const getAllOrgs = () => {
         const response = listOrgs();
         response.then(status => {
             if (status.errCode !== undefined && status.errMsg !== undefined) {
@@ -68,12 +75,12 @@ const RegisterUser = () => {
             }
         }).catch(error => {
             console.error(error);
-        })        
+        })
     }
 
-    useEffect(()=>{
+    useEffect(() => {
         getAllOrgs();
-    },[])
+    }, [])
 
     const validationSchema = Yup.object().shape({
         username: Yup.string().required('User username is required'),
@@ -115,6 +122,22 @@ const RegisterUser = () => {
                     {errorMsg}
                 </Alert>
             </Snackbar>
+            <Dialog onClose={handleSuccessDialogClose} open={openSuccessDialog}>
+                <DialogTitle sx={{ color: 'green' }}>Successfully registered user </DialogTitle>
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">                       
+                    The created user is by default assigned viewer role. Please send email to
+                            <Link href={`mailto:${adminEmails.join(',')}?subject=Role update request&body=Request`}> administrators </Link>
+                            &nbsp;request to update your role.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant='outlined' sx={{marginRight: '10px'}} onClick={handleSuccessDialogClose}>Close</Button>
+                    <Button variant='contained' href='/telematic/login'>
+                        Go To Login
+                    </Button>
+                </DialogActions>
+            </Dialog>
             <Container component="main" maxWidth="xs">
                 <Box
                     sx={{
@@ -183,30 +206,23 @@ const RegisterUser = () => {
                                 }
                             </Select>
                         </FormControl>
-                        <FormControl>
-                            <Tooltip title="User is assigned with default viewer role." placement="top-start">
-                                <Chip label="Viewer" sx={{ marginTop: 2 }} icon={<VisibilityIcon />} variant="outlined" />
-                            </Tooltip>
-                        </FormControl>
-                        <Box sx={{
-                            "marginTop": 2,
-                            alignItems: "left",
-                            fontStyle: "italic"
-                        }}>
-                            A user is by default assigned viewer role. Please send email to
-                            <Link href={`mailto:${adminEmails.join(',')}?subject=Role update request&body=Request`}> administrators </Link>
-                            &nbsp;request to update your role.
-                        </Box>
-                        <Button variant='contained' sx={{ marginTop: 2 }} margin="normal" fullWidth onClick={handleSubmit(saveUser)}>
-                            Create User
-                        </Button>
-                        <Box sx={{
-                            "marginTop": 2,
-                            flexDirection: 'column',
-                            display: 'flex',
-                            alignItems: "center"
-                        }}>
-                            <Link href='/telematic/login' >Back to login</Link>
+                        <Box>
+                            <Grid container>
+                                <Grid item xs={6}>
+                                    <Button sx={{ float: 'left' }} href="/telematic/login" variant='outlined'>
+                                        <KeyboardDoubleArrowLeftIcon />
+                                        Back To Login</Button>
+                                </Grid>
+                                <Grid item xs={6} >
+                                    <Button
+                                        sx={{ float: 'right' }}
+                                        variant='contained'
+                                        margin="normal"
+                                        onClick={handleSubmit(saveUser)}>
+                                        Create User
+                                    </Button>
+                                </Grid>
+                            </Grid>
                         </Box>
                     </Box>
                 </Box>

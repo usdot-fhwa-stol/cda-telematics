@@ -9,7 +9,7 @@ const UserTable = (props) => {
         { id: 'email', label: 'Email', minWidth: 100, align: 'center', info: '' },
         { id: 'is_admin', label: 'Is Server Admin', minWidth: 170, align: 'center', format: (value) => value.toLocaleString('en-US'), info: '' },
         { id: 'last_seen_at', label: 'Last Login', minWidth: 170, align: 'center', format: (value) => value.toLocaleString('en-US'), info: '' },
-        { id: 'org_role', label: 'Organization Roles', minWidth: 170, align: 'center', info: 'Green color highlights the user\'s current switched organization' }
+        { id: 'org_role', label: 'Organization Roles', minWidth: 170, align: 'center', info: 'Green color highlights the user\'s current active organization' }
     ];
     const [page, setPage] = React.useState(0);
     const [rowsPerPage, setRowsPerPage] = React.useState(10);

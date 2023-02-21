@@ -19,6 +19,7 @@ import { Button, Grid } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { assignUnit2Event, createEvent, deleteEvent, editEvent, findAllEvents, unAssignUnit2Event } from '../api/api-events';
 import { createLocation, findAllLocations } from '../api/api-locations';
+import { getOrgsByUser, listOrgs } from '../api/api-org';
 import { findAllStates } from '../api/api-states';
 import { findAllTestingTypes } from '../api/api-testing-types';
 import { createUnit, findAllUnits } from '../api/api-units';
@@ -30,8 +31,10 @@ import EventTable from '../components/events/EventTable';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
 import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
+import AuthContext from '../context/auth-context';
 
 const EventPage = React.memo(() => {
+  const authContext = React.useContext(AuthContext);
   //Add Alert notification
   const [alertStatus, setAlertStatus] = useState({});
   const closeAlertHandler = () => {
@@ -325,7 +328,6 @@ const EventPage = React.memo(() => {
         setStateList(states);
       }
     });
-
   }, []);
 
   return (
