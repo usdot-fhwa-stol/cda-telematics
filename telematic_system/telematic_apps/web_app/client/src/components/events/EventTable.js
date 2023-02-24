@@ -86,7 +86,7 @@ export default function EventTable(props) {
                 Dashboards
               </TableCell>
               {
-                authCtx.role !== USER_ROLES.VIEWER &&  authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+                authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
                 <TableCell tabIndex={-1} key={`controls`} style={{ top: 0, fontWeight: "bolder", backgroundColor: "#eee" }}>
                   Controls
                 </TableCell>
@@ -95,6 +95,7 @@ export default function EventTable(props) {
           </TableHead>
           <TableBody>
             {props.eventInfoList !== undefined &&
+              Array.isArray(props.eventInfoList) &&
               props.eventInfoList
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map(
@@ -109,7 +110,7 @@ export default function EventTable(props) {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={props.eventInfoList !== undefined ? props.eventInfoList.length : 0}
+        count={props.eventInfoList !== undefined && Array.isArray(props.eventInfoList) ? props.eventInfoList.length : 0}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

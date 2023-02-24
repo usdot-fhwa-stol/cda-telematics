@@ -10,7 +10,7 @@ fi
 sudo chmod 777 -R /opt/apache2
 
 # Grafana Configuration file
-cp  ./grafana_htpasswd /opt/apache2/grafana_htpasswd
+touch /opt/apache2/grafana_htpasswd
 echo "Copy grafana_htpasswd to directory /opt/apache2."
 
 sudo chmod 777 -R /opt/apache2

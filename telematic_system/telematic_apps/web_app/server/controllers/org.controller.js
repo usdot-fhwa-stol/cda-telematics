@@ -152,34 +152,58 @@ exports.delOrgUser = (req, res) => {
         });
         return;
     }
-    org_user.destroy({
+    org_user.findAll({
         where: {
-            user_id: req.query.user_id,
-            org_id: req.query.org_id
+            user_id: req.query.user_id
         }
-    })
-        .then(num => {
-            if (num == 1) {
-                //After delete the user organization, Remove the same organization id from user table by set it to 0
-                user.update({ org_id: 0 }, {
+    }).then(data => {
+        if (data !== undefined && Array.isArray(data)) {
+            //If the organization to be removed is the last organization belong to this user, update this user organization to default organization (Main. Org) and default role viewer
+            if (data.length === 1) {
+                org_user.update({
+                    org_id: 1,
+                    role: 'Viewer'
+                },
+                    {
+                        where: {
+                            user_id: req.query.user_id,
+                            org_id: req.query.org_id,
+                        }
+                    }).then(orgData => {
+                        console.log(orgData)
+                        user.update({ org_id: 1 }, {
+                            where: {
+                                id: req.query.user_id
+                            }
+                        })
+                            .then(resData => {
+                                res.status(200).send(resData);
+                            }).catch(err => {
+                                res.status(500).send({
+                                    message: err.message || "Error while updating user for an organization."
+                                });
+                            });
+                    })
+            } else {
+                org_user.destroy({
                     where: {
-                        id: req.query.user_id
+                        user_id: req.query.user_id,
+                        org_id: req.query.org_id
                     }
                 })
-                    .then(data => {
-                        res.status(200).send({ message: "Org user was deleted successfully." });
+                    .then(num => {
+                        if (num < 1) {
+                            res.status(400).send({ message: `Cannot delete Org user id =${req.query.user_id}. Maybe Org user was not found or request body was empty.` });
+                        } else {
+                            res.status(200).send({ message: "Org user was deleted successfully." });
+                        }
                     }).catch(err => {
                         res.status(500).send({
-                            message: err.message || "Error while updating user for an organization."
+                            message: err.message || "Error while remove user for an organization."
                         });
                     });
-            } else {
-                res.status(400).send({ message: `Cannot delete Org user id =${req.query.user_id}. Maybe Org user was not found or request body was empty.` });
             }
-        }).catch(err => {
-            res.status(500).send({
-                message: err.message || "Error while remove user for an organization."
-            });
-        });
+        }
+    });
 }
 

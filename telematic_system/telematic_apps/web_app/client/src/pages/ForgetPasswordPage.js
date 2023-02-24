@@ -1,4 +1,5 @@
 import { yupResolver } from '@hookform/resolvers/yup';
+import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import PasswordIcon from '@mui/icons-material/Password';
 import { Alert, Avatar, Box, Button, Container, FormControl, Grid, Snackbar, TextField } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -7,7 +8,6 @@ import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { updatePassword } from '../api/api-user';
 import { SEVERITY } from '../components/users/UserMetadata';
-import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 
 const ForgetPasswordPage = () => {
   const [open, setOpen] = useState(false);
@@ -48,7 +48,6 @@ const ForgetPasswordPage = () => {
 
     const response = updatePassword(username, email, newPwd);
     response.then(status => {
-      console.log(status)
       if (status.errCode !== undefined && status.errMsg !== undefined) {
         setErrorMsg(status.errMsg);
         setOpen(true);

@@ -15,23 +15,81 @@
  */
 var createError = require('http-errors');
 var express = require('express');
+var session = require('express-session')
+var cookieSession = require('cookie-session')
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
 var indexRouter = require('./routes/index');
+const getUuid = require('uuid-by-string');
 
 var app = express();
 const cors = require('cors')
 
 require('dotenv').config();
 var corsOptions = {
-  origin: process.env.ALLOW_CLIENT_URL
+  origin: process.env.ALLOW_CLIENT_URL,
+  credentials: true,
+  optionsSuccessStatus: 200,
 }
 console.log("Allowed client URL: " + process.env.ALLOW_CLIENT_URL);
 
 //Allow cors from selected clients
 app.use(cors(corsOptions))
+
+//Use the session middleware
+app.use(session({
+  secret: process.env.SECRET,
+  cookie: {
+    maxAge: 1000 * parseInt(process.env.SESSION_TIMEOUT),
+  },
+  rolling: true
+}))
+
+//Access session when receiving GET request
+app.get('/*', function (req, res, next) {
+  if (req.url === "/api/org/all") {
+    //Pass request for the above URLs
+    next();
+  } else {
+    if (req.session.token !== undefined) {
+      next()
+    } else {
+      res.status('401').send({ message: "User session is expired", reason: "expire" });
+      res.end()
+    }
+  }
+})
+
+//Access session when receiving POST request
+app.post('/*', function (req, res, next) {
+  if (req.url === "/api/users/forget/password" ||
+    req.url === "/api/users/login" ||
+    req.url === "/api/users/register" ||
+    req.url === "/api/users/session/regenerate"
+  ) {
+    //Pass request for the above URLs
+    next();
+  } else {
+    if (req.session.token !== undefined) {
+      next()
+    } else {
+      res.status('401').send({ message: "User session is expired", reason: "expire" });
+      res.end()
+    }
+  }
+})
+
+
+//Access session when receiving DELETE request
+app.delete('/*', function (req, res, next) {
+  if (req.session.token !== undefined) {
+    next()
+  } else {
+    res.status('401').send({ message: "User session is expired", reason: "expire" });
+    res.end()
+  }
+})
 
 //parse request of content type application/json
 app.use(express.json())
@@ -56,6 +114,7 @@ require("./routes/default_event_topics.router")(app);
 require("./routes/event_units.router")(app);
 require("./routes/testing_typess.router")(app);
 require("./routes/states.router")(app);
+require("./routes/dashboards.router")(app);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

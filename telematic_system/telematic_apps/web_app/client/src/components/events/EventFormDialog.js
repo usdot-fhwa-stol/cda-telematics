@@ -91,7 +91,6 @@ export const EventFormDialog = (props) => {
             setStartTime(props.eventInfo.start_at === undefined ? new Date().getTime() : props.eventInfo.start_at);
             setEndTime(props.eventInfo.end_at === undefined ? new Date().getTime() : props.eventInfo.end_at);
         }
-        // console.log(formState)
     }, [props]);
 
     const onEventSaveHandler = () => {
@@ -241,8 +240,8 @@ export const EventFormDialog = (props) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onCloseHandler}>Cancel</Button>
-                    <Button onClick={handleSubmit(onEventSaveHandler)}>Save</Button>
+                    <Button variant='outlined' onClick={onCloseHandler}>Cancel</Button>
+                    <Button variant='contained' onClick={handleSubmit(onEventSaveHandler)}>Save</Button>
 
                 </DialogActions>
             </Dialog>

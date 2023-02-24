@@ -119,7 +119,7 @@ const EventPage = React.memo(() => {
       response_data = createEvent(event);
     }
     response_data.then(event_json => {
-      if (event_json !== undefined) {
+      if (event_json !== undefined && event_json.errCode === undefined) {
         eventInfo.id = event_json.id;
         setEventInfoList([...eventInfoList.filter(item => item.id !== eventInfo.id), eventInfo]);
         setAlertStatus({
@@ -145,7 +145,7 @@ const EventPage = React.memo(() => {
     //Call api to delete an event
     const response_data = deleteEvent(id);
     response_data.then(json => {
-      if (json !== undefined) {
+      if (json !== undefined && json.errCode === undefined) {
         setEventInfoList(eventInfoList.filter(item => item.id !== id));
         setAlertStatus({
           open: true,
@@ -168,7 +168,7 @@ const EventPage = React.memo(() => {
   const onAssignUnitHandler = (assign_event_unit) => {
     const response_data = assignUnit2Event(assign_event_unit);
     response_data.then(json => {
-      if (json !== undefined) {
+      if (json !== undefined && json.errCode === undefined) {
         const existingItem = eventInfoList.filter(event => event.id === assign_event_unit.event_id);
         if (existingItem[0].event_units === undefined) {
           existingItem[0].event_units = [];
@@ -197,7 +197,7 @@ const EventPage = React.memo(() => {
   const onConfirmUnassignUnitHandler = (event_unit) => {
     const response_data = unAssignUnit2Event(event_unit);
     response_data.then(json => {
-      if (json !== undefined) {
+      if (json !== undefined && json.errCode === undefined) {
         const existingItem = eventInfoList.filter(event => event.id === event_unit.event_id);
         existingItem[0].units = [...existingItem[0].units.filter(unit => unit.id !== event_unit.unit.id)];
         setEventInfoList([...eventInfoList.filter(event => event.id !== event_unit.event_id), ...existingItem]);
@@ -222,7 +222,7 @@ const EventPage = React.memo(() => {
     //call api to create a location
     const response_data = createLocation(location);
     response_data.then(location_json => {
-      if (location_json !== undefined) {
+      if (location_json !== undefined && location_json.errCode === undefined) {
         location.id = location_json.id;
         setLocationList([...locationList, location]);
         setAlertStatus({
@@ -247,7 +247,7 @@ const EventPage = React.memo(() => {
     //call api to create a unit
     const response_data = createUnit(unit);
     response_data.then(unit_json => {
-      if (unit_json !== undefined) {
+      if (unit_json !== undefined && unit_json.errCode === undefined) {
         unit.id = unit_json.id;
         setUnitList([...unitList, unit]);
         setAlertStatus({
@@ -274,9 +274,10 @@ const EventPage = React.memo(() => {
   }
 
   useEffect(() => {
+    authCtx.updateViewCount();
     const res_loc_data = findAllLocations();
     res_loc_data.then(json => {
-      if (json !== undefined) {
+      if (json !== undefined && json.errCode === undefined) {
         let locs = [];
         json.forEach(loc => {
           locs.push(loc);
@@ -287,7 +288,7 @@ const EventPage = React.memo(() => {
 
     const res_unit_data = findAllUnits();
     res_unit_data.then(json => {
-      if (json !== undefined) {
+      if (json !== undefined && json.errCode === undefined) {
         let units = [];
         json.forEach(unit => {
           units.push(unit);
@@ -298,7 +299,7 @@ const EventPage = React.memo(() => {
 
     const res_event_data = findAllEvents({});
     res_event_data.then(json => {
-      if (json !== undefined) {
+      if (json !== undefined && json.errCode === undefined) {
         let events = [];
         json.forEach(event => {
           events.push(event);
@@ -309,7 +310,7 @@ const EventPage = React.memo(() => {
 
     const res_testing_types_data = findAllTestingTypes({});
     res_testing_types_data.then(json => {
-      if (json !== undefined) {
+      if (json !== undefined && json.errCode === undefined) {
         let testing_types = [];
         json.forEach(tt => {
           testing_types.push(tt);
@@ -320,7 +321,7 @@ const EventPage = React.memo(() => {
 
     const res_states_data = findAllStates();
     res_states_data.then(json => {
-      if (json !== undefined) {
+      if (json !== undefined && json.errCode === undefined) {
         let states = [];
         json.forEach(state => {
           states.push(state);
@@ -341,20 +342,29 @@ const EventPage = React.memo(() => {
         <PageAvatar icon={<EventIcon />} title="Event Management" />
         <Grid item xs={4}></Grid>
         {
-          authCtx.role !== USER_ROLES.VIEWER &&  authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+          authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
           <Grid item xs={12} justifyContent="flex-end" display="flex">
             <Button variant="outlined" onClick={handleAddUnitDialog} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />}>
               Add Unit
             </Button>
-            <AddUnitDialog close={!openAddUnitDialog} open={openAddUnitDialog} onSave={onSaveUnitHandler} onCloseAddUnitDialog={handleCloseUnitDialog} />
+            {
+              openAddUnitDialog &&
+              <AddUnitDialog close={!openAddUnitDialog} open={openAddUnitDialog} onSave={onSaveUnitHandler} onCloseAddUnitDialog={handleCloseUnitDialog} />
+            }
             <Button variant="outlined" onClick={handleOpenLocation} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />} >
               Add Location
             </Button>
-            <AddLocationDialog stateList={stateList} close={!openAddLocationDialog} open={openAddLocationDialog} onSaveLocation={onSaveLocationHandler} onCloseAddLocationDialog={handleCloseLocation} />
+            {
+              openAddLocationDialog &&
+              <AddLocationDialog stateList={stateList} close={!openAddLocationDialog} open={openAddLocationDialog} onSaveLocation={onSaveLocationHandler} onCloseAddLocationDialog={handleCloseLocation} />
+            }
             <Button variant="outlined" onClick={handleAddEventDialog} startIcon={<AddCircleIcon />} fullWidth={false} >
               Add Event
             </Button>
-            <AddEventDialog title="Add Event" locationList={locationList} testingTypeList={testingTypeList} onEventSaveHandler={onEventSaveHandler} close={!openAddEventDialog} open={openAddEventDialog} onCloseEventDialog={handleCloseAddEventDialog} />
+            {
+              openAddEventDialog &&
+              <AddEventDialog title="Add Event" locationList={locationList} testingTypeList={testingTypeList} onEventSaveHandler={onEventSaveHandler} close={!openAddEventDialog} open={openAddEventDialog} onCloseEventDialog={handleCloseAddEventDialog} />
+            }
           </Grid>
         }
 

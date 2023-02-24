@@ -16,28 +16,28 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import ElectricCarIcon from '@mui/icons-material/ElectricCar';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Button, Tooltip } from '@mui/material';
 import TableCell from '@mui/material/TableCell';
 import * as React from 'react';
 import AuthContext from '../../context/auth-context';
 import WarningDialog from '../ui/WarningDialog';
 import { USER_ROLES } from '../users/UserMetadata';
-import { AssignDashboardDialog } from './AssignDashboardDialog';
 import { AssignUnitDialog } from './AssignUnitDialog';
 import DashboardDropDownMenu from './DashboardDropDownMenu';
 import { EditEventDialog } from './EditEventDialog';
 
 const EventTableControlsItem = (props) => {
   const authCtx = React.useContext(AuthContext)
-  //Assign a dashboard Dialog
-  const [openAssignDashboardDialog, setOpenAssignDashboardDialog] = React.useState(false);
-  const handleOpenAssignDashboardDialog = () => {
-    setOpenAssignDashboardDialog(true);
+  //Dashboards dropdown
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const handleClose = () => {
+    setAnchorEl(null);
   };
-  const handleCloseAssignDashboardDialog = () => {
-    setOpenAssignDashboardDialog(false);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
   };
-
   //Assign a Unit Dialog
   const [openAssignUnitDialog, setOpenAssignUnitDialog] = React.useState(false);
   const handleOpenAssignUnitDialog = () => {
@@ -79,13 +79,24 @@ const EventTableControlsItem = (props) => {
 
   return (
     <React.Fragment>
-
       <TableCell tabIndex={-1} key={`dashboard-${props.eventRow.id}`}>
-        <AssignDashboardDialog close={!openAssignDashboardDialog} open={openAssignDashboardDialog} onCloseAssignDashboardDialog={handleCloseAssignDashboardDialog} />
-        <DashboardDropDownMenu onOpenAssignDashboardDialog={handleOpenAssignDashboardDialog} />
+        <Tooltip title="List of Dashboards" placement="top" arrow>
+          <Button
+            id="dashboards-options-button"
+            aria-controls={open ? 'demo-customized-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+            variant="outlined"
+            disableElevation
+            onClick={handleClick}
+            endIcon={<KeyboardArrowDownIcon />}>
+            Dashboards
+          </Button>
+        </Tooltip>
+        {open && <DashboardDropDownMenu anchorEl={anchorEl} open={open} handleClose={handleClose} eventRow={props.eventRow} />}
       </TableCell>
       {
-        authCtx.role !== USER_ROLES.VIEWER &&  authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+        authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
         <TableCell tabIndex={-1} key={`controls-${props.eventRow.id}`}>
           <EditEventDialog title="Edit Event" locationList={props.locationList} testingTypeList={props.testingTypeList} eventInfo={props.eventRow} onEventSaveHandler={onEventSaveHandler} onCloseEventDialog={onCloseEventDialog} close={!openEditEventDialog} open={openEditEventDialog} />
           <Tooltip title="Edit Event" placement="top" arrow>
@@ -93,15 +104,18 @@ const EventTableControlsItem = (props) => {
               <EditIcon sx={{ color: "primary.main" }} />
             </Button>
           </Tooltip>
-
-          <WarningDialog open={openWarningDialog} onConfirm={event => onConfirmDeleteEventHandler(event, props.eventRow.id)} onCloseWarning={handleCloseWarningDialog} title="Delete Event Alert" description={`Are you sure to delete event ${props.eventRow.name}?`} />
+          {
+            openWarningDialog &&
+            <WarningDialog open={openWarningDialog} onConfirm={event => onConfirmDeleteEventHandler(event, props.eventRow.id)} onCloseWarning={handleCloseWarningDialog} title="Delete Event Alert" description={`Are you sure to delete event ${props.eventRow.name}?`} />
+          }
           <Tooltip title="Delete Event" placement="top" arrow>
             <Button variant='outlined' size="small" key={`delete-event-${props.eventRow.id}`} onClick={handleOpenWarningDialog}>
               <DeleteIcon sx={{ color: "primary.main" }} />
             </Button>
           </Tooltip>
-
-          <AssignUnitDialog eventInfo={props.eventRow} unitList={props.unitList} onAssignUnitHandler={onAssignUnitHandler} close={!openAssignUnitDialog} open={openAssignUnitDialog} onCloseAssignUnitDialog={handleCloseAssignUnitDialog} />
+          {
+            openAssignUnitDialog && <AssignUnitDialog eventInfo={props.eventRow} unitList={props.unitList} onAssignUnitHandler={onAssignUnitHandler} close={!openAssignUnitDialog} open={openAssignUnitDialog} onCloseAssignUnitDialog={handleCloseAssignUnitDialog} />
+          }
           <Tooltip title="Assign Unit " placement="top" arrow>
             <Button variant='outlined' size="small" key={`assign-Units-for-event-${props.eventRow.eventId}`} onClick={handleOpenAssignUnitDialog}>
               <ElectricCarIcon sx={{ color: "primary.main" }} />

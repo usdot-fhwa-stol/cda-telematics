@@ -38,7 +38,9 @@ const NavMenu = React.memo(() => {
                 org_id: parseInt(authCtx.org_id)
             }).then(data => {
                 if (data !== undefined && data.errCode === undefined && Array.isArray(data) && data.length > 0) {
-                    authCtx.updateRole(data[0].role);
+                    if (data[0].role !== undefined && data[0].role.length > 0 && data[0].role !== authCtx) {
+                        authCtx.updateRole(data[0].role);
+                    }
                 }
             });
         }

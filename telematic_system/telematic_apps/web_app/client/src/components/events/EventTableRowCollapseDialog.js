@@ -24,8 +24,9 @@ const EventTableRowCollapseDialog = (props) => {
     return (
         <React.Fragment>
             <TableCell key={`${props.eventRow.id}-Unit-${props.unit.unit_identifier}-controls`}>
-
-                <WarningDialog open={openWarningDialog} onConfirm={event => onConfirmUnassignUnitHandler(event, props.eventRow, props.unit)} onCloseWarning={handleCloseWarningDialog} title={`Unassign Unit Alert`} description={`Are you sure to unassign ${props.unit.unit_identifier} from event ${props.eventRow.name}?`} />
+                {
+                    openWarningDialog && <WarningDialog open={openWarningDialog} onConfirm={event => onConfirmUnassignUnitHandler(event, props.eventRow, props.unit)} onCloseWarning={handleCloseWarningDialog} title={`Unassign Unit Alert`} description={`Are you sure to unassign ${props.unit.unit_identifier} from event ${props.eventRow.name}?`} />
+                }
                 <Tooltip title="Unassign Unit" placement="top" arrow>
                     <Button variant='outlined' size="small" key={`${props.eventRow.id}-Unit-${props.unit.unit_identifier}-unassign`} onClick={handleOpenWarningDialog}>
                         <DeleteIcon sx={{ color: "primary.main" }} />

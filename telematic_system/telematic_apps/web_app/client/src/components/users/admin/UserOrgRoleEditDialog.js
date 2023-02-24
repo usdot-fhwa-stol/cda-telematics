@@ -159,7 +159,7 @@ const UserOrgRoleEditDialog = (props) => {
                             </FormControl>
                             <RolesDropDown role={selectedOrgRole} onUserOrgRoleChange={handleUserRoleChange} />
                             <Tooltip title="Click assign button to add user to the selected organizations." placement="top-start">
-                                <Button onClick={handleAddUserToOrg} variant="outlined" sx={{ marginTop: 1 }}>Assign</Button>
+                                <Button onClick={handleAddUserToOrg} variant="contained" sx={{ marginTop: 1 }}>Assign</Button>
                             </Tooltip>
                             {
                                 orgAssignErr.color !== undefined && orgAssignErr.message !== undefined &&
@@ -238,7 +238,7 @@ const UserOrgRoleEditDialog = (props) => {
                         parseInt(authContxt.is_admin) === 1 &&
                         <Box sx={{ marginTop: 2, marginBottom: 1 }}>
                             <Typography sx={{ fontWeight: 'bolder', display: "block" }}>User organization roles</Typography>
-                            <Typography sx={{ fontStyle: "italic", color: "#444444" }}>Note: Change the user role dropdown will update user role. Clicking the trash icon to remove the user from the selected organization.</Typography>
+                            <Typography sx={{ fontStyle: "italic", color: "#444444" }}>Note: Change the user role dropdown will update user role. Clicking the trash icon to remove the user from the selected organization. If the user is removed from all organizations, the user is reset to default organization and role. </Typography>
                         </Box>
                     }
                     <UserOrgRoleTable

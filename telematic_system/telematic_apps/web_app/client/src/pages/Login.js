@@ -22,9 +22,9 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import TextField from '@mui/material/TextField';
 import * as React from 'react';
-import AuthContext from '../context/auth-context';
-import { loginUser } from '../api/api-user';
 import { getOrgsByUser, listOrgs } from '../api/api-org';
+import { loginUser } from '../api/api-user';
+import AuthContext from '../context/auth-context';
 
 const theme = createTheme();
 

@@ -27,6 +27,8 @@ export const AssignUnitDialog = (props) => {
         setEndTimeValid(true);
         setStartTimeValid(true);
         setUnitId('');
+        resetField('unitId');
+        clearErrors();
         props.onCloseAssignUnitDialog();
     }
 
@@ -99,7 +101,9 @@ export const AssignUnitDialog = (props) => {
     const {
         register,
         handleSubmit,
-        formState: { errors }
+        formState: { errors },
+        clearErrors,
+        resetField
     } = useForm({
         resolver: yupResolver(validationSchema)
     });
@@ -113,14 +117,14 @@ export const AssignUnitDialog = (props) => {
                     </DialogContentText>
 
                     <FormControl fullWidth>
-                        <InputLabel id="UnitLabelId">Unit</InputLabel>
+                        <InputLabel id="UnitLabelId">Unit *</InputLabel>
                         <Select
+                            {...register('unitId')}
+                            error={errors.unitId ? true : false}
                             labelId="UnitLabelId"
                             id="unitId"
                             value={unitId}
-                            label="Unit"
-                            {...register('unitId')}
-                            error={errors.unitId ? true : false}
+                            label="Unit *"
                             sx={{ marginBottom: 5 }}
                             onChange={handleUnitChange}>
                             {props.unitList !== undefined && props.unitList.length > 0 &&
@@ -151,8 +155,8 @@ export const AssignUnitDialog = (props) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onCloseHandler}>Cancel</Button>
-                    <Button onClick={handleSubmit(onAssignUnitHandler)}>Assign</Button>
+                    <Button variant='outlined' onClick={onCloseHandler}>Cancel</Button>
+                    <Button variant='contained' onClick={handleSubmit(onAssignUnitHandler)}>Assign</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment >

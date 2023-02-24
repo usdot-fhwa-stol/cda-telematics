@@ -16,7 +16,7 @@ const RegisterUser = () => {
     const [password, setPwd] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
     const [username, setUsername] = useState('');
-    const [errStatus, setErrorStatus] = useState('');
+    const [errStatus, setErrorStatus] = useState(SEVERITY.INFO);
     const [email, setEmail] = useState('');
     const [selectedOrg, setSelectedOrg] = useState('');
     const [allOrgs, setAllOrgs] = useState([]);
@@ -128,7 +128,7 @@ const RegisterUser = () => {
                     <DialogContentText id="alert-dialog-description">                       
                     The created user is by default assigned viewer role. Please send email to
                             <Link href={`mailto:${adminEmails.join(',')}?subject=Role update request&body=Request`}> administrators </Link>
-                            &nbsp;request to update your role.
+                            &nbsp;to update your role.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>

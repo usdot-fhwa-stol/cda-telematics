@@ -2,7 +2,7 @@ import axios from 'axios';
 const listOrgs = async () => {
     const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/org/all`
     try {
-        const { data } = await axios.get(URL);
+        const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
@@ -13,7 +13,7 @@ const listOrgs = async () => {
 const listOrgUsers = async () => {
     const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/org/all/users`
     try {
-        const { data } = await axios.get(URL);
+        const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
@@ -27,7 +27,7 @@ const addOrgUser = async (reqData) => {
     try {
         const { data } = await axios.post(URL, {
             data: reqData
-        });
+        }, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
@@ -37,11 +37,10 @@ const addOrgUser = async (reqData) => {
 
 const getUserRole = async (reqData) => {
     const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/org/role/get`
-
     try {
         const { data } = await axios.post(URL, {
             data: reqData
-        });
+        }, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
@@ -56,7 +55,7 @@ const getOrgsByUser = async (userId) => {
     try {
         const { data } = await axios.post(URL, {
             data: { user_id: userId }
-        });
+        }, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
@@ -70,7 +69,7 @@ const updateOrgUser = async (reqData) => {
     try {
         const { data } = await axios.post(URL, {
             data: reqData
-        });
+        }, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
@@ -85,7 +84,7 @@ const deleteOrgUser = async (req) => {
         console.error("Cannot delete org user because request data is empty")
     }
     try {
-        const { data } = await axios.delete(URL + "?org_id=" + req.org_id + "&user_id=" + req.user_id);
+        const { data } = await axios.delete(URL + "?org_id=" + req.org_id + "&user_id=" + req.user_id, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);

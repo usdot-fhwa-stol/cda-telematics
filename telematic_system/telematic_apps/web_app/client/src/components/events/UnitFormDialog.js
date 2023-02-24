@@ -131,8 +131,8 @@ export const UnitFormDialog = (props) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onCloseHandler}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSaveHandler)}>Save</Button>
+                    <Button variant='outlined' onClick={onCloseHandler}>Cancel</Button>
+                    <Button variant='contained' onClick={handleSubmit(onSaveHandler)}>Save</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment>

@@ -42,6 +42,8 @@ grafana_db.states = require('./states.model')(seq, Sequelize);
 grafana_db.user = require('./user.model')(seq, Sequelize);
 grafana_db.org = require('./org.model')(seq, Sequelize);
 grafana_db.org_user = require('./org_user.model')(seq, Sequelize);
+grafana_db.dashboard = require('./dashboard.model')(seq,Sequelize);
+grafana_db.event_dashboard = require('./event_dashboard.model')(seq,Sequelize);
 
 //Associations
 grafana_db.events.belongsToMany(grafana_db.units, {

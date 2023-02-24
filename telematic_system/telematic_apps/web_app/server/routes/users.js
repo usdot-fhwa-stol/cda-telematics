@@ -17,8 +17,8 @@ module.exports = app => {
   const users = require("../controllers/user.controller");
   var router = require('express').Router();
 
-  /* GET users listing. */
-  router.get('/', function (req, res, next) {
+  /* GET users ping. */
+  router.get('/ping', function (req, res, next) {
     res.sendStatus(200);
   });
 

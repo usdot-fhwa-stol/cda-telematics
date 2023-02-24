@@ -28,6 +28,7 @@ const UserOrgROleTableRow = (props) => {
             user_id: props.userOrgRole.user_id,
             org_id: props.userOrgRole.org_id
         });
+        setOpen(false);
     }
 
     return (

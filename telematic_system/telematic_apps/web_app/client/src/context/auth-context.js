@@ -13,8 +13,8 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import React from 'react'
-import { useSessionStorageString, useClearSessionStorage } from "react-use-window-sessionstorage";
+import React, { useState } from 'react';
+import { useClearSessionStorage, useSessionStorageString } from "react-use-window-sessionstorage";
 
 const AuthContext = React.createContext({
   isAuth: false,
@@ -27,10 +27,12 @@ const AuthContext = React.createContext({
   is_admin: null,
   user_id: null,
   role: null,
+  view_count: null,
   login: (id, username, sessionToken, email, last_seen_at, org_id, name, is_admin) => { },
   logout: () => { },
   updateRole: (role) => { },
-  updateOrg: (org_id, org_name) => { }
+  updateOrg: (org_id, org_name) => { },
+  updateViewCount: () => { },
 })
 
 export const AuthContextProvider = (props) => {
@@ -46,6 +48,7 @@ export const AuthContextProvider = (props) => {
   const [name, setName] = useSessionStorageString("name", null);
   const [sessionToken, setSessionToken] = useSessionStorageString("sessionToken", null);
   const clearSessionStorage = useClearSessionStorage();
+  const [view_count, setViewCount] = useState(0);
 
   const loginHandler = (user_id, username, sessionToken, email, last_seen_at, org_id, name, is_admin) => {
     if (username !== undefined && username !== ""
@@ -69,13 +72,23 @@ export const AuthContextProvider = (props) => {
   const logoutHandler = () => {
     setIsAuthenticated(false);
     setUsername(null);
+    setRole(null);
+    setUserId(null);
+    setEmail(null);
+    setSessionToken(null);
+    setLastSeenAt(null);
+    setOrgId(null);
+    setName(null);
+    setIsAdmin(null);
     clearSessionStorage();
   }
 
   const updateRoleHandler = (role) => {
     setRole(role);
   }
-
+  const updateViewCountHandler = () => {
+    setViewCount(prev => prev + 1);
+  }
   const updateOrgHandler = (org_id, org_name) => {
     setOrgName(org_name);
     setOrgId(org_id);
@@ -93,10 +106,12 @@ export const AuthContextProvider = (props) => {
     org_name: org_name,
     is_admin: is_admin,
     role: role,
+    view_count: view_count,
     login: loginHandler,
     logout: logoutHandler,
     updateRole: updateRoleHandler,
-    updateOrg: updateOrgHandler
+    updateOrg: updateOrgHandler,
+    updateViewCount: updateViewCountHandler
   }}>{props.children}</AuthContext.Provider>
 }
 

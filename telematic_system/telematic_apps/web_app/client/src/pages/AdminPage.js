@@ -1,12 +1,13 @@
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import { Grid, Typography } from '@mui/material';
 import React, { useEffect, useState } from 'react';
-import { listUsers, updateUserServerAdmin } from '../api/api-user';
 import { addOrgUser, deleteOrgUser, listOrgs, listOrgUsers, updateOrgUser } from '../api/api-org';
+import { listUsers, updateUserServerAdmin } from '../api/api-user';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
-import UserRoleManagement from '../components/users/admin/UserRoleManagement';
 import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
-import { Grid, Typography } from '@mui/material';
-import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import UserRoleManagement from '../components/users/admin/UserRoleManagement';
+import { USER_ROLES } from '../components/users/UserMetadata';
 import AuthContext from '../context/auth-context';
 
 const AdminPage = () => {
@@ -50,7 +51,14 @@ const AdminPage = () => {
     const handleUserOrgRoleDelete = (data) => {
         const response = deleteOrgUser(data);
         response.then(response_data => {
-            if (response_data.errCode === undefined) {
+            if (response_data.errCode === undefined && response_data.message === undefined && Array.isArray(response_data) && response_data.length > 0) {
+                let defaultUserOrg = {
+                    user_id: data.user_id,
+                    org_id: 1,
+                    role: USER_ROLES.VIEWER
+                }
+                setOrgsUsers(prev => [...prev.filter(item => item.user_id !== data.user_id || item.org_id !== data.org_id), defaultUserOrg])
+            } else if (response_data.errCode === undefined) {
                 setOrgsUsers(prev => [...prev.filter(item => item.user_id !== data.user_id || item.org_id !== data.org_id)])
             }
         }).catch(error => {
@@ -62,7 +70,6 @@ const AdminPage = () => {
         let filteredUser = users.filter(item => item.id === userData.user_id)
         filteredUser[0].is_admin = userData.is_admin === 1 ? "yes" : "no";
         response.then(response_data => {
-            console.log(response_data)
             if (response_data.errCode === undefined) {
                 setUsers(prev => [...prev.filter(item => item.id !== userData.user_id), filteredUser[0]])
             }
@@ -72,6 +79,7 @@ const AdminPage = () => {
     }
 
     useEffect(() => {
+        authContxt.updateViewCount();
         const user_response = listUsers();
         user_response.then(data => {
             if (data !== undefined && Array.isArray(data) && data.length !== 0) {

@@ -2,6 +2,7 @@ import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import { Button, ButtonGroup, TableCell, TableRow, Tooltip } from '@mui/material';
 import React, { useState } from 'react';
 import AuthContext from '../../../context/auth-context';
+import { USER_ROLES } from '../UserMetadata';
 import UserOrgRoleEditDialog from './UserOrgRoleEditDialog';
 
 const UserTableRow = (props) => {
@@ -79,12 +80,28 @@ const UserTableRow = (props) => {
     }
 
     const handleUserOrgRoleDelete = (data) => {
-        setSelectedUserOrgsRole(prev => [...prev.filter(item => {
-            if (data !== undefined && data.user_id === item.user_id && data.org_id === item.org_id) {
-                return false;
+        if (curSelectedOrgsRoles.length === 1) {
+            //If removing the last organization for this user, update user to default role and organization
+            let defaultUserOrg = {
+                user_id: data.user_id,
+                org_id: 1,
+                role: USER_ROLES.VIEWER,
+                org_name: getOrgNameById(1)
             }
-            return true;
-        })]);
+            setSelectedUserOrgsRole(prev => [...prev.filter(item => {
+                if (data !== undefined && data.user_id === item.user_id && data.org_id === item.org_id) {
+                    return false;
+                }
+                return true;
+            }), defaultUserOrg]);
+        } else {
+            setSelectedUserOrgsRole(prev => [...prev.filter(item => {
+                if (data !== undefined && data.user_id === item.user_id && data.org_id === item.org_id) {
+                    return false;
+                }
+                return true;
+            })]);
+        }
         props.onUserOrgRoleDelete(data);
     }
 

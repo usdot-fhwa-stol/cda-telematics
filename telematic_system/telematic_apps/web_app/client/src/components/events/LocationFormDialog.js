@@ -153,8 +153,8 @@ const LocationFormDialog = (props) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onCloseHandler}>Cancel</Button>
-                    <Button onClick={handleSubmit(onSaveLocationHandler)}>Save</Button>
+                    <Button variant='outlined' onClick={onCloseHandler}>Cancel</Button>
+                    <Button variant='contained' onClick={handleSubmit(onSaveLocationHandler)}>Save</Button>
                 </DialogActions>
             </Dialog>
         </React.Fragment >

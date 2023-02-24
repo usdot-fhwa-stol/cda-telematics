@@ -63,7 +63,6 @@ exports.create = (req, res) => {
  * @Return Response status and message
  */
 exports.delete = (req, res) => {
-  console.log(req.query)
   const event_id = req.query.event_id;
   const unit_id = req.query.unit_id;
   if (event_id === undefined || unit_id === undefined) {
