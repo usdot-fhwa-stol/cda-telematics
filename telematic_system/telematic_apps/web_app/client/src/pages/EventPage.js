@@ -329,6 +329,17 @@ const EventPage = React.memo(() => {
         setStateList(states);
       }
     });
+
+    //If user role is missing, display a warning to the user
+    if ((authCtx.role === undefined || authCtx.role === null || authCtx.role === "")
+      && authCtx.org_name !== undefined && authCtx.org_name !== null && authCtx.org_name !== "") {
+      setAlertStatus({
+        open: true,
+        severity: NOTIFICATION_STATUS.WARNING,
+        title: NOTIFICATION_STATUS.WARNING.toLocaleUpperCase(),
+        message: 'You are not allowed to access the current organization: ' + authCtx.org_name
+      });
+    }
   }, []);
 
   return (
@@ -338,41 +349,43 @@ const EventPage = React.memo(() => {
         severity={alertStatus.severity}
         title={alertStatus.title}
         message={alertStatus.message} />
-      <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-        <PageAvatar icon={<EventIcon />} title="Event Management" />
-        <Grid item xs={4}></Grid>
-        {
-          authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
-          <Grid item xs={12} justifyContent="flex-end" display="flex">
-            <Button variant="outlined" onClick={handleAddUnitDialog} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />}>
-              Add Unit
-            </Button>
-            {
-              openAddUnitDialog &&
-              <AddUnitDialog close={!openAddUnitDialog} open={openAddUnitDialog} onSave={onSaveUnitHandler} onCloseAddUnitDialog={handleCloseUnitDialog} />
-            }
-            <Button variant="outlined" onClick={handleOpenLocation} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />} >
-              Add Location
-            </Button>
-            {
-              openAddLocationDialog &&
-              <AddLocationDialog stateList={stateList} close={!openAddLocationDialog} open={openAddLocationDialog} onSaveLocation={onSaveLocationHandler} onCloseAddLocationDialog={handleCloseLocation} />
-            }
-            <Button variant="outlined" onClick={handleAddEventDialog} startIcon={<AddCircleIcon />} fullWidth={false} >
-              Add Event
-            </Button>
-            {
-              openAddEventDialog &&
-              <AddEventDialog title="Add Event" locationList={locationList} testingTypeList={testingTypeList} onEventSaveHandler={onEventSaveHandler} close={!openAddEventDialog} open={openAddEventDialog} onCloseEventDialog={handleCloseAddEventDialog} />
-            }
+      {
+        authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+        <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+          <PageAvatar icon={<EventIcon />} title="Event Management" />
+          <Grid item xs={4}></Grid>
+          {
+            authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+            <Grid item xs={12} justifyContent="flex-end" display="flex">
+              <Button variant="outlined" onClick={handleAddUnitDialog} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />}>
+                Add Unit
+              </Button>
+              {
+                openAddUnitDialog &&
+                <AddUnitDialog close={!openAddUnitDialog} open={openAddUnitDialog} onSave={onSaveUnitHandler} onCloseAddUnitDialog={handleCloseUnitDialog} />
+              }
+              <Button variant="outlined" onClick={handleOpenLocation} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />} >
+                Add Location
+              </Button>
+              {
+                openAddLocationDialog &&
+                <AddLocationDialog stateList={stateList} close={!openAddLocationDialog} open={openAddLocationDialog} onSaveLocation={onSaveLocationHandler} onCloseAddLocationDialog={handleCloseLocation} />
+              }
+              <Button variant="outlined" onClick={handleAddEventDialog} startIcon={<AddCircleIcon />} fullWidth={false} >
+                Add Event
+              </Button>
+              {
+                openAddEventDialog &&
+                <AddEventDialog title="Add Event" locationList={locationList} testingTypeList={testingTypeList} onEventSaveHandler={onEventSaveHandler} close={!openAddEventDialog} open={openAddEventDialog} onCloseEventDialog={handleCloseAddEventDialog} />
+              }
+            </Grid>
+          }
+          <EventsFilter eventInfoList={eventInfoList} onFilterEvents={onFilterEventsHandler} testingTypeList={testingTypeList} locationList={locationList} />
+          <Grid container item xs={12}>
+            <EventTable eventInfoList={eventInfoList} unitList={unitList} locationList={locationList} testingTypeList={testingTypeList} onEventSaveHandler={onEventSaveHandler} onDeleteEvent={onDeleteEventHandler} onAssignUnitHandler={onAssignUnitHandler} onConfirmUnassignUnitHandler={onConfirmUnassignUnitHandler} />
           </Grid>
-        }
-
-        <EventsFilter eventInfoList={eventInfoList} onFilterEvents={onFilterEventsHandler} testingTypeList={testingTypeList} locationList={locationList} />
-        <Grid container item xs={12}>
-          <EventTable eventInfoList={eventInfoList} unitList={unitList} locationList={locationList} testingTypeList={testingTypeList} onEventSaveHandler={onEventSaveHandler} onDeleteEvent={onDeleteEventHandler} onAssignUnitHandler={onAssignUnitHandler} onConfirmUnassignUnitHandler={onConfirmUnassignUnitHandler} />
         </Grid>
-      </Grid>
+      }
     </React.Fragment >
   )
 });

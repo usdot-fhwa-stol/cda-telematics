@@ -165,7 +165,17 @@ const TopicPage = React.memo(() => {
         setTestingTypeList(testing_types);
       }
     });
-
+    
+    //If user role is missing, display a warning to the user
+    if ((authCtx.role === undefined || authCtx.role === null || authCtx.role === "")
+      && authCtx.org_name !== undefined && authCtx.org_name !== null && authCtx.org_name !== "") {
+      setAlertStatus({
+        open: true,
+        severity: NOTIFICATION_STATUS.WARNING,
+        title: NOTIFICATION_STATUS.WARNING.toLocaleUpperCase(),
+        messageList: ['You are not allowed to access the current organization: ' + authCtx.org_name]
+      });
+    }
   }, []);
 
   return (
@@ -175,23 +185,26 @@ const TopicPage = React.memo(() => {
         severity={alertStatus.severity}
         title={alertStatus.title}
         messageList={alertStatus.messageList} />
-      <Grid container columnSpacing={2} rowSpacing={1}>
-        <PageAvatar icon={<StreamIcon />} title="Topic Management" />
-        <Grid item xs={4}></Grid>
-        <TopicsFilter eventInfoList={eventInfoList} onSelectEvents={onSelectEventsHandler} testingTypeList={testingTypeList} locationList={locationList} />
-        <VehicleTopicList availableUnits={vehicles} />
-        <InfrastructureTopicList availableUnits={infrastructures} />
-        {
-          authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
-          <Grid item xs={12} sx={{ textAlign: 'center' }}>
-            <FormControl>
-              <Tooltip title="Send a request with a list of selected topics, and request telematic server to stream data for the selected topics." placement="top" arrow>
-                <Button variant="outlined" onClick={confirmSelectedTopicHandler}>Confirm Selected Topics</Button>
-              </Tooltip>
-            </FormControl>
-          </Grid>
-        }
-      </Grid>
+      {
+        authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+        <Grid container columnSpacing={2} rowSpacing={1}>
+          <PageAvatar icon={<StreamIcon />} title="Topic Management" />
+          <Grid item xs={4}></Grid>
+          <TopicsFilter eventInfoList={eventInfoList} onSelectEvents={onSelectEventsHandler} testingTypeList={testingTypeList} locationList={locationList} />
+          <VehicleTopicList availableUnits={vehicles} />
+          <InfrastructureTopicList availableUnits={infrastructures} />
+          {
+            authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+            <Grid item xs={12} sx={{ textAlign: 'center' }}>
+              <FormControl>
+                <Tooltip title="Send a request with a list of selected topics, and request telematic server to stream data for the selected topics." placement="top" arrow>
+                  <Button variant="outlined" onClick={confirmSelectedTopicHandler}>Confirm Selected Topics</Button>
+                </Tooltip>
+              </FormControl>
+            </Grid>
+          }
+        </Grid>
+      }
     </React.Fragment>
   )
 });

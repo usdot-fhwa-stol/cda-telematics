@@ -142,23 +142,29 @@ const AdminPage = () => {
                 severity={alertStatus.severity}
                 title={alertStatus.title}
                 message={alertStatus.message} />
-            <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
-                <Grid item xs={12}>
-                    <PageAvatar icon={<AdminPanelSettingsIcon />} title="Administrator" />
+            {
+                (parseInt(authContxt.is_admin) === 1 || authContxt.role === USER_ROLES.ADMIN) &&
+                <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }}>
+                    <Grid item xs={12}>
+                        <PageAvatar icon={<AdminPanelSettingsIcon />} title="Administrator" />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <Typography sx={{ marginLeft: 2 }}>Current Organization: {authContxt.org_name != null && authContxt.org_name.length > 0 ? authContxt.org_name : "Org missing"} </Typography>
+                        <Typography sx={{ marginLeft: 2 }}>Current User Name: {authContxt.username} </Typography>
+                    </Grid>
                 </Grid>
-                <Grid item xs={12}>
-                    <Typography sx={{ marginLeft: 2 }}>Current Organization: {authContxt.org_name != null && authContxt.org_name.length > 0 ? authContxt.org_name : "Org missing"} </Typography>
-                    <Typography sx={{ marginLeft: 2 }}>Current User Name: {authContxt.username} </Typography>
-                </Grid>
-            </Grid>
-            <UserRoleManagement
-                users={users}
-                orgs={orgs}
-                orgsUsers={orgsUsers}
-                onAddUserToOrg={handleAddUserToOrg}
-                onUserOrgRoleChange={handleUserOrgRoleChange}
-                onUserOrgRoleDelete={handleUserOrgRoleDelete}
-                onChangeServerAdmin={handleChangeServerAdmin} />
+            }
+            {
+                (parseInt(authContxt.is_admin) === 1 || authContxt.role === USER_ROLES.ADMIN) &&
+                <UserRoleManagement
+                    users={users}
+                    orgs={orgs}
+                    orgsUsers={orgsUsers}
+                    onAddUserToOrg={handleAddUserToOrg}
+                    onUserOrgRoleChange={handleUserOrgRoleChange}
+                    onUserOrgRoleDelete={handleUserOrgRoleDelete}
+                    onChangeServerAdmin={handleChangeServerAdmin} />
+            }
         </React.Fragment>
     )
 }
