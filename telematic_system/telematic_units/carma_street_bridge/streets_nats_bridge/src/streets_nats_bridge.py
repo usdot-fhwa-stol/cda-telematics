@@ -101,12 +101,12 @@ class StreetsNatsBridge():
         self.preselectedTopics = os.getenv("STREETS_BRIDGE_PRESELECTION_LIST")
 
         #Add excluded/preselected topics and their type to class member variables
-        if self.excludedTopics != "None":
+        if self.excludedTopics != "":
             for excluded in self.excludedTopics.split(","):
                 self.exclusion_list.append(excluded.strip())
         self.logger.info("Exclusion list: " + str(self.exclusion_list))
 
-        if self.preselectedTopics != "None":
+        if self.preselectedTopics != "":
             for preselected in self.preselectedTopics.split(","):
                 self.preselection_list.append(preselected.strip())
         self.logger.info("Preselection list: " + str(self.preselection_list))
