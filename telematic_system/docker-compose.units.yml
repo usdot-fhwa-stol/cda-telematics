@@ -12,15 +12,29 @@ services:
            - ./logs:/var/logs
     environment:
     - VEHICLE_BRIDGE_UNIT_ID=vehicle_id
-    - NATS_SERVER_IP_PORT=nats://44.206.13.7:4222
+    - NATS_SERVER_IP_PORT=nats://<IP>:4222 #REQUIRED variable, replace IP with IP address of NATS server
     - VEHICLE_BRIDGE_UNIT_TYPE=platform
-    - VEHICLE_BRIDGE_UNIT_NAME=Black_Pacifica
+    - VEHICLE_BRIDGE_UNIT_NAME=vehicle_id
     - VEHICLE_BRIDGE_LOG_LEVEL=debug
     - VEHICLE_BRIDGE_LOG_NAME=ros2_nats_bridge
     - VEHICLE_BRIDGE_LOG_PATH=/var/logs/
     - VEHICLE_BRIDGE_LOG_ROTATION_SIZE_BYTES=2147483648 #2 gigabytes
     - VEHICLE_BRIDGE_LOG_HANDLER_TYPE=console #console: Print logs on console; file: Save logs to file; all: Prints logs on console and file
-  
+    - VEHICLE_BRIDGE_EXCLUSION_LIST= /environment/map_filtered_points,
+      /environment/points_clustered,
+      /environment/points_in_map,
+      /environment/detected_objects,
+      /environment/roadway_objects,
+      /environment/motion_computation_visualization,
+      /hardware_interface/lidar/points_raw,
+      /environment/points_ground,
+      /environment/points_no_ground,
+      /environment/points_in_base_link,
+      /environment/lidar_detected_objects,
+      /environment/map_update,
+      /environment/semantic_map,
+      /environment/base_map #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
+
   streets-nats-bridge:
     build:
           context: ./telematic_units/carma_street_bridge
@@ -40,9 +54,10 @@ services:
     - STREETS_BRIDGE_LOG_HANDLER_TYPE=console #console: Print logs on console; file: Save logs to file; all: Prints logs on console and file
     - KAFKA_BROKER_IP=localhost
     - KAFKA_BROKER_PORT=9092
-    - NATS_IP=44.206.13.7
+    - NATS_IP=<IP> #REQUIRED variable, replace IP with IP address of NATS server
     - NATS_PORT=4222
     - KAFKA_CONSUMER_RESET=earliest
+    - STREETS_BRIDGE_EXCLUSION_LIST= #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
   
   cloud-nats-bridge:
     build:
@@ -55,7 +70,7 @@ services:
            - ./logs:/var/logs           
            - /opt/tomcat/logs:/opt/tomcat/logs
     environment:
-      - NATS_IP=44.206.13.7 #change to amazon ec2 ipv4 address
+      - NATS_IP=<IP> #REQUIRED variable, replace IP with IP address of NATS server
       - NATS_PORT=4222
       - CARMA_CLOUD_LOG=/opt/tomcat/logs/carmacloud.log #Required for carma cloud bridge, containing the directory where carma cloud log is located
       - CARMA_CLOUD_BRIDGE_UNIT_ID=cloud_id
@@ -67,3 +82,4 @@ services:
       - CARMA_CLOUD_BRIDGE_LOG_HANDLER=console #"console": Print logs on console; "file": Save logs to file; "all": Prints logs on console and file
       - CARMA_CLOUD_BRIDGE_TCR_STRING=TrafficControlRequest #TCR string to search for in carma cloud log
       - CARMA_CLOUD_BRIDGE_TCM_STRING=TrafficControlMessage #TCM string to search for in carma cloud log
+      - CLOUD_BRIDGE_EXCLUSION_LIST= #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none

@@ -135,6 +135,8 @@ class CloudNatsBridge():
         self.log_handler_type = os.getenv('CARMA_CLOUD_BRIDGE_LOG_HANDLER')
         self.tcr_search_string = os.getenv('CARMA_CLOUD_BRIDGE_TCR_STRING')
         self.tcm_search_string = os.getenv('CARMA_CLOUD_BRIDGE_TCM_STRING')
+        #Get the topics that should be excluded
+        self.excludedTopics = os.getenv("CLOUD_BRIDGE_EXCLUSION_LIST")
 
         self.unit_name = "Dev CC"
         self.nc = NATS()
@@ -142,6 +144,8 @@ class CloudNatsBridge():
         self.subscribers_list = []  # list of topics the user has requested to publish
         self.async_sleep_rate = 0.0001  # asyncio sleep rate
         self.registered = False
+        #Member variables to store the exclusion list
+        self.exclusion_list = []
 
         self.cloud_info = {
             UnitKeys.UNIT_ID.value: self.unit_id,
@@ -159,6 +163,12 @@ class CloudNatsBridge():
             self.createLogger(LogType.CONSOLE.value)
             self.logger.warn("Incorrect Log type defined, defaulting to console")
 
+        #Add excluded topics to class member variables
+        if self.excludedTopics != "":
+            for excluded in self.excludedTopics.split(","):
+                self.exclusion_list.append(excluded.strip())
+        self.logger.info("Exclusion list: " + str(self.exclusion_list))
+        
         self.logger.info(" Created Cloud-NATS bridge object")
 
         # Start listening to the carma cloud log file
@@ -316,7 +326,7 @@ class CloudNatsBridge():
             self.logger.info("In send_list_of_topics: Received a request for available topics")
             # convert nanoseconds to microseconds
             self.cloud_info["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
-            self.cloud_info["topics"] = [{"name": topicName} for topicName in self.cloud_topics]
+            self.cloud_info["topics"] = [{"name": topicName} for topicName in self.cloud_topics if topicName not in self.exclusion_list]
             message = json.dumps(self.cloud_info).encode('utf8')
 
             self.logger.info("In send_list_of_topics: Sending available topics message to nats: " + str(message))
