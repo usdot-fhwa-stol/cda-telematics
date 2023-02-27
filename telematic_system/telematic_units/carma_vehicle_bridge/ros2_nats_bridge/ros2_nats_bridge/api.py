@@ -59,7 +59,6 @@ class Ros2NatsBridgeNode(Node):
         self.registered = False
         self.subscribers_list = {}
         self.exclusion_list = []
-        self.preselection_list = []
 
         self.vehicle_info = {
             UnitKeys.UNIT_ID.value: os.getenv("VEHICLE_BRIDGE_UNIT_ID"),
@@ -91,7 +90,7 @@ class Ros2NatsBridgeNode(Node):
         #Get the topics that should be excluded
         self.excludedTopics = os.getenv("VEHICLE_BRIDGE_EXCLUSION_LIST")
 
-        #Add excluded/preselected topics and their type to class member variables
+        #Add excluded topics and their type to class member variables
         if self.excludedTopics != "":
             for excluded in self.excludedTopics.split(","):
                 self.exclusion_list.append(excluded.strip())
