@@ -135,9 +135,8 @@ class CloudNatsBridge():
         self.log_handler_type = os.getenv('CARMA_CLOUD_BRIDGE_LOG_HANDLER')
         self.tcr_search_string = os.getenv('CARMA_CLOUD_BRIDGE_TCR_STRING')
         self.tcm_search_string = os.getenv('CARMA_CLOUD_BRIDGE_TCM_STRING')
-        #Get the topics that should be excluded and preselected
+        #Get the topics that should be excluded
         self.excludedTopics = os.getenv("CLOUD_BRIDGE_EXCLUSION_LIST")
-        self.preselectedTopics = os.getenv("CLOUD_BRIDGE_PRESELECTION_LIST")
 
         self.unit_name = "Dev CC"
         self.nc = NATS()
@@ -145,9 +144,8 @@ class CloudNatsBridge():
         self.subscribers_list = []  # list of topics the user has requested to publish
         self.async_sleep_rate = 0.0001  # asyncio sleep rate
         self.registered = False
-        #Member variables to store the exclusion and preselection lists
+        #Member variables to store the exclusion list
         self.exclusion_list = []
-        self.preselection_list = []
 
         self.cloud_info = {
             UnitKeys.UNIT_ID.value: self.unit_id,
@@ -165,17 +163,12 @@ class CloudNatsBridge():
             self.createLogger(LogType.CONSOLE.value)
             self.logger.warn("Incorrect Log type defined, defaulting to console")
 
-        #Add excluded/preselected topics and their type to class member variables
+        #Add excluded topics to class member variables
         if self.excludedTopics != "":
             for excluded in self.excludedTopics.split(","):
                 self.exclusion_list.append(excluded.strip())
         self.logger.info("Exclusion list: " + str(self.exclusion_list))
-
-        if self.preselectedTopics != "":
-            for preselected in self.preselectedTopics.split(","):
-                self.preselection_list.append(preselected.strip())
-        self.logger.info("Preselection list: " + str(self.preselection_list))
-
+        
         self.logger.info(" Created Cloud-NATS bridge object")
 
         # Start listening to the carma cloud log file
@@ -367,13 +360,6 @@ class CloudNatsBridge():
                 self.logger.warn("Registering unit failed")
                 self.registered = False
                 pass
-        
-        #After being registered, add the topics in the preselection list to the subscriber list
-        if self.registered:
-            for topic in self.cloud_topics:
-                if topic in self.preselection_list:
-                    self.subscribers_list.append(topic)
-            print("Updated subscriber list with preselection topics: " + str(self.subscribers_list))
 
     async def check_status(self):
         """

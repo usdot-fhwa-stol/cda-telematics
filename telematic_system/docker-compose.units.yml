@@ -33,8 +33,7 @@ services:
       /environment/lidar_detected_objects,
       /environment/map_update,
       /environment/semantic_map,
-      /environment/base_map #OPTIONAL variable to set a list of topics not available to publish, leave empty if none
-    - VEHICLE_BRIDGE_PRESELECTION_LIST=/rosout #OPTIONAL variable to set a list of topics to publish on startup, leave empty if none
+      /environment/base_map #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
 
   streets-nats-bridge:
     build:
@@ -58,8 +57,7 @@ services:
     - NATS_IP=44.211.56.6
     - NATS_PORT=4222
     - KAFKA_CONSUMER_RESET=earliest
-    - STREETS_BRIDGE_EXCLUSION_LIST= #OPTIONAL variable to set a list of topics not available to publish, leave empty if none
-    - STREETS_BRIDGE_PRESELECTION_LIST= #OPTIONAL variable to set a list of topics to publish on startup, leave empty if none
+    - STREETS_BRIDGE_EXCLUSION_LIST= #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
   
   cloud-nats-bridge:
     build:
@@ -84,5 +82,4 @@ services:
       - CARMA_CLOUD_BRIDGE_LOG_HANDLER=console #"console": Print logs on console; "file": Save logs to file; "all": Prints logs on console and file
       - CARMA_CLOUD_BRIDGE_TCR_STRING=TrafficControlRequest #TCR string to search for in carma cloud log
       - CARMA_CLOUD_BRIDGE_TCM_STRING=TrafficControlMessage #TCM string to search for in carma cloud log
-      - CLOUD_BRIDGE_EXCLUSION_LIST= #OPTIONAL variable to set a list of topics not available to publish, leave empty if none
-      - CLOUD_BRIDGE_PRESELECTION_LIST=TCM #OPTIONAL variable to set a list of topics to publish on startup, leave empty if none
+      - CLOUD_BRIDGE_EXCLUSION_LIST= #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
