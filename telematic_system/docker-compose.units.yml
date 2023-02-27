@@ -12,7 +12,7 @@ services:
            - ./logs:/var/logs
     environment:
     - VEHICLE_BRIDGE_UNIT_ID=vehicle_id
-    - NATS_SERVER_IP_PORT=nats://IP:4222 #REQUIRED variable, replace IP with IP address of NATS server
+    - NATS_SERVER_IP_PORT=nats://<IP>:4222 #REQUIRED variable, replace IP with IP address of NATS server
     - VEHICLE_BRIDGE_UNIT_TYPE=platform
     - VEHICLE_BRIDGE_UNIT_NAME=vehicle_id
     - VEHICLE_BRIDGE_LOG_LEVEL=debug
@@ -54,7 +54,7 @@ services:
     - STREETS_BRIDGE_LOG_HANDLER_TYPE=console #console: Print logs on console; file: Save logs to file; all: Prints logs on console and file
     - KAFKA_BROKER_IP=localhost
     - KAFKA_BROKER_PORT=9092
-    - NATS_IP=IP #REQUIRED variable, replace IP with IP address of NATS server
+    - NATS_IP=<IP> #REQUIRED variable, replace IP with IP address of NATS server
     - NATS_PORT=4222
     - KAFKA_CONSUMER_RESET=earliest
     - STREETS_BRIDGE_EXCLUSION_LIST= #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
@@ -70,7 +70,7 @@ services:
            - ./logs:/var/logs           
            - /opt/tomcat/logs:/opt/tomcat/logs
     environment:
-      - NATS_IP=IP #REQUIRED variable, replace IP with IP address of NATS server
+      - NATS_IP=<IP> #REQUIRED variable, replace IP with IP address of NATS server
       - NATS_PORT=4222
       - CARMA_CLOUD_LOG=/opt/tomcat/logs/carmacloud.log #Required for carma cloud bridge, containing the directory where carma cloud log is located
       - CARMA_CLOUD_BRIDGE_UNIT_ID=cloud_id
