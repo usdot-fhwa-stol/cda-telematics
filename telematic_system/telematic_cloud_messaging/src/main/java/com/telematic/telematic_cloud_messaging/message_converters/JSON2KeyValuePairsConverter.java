@@ -34,7 +34,7 @@ public class JSON2KeyValuePairsConverter {
                     else if (value.toString().matches("[-+]?\\d*\\.?\\d+")) {
                         pairs += key + "=" + value;
                     }
-                    //Regex matching scientific notation. InfluxDB does not support scientific notation syntax, temporarily set this kind of value = 0.0 
+                    //Regex matching scientific notation. InfluxDB does not support scientific notation float syntax, temporarily set this kind of value = 0.0 
                     else if (value.toString().matches("^[+-]?\\d+(?:\\.\\d*(?:[eE][+-]?\\d+)?)?$")) {
                         pairs += key + "=" + 0.0;
                     }
