@@ -6,7 +6,7 @@ import axios, { CanceledError } from 'axios';
  * @Return Response status and save a bulk of topics for each event and unit combination
  */
 const createDefaultTopicsByEventUnits = async (seletedUnitsTopics) => {
-  const URL =`${process.env.REACT_APP_NODE_SERVER_URI}/api/default_event_topics/create`
+  const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/default_event_topics/create`
   let event_id = 0;
   let unit_identifiers = [];
   seletedUnitsTopics.forEach(element => {
@@ -19,11 +19,11 @@ const createDefaultTopicsByEventUnits = async (seletedUnitsTopics) => {
   }
 
   try {
-    const { data } = await axios.post(URL, seletedUnitsTopics);
+    const { data } = await axios.post(URL, seletedUnitsTopics, { withCredentials: true });
     return data;
   } catch (err) {
     console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.statusText }
+    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
   }
 }
 
@@ -45,11 +45,11 @@ const findAllDefaultTopicsByEventUnits = async (event_id, selectedUnitIdentifier
         event_id: event_id,
         unit_identifiers: selectedUnitIdentifiers
       }
-    });
+    }, { withCredentials: true });
     return data;
   } catch (err) {
     console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.statusText }
+    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
   }
 }
 

@@ -22,6 +22,8 @@ import TableHead from '@mui/material/TableHead';
 import TablePagination from '@mui/material/TablePagination';
 import TableRow from '@mui/material/TableRow';
 import * as React from 'react';
+import AuthContext from '../../context/auth-context';
+import { USER_ROLES } from '../users/UserMetadata';
 import EventTableItemPopover from './EventTableItemPopover';
 import EventTableRowCollapse from './EventTableRowCollapse';
 
@@ -35,6 +37,7 @@ const columns = [
 ];
 
 export default function EventTable(props) {
+  const authCtx = React.useContext(AuthContext)
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
 
@@ -82,13 +85,17 @@ export default function EventTable(props) {
               <TableCell tabIndex={-1} key={`dashboard`} style={{ top: 0, fontWeight: "bolder", backgroundColor: "#eee" }}>
                 Dashboards
               </TableCell>
-              <TableCell tabIndex={-1} key={`controls`} style={{ top: 0, fontWeight: "bolder", backgroundColor: "#eee" }}>
-                Controls
-              </TableCell>
+              {
+                authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
+                <TableCell tabIndex={-1} key={`controls`} style={{ top: 0, fontWeight: "bolder", backgroundColor: "#eee" }}>
+                  Controls
+                </TableCell>
+              }
             </TableRow>
           </TableHead>
           <TableBody>
             {props.eventInfoList !== undefined &&
+              Array.isArray(props.eventInfoList) &&
               props.eventInfoList
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map(
@@ -103,7 +110,7 @@ export default function EventTable(props) {
       <TablePagination
         rowsPerPageOptions={[10, 25, 100]}
         component="div"
-        count={props.eventInfoList !== undefined ? props.eventInfoList.length : 0}
+        count={props.eventInfoList !== undefined && Array.isArray(props.eventInfoList) ? props.eventInfoList.length : 0}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

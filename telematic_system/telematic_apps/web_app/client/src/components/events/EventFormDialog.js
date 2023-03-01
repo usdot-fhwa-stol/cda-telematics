@@ -13,17 +13,38 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+import { yupResolver } from '@hookform/resolvers/yup';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import React, { useEffect, useState } from 'react'; import { Controller, useForm } from 'react-hook-form';
+import React, { useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
 
 export const EventFormDialog = (props) => {
+
+    const validationSchema = Yup.object().shape({
+        name: Yup.string().required('Name is required'),
+        description: Yup.string().required('Description is required'),
+        testingTypeId: Yup.string().required('Testing type is required'),
+        locationId: Yup.string().required('Location is required'),
+    });
+
+    const {
+        register,
+        handleSubmit,
+        control,
+        formState: { errors },
+        clearErrors,
+        resetField
+    } = useForm({
+        resolver: yupResolver(validationSchema)
+    });
+
     const timestampNow = new Date().getTime();
     const onCloseHandler = () => {
+        resetEventForm();
         props.onCloseHandler();
     }
 
@@ -56,7 +77,7 @@ export const EventFormDialog = (props) => {
     const handleEventDescriptionChange = (event) => {
         setEventDescription(event.target.value);
     };
-
+    const [customErrorText, setCustomErrorText] = useState('');
     useEffect(() => {
         if (props.eventInfo !== undefined) {
             setEventName(props.eventInfo.name === undefined ? '' : props.eventInfo.name);
@@ -92,32 +113,29 @@ export const EventFormDialog = (props) => {
         if (props.eventInfo !== undefined) {
             localEventInfo.id = props.eventInfo.id;
         }
+        if (startTime > endTime) {
+            setCustomErrorText("Event start time cannot be greater than the event end time.");
+            return;
+        }
         props.onEventSaveHandler(localEventInfo);
         if (props.eventInfo === undefined) {
-            setEventName('');
-            setlocationId('');
-            setEventDescription('');
-            setTestingTypeId('');
-            setStartTime(new Date().getTime());
-            setEndTime(new Date().getTime());
+            resetEventForm();
         }
     }
-
-    const validationSchema = Yup.object().shape({
-        name: Yup.string().required('Name is required'),
-        description: Yup.string().required('Description is required'),
-        testingTypeId: Yup.string().required('Testing type is required'),
-        locationId: Yup.string().required('Location is required'),
-    });
-
-    const {
-        register,
-        handleSubmit,
-        control,
-        formState: { errors }
-    } = useForm({
-        resolver: yupResolver(validationSchema)
-    });
+    const resetEventForm = () => {
+        setEventName('');
+        setlocationId('');
+        setEventDescription('');
+        setTestingTypeId('');
+        setStartTime(new Date().getTime());
+        setEndTime(new Date().getTime());
+        setCustomErrorText('');
+        clearErrors();
+        resetField("name");
+        resetField("description");
+        resetField("testingTypeId");
+        resetField("locationId");
+    }
 
     return (
         <React.Fragment>
@@ -127,12 +145,14 @@ export const EventFormDialog = (props) => {
                     <DialogContentText>
                         To {props.title.toLowerCase()}, please fill out the required fields (*) and click "SAVE".
                     </DialogContentText>
+                    <DialogContentText sx={{ color: "red", display: customErrorText === '' ? 'none' : '' }} >
+                        {customErrorText}
+                    </DialogContentText>
 
                     <FormControl fullWidth>
                         <TextField
                             {...register('name')}
                             error={errors.name ? true : false}
-                            autoFocus
                             margin="dense"
                             id="name"
                             label="Event Name*"
@@ -146,7 +166,6 @@ export const EventFormDialog = (props) => {
                         <TextField
                             {...register('description')}
                             error={errors.description ? true : false}
-                            autoFocus
                             margin="dense"
                             id="description"
                             label="Event Description*"
@@ -175,7 +194,7 @@ export const EventFormDialog = (props) => {
                                 </Select>
                             )}
                             control={control}
-                            name="testingtypeid"/>
+                            name="testingtypeid" />
                     </FormControl>
 
                     <FormControl fullWidth>
@@ -197,7 +216,7 @@ export const EventFormDialog = (props) => {
                                 </Select>
                             )}
                             control={control}
-                            name="locationId"/>                        
+                            name="locationId" />
                     </FormControl>
 
                     <FormControl fullWidth>
@@ -221,8 +240,8 @@ export const EventFormDialog = (props) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={onCloseHandler}>Cancel</Button>
-                    <Button onClick={handleSubmit(onEventSaveHandler)}>Save</Button>
+                    <Button variant='outlined' onClick={onCloseHandler}>Cancel</Button>
+                    <Button variant='contained' onClick={handleSubmit(onEventSaveHandler)}>Save</Button>
 
                 </DialogActions>
             </Dialog>

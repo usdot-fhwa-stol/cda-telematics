@@ -13,12 +13,29 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-var express = require('express');
-var router = express.Router();
+module.exports = app => {
+  const users = require("../controllers/user.controller");
+  var router = require('express').Router();
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+  /* GET users ping. */
+  router.get('/ping', function (req, res, next) {
+    res.sendStatus(200);
+  });
 
-module.exports = router;
+  /* POST users creation. */
+  router.post("/register", users.registerUser);
+  //Update existing or create a new user
+  router.post('/forget/password', users.forgetPwd);
+  //authenticate user
+  router.post('/login', users.loginUser);
+  //Update existing or create a new user
+  router.post('/update/server/admin', users.updateUserServerAdmin)
+  //Delete a user
+  router.delete('/delete', users.deleteUser);
+  //Retrieve all users
+  router.get("/all", users.findAll);
+
+  app.use('/api/users', router);
+
+  module.exports = router;
+}

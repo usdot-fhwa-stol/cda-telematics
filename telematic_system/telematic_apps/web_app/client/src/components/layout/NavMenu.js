@@ -13,21 +13,51 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import EventIcon from '@mui/icons-material/Event';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StreamIcon from '@mui/icons-material/Stream';
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Tooltip } from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer';
 import { styled } from '@mui/material/styles';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { getUserRole } from '../../api/api-org';
+import { deleteUser } from '../../api/api-user';
 import AuthContext from '../../context/auth-context';
+import { USER_ROLES } from '../users/UserMetadata';
+import { withStyles } from '@mui/styles';
 
 const NavMenu = React.memo(() => {
     const authCtx = React.useContext(AuthContext);
+    useEffect(() => {
+        //update user role if changed
+        if (authCtx.user_id !== null && authCtx.user_id !== undefined && authCtx.org_id !== null
+            && authCtx.org_id !== undefined && parseInt(authCtx.org_id) !== 0) {
+            getUserRole({
+                user_id: parseInt(authCtx.user_id),
+                org_id: parseInt(authCtx.org_id)
+            }).then(data => {
+                if (data !== undefined && data.errCode === undefined && Array.isArray(data) && data.length > 0) {
+                    if (data[0].role !== undefined && data[0].role.length > 0 && data[0].role !== authCtx) {
+                        authCtx.updateRole(data[0].role);
+                    }
+                }
+                //If the user current role is empty, update user session role to empty
+                else if (data !== undefined && data.errCode === undefined && Array.isArray(data) && data.length === 0) {
+                    authCtx.updateRole("");
+                }
+            });
+        }
+    })
+
     const location = useLocation();
     const logoutHandler = React.useCallback(() => {
-        authCtx.logout();
+        deleteUser(authCtx.username).then(status => {
+            authCtx.logout();
+        }).catch(error => {
+            console.log("error logout: " + error);
+        });
     }, [authCtx]);
 
     const closedMixin = (theme) => ({
@@ -50,6 +80,17 @@ const NavMenu = React.memo(() => {
             }),
         }),
     );
+    const StyledListItemButton = withStyles({
+        root: {
+            backgroundColor: "#ffffff",
+            "&.Mui-selected": {
+                backgroundColor: "#748c93"
+            },
+            "&.Mui-selected:hover": {
+                backgroundColor: "#748c93"
+            }
+        },
+    })(ListItemButton)
 
     return (
         <React.Fragment>
@@ -58,7 +99,7 @@ const NavMenu = React.memo(() => {
                 <Toolbar />
                 <List >
                     <ListItem key="Events" disablePadding sx={{ display: 'block' }}>
-                        <ListItemButton
+                        <StyledListItemButton
                             component={Link} to="/telematic/events"
                             selected={"/telematic/events" === location.pathname}>
                             <Tooltip title="Events" placement="right-start" arrow>
@@ -67,10 +108,10 @@ const NavMenu = React.memo(() => {
                                 </ListItemIcon>
                             </Tooltip>
                             <ListItemText primary="Events" />
-                        </ListItemButton>
+                        </StyledListItemButton>
                     </ListItem>
                     <ListItem key="Topics" disablePadding sx={{ display: 'block' }}>
-                        <ListItemButton
+                        <StyledListItemButton
                             component={Link} to="/telematic/topics"
                             selected={"/telematic/topics" === location.pathname}>
                             <Tooltip title="Topics" placement="right-start" arrow>
@@ -79,23 +120,37 @@ const NavMenu = React.memo(() => {
                                 </ListItemIcon>
                             </Tooltip>
                             <ListItemText primary="Topics" />
-                        </ListItemButton>
+                        </StyledListItemButton>
                     </ListItem>
+                    {
+                        (parseInt(authCtx.is_admin) === 1 ||  authCtx.role === USER_ROLES.ADMIN) &&
+                        <ListItem key="admin" disablePadding sx={{ display: 'block' }}>
+                            <StyledListItemButton
+                                component={Link} to="/telematic/admin"
+                                selected={"/telematic/admin" === location.pathname}>
+                                <Tooltip title="Administrators" placement="right-start" arrow>
+                                    <ListItemIcon>
+                                        <AdminPanelSettingsIcon />
+                                    </ListItemIcon>
+                                </Tooltip>
+                                <ListItemText primary="Topics" />
+                            </StyledListItemButton>
+                        </ListItem>
+                    }
                 </List>
-                <ListItemButton onClick={logoutHandler} sx={{
+                <StyledListItemButton onClick={logoutHandler} sx={{
                     position: "absolute",
                     bottom: 20,
                     right: 0,
                     left: 0,
-                    width: "fit-content",
-                    backgroundColor: "transparent"
+                    width: "fit-content"
                 }}>
                     <Tooltip title="Logout" placement="right-start" arrow>
                         <ListItemIcon>
                             <LogoutIcon />
                         </ListItemIcon>
                     </Tooltip>
-                </ListItemButton>
+                </StyledListItemButton>
             </Drawer>
         </React.Fragment>
     )

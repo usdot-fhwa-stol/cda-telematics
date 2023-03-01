@@ -14,7 +14,7 @@
  * the License.
  */
 import { Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, TextField } from '@mui/material'
-import { DateTimePicker, LocalizationProvider } from '@mui/x-date-pickers'
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import React, { useRef, useState } from 'react'
 import { findAllEvents } from '../../api/api-events'
@@ -171,8 +171,8 @@ const TopicsFilterForm = (props) => {
     <React.Fragment>
       <FormControl sx={{ margin: 1 }}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DateTimePicker
-            label="Start Time & Date"
+          <DatePicker
+            label="Start Date"
             value={startTime}
             disabled={disabledTimePicker}
             onChange={handleStartTimeChange}
@@ -183,8 +183,8 @@ const TopicsFilterForm = (props) => {
 
       <FormControl sx={{ margin: 1 }}>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DateTimePicker
-            label="End Time & Date"
+          <DatePicker
+            label="End Date"
             value={endTime}
             disabled={disabledTimePicker}
             onChange={handleEndTimeChange}

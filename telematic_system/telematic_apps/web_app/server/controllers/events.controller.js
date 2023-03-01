@@ -51,6 +51,7 @@ exports.create = (req, res) => {
  */
 exports.findAll = (req, res) => {
     var condition = {};
+    const day_ts = 24 * 60 * 60 * 1000;
     const name = req.query.name;
     if (name) {
         condition.name = { [Op.like]: `%${name}%` }
@@ -60,19 +61,17 @@ exports.findAll = (req, res) => {
     if (location_id) {
         condition.location_id = location_id;
     }
-
     const status = req.query.status;
     if (status) {
         condition.status = status;
-    } else {
-        const start_at = req.query.start_at;
+    } else if (req.query.start_at != undefined || req.query.end_at != undefined) {
+        var start_at = new Date(req.query.start_at) - day_ts;
         if (start_at) {
             condition.start_at = {
                 [Op.gt]: new Date(start_at)
             };
         }
-
-        const end_at = req.query.end_at;
+        var end_at = new Date(req.query.end_at) + day_ts;
         if (end_at) {
             condition.end_at = {
                 [Op.lt]: new Date(end_at)
@@ -98,7 +97,7 @@ exports.findAll = (req, res) => {
             through: {
                 attributes: [],
             }
-        },{
+        }, {
             model: event_units,
         }
         ]

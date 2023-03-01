@@ -13,16 +13,26 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import { CircularProgress, Grid } from '@mui/material'
+import { CircularProgress, Grid } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useState } from 'react'
-import Iframe from 'react-iframe'
+import React, { useContext, useEffect, useState } from 'react';
+import Iframe from 'react-iframe';
+import { useSearchParams } from 'react-router-dom';
+import AuthContext from '../context/auth-context';
 const Grafana = () => {
-  const embed_url = process.env.REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL;
+  const [embedURL, setEmbedURL] = useState(process.env.REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL)
   const [loading, setLoading] = useState(true);
+  const authContext = useContext(AuthContext);
   const loadedHanlder = () => {
     setLoading(false);
   }
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get("uid") !== null && searchParams.get("slug") !== null) {
+      setEmbedURL(process.env.REACT_APP_GRAFANA_PATH + '/d/' + searchParams.get("uid") + '/' + searchParams.get("slug") + "?=orgId=" + authContext.org_id + "&theme=light")
+    }
+  }, [])
   return (
     <React.Fragment>
       {loading && <Box sx={{ display: 'flex', width: '100%', height: '100vh' }}>
@@ -30,7 +40,7 @@ const Grafana = () => {
       </Box>
       }
       <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }} sx={{ height: '100vh' }}>
-        <Iframe url={embed_url}
+        <Iframe url={embedURL}
           onLoad={loadedHanlder}
           id="grafana_iframe"
           position="absolute"

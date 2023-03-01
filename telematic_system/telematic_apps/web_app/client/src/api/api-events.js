@@ -8,10 +8,11 @@ import axios from 'axios';
 const createEvent = async (event) => {
     try {
         const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/events/create`
-        const { data } = await axios.post(URL, event);
+        const { data } = await axios.post(URL, event, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 }
 
@@ -32,10 +33,11 @@ const findAllEvents = async (criteria) => {
             URL += key_values;
         }
 
-        const { data } = await axios.get(URL);
+        const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 }
 
@@ -48,10 +50,11 @@ const findAllEvents = async (criteria) => {
 const editEvent = async (event) => {
     try {
         const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/events/update/${event.id}`;
-        const { data } = await axios.put(URL, event);
+        const { data } = await axios.put(URL, event, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 }
 
@@ -63,10 +66,11 @@ const editEvent = async (event) => {
 const assignUnit2Event = async (assign_event_unit) => {
     try {
         const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/event_units/create`
-        const { data } = await axios.post(URL, assign_event_unit);
+        const { data } = await axios.post(URL, assign_event_unit, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 }
 
@@ -78,10 +82,11 @@ const assignUnit2Event = async (assign_event_unit) => {
 const unAssignUnit2Event = async (event_unit) => {
     try {
         const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/event_units/delete?event_id=${event_unit.event_id}&unit_id=${event_unit.unit.id}`;
-        const { data } = await axios.delete(URL);
+        const { data } = await axios.delete(URL, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 }
 
@@ -93,10 +98,11 @@ const unAssignUnit2Event = async (event_unit) => {
 const deleteEvent = async (id) => {
     try {
         const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/events/delete/${id}`
-        const { data } = await axios.delete(URL);
+        const { data } = await axios.delete(URL, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 }
 

@@ -62,7 +62,7 @@ exports.create = (req, res) => {
             where: { unit_identifier: existing.unit_identifier, event_id: existing.event_id }
         }).then(num => {
             if (num == 1) {
-                console.log(num)
+                console.log("Successfully create event topic setting.")
             }
         }).catch(err => {
             console.log(`Error deleting default_event_topics with event id =${existing.event_id} and unit identifier = ${existing.unit_identifier}`)

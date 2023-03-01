@@ -7,10 +7,11 @@ import axios from 'axios';
 const createUnit = async (unit) => {
     try {
         const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/units/create`
-        const { data } = await axios.post(URL, unit);
+        const { data } = await axios.post(URL, unit, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 };
 
@@ -21,10 +22,11 @@ const createUnit = async (unit) => {
 const findAllUnits = async () => {
     try {
         const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/units/all`
-        const { data } = await axios.get(URL);
+        const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
         console.log(err);
+        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
     }
 };
 

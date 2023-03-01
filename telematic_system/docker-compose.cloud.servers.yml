@@ -24,6 +24,9 @@ services:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
       - ALLOW_CLIENT_URL=http://ec2-44-206-13-7.compute-1.amazonaws.com
+      - GRAFANA_HTPASSWORD=/opt/apache2/grafana_htpasswd
+      - SESSION_TIMEOUT=3600
+      - SECRET=my_secret_telematic_ui
       # Server port
       - PORT=9010
       # MYSQL DB credentials. Need to be replaced with actual MYSQL DB during deployment
@@ -31,6 +34,8 @@ services:
       - DB_USER=<DB_USER>
       - DB_PASSWORD=<DB_PASSWORD>
       - GRAFANA_DB=<GRAFANA_DB>
+    volumes:
+      - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
 
   telematic_web_client:
     build:
@@ -38,12 +43,23 @@ services:
       args:
         REACT_APP_NODE_SERVER_URI: "http://ec2-44-206-13-7.compute-1.amazonaws.com:9010"
         REACT_APP_MESSAGING_SERVER_URI: "http://ec2-44-206-13-7.compute-1.amazonaws.com:8080"
-        REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL: "http://ec2-44-206-13-7.compute-1.amazonaws.com:3000/d/_HrLXUI4k/default-dashboard-uc3?orgId=1&from=now-10d&to=now&kiosk&theme=light"
+        REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL: "http://ec2-44-206-13-7.compute-1.amazonaws.com:8081/grafana/dashboards?theme=light"
+        REACT_APP_GRAFANA_PATH: "http://ec2-44-206-13-7.compute-1.amazonaws.com:8081/grafana"
     restart: always
     network_mode: host
     depends_on:
       - telematic_messaging_server
       - telematic_web_server
+
+  apache2:
+    build:
+      context: "./telematic_apps/apache2"
+    restart: always
+    network_mode: host
+    depends_on:
+      - grafana
+    volumes:
+      - /opt/apache2/grafana_htpasswd:/etc/apache2/grafana_htpasswd
 
   grafana:
     build:
@@ -52,7 +68,7 @@ services:
     network_mode: host
     volumes:
       - /opt/grafana/logs:/var/log/grafana
-      - /opt/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./telematic_apps/grafana/grafana.ini:/etc/grafana/grafana.ini
       - /opt/grafana/data:/var/lib/grafana
       - /opt/grafana/provisioning:/home/grafana/conf/provisioning
       - /home/ubuntu/.aws/credentials:/usr/share/grafana/.aws/credentials
