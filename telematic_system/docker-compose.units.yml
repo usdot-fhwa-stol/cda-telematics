@@ -4,7 +4,7 @@ services:
     build:
           context: ./telematic_units/carma_vehicle_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastoldev/carma_vehicle_bridge:develop
+    image: usdotfhwastoldev/carma_vehicle_nats_bridge:develop
     container_name: carma_vehicle_bridge
     network_mode: host
     entrypoint: /ws/ros_entrypoint.sh
@@ -18,6 +18,7 @@ services:
     - VEHICLE_BRIDGE_LOG_LEVEL=debug
     - VEHICLE_BRIDGE_LOG_NAME=ros2_nats_bridge
     - VEHICLE_BRIDGE_LOG_PATH=/var/logs/
+    - CYCLONE_URL=./telematic_units/cyclone_config.xml
     - VEHICLE_BRIDGE_LOG_ROTATION_SIZE_BYTES=2147483648 #2 gigabytes
     - VEHICLE_BRIDGE_LOG_HANDLER_TYPE=console #console: Print logs on console; file: Save logs to file; all: Prints logs on console and file
     - VEHICLE_BRIDGE_EXCLUSION_LIST= /environment/map_filtered_points,
@@ -39,7 +40,7 @@ services:
     build:
           context: ./telematic_units/carma_street_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastoldev/carma_street_bridge:develop
+    image: usdotfhwastoldev/carma_street_nats_bridge:develop
     container_name: carma_street_bridge
     network_mode: host
     volumes:
@@ -63,7 +64,7 @@ services:
     build:
           context: ./telematic_units/carma_cloud_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastoldev/carma_cloud_bridge:develop
+    image: usdotfhwastoldev/carma_cloud_nats_bridge:develop
     container_name: carma_cloud_bridge
     network_mode: host
     volumes:
