@@ -20,7 +20,7 @@ import Iframe from 'react-iframe';
 import { useSearchParams } from 'react-router-dom';
 import AuthContext from '../context/auth-context';
 const Grafana = () => {
-  const [embedURL, setEmbedURL] = useState(process.env.REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL)
+  const [embedURL, setEmbedURL] = useState(window.location.protocol+ '//'+ window.location.hostname+ ":8081/grafana/dashboards?theme=light")
   const [loading, setLoading] = useState(true);
   const authContext = useContext(AuthContext);
   const loadedHanlder = () => {
@@ -30,7 +30,7 @@ const Grafana = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
     if (searchParams.get("uid") !== null && searchParams.get("slug") !== null) {
-      setEmbedURL(process.env.REACT_APP_GRAFANA_PATH + '/d/' + searchParams.get("uid") + '/' + searchParams.get("slug") + "?=orgId=" + authContext.org_id + "&theme=light")
+      setEmbedURL(window.location.protocol+ '//'+ window.location.hostname+ ":8081/grafana" + '/d/' + searchParams.get("uid") + '/' + searchParams.get("slug") + "?=orgId=" + authContext.org_id + "&theme=light")
     }
   }, [])
   return (

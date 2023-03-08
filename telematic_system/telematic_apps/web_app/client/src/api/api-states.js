@@ -5,7 +5,7 @@ import axios from 'axios';
  * @Return Response status and a list of states
  */
 const findAllStates = async () => {
-  const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/states/all`
+  const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/states/all`
   try {
     const { data } = await axios.get(URL, { withCredentials: true });
     return data;

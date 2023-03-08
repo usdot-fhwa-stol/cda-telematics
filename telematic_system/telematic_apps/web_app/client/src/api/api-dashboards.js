@@ -3,7 +3,7 @@ import axios from 'axios'
  *@brief List all dashboards urls belong to the current user organization
  */
 const searchDashboards = async (org_id, search_text) => {
-  const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/dashboards/org/search`
+  const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/dashboards/org/search`
 
 
   try {
@@ -22,7 +22,7 @@ const searchDashboards = async (org_id, search_text) => {
  *@brief List all dashboards urls belong to the current user organization
  */
 const getDashboardsByOrg = async (org_id) => {
-  const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/dashboards/org/all`
+  const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/dashboards/org/all`
 
 
   try {
@@ -41,7 +41,7 @@ const getDashboardsByOrg = async (org_id) => {
  *@brief List all dashboards urls belong to the selected event
  */
 const listEventDashboards = async (event_id) => {
-  const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/dashboards/event/list`
+  const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/dashboards/event/list`
 
 
   try {
@@ -61,7 +61,7 @@ const listEventDashboards = async (event_id) => {
  *@brief Update all dashboards urls belong to the selected event
  */
 const updateEventDashboards = async (event_id, dashboard_id) => {
-  const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/dashboards/event/update`
+  const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/dashboards/event/update`
 
 
   try {
@@ -81,7 +81,7 @@ const updateEventDashboards = async (event_id, dashboard_id) => {
  *@brief Remove dashboards urls belong to the selected event
  */
 const deleteEventDashboards = async (event_id, dashboard_id) => {
-  const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/dashboards/event/delete`
+  const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/dashboards/event/delete`
 
 
   try {

@@ -9,9 +9,6 @@ sudo chmod 777 -R /opt/grafana
 # Directory where grafana can store logs
 mkdir -p /opt/grafana/logs
 
-# Grafana Configuration file
-cp  ./grafana.ini /opt/grafana/grafana.ini
-
 # Path where Grafana can store temp files, sessions, and the sqlite3 db
 mkdir -p /opt/grafana/data
 
