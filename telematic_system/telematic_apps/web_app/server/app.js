@@ -21,6 +21,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var indexRouter = require('./routes/index');
+var os = require("os");
 const getUuid = require('uuid-by-string');
 
 var app = express();
@@ -28,11 +29,11 @@ const cors = require('cors')
 
 require('dotenv').config();
 var corsOptions = {
-  origin: process.env.ALLOW_CLIENT_URL,
+  origin: os.hostname(),
   credentials: true,
   optionsSuccessStatus: 200,
 }
-console.log("Allowed client URL: " + process.env.ALLOW_CLIENT_URL);
+console.log("Allowed client URL: " + os.hostname());
 
 //Allow cors from selected clients
 app.use(cors(corsOptions))
