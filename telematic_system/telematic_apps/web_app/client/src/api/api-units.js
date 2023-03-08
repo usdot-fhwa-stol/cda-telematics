@@ -6,7 +6,7 @@ import axios from 'axios';
  */
 const createUnit = async (unit) => {
     try {
-        const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/units/create`
+        const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/units/create`
         const { data } = await axios.post(URL, unit, { withCredentials: true });
         return data;
     } catch (err) {
@@ -21,7 +21,7 @@ const createUnit = async (unit) => {
  */
 const findAllUnits = async () => {
     try {
-        const URL = `${process.env.REACT_APP_NODE_SERVER_URI}/api/units/all`
+        const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/units/all`
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {

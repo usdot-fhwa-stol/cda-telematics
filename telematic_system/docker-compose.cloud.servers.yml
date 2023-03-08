@@ -23,7 +23,7 @@ services:
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
-      - ALLOW_CLIENT_URL=http://ec2-44-206-13-7.compute-1.amazonaws.com
+      - ALLOW_CLIENT_URL=*
       - GRAFANA_HTPASSWORD=/opt/apache2/grafana_htpasswd
       - SESSION_TIMEOUT=3600
       - SECRET=my_secret_telematic_ui
@@ -41,10 +41,7 @@ services:
     build:
       context: "./telematic_apps/web_app/client"
       args:
-        REACT_APP_NODE_SERVER_URI: "http://ec2-44-206-13-7.compute-1.amazonaws.com:9010"
         REACT_APP_MESSAGING_SERVER_URI: "http://ec2-44-206-13-7.compute-1.amazonaws.com:8080"
-        REACT_APP_GRAFANA_DEFAULT_DASHBOARD_EMBED_URL: "http://ec2-44-206-13-7.compute-1.amazonaws.com:8081/grafana/dashboards?theme=light"
-        REACT_APP_GRAFANA_PATH: "http://ec2-44-206-13-7.compute-1.amazonaws.com:8081/grafana"
     restart: always
     network_mode: host
     depends_on:
