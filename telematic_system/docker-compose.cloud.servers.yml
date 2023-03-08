@@ -23,7 +23,7 @@ services:
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
-      - ALLOW_CLIENT_URL=*
+      - ALLOW_CLIENT_URL=http://ec2-44-206-13-7.compute-1.amazonaws.com
       - GRAFANA_HTPASSWORD=/opt/apache2/grafana_htpasswd
       - SESSION_TIMEOUT=3600
       - SECRET=my_secret_telematic_ui
