@@ -14,10 +14,12 @@
  * the License.
  */
 import { Checkbox, ListItem, ListItemButton, ListItemIcon, ListItemText } from '@mui/material';
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
+import TopicContext from '../../context/topic-context';
 import TopicMessageDetailPopover from './TopicMessageDetailPopover';
 
 const TopicCheckBoxListItem = (props) => {
+    const TopicCtx = useContext(TopicContext);
 
     const [checked, setChecked] = React.useState([0]);
 
@@ -35,16 +37,27 @@ const TopicCheckBoxListItem = (props) => {
         setChecked(newChecked);
     };
 
+    useEffect(() => {
+        //Automatically check the available topic if it is prechecked 
+        if (TopicCtx.pre_checked_available_topics !== undefined && TopicCtx.pre_checked_available_topics.length > 0 && props.title ==="available") {
+            TopicCtx.pre_checked_available_topics .forEach(preCheckedTopic => {
+                if (preCheckedTopic.topic_name === props.value && preCheckedTopic.unit_identifier===props.unit_identifier) {
+                    setChecked(props.value);
+                }
+            })
+        }
+    }, [])
+
     return (
         <React.Fragment>
             <ListItem
                 sx={{ display: 'inline-list-item', m: 0, width: '100%', maxWidth: 360 }}
-                key={`list-item-${props.value}`}
+                key={`list-item-${props.unit_identifier}-${props.value}`}
                 disablePadding>
-                <ListItemButton key={`list-item-btn-${props.value}`} role={undefined} onClick={handleToggle(props.value)} dense>
-                    <ListItemIcon key={`list-item-icon-${props.value}`} >
+                <ListItemButton key={`list-item-btn-${props.unit_identifier}-${props.value}`} role={undefined} onClick={handleToggle(props.value)} dense>
+                    <ListItemIcon key={`list-item-icon-${props.unit_identifier}-${props.value}`} >
                         <Checkbox
-                            key={`list-item-checkbox-${props.value}`}
+                            key={`list-item-checkbox-${props.unit_identifier}-${props.value}`}
                             edge="start"
                             checked={checked.indexOf(props.value) !== -1}
                             tabIndex={-1}
@@ -52,7 +65,7 @@ const TopicCheckBoxListItem = (props) => {
                             disableRipple
                             inputProps={{ 'aria-labelledby': props.labelId }} />
                     </ListItemIcon>
-                    <ListItemText key={`list-item-text-${props.value}`} sx={{ m: 0, p: 0, wordBreak: "break-all" }} id={props.labelId} primary={props.value} />
+                    <ListItemText key={`list-item-text-${props.unit_identifier}-${props.value}`} sx={{ m: 0, p: 0, wordBreak: "break-all" }} id={props.labelId} primary={props.value} />
                 </ListItemButton>
                 <TopicMessageDetailPopover topic_name={props.topic_name} message_type={props.message_type} message_fields={props.message_fields} />
             </ListItem>

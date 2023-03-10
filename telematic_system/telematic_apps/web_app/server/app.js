@@ -111,6 +111,7 @@ require("./routes/org.router")(app);
 require("./routes/locations.router")(app);
 require("./routes/units.router")(app);
 require("./routes/default_event_topics.router")(app);
+require("./routes/user_topic_request.router")(app);
 require("./routes/event_units.router")(app);
 require("./routes/testing_typess.router")(app);
 require("./routes/states.router")(app);

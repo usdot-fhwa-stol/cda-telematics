@@ -20,6 +20,7 @@ import { findAllEvents } from '../api/api-events';
 import { findAllLocations } from '../api/api-locations';
 import { findAllTestingTypes } from '../api/api-testing-types';
 import { requestSelectedLiveUnitsTopics } from '../api/api-topics';
+import { findAllUserTopicRequestByEventUnits, upsertUserTopicRequestForEventUnits } from '../api/user_topic_request';
 import { VALID_UNIT_TYPES } from '../components/events/EventMetadata';
 import InfrastructureTopicList from '../components/topics/InfrastructureTopicList';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
@@ -49,6 +50,7 @@ const TopicPage = React.memo(() => {
   const [infrastructures, setInfrastructures] = useState([]);
   const [testingTypeList, setTestingTypeList] = useState([]);
   const [locationList, setLocationList] = useState([]);
+  const [eventId, setEventId] = useState([]);
 
   //Filter Events
   const onSelectEventsHandler = (filteredEventList) => {
@@ -57,6 +59,7 @@ const TopicPage = React.memo(() => {
       let filteredEvent = filteredEventList[0];
       const units = filteredEvent.units !== undefined ? filteredEvent.units : [];
       if (units.length > 0) {
+        setEventId(filteredEvent.id);
         let filteredVehicles = [];
         let filteredInfrastructures = [];
         units.forEach(element => {
@@ -93,43 +96,125 @@ const TopicPage = React.memo(() => {
     if (seletedUnitTopicListToConfirm.length === 0) {
       isClear = true;
       for (let vehicle of vehicles) {
-        let clearUnits = { unit_identifier: vehicle.unit_identifier, unit_name: vehicle.unit_name };
+        let clearUnits = { unit_identifier: vehicle.unit_identifier, unit_name: vehicle.unit_name, event_id: vehicle.event_id };
         seletedUnitTopicListToConfirm.push(clearUnits);
       }
       for (let infrastructure of infrastructures) {
-        let clearUnits = { unit_identifier: infrastructure.unit_identifier, unit_name: infrastructure.unit_name };
+        let clearUnits = { unit_identifier: infrastructure.unit_identifier, unit_name: infrastructure.unit_name, event_id: infrastructure.event_id };
         seletedUnitTopicListToConfirm.push(clearUnits);
       }
     }
-    const response_data = requestSelectedLiveUnitsTopics(seletedUnitTopicListToConfirm);
-    seletedUnitTopicListToConfirm.splice(0, seletedUnitTopicListToConfirm.length);
-    let messageList = [];
-    let num_failed = 0;
-    let num_success = 0;
+    //Update current user topic request
+    updateUserTopicRequest(seletedUnitTopicListToConfirm);
+
+    let unit_identifiers = [];
+    let event_id = 0;
+    //Find unit identifiers for the confirming topics request
+    seletedUnitTopicListToConfirm.forEach(item => {
+      unit_identifiers.push(item.unit_identifier);
+      event_id = item.event_id;
+    });
+
+    //Find all existing users's topic request before sending the current user's topic request
+    findAllUserTopicRequestByEventUnits(event_id, unit_identifiers).then(data => {
+      let updatedSeletedUnitTopicListToConfirm = [];
+      if (data !== undefined
+        && Array.isArray(data)
+        && data.length > 0
+        && seletedUnitTopicListToConfirm !== undefined
+        && Array.isArray(seletedUnitTopicListToConfirm)) {
+        seletedUnitTopicListToConfirm.forEach(item => {
+          let updatedTopicRequestConfirmation = {};
+          updatedTopicRequestConfirmation = {
+            event_id: item.event_id,
+            unit_identifier: item.unit_identifier,
+            unit_name: item.unit_name,
+            unit_topics: [{ category: "Default", topics: [] }],
+            unit_type: item.unit_type,
+          }
+
+          //Find current selected unit topic names from the selected confirmation list
+          let curSelectedUnitTopicNames = [];
+          if (item.unit_topics !== undefined && Array.isArray(item.unit_topics) && item.unit_topics.length > 0) {
+            item.unit_topics.forEach(unit_topic => {
+              unit_topic.topics.forEach(topic => {
+                curSelectedUnitTopicNames.push(topic.name);
+                updatedTopicRequestConfirmation.unit_topics[0].topics.push({ name: topic.name });
+              });
+            });
+          }
+
+          //Loop through existing all users' topic request
+          data.forEach(dataItem => {
+            //Check the same unit for current user topics request and all users' topics request
+            if (dataItem.unit_identifier === updatedTopicRequestConfirmation.unit_identifier) {
+              dataItem.topic_names.split(",").forEach(topic_name => {
+                //Check if the all users' topics request topic names in the current users' topic request topic name,
+                // if not in the current user request, update the current topic request
+                if (!curSelectedUnitTopicNames.includes(topic_name)
+                  && topic_name.length > 0) {
+                  updatedTopicRequestConfirmation.unit_topics[0].topics.push({ name: topic_name });
+                }
+              })
+            }
+          });
+
+          //Update the confirm topic request
+          updatedSeletedUnitTopicListToConfirm.push(updatedTopicRequestConfirmation);
+        })
+      }
+
+      //Send topic request to telematic unit
+      const response_data = requestSelectedLiveUnitsTopics(updatedSeletedUnitTopicListToConfirm);
+      let messageList = [];
+      let num_failed = 0;
+      let num_success = 0;
+      response_data.then(json => {
+        if (!isClear && json !== undefined) {
+          json.forEach(item => {
+            if (item.data !== undefined) {
+              messageList.push(item.data);
+              num_success += 1;
+            } else if (item.errCode !== undefined) {
+              messageList.push(item.errMsg);
+              num_failed += 1;
+            }
+          });
+        }
+
+        //Notification
+        let severity = num_failed === 0 ? NOTIFICATION_STATUS.SUCCESS : (num_success === 0 ? NOTIFICATION_STATUS.ERROR : NOTIFICATION_STATUS.WARNING);
+        setAlertStatus({
+          open: true,
+          severity: severity,
+          title: severity,
+          messageList: messageList
+        });
+      });
+    }).catch(error => {
+      console.error(error);
+    })
+
+  }
+
+  const updateUserTopicRequest = (seletedUnitTopicListToConfirm) => {
+    if (authCtx.user_id === undefined) {
+      console.error("User topic request failed due to user id is undefined!");
+      return;
+    }
+    let response_data = upsertUserTopicRequestForEventUnits(seletedUnitTopicListToConfirm, authCtx.user_id);
     response_data.then(json => {
-      if (!isClear && json !== undefined) {
+      if (json !== undefined && Array.isArray(json)) {
         json.forEach(item => {
           if (item.data !== undefined) {
-            messageList.push(item.data);
-            num_success += 1;
+            console.log("Successfully save user topic request!");
           } else if (item.errCode !== undefined) {
-            messageList.push(item.errMsg);
-            num_failed += 1;
+            console.error("Failed to save user topic request!");
           }
         });
       }
-
-      //Notification
-      let severity = num_failed === 0 ? NOTIFICATION_STATUS.SUCCESS : (num_success === 0 ? NOTIFICATION_STATUS.ERROR : NOTIFICATION_STATUS.WARNING);
-      setAlertStatus({
-        open: true,
-        severity: severity,
-        title: severity,
-        messageList: messageList
-      });
-    });
+    })
   }
-
 
   useEffect(() => {
     authCtx.updateViewCount();
@@ -165,7 +250,7 @@ const TopicPage = React.memo(() => {
         setTestingTypeList(testing_types);
       }
     });
-    
+
     //If user role is missing, display a warning to the user
     if ((authCtx.role === undefined || authCtx.role === null || authCtx.role === "")
       && authCtx.org_name !== undefined && authCtx.org_name !== null && authCtx.org_name !== "") {
@@ -191,8 +276,8 @@ const TopicPage = React.memo(() => {
           <PageAvatar icon={<StreamIcon />} title="Topic Management" />
           <Grid item xs={4}></Grid>
           <TopicsFilter eventInfoList={eventInfoList} onSelectEvents={onSelectEventsHandler} testingTypeList={testingTypeList} locationList={locationList} />
-          <VehicleTopicList availableUnits={vehicles} />
-          <InfrastructureTopicList availableUnits={infrastructures} />
+          <VehicleTopicList availableUnits={vehicles} event_id={eventId} />
+          <InfrastructureTopicList availableUnits={infrastructures} event_id={eventId} />
           {
             authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
             <Grid item xs={12} sx={{ textAlign: 'center' }}>
