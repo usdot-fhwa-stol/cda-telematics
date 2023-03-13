@@ -161,10 +161,11 @@ class StreetsNatsBridge():
             self.logger.info(
                 " In createAsyncKafkaConsumer: All available Kafka topics = " + str(self.streets_topics))
 
-            # Subscribe to streets Kafka topic list
-            self.kafka_consumer.subscribe(topics=self.subscribers_list)
-            self.logger.info(
-                " In createAsyncKafkaConsumer: Successfully subscribed to the following topics: " + str(self.subscribers_list))
+            # Subscribe to Kafka topics in subscriber list
+            if len(self.subscribers_list) > 0:
+                self.kafka_consumer.subscribe(topics=self.subscribers_list)
+                self.logger.info(
+                    " In createAsyncKafkaConsumer: Successfully subscribed to the following topics: " + str(self.subscribers_list))
 
             await self.kafka_read()
         except:
