@@ -58,6 +58,7 @@ services:
     - NATS_IP=<IP> #REQUIRED variable, replace IP with IP address of NATS server
     - NATS_PORT=4222
     - KAFKA_CONSUMER_RESET=earliest
+    - KAFKA_REFRESH_RATE=60000 #The period of time in milliseconds after which we force a refresh of metadata
     - STREETS_BRIDGE_EXCLUSION_LIST= #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
   
   cloud-nats-bridge:

@@ -67,6 +67,8 @@ class StreetsNatsBridge():
         self.log_rotation = int(os.getenv('STREETS_BRIDGE_LOG_ROTATION_SIZE_BYTES'))
         self.kafka_offset_reset = os.getenv('KAFKA_CONSUMER_RESET')
 
+        self.kafka_refresh_rate = os.getenv('KAFKA_REFRESH_RATE')
+
         self.unit_name = "West Intersection"
         self.nc = NATS()
         self.streets_topics = []  # list of available carma-streets topic
@@ -140,12 +142,12 @@ class StreetsNatsBridge():
         try:
             self.logger.info(" In run_async_kafka_consumer: ")
             # auto_offset_reset handles where consumer restarts reading after breaking down or being turned off
-            # auto_offset_reset handles where consumer restarts reading after breaking down or being turned off
-            # auto_offset_reset handles where consumer restarts reading after breaking down or being turned off
+            # metadata_max_age_ms (int) – The period of time in milliseconds after which we force a refresh of metadata. Default: 300000ms
             # ("latest" --> start reading at the end of the log, "earliest" --> start reading at latest committed offset)
             # group_id is the consumer group to which this belongs (consumer needs to be part of group to make auto commit work)
             self.kafka_consumer = AIOKafkaConsumer(
                 bootstrap_servers=[self.kafka_ip+":"+self.kafka_port],
+                metadata_max_age_ms=self.kafka_refresh_rate,
                 auto_offset_reset=self.kafka_offset_reset,
                 enable_auto_commit=True,
                 group_id=None,
