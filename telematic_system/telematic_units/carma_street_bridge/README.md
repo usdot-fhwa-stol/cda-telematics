@@ -43,6 +43,10 @@
 	curl -X GET -v http://localhost:8080/registeredUnits
 
 	```
+- Sample response for available topics from carma streets
+	```
+	{"unit_id": "streets_id", "unit_type": "infrastructure", "unit_name": "West Intersection", "event_name": "test", "location": "test", "testing_type": "Integration", "timestamp": 1678377501418782.0, "topics": [{"name": "v2xhub_bsm_in"}, {"name": "v2xhub_mobility_operation_in"}, {"name": "vehicle_status_intent_output"}, {"name": "desired_phase_plan"}, {"name": "tsc_config_state"}, {"name": "v2xhub_scheduling_plan_sub"}, {"name": "v2xhub_map_msg_in"}, {"name": "modified_spat"}, {"name": "v2xhub_mobility_path_in"}]}
+	```
 ### Nats CLI for testing
 1. request all available topcis:	
 	```

@@ -16,6 +16,8 @@
  */
 import { Button, Card, CardContent, CardHeader, Grid, Tooltip } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
+import { findUserTopicRequestByUserEventUnits } from '../../api/user_topic_request';
+import AuthContext from '../../context/auth-context';
 import TopicContext from '../../context/topic-context';
 import TopicListPerUnit from './TopicListPerUnit';
 
@@ -23,6 +25,7 @@ const TopicList = React.memo((props) => {
     const [selectedUnits, setSelectedUnits] = useState([]);
     const [selectedUnitIdentifiers, setSelectedUnitIdentifiers] = useState([]);
     const [checkedSelectedTopics, setCheckedSelectedTopics] = useState([]);
+    const authCtx = React.useContext(AuthContext)
     //Topics in Selected topics section
     const TopicCtx = useContext(TopicContext);
     //Checkbox checked and in Available Topics section
@@ -48,18 +51,22 @@ const TopicList = React.memo((props) => {
     }
 
     const addSelectedTopicsHandler = () => {
-        if (selectedUnits !== undefined) {
+        addSelectedTopic(selectedUnits, checkedAvailableTopics);
+    }
+
+    const addSelectedTopic = (selectedUnitsLocal, checkedAvailableTopicsLocal) => {
+        if (selectedUnitsLocal !== undefined) {
             let selectedTopics = [];
             let removedUnitIndetifiers = []
-            selectedUnits.forEach(unit => {
+            selectedUnitsLocal.forEach(unit => {
                 let unitTopics = [];
-                if (unit.unit_topics !== undefined) {
+                if (unit.unit_topics !== undefined && Array.isArray(unit.unit_topics)) {
                     unit.unit_topics.forEach(item => {
                         let category = item.category;
                         let topics = [];
                         item.topics.forEach(topic => {
-                            checkedAvailableTopics.forEach(checkedTopic => {
-                                if (checkedTopic.topic_name === topic.name) {
+                            checkedAvailableTopicsLocal.forEach(checkedTopic => {
+                                if (checkedTopic.topic_name === topic.name && checkedTopic.unit_identifier === unit.unit_identifier) {
                                     topics.push(topic);
                                 }
                             })
@@ -138,24 +145,26 @@ const TopicList = React.memo((props) => {
             TopicCtx.selected_unit_topics_list.forEach(unit => {
                 if (selectedUnitIdentifiers.includes(unit.unit_identifier)) {
                     let new_unit_topics = [];
-                    unit.unit_topics.forEach(item => {
-                        let newTopics = [];
-                        item.topics.forEach(topic => {
-                            if (!checkedTopicNames.includes(topic.name)) {
-                                newTopics.push(topic);
-                            } else {
-                                checked_count++;
+                    if (Array.isArray(unit.unit_topics)) {
+                        unit.unit_topics.forEach(item => {
+                            let newTopics = [];
+                            item.topics.forEach(topic => {
+                                if (!checkedTopicNames.includes(topic.name)) {
+                                    newTopics.push(topic);
+                                } else {
+                                    checked_count++;
+                                }
+                            });
+
+                            //If there are topics that are not checked meaning the newTopics array is not empty, add topics to the newunit_topics.
+                            if (newTopics.length !== 0) {
+                                new_unit_topics.push({
+                                    category: item.category,
+                                    topics: newTopics
+                                });
                             }
                         });
-
-                        //If there are topics that are not checked meaning the newTopics array is not empty, add topics to the newunit_topics.
-                        if (newTopics.length !== 0) {
-                            new_unit_topics.push({
-                                category: item.category,
-                                topics: newTopics
-                            });
-                        }
-                    });
+                    }
 
                     //If there are topics that are not checked to be removed, add the topics to the newSelectedTopics
                     if (new_unit_topics.length > 0) {
@@ -193,6 +202,54 @@ const TopicList = React.memo((props) => {
         }
     }
 
+    //OnLoad existing user topic request into the selected topic section and update the available checkboxes with the requested topics
+    const onloadUserTopicRequestForUnits = () => {
+        TopicCtx.clearPreCheckedAvailableTopics();
+        let unitIdentifiers = [];
+        props.selectedUnits.forEach(selectedUnit => {
+            unitIdentifiers.push(selectedUnit.unit_identifier);
+        })
+        if (authCtx.user_id === undefined) {
+            console.error("Cannot load user topic request if user id is undefined.")
+            return;
+        }
+        let event_id = props.selectedUnits[0].event_id;
+        const response_data = findUserTopicRequestByUserEventUnits(event_id, unitIdentifiers, authCtx.user_id);
+        response_data.then(data => {
+            //Update the selected topic section with the existing topic request if the topic exist in the available topic list
+            let preCheckedAvailableTopicsLocal = [];
+            if (data !== undefined && Array.isArray(data) && data.length > 0) {
+                data.forEach(userTopicRequest => {
+                    const userReqTopicNames = userTopicRequest.topic_names;
+                    userReqTopicNames.split(",").forEach(userReqTopicName => {
+                        if (userReqTopicName !== undefined && userReqTopicName.length > 0) {
+
+                            let preCheckedAvailableTopic = {
+                                topic_name: userReqTopicName,
+                                unit_identifier: userTopicRequest.unit_identifier
+                            }
+                            preCheckedAvailableTopicsLocal.push(preCheckedAvailableTopic);
+                        }
+                    });
+                });
+                //Automatically check the user request topic
+                setCheckedAvailableTopics([...preCheckedAvailableTopicsLocal])
+                //Use Topic context to help render the checked avaiable topics
+                TopicCtx.updatePreCheckAvailableTopics(preCheckedAvailableTopicsLocal);
+                //Automatically select the existing user requested topics
+                addSelectedTopic(props.selectedUnits, preCheckedAvailableTopicsLocal);
+            }
+
+            //Add a dummy preCheckedAvailableTopics to topic context pre_checked_available_topics in order to enforce rendering checkbox checked on first load
+            TopicCtx.updatePreCheckAvailableTopics([{
+                topic_name: '',
+                unit_identifier: ''
+            }]);
+        }).catch(error => {
+            console.error(error)
+        })
+    }
+
     const selectAllTopicsHandler = () => {
         //Move all available topics to selected topics section only when there are at one available topics.
         let isAnyTopicSelected = false;
@@ -218,6 +275,11 @@ const TopicList = React.memo((props) => {
         props.selectedUnits.forEach(item => {
             setSelectedUnitIdentifiers(prev => [...prev, item.unit_identifier]);
         });
+
+        //After loading the available topic list, update the selected topic section with existing user topic request
+        if (props.selectedUnits.length > 0) {
+            onloadUserTopicRequestForUnits();
+        }
     }, [props])
 
     return (
@@ -227,6 +289,7 @@ const TopicList = React.memo((props) => {
                     <CardHeader sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }} title="Available Topics" titleTypographyProps={{ variant: 'title' }} />
                     <CardContent>
                         {
+                            TopicCtx.pre_checked_available_topics !== undefined && TopicCtx.pre_checked_available_topics.length > 0 &&
                             selectedUnits !== undefined && selectedUnits.length !== 0 && selectedUnits.map(unit => (
                                 <TopicListPerUnit key={`available-topics-${unit.unit_identifier}`}
                                     openItems={true}
@@ -235,7 +298,8 @@ const TopicList = React.memo((props) => {
                                     unit_name={unit.unit_name}
                                     unit_topics={unit.unit_topics}
                                     onChecked={checkAvailableTopicsHanlder}
-                                    onUnChecked={unCheckAvailableTopicsHanlder} />
+                                    onUnChecked={unCheckAvailableTopicsHanlder}
+                                    title="available" />
                             ))
                         }
                     </CardContent>
@@ -268,16 +332,17 @@ const TopicList = React.memo((props) => {
                             TopicCtx.selected_unit_topics_list !== undefined && TopicCtx.selected_unit_topics_list.length > 0
                             && TopicCtx.selected_unit_topics_list.map(selected_unit => {
                                 if (selectedUnitIdentifiers.includes(selected_unit.unit_identifier)) {
-                                    return <TopicListPerUnit key={`selected-topics-${selected_unit.unit_identifier}`}
+                                    return <TopicListPerUnit
+                                        key={`selected-topics-per-unit-${selected_unit.unit_identifier}-${selected_unit.unit_type}-${Date.now()}`}
                                         openItems={true}
                                         unit_type={selected_unit.unit_type}
                                         unit_identifier={selected_unit.unit_identifier}
                                         unit_name={selected_unit.unit_name}
                                         unit_topics={selected_unit.unit_topics}
                                         onChecked={checkSelectedTopicsHanlder}
-                                        onUnChecked={unCheckSelectedTopicsHanlder} />
+                                        onUnChecked={unCheckSelectedTopicsHanlder}
+                                        title="selected" />
                                 }
-                                return <React.Fragment />
                             })
                         }
                     </CardContent>

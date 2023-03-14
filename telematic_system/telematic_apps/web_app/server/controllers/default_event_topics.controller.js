@@ -22,14 +22,14 @@ const Op = Sequelize.Op;
  * @Return Response status and save a bulk of topics for each event and unit combination
  */
 exports.create = (req, res) => {
-    if (!req.body) {
+    if (!req.body && !req.body.unitsTopics && !req.body.user_id) {
         res.status(400).send({
             message: "Content cannot be empty."
         });
         return;
     }
     var defaultEventUnitsTopics = [];
-    for (const unit of req.body) {
+    for (const unit of req.body.unitsTopics) {
         if (!unit.event_id) {
             res.status(404).send({
                 message: "Event Id is empty."
@@ -44,8 +44,8 @@ exports.create = (req, res) => {
             return;
         }
         var defaultEventUnitTopic = {};
-        defaultEventUnitTopic.updated_by = 1;
-        defaultEventUnitTopic.created_by = 1;
+        defaultEventUnitTopic.updated_by = req.body.user_id;
+        defaultEventUnitTopic.created_by = req.body.user_id;
         defaultEventUnitTopic.unit_identifier = unit.unit_identifier;
         defaultEventUnitTopic.event_id = unit.event_id;
         defaultEventUnitTopic.topic_names = '';
@@ -88,6 +88,7 @@ exports.create = (req, res) => {
 exports.findAll = (req, res) => {
     const event_id = req.query.event_id;
     const unit_identifiers = req.query.unit_identifiers;
+    const user_id = req.query.user_id;
     var condition = [];
     condition.push({ event_id: event_id });
     condition.push({ unit_identifier: unit_identifiers });

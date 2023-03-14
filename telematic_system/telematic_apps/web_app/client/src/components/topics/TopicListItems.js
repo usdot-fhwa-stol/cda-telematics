@@ -54,15 +54,18 @@ const TopicListItems = React.memo((props) => {
             <Collapse key={`topic-list-item-collapse-${props.unit_identifier}-${props.unit_name}-${props.topic_category.category}`} in={openItems} timeout="auto" unmountOnExit>
                 <List key={`topic-list-item-list-${props.unit_identifier}-${props.unit_name}-${props.topic_category.category}`}>
                     {props.topic_category.topics.map((topic) =>
-                            <TopicCheckBoxListItem value={topic.name}
+                            <TopicCheckBoxListItem 
+                                value={topic.name}
                                 key={`topic-list-item-topic-name-${props.unit_identifier}-${props.unit_name}-${props.topic_category.category}-${topic.name}`}
                                 onUnChecked={unCheckTopicHanlder}
                                 onChecked={checkTopicHanlder}
                                 sx={{display: 'inline'}}
                                 labelId={`checkbox-list-label-selected-${topic.name}`} 
                                 topic_name={topic.name}
+                                title={props.title}
                                 message_type="NA"
-                                message_fields="NA"/>
+                                message_fields="NA"
+                                unit_identifier={props.unit_identifier}/>
                     )}
                 </List>
             </Collapse>

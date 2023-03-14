@@ -5,7 +5,7 @@ import axios, { CanceledError } from 'axios';
  * @Param The list of events and units combinations
  * @Return Response status and save a bulk of topics for each event and unit combination
  */
-const createDefaultTopicsByEventUnits = async (seletedUnitsTopics) => {
+const createDefaultTopicsByEventUnits = async (seletedUnitsTopics, user_id) => {
   const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/default_event_topics/create`
   let event_id = 0;
   let unit_identifiers = [];
@@ -19,7 +19,7 @@ const createDefaultTopicsByEventUnits = async (seletedUnitsTopics) => {
   }
 
   try {
-    const { data } = await axios.post(URL, seletedUnitsTopics, { withCredentials: true });
+    const { data } = await axios.post(URL, {unitsTopics: seletedUnitsTopics, user_id: user_id}, { withCredentials: true });
     return data;
   } catch (err) {
     console.log(err);
@@ -33,19 +33,21 @@ const createDefaultTopicsByEventUnits = async (seletedUnitsTopics) => {
  * @Params selectedUnitIdentifiers: A list of unit identifiers. Each unit identifier is a string and is used to uniquely identify each unit.
  * @Return Response status and load a bulk of topics for each event and list of units for the event
  */
-const findAllDefaultTopicsByEventUnits = async (event_id, selectedUnitIdentifiers) => {
+const findAllDefaultTopicsByEventUnits = async (event_id, selectedUnitIdentifiers, user_id) => {
   const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/default_event_topics/all`
   if (selectedUnitIdentifiers.length === 0 || event_id === 0 || event_id === undefined) {
     return { errCode: CanceledError.ERR_BAD_REQUEST, errMsg: "Event id or units cannot be empty" };
   }
 
   try {
-    const { data } = await axios.get(URL, {
+    const { data } = await axios.get(URL,  {
+      withCredentials: true ,
       params: {
         event_id: event_id,
-        unit_identifiers: selectedUnitIdentifiers
-      }
-    }, { withCredentials: true });
+        unit_identifiers: selectedUnitIdentifiers,
+        user_id: user_id
+      },
+    },);
     return data;
   } catch (err) {
     console.log(err);

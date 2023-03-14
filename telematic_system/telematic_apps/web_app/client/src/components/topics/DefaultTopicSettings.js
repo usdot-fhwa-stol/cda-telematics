@@ -16,10 +16,12 @@
 import { Button, Stack, Tooltip, Typography } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { createDefaultTopicsByEventUnits, findAllDefaultTopicsByEventUnits } from '../../api/api-default-event-topics';
+import AuthContext from '../../context/auth-context';
 import TopicContext from '../../context/topic-context';
 
 const DefaultTopicSettings = (props) => {
     const TopicCtx = useContext(TopicContext);
+    const AuthCtx = useContext(AuthContext);
     const [selectedUnitIdentifiers, setSelectedUnitIdentifiers] = useState([]);
     const [isLoaded, setIsLoaded] = useState(false);
     const [isSaved, setIsSaved] = useState(false);
@@ -33,7 +35,7 @@ const DefaultTopicSettings = (props) => {
             setIsLoaded(false);
             setMsg("Please select units and move topics to selected topic section.");
         } else {
-            const response_data = createDefaultTopicsByEventUnits(currentUnitsSelectedTopicList);
+            const response_data = createDefaultTopicsByEventUnits(currentUnitsSelectedTopicList,  AuthCtx.user_id);
             try {
                 response_data.then(json => {
                     if (json !== undefined && json.errCode !== undefined) {
@@ -61,7 +63,7 @@ const DefaultTopicSettings = (props) => {
                 setMsg("Please select units and move topics to selected topic section.");
             } else {
                 try {
-                    const response_data = findAllDefaultTopicsByEventUnits(event_id, selectedUnitIdentifiers);
+                    const response_data = findAllDefaultTopicsByEventUnits(event_id, selectedUnitIdentifiers, AuthCtx.user_id);
                     response_data.then(json => {
                         if (json !== undefined && json.errCode !== undefined) {
                             setIsSaved(false);
@@ -136,7 +138,7 @@ const DefaultTopicSettings = (props) => {
 
     useEffect(() => {
         props.selectedUnits.forEach(item => {
-            setSelectedUnitIdentifiers(prev => [...prev.filter(n_item => n_item !== undefined && item !== undefined  && n_item.unit_identifier !== item.unit_identifier), item.unit_identifier]);
+            setSelectedUnitIdentifiers(prev => [...prev.filter(n_item => n_item !== undefined && item !== undefined  && !n_item.includes(item.unit_identifier)), item.unit_identifier]);
         });
         setMsg('');
         setIsLoaded(false);

@@ -19,7 +19,7 @@ const { org_user, user, Sequelize } = require("../models");
 const { Op } = require("sequelize");
 const { addOrgUser } = require('./org.controller');
 const getUuid = require('uuid-by-string');
-var grafana_htpasswd = process.env.GRAFANA_HTPASSWORD.length > 0 ? process.env.GRAFANA_HTPASSWORD : '/opt/apache2/grafana_htpasswd';
+var grafana_htpasswd = process.env.GRAFANA_HTPASSWORD!=undefined && process.env.GRAFANA_HTPASSWORD.length > 0 ? process.env.GRAFANA_HTPASSWORD : '/opt/apache2/grafana_htpasswd';
 var htpasswordManager = manager(grafana_htpasswd)
 /**
  * Update user server admin role by using the user identifier and their server admin role to update
