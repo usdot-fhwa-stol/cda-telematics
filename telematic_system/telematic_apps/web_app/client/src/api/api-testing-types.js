@@ -6,7 +6,7 @@ import axios from 'axios';
  */
 const findAllTestingTypes= async (criteria) => {
     try {
-        let URL = `${window.location.protocol}//${window.location.hostname}:9010/api/testing_types/all`;
+        let URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/testing_types/all`;
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {

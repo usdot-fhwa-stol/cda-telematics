@@ -6,7 +6,7 @@ import axios, { CanceledError } from 'axios';
  * @Return Response status and save a bulk of topics for each event and unit combination
  */
 const upsertUserTopicRequestForEventUnits = async (seletedUnitsTopics, user_id) => {
-  const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/user_topic_request/upsert`
+  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/user_topic_request/upsert`
   let event_id = 0;
   let unit_identifiers = [];
   seletedUnitsTopics.forEach(element => {
@@ -34,7 +34,7 @@ const upsertUserTopicRequestForEventUnits = async (seletedUnitsTopics, user_id) 
  * @Return Response status and load a bulk of topics for each event and list of units for the event
  */
 const findAllUserTopicRequestByEventUnits = async (event_id, selectedUnitIdentifiers) => {
-  const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/user_topic_request/all`
+  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/user_topic_request/all`
   if (selectedUnitIdentifiers.length === 0 || event_id === 0 || event_id === undefined) {
     return { errCode: CanceledError.ERR_BAD_REQUEST, errMsg: "Event id or units cannot be empty" };
   }
@@ -62,7 +62,7 @@ const findAllUserTopicRequestByEventUnits = async (event_id, selectedUnitIdentif
  * @Return Response status and load a bulk of topics for each event and list of units for the event
  */
  const findUserTopicRequestByUserEventUnits = async (event_id, selectedUnitIdentifiers, user_id) => {
-  const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/user_topic_request/user/list`
+  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/user_topic_request/user/list`
   if (selectedUnitIdentifiers.length === 0 || event_id === 0 || event_id === undefined) {
     return { errCode: CanceledError.ERR_BAD_REQUEST, errMsg: "Event id or units cannot be empty" };
   }
