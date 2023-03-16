@@ -13,7 +13,7 @@ services:
     restart: always
     network_mode: host
     environment:
-      - NATS_URI=nats://<NATS_IP>:4222
+      - NATS_URI=nats://localhost:4222
 
   telematic_web_server:
     build:
@@ -23,7 +23,7 @@ services:
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
-      - ALLOW_CLIENT_URL=http://<TELEMATIC_CLIENT_HOST_IP>
+      - ALLOW_CLIENT_URL=<telematic-web-client-uri:port>
       - GRAFANA_HTPASSWORD=/opt/apache2/grafana_htpasswd
       - SESSION_TIMEOUT=3600
       - SECRET=my_secret_telematic_ui
@@ -41,7 +41,9 @@ services:
     build:
       context: "./telematic_apps/web_app/client"
       args:
-        REACT_APP_MESSAGING_SERVER_URI: "http://<TELEMATIC_MESSAGING_HOST_IP>:8080"
+        REACT_APP_MESSAGING_SERVER_URI: "<telematic-messaging-server-uri:port>"
+        REACT_APP_WEB_SERVER_URI: <telematic-web-server-uri:port>
+        REACT_APP_GRAFANA_URI: <grafana-uri:port>
     restart: always
     network_mode: host
     depends_on:
