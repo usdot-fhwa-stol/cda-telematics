@@ -29,9 +29,8 @@ jobs:
       - run: sudo apt update && sudo apt -y install python3-coverage python3-pytest ros-foxy-rclpy && sudo apt -y install glibc-source && sudo apt -y install libc6
       - name: Install dep
         run: python3 -m pip install -r ./telematic_system/telematic_units/carma_cloud_bridge/requirements.txt
-      - run: ls -la && source /opt/ros/foxy/setup.bash && cd ./telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/test/ && python3 -m coverage run -m pytest
+      - run: ls -la && source /opt/ros/foxy/setup.bash && cd ./telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/test/ && python3 -m coverage run -m pytest && python3 -m coverage xml
         shell: bash
-      - run: python3 -m coverage xml
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master # This action will create and boot a builder that can be used as buildx as a docker CLI
         with:
