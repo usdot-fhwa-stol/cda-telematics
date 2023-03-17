@@ -60,11 +60,14 @@ public class NatsConsumer {
         nats_subject_list = new ArrayList<String>();
         registered_unit_id_list = new ArrayList<String>();
 
-        // this.createDispatcherTopicList();
-        // logger.info("Creating dispatcher topic list..");
-
         logger.info("Getting registered units..");
-        this.getRegisteredUnits();    }
+        this.getRegisteredUnits();    
+    
+        logger.info("Creating topic list..");
+        for (String unit: registered_unit_id_list) {
+            this.updateAvailableTopicList(unit);
+        }
+    }
 
     /**
      * @return true if NatsConsumer is connected to nats server
@@ -147,23 +150,32 @@ public class NatsConsumer {
     /**
      * This dispatcher is created to get the list of available topics for each unit that is stored in NATS
      */
-    public void createDispatcherTopicList(String unit_id) {
+    public void updateAvailableTopicList(String unit_id) {
 
         HttpClient client = HttpClient.newBuilder().version(Version.HTTP_2).followRedirects(Redirect.NORMAL).build();
         String response = "";
 
         try {
             HttpRequest request = HttpRequest.newBuilder()
-            .uri(new URI(nats_api+"/requestAvailableTopics/"+unit_id))
+            .uri(new URI(nats_api+"requestAvailableTopics/"+unit_id))
             .GET()
             .timeout(Duration.ofSeconds(10))
             .build();
 
             response = client.send(request, BodyHandlers.ofString()).body();
+            logger.info("requestAvailableTopics for unit " + unit_id + " response: " + response);
 
             JSONObject jsonObject = new JSONObject(response); 
             JSONArray topicList = jsonObject.getJSONArray("topics");
-            logger.info("requestAvailableTopics for unit " + unit_id + "response: " + topicList);
+
+            for(int i=0; i<topicList.length(); i++) 
+            {
+                String topicName = topicList.getJSONObject(i).getString("name");
+                if (!nats_subject_list.contains(topicName)) {
+                    nats_subject_list.add(topicName);
+                    logger.info("Added to nats subject list: " + topicName);
+                }
+            }
         }
         catch (URISyntaxException e)
         {
@@ -176,6 +188,11 @@ public class NatsConsumer {
         }
     }
 
+    /**
+     * Helper method that is used to dynamically create new Dispatcher objects that publish to Influx when a message is received
+     * @param influxDataWriter the Influx writer object
+     * @return the created Dispatcher
+     */
     public Dispatcher createNewDispatcher(InfluxDataWriter influxDataWriter) {
         Dispatcher d = nc.createDispatcher((msg) -> {
             String str = new String(msg.getData(), StandardCharsets.UTF_8);
@@ -191,50 +208,31 @@ public class NatsConsumer {
         
         return d;
     }
+
     /**
      * Create an asynchronous subsciption to available subjects and publish to influxdb using the InfluxDataWriter
      */
     public void async_subscribe(InfluxDataWriter influxDataWriter) {
         //get current number of subjects subscribed to
         int currentSize = nats_subject_list.size();
+        int numberDispatchers = currentSize / topics_per_dispatcher;
+        int subjectListIterator = 0;
 
-        Dispatcher newDispatcher = createNewDispatcher(influxDataWriter);
+        //Create desired number of dispatchers based on number of topics, and configured topic per dispatcher value
+        for (int i = 0; i < numberDispatchers; i++) {
+            logger.info("Creating dispatcher number " + String.valueOf(i));
 
-        //Subscribe to all subjects to populate the subject list
-        // try {
-        //     //subscribe to all available subjects on nats server
-        //     d.subscribe(nats_subscribe_str); //subject example: "streets_id.data.v2xhub_scheduling_plan_sub"
-        //     logger.info("Successfully subscribed to nats server data");
-        // }
-        // catch (Exception e) {
-        //     logger.error(ExceptionUtils.getStackTrace(e));
-        // }
+            Dispatcher newDispatcher = createNewDispatcher(influxDataWriter);
+            //Get the topics that this dispatcher should subscribe to
+            List<String> topicsToSubscribe = nats_subject_list.subList(subjectListIterator, subjectListIterator+topics_per_dispatcher);
+            //Iterate through and subscribe to each topic
+            for (String topic: topicsToSubscribe) {
+                newDispatcher.subscribe(nats_subscribe_str+topic);
+                logger.info("Dispatcher " + String.valueOf(i) + " subscribed to " + nats_subscribe_str+topic);
+            }
+            //Update the iterator to move to the next set of topics
+            subjectListIterator = subjectListIterator + topics_per_dispatcher;
 
-        //Create dispatcher object that will be used to call InfluxDataWriter publish method everytime a 
-        //message has been received
-        // Dispatcher d = nc.createDispatcher((msg) -> {
-        //     String str = new String(msg.getData(), StandardCharsets.UTF_8);
-            
-        //     nats_subject_list.add(msg.getSubject());
-        //     logger.info("Added to nats subject list: " + msg.getSubject());
-
-        //     if(nats_subscribe_str.equals(influxDataWriter.config_.cloud_subscription_topic)){
-        //         logger.info("Received cloud data");
-        //         influxDataWriter.publishCloudData(str);
-        //     }
-        //     else{
-        //         influxDataWriter.publish(str);
-        //     }
-        // });  
-
-        // try {
-        //     //subscribe to all available subjects on nats server
-        //     d.subscribe(nats_subscribe_str); //subject example: "streets_id.data.v2xhub_scheduling_plan_sub"
-        //     logger.info("Successfully subscribed to nats server data");
-        // }
-        // catch (Exception e) {
-        //     logger.error(ExceptionUtils.getStackTrace(e));
-        // }
-  
+        }       
     }
 }
