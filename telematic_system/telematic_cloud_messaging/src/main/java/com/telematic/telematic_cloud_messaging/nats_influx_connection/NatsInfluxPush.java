@@ -130,7 +130,9 @@ public class NatsInfluxPush implements CommandLineRunner {
                 logger.info("Couldn't connect to influx or nats, retrying..");
             }
         }
-       
+
+        //TODO add 30 second sleep to wait for all topics to appear
+        
         //subscribe to data and publish
         natsObject.async_subscribe(influxDataWriter);
         logger.info("Waiting for data from nats..");

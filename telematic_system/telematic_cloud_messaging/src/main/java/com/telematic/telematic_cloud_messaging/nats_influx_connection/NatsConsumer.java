@@ -126,6 +126,7 @@ public class NatsConsumer {
 
             JSONArray unitJsonArray = new JSONArray(response); 
 
+            //Add the units to the unit list if they don't already exist
             for(int i=0; i<unitJsonArray.length(); i++) 
             {
                 JSONObject arrayJsonObject = unitJsonArray.getJSONObject(i);
@@ -134,7 +135,25 @@ public class NatsConsumer {
                     registered_unit_id_list.add(unit_id);
                     logger.info("Added to registered unit list: " + unit_id);
                 }
-            }            
+            }
+            //Remove units from the list if they are not part of the http response
+            for(String registered_unit: registered_unit_id_list)
+            {
+                boolean exists = false;
+                for(int i=0; i<unitJsonArray.length(); i++) 
+                {
+                    JSONObject arrayJsonObject = unitJsonArray.getJSONObject(i);
+                    String unit_id = arrayJsonObject.getString("unit_id"); 
+                    if (unit_id.equals(registered_unit))
+                    {
+                        exists = true;
+                    }
+                }
+                if (!exists)
+                {
+                    registered_unit_id_list.remove(registered_unit);           
+                }
+            }
         }
         catch (URISyntaxException e)
         {
@@ -168,6 +187,7 @@ public class NatsConsumer {
             JSONObject jsonObject = new JSONObject(response); 
             JSONArray topicList = jsonObject.getJSONArray("topics");
 
+            //Add the topics to the topic list if they don't already exist
             for(int i=0; i<topicList.length(); i++) 
             {
                 String topicName = topicList.getJSONObject(i).getString("name");
@@ -227,12 +247,26 @@ public class NatsConsumer {
             List<String> topicsToSubscribe = nats_subject_list.subList(subjectListIterator, subjectListIterator+topics_per_dispatcher);
             //Iterate through and subscribe to each topic
             for (String topic: topicsToSubscribe) {
-                newDispatcher.subscribe(nats_subscribe_str+topic);
-                logger.info("Dispatcher " + String.valueOf(i) + " subscribed to " + nats_subscribe_str+topic);
+                //need to remove slashes from topic name to match nats subject format
+                String topicStr = topic.replace("/", "");
+                newDispatcher.subscribe(nats_subscribe_str+topicStr);
+                logger.info("Dispatcher " + String.valueOf(i) + " subscribed to " + nats_subscribe_str+topicStr);
             }
             //Update the iterator to move to the next set of topics
             subjectListIterator = subjectListIterator + topics_per_dispatcher;
 
         }       
+    }
+
+    /**
+     * TODO: add this to thread in NatsInfluxPush
+     * This will be run every minute to check if the registered units have changed and update the topic list accordingly
+     */
+    public void unitStatusCheck() {
+        this.getRegisteredUnits();        
+       
+        for (String unit: registered_unit_id_list) {
+            this.updateAvailableTopicList(unit);
+        }
     }
 }
