@@ -67,6 +67,10 @@ public class NatsInfluxPush implements CommandLineRunner {
             config.influx_token = prop.getProperty("INFLUX_TOKEN");
             config.influx_connect_timeout = Integer.parseInt(prop.getProperty("INFLUX_CONNECT_TIMEOUT"));
             config.influx_write_timeout = Integer.parseInt(prop.getProperty("INFLUX_WRITE_TIMEOUT"));
+            config.nats_registered_units_uri = prop.getProperty("NATS_REGISTERED_UNITS_URI");
+            config.topics_per_dispatcher = Integer.parseInt(prop.getProperty("NUMBER_TOPICS_PER_DISPATCHER"));
+            // config.nats_registered_units_uri = prop.getProperty("NATS_REGISTERED_UNITS_URI");
+            config.nats_api = prop.getProperty("NATS_API");
 
             try{
                 config.influx_bucket_type = BucketType.valueOf(prop.getProperty("INFLUX_BUCKET_TYPE"));
@@ -106,7 +110,8 @@ public class NatsInfluxPush implements CommandLineRunner {
             logger.error("Invalid data type for pushing Influx data");
         }
 
-        NatsConsumer natsObject = new NatsConsumer(config.nats_uri, subscription_topic, config.nats_max_reconnects);
+        NatsConsumer natsObject = new NatsConsumer(config.nats_uri, subscription_topic, config.nats_max_reconnects, 
+        config.nats_api, config.topics_per_dispatcher);
 
         InfluxDataWriter influxDataWriter = new InfluxDataWriter(config_, bucket_type);
 

@@ -21,6 +21,8 @@ public class Config {
     }
     //URI where the NATS service is hosted
     String nats_uri;
+    //URI where list of registered units can be retrieved
+    String nats_registered_units_uri;
     // URI where the influxdb bucket is hosted    
     String influx_uri;
     // Influxdb bucket type: Can be Platform, Streets or All
@@ -53,6 +55,10 @@ public class Config {
     int influx_connect_timeout;
     // Time in milliseconds after which the request to write data to the influxdb bucket times out
     int influx_write_timeout;
+    // Maximum number of topics to assign to dispatcher
+    int topics_per_dispatcher;
+    // API endpoint
+    String nats_api;
 
     public Config(){}
 
@@ -76,7 +82,9 @@ public class Config {
         "\ninflux_pwd: " + influx_pwd +
         "\nnats_max_reconnects: " + nats_max_reconnects +
         "\ninflux_connect_timeout: " + influx_connect_timeout +
-        "\ninflux_write_timeout: " + influx_write_timeout);
+        "\ninflux_write_timeout: " + influx_write_timeout +
+        "\nnats_topic_per_dispatcher: " + topics_per_dispatcher+
+        "\nnats_api: " + nats_api);
 
         return config_str;
 
