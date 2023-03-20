@@ -218,7 +218,7 @@ class StreetsNatsBridge():
                         message["timestamp"] = timestamp
                     #do special conversion for spat message using moy
                     elif topic == "modified_spat":
-                        timestamp = int(message["payload"]["time_stamp"])
+                        timestamp = int(message["payload"]["intersections"][0]["time_stamp"])
                         moy = int(message["payload"]["intersections"][0]["moy"])
                         #Use moy and timestamp fields to get epoch time for each record
                         epoch_micro = int((moy* minuteToMilli) + timestamp + first_day_epoch)*milliToMicro #convert moy to microseconds    
