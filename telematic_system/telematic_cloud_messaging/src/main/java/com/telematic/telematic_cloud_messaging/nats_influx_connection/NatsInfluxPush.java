@@ -131,11 +131,27 @@ public class NatsInfluxPush implements CommandLineRunner {
             }
         }
 
-        //TODO add 30 second sleep to wait for all topics to appear
-        
         //subscribe to data and publish
         natsObject.async_subscribe(influxDataWriter);
         logger.info("Waiting for data from nats..");
+
+        //Initialize thread that will check for new topics and create dispatchers every 30 seconds
+        Thread update_topic_thread = new Thread() {
+            public void run() {
+                while(true) {
+                    natsObject.unitStatusCheck(influxDataWriter);
+                    try {
+                        Thread.sleep(30000);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        Thread.currentThread().interrupt();
+                        logger.info("Update topic thread sleeping..");
+                    }
+                }
+            }
+        };
+        update_topic_thread.start();
     }
 
     /**

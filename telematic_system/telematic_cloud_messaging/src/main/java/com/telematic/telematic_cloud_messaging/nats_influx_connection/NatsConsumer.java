@@ -36,7 +36,7 @@ public class NatsConsumer {
     String nats_subscribe_str;
     boolean nats_connected;
     Connection nc;
-    List<String> nats_subject_list;
+    List<String> topic_list;
     List<String> registered_unit_id_list;
     String nats_api;
     int topics_per_dispatcher;
@@ -57,7 +57,7 @@ public class NatsConsumer {
 
         nats_connected = false;
         nc = null;
-        nats_subject_list = new ArrayList<String>();
+        topic_list = new ArrayList<String>();
         registered_unit_id_list = new ArrayList<String>();
 
         logger.info("Getting registered units..");
@@ -81,13 +81,6 @@ public class NatsConsumer {
      */
     public String getNatsURI() {
         return nats_uri;
-    }
-
-    /**
-     * @return registered_unit_id_list list of registered units
-     */
-    public List<String> getRegisteredUnitIDList() {
-        return registered_unit_id_list;
     }
 
     /**
@@ -122,7 +115,6 @@ public class NatsConsumer {
             .build();
 
             response = client.send(request, BodyHandlers.ofString()).body();
-            logger.info("registeredUnits response: " + response);
 
             JSONArray unitJsonArray = new JSONArray(response); 
 
@@ -182,7 +174,6 @@ public class NatsConsumer {
             .build();
 
             response = client.send(request, BodyHandlers.ofString()).body();
-            logger.info("requestAvailableTopics for unit " + unit_id + " response: " + response);
 
             JSONObject jsonObject = new JSONObject(response); 
             JSONArray topicList = jsonObject.getJSONArray("topics");
@@ -191,9 +182,9 @@ public class NatsConsumer {
             for(int i=0; i<topicList.length(); i++) 
             {
                 String topicName = topicList.getJSONObject(i).getString("name");
-                if (!nats_subject_list.contains(topicName)) {
-                    nats_subject_list.add(topicName);
-                    logger.info("Added to nats subject list: " + topicName);
+                if (!topic_list.contains(topicName)) {
+                    topic_list.add(topicName);
+                    logger.info("Added to topic list: " + topicName);
                 }
             }
         }
@@ -234,7 +225,7 @@ public class NatsConsumer {
      */
     public void async_subscribe(InfluxDataWriter influxDataWriter) {
         //get current number of subjects subscribed to
-        int currentSize = nats_subject_list.size();
+        int currentSize = topic_list.size();
         int numberDispatchers = currentSize / topics_per_dispatcher;
         int subjectListIterator = 0;
 
@@ -244,7 +235,7 @@ public class NatsConsumer {
 
             Dispatcher newDispatcher = createNewDispatcher(influxDataWriter);
             //Get the topics that this dispatcher should subscribe to
-            List<String> topicsToSubscribe = nats_subject_list.subList(subjectListIterator, subjectListIterator+topics_per_dispatcher);
+            List<String> topicsToSubscribe = topic_list.subList(subjectListIterator, subjectListIterator+topics_per_dispatcher);
             //Iterate through and subscribe to each topic
             for (String topic: topicsToSubscribe) {
                 //need to remove slashes from topic name to match nats subject format
@@ -259,14 +250,32 @@ public class NatsConsumer {
     }
 
     /**
-     * TODO: add this to thread in NatsInfluxPush
      * This will be run every minute to check if the registered units have changed and update the topic list accordingly
      */
-    public void unitStatusCheck() {
+    public void unitStatusCheck(InfluxDataWriter influxDataWriter) {
+        logger.info("Checking for new topics");
+
+        //Create a copy of the subject list
+        List<String> currentListCopy =  new ArrayList<String>(topic_list);
+
+        //Update the topic list
         this.getRegisteredUnits();        
        
         for (String unit: registered_unit_id_list) {
             this.updateAvailableTopicList(unit);
+        }
+        //Create a copy of the new topic list and compare the two lists to get the new topics, if any
+        List<String> newListCopy =  new ArrayList<String>(topic_list);
+        newListCopy.removeAll(currentListCopy);
+
+        //Create a new dispatcher for each new topic
+        for (String topic: newListCopy) 
+        {
+            Dispatcher newDispatcher = createNewDispatcher(influxDataWriter);
+            //need to remove slashes from topic name to match nats subject format
+            String topicStr = topic.replace("/", "");
+            newDispatcher.subscribe(nats_subscribe_str+topicStr);
+            logger.info("Creating new dispatcher for " + nats_subscribe_str+topicStr);
         }
     }
 }
