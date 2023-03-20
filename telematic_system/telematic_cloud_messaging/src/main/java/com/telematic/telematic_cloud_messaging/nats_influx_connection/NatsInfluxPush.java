@@ -131,6 +131,8 @@ public class NatsInfluxPush implements CommandLineRunner {
             }
         }
 
+        //populate topic list
+        natsObject.updateAvailableTopicList();
         //subscribe to data and publish
         natsObject.async_subscribe(influxDataWriter);
         logger.info("Waiting for data from nats..");

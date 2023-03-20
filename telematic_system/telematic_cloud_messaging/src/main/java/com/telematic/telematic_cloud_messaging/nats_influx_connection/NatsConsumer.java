@@ -15,12 +15,6 @@ import org.slf4j.Logger;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpClient.Redirect;
-import java.net.http.HttpClient.Version;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -37,7 +31,7 @@ public class NatsConsumer {
     boolean nats_connected;
     Connection nc;
     List<String> topic_list;
-    List<String> registered_unit_id_list;
+    List<String> topic_list_old;
     String nats_api;
     int topics_per_dispatcher;
 
@@ -58,15 +52,7 @@ public class NatsConsumer {
         nats_connected = false;
         nc = null;
         topic_list = new ArrayList<String>();
-        registered_unit_id_list = new ArrayList<String>();
-
-        logger.info("Getting registered units..");
-        this.getRegisteredUnits();    
-    
-        logger.info("Creating topic list..");
-        for (String unit: registered_unit_id_list) {
-            this.updateAvailableTopicList(unit);
-        }
+        topic_list_old = new ArrayList<String>();
     }
 
     /**
@@ -101,81 +87,16 @@ public class NatsConsumer {
     }
    
     /**
-     * Make call to TopicsService to get all of the registered units and populate the class's list
-     */
-    public void getRegisteredUnits() {
-        HttpClient client = HttpClient.newBuilder().version(Version.HTTP_2).followRedirects(Redirect.NORMAL).build();
-        String response = "";
-
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-            .uri(new URI(nats_api+"registeredUnits"))
-            .GET()
-            .timeout(Duration.ofSeconds(10))
-            .build();
-
-            response = client.send(request, BodyHandlers.ofString()).body();
-
-            JSONArray unitJsonArray = new JSONArray(response); 
-
-            //Add the units to the unit list if they don't already exist
-            for(int i=0; i<unitJsonArray.length(); i++) 
-            {
-                JSONObject arrayJsonObject = unitJsonArray.getJSONObject(i);
-                String unit_id = arrayJsonObject.getString("unit_id"); 
-                if (!registered_unit_id_list.contains(unit_id)) {
-                    registered_unit_id_list.add(unit_id);
-                    logger.info("Added to registered unit list: " + unit_id);
-                }
-            }
-            //Remove units from the list if they are not part of the http response
-            for(String registered_unit: registered_unit_id_list)
-            {
-                boolean exists = false;
-                for(int i=0; i<unitJsonArray.length(); i++) 
-                {
-                    JSONObject arrayJsonObject = unitJsonArray.getJSONObject(i);
-                    String unit_id = arrayJsonObject.getString("unit_id"); 
-                    if (unit_id.equals(registered_unit))
-                    {
-                        exists = true;
-                    }
-                }
-                if (!exists)
-                {
-                    registered_unit_id_list.remove(registered_unit);           
-                }
-            }
-        }
-        catch (URISyntaxException e)
-        {
-            logger.error(ExceptionUtils.getStackTrace(e));
-
-        }  
-        catch (Exception e)
-        {
-            logger.error(ExceptionUtils.getStackTrace(e));
-        }
-    }
-    
-    /**
      * This dispatcher is created to get the list of available topics for each unit that is stored in NATS
      */
-    public void updateAvailableTopicList(String unit_id) {
+    public void updateAvailableTopicList() {
+        logger.info("Creating dispatcher for all available topics");
 
-        HttpClient client = HttpClient.newBuilder().version(Version.HTTP_2).followRedirects(Redirect.NORMAL).build();
-        String response = "";
+        Dispatcher d = nc.createDispatcher((msg) -> {
+            String str = new String(msg.getData(), StandardCharsets.UTF_8);
+            logger.info("Received available_topic message: " + str);
 
-        try {
-            HttpRequest request = HttpRequest.newBuilder()
-            .uri(new URI(nats_api+"requestAvailableTopics/"+unit_id))
-            .GET()
-            .timeout(Duration.ofSeconds(10))
-            .build();
-
-            response = client.send(request, BodyHandlers.ofString()).body();
-
-            JSONObject jsonObject = new JSONObject(response); 
+            JSONObject jsonObject = new JSONObject(str); 
             JSONArray topicList = jsonObject.getJSONArray("topics");
 
             //Add the topics to the topic list if they don't already exist
@@ -187,16 +108,12 @@ public class NatsConsumer {
                     logger.info("Added to topic list: " + topicName);
                 }
             }
-        }
-        catch (URISyntaxException e)
-        {
-            logger.error(ExceptionUtils.getStackTrace(e));
+            
+            //Update the old topic list variable for comparison in the status check method
+            topic_list_old = new ArrayList<String>(topic_list);
+        });
 
-        }  
-        catch (Exception e)
-        {
-            logger.error(ExceptionUtils.getStackTrace(e));
-        }
+        d.subscribe("*.available_topics");
     }
 
     /**
@@ -219,7 +136,7 @@ public class NatsConsumer {
         
         return d;
     }
-
+    
     /**
      * Create an asynchronous subsciption to available subjects and publish to influxdb using the InfluxDataWriter
      */
@@ -255,21 +172,12 @@ public class NatsConsumer {
     public void unitStatusCheck(InfluxDataWriter influxDataWriter) {
         logger.info("Checking for new topics");
 
-        //Create a copy of the subject list
+        //Create a copy of the current topic list and compare with the old topic list copy
         List<String> currentListCopy =  new ArrayList<String>(topic_list);
-
-        //Update the topic list
-        this.getRegisteredUnits();        
-       
-        for (String unit: registered_unit_id_list) {
-            this.updateAvailableTopicList(unit);
-        }
-        //Create a copy of the new topic list and compare the two lists to get the new topics, if any
-        List<String> newListCopy =  new ArrayList<String>(topic_list);
-        newListCopy.removeAll(currentListCopy);
+        currentListCopy.removeAll(topic_list_old);
 
         //Create a new dispatcher for each new topic
-        for (String topic: newListCopy) 
+        for (String topic: currentListCopy) 
         {
             Dispatcher newDispatcher = createNewDispatcher(influxDataWriter);
             //need to remove slashes from topic name to match nats subject format
