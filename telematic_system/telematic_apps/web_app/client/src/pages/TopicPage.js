@@ -74,6 +74,7 @@ const TopicPage = React.memo(() => {
               || element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.STREETS_INFRASTRUCTURE.toLocaleLowerCase()
               || element.unit_type.toLocaleLowerCase() === VALID_UNIT_TYPES.V2XHUB_INFRASTRUCTURE.toLocaleLowerCase())) {
             filteredInfrastructures = [...filteredInfrastructures, element];
+            console.log(element.unit_type);
           }
           else {
             console.error("Invalid unit type in units for event = ", filteredEvent.name);
@@ -92,7 +93,8 @@ const TopicPage = React.memo(() => {
   //Send topic request to the server
   const confirmSelectedTopicHandler = () => {
     const seletedUnitTopicListToConfirm = TopicCtx.selected_unit_topics_list;
-    let isClear = false;
+    console.log(seletedUnitTopicListToConfirm)
+    var isClear = false;
     if (seletedUnitTopicListToConfirm.length === 0) {
       isClear = true;
       for (let vehicle of vehicles) {
@@ -169,15 +171,19 @@ const TopicPage = React.memo(() => {
       let messageList = [];
       let num_failed = 0;
       let num_success = 0;
-      response_data.then(json => {
-        if (!isClear && json !== undefined) {
-          json.forEach(item => {
-            if (item.data !== undefined) {
-              messageList.push(item.data);
-              num_success += 1;
-            } else if (item.errCode !== undefined) {
-              messageList.push(item.errMsg);
-              num_failed += 1;
+      response_data.then(allResponses => {
+        if (allResponses !== undefined && Array.isArray(allResponses)) {
+          allResponses.forEach(items => {
+            if (Array.isArray(items) && items !== undefined) {
+              items.forEach(item => {
+                if (item.data !== undefined && !messageList.includes(item.data)) {
+                  messageList.push(item.data);
+                  num_success += 1;
+                } else if (item.errCode !== undefined) {
+                  messageList.push(item.errMsg);
+                  num_failed += 1;
+                }
+              })
             }
           });
         }
@@ -190,6 +196,11 @@ const TopicPage = React.memo(() => {
           title: severity,
           messageList: messageList
         });
+
+        //Clear the topic context for all units if no selected topics from those units
+        if (isClear) {
+          TopicCtx.clear();
+        }
       });
     }).catch(error => {
       console.error(error);
