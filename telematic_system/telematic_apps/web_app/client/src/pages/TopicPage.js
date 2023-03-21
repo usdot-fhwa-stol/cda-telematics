@@ -179,7 +179,7 @@ const TopicPage = React.memo(() => {
                 if (item.data !== undefined && !messageList.includes(item.data)) {
                   messageList.push(item.data);
                   num_success += 1;
-                } else if (item.errCode !== undefined) {
+                } else if (item.errCode !== undefined && !messageList.includes(item.errMsg)) {
                   messageList.push(item.errMsg);
                   num_failed += 1;
                 }
