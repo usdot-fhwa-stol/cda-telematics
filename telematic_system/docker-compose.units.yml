@@ -21,20 +21,7 @@ services:
     - CYCLONE_URL=./telematic_units/cyclone_config.xml
     - VEHICLE_BRIDGE_LOG_ROTATION_SIZE_BYTES=2147483648 #2 gigabytes
     - VEHICLE_BRIDGE_LOG_HANDLER_TYPE=console #console: Print logs on console; file: Save logs to file; all: Prints logs on console and file
-    - VEHICLE_BRIDGE_EXCLUSION_LIST= /environment/map_filtered_points,
-      /environment/points_clustered,
-      /environment/points_in_map,
-      /environment/detected_objects,
-      /environment/roadway_objects,
-      /environment/motion_computation_visualization,
-      /hardware_interface/lidar/points_raw,
-      /environment/points_ground,
-      /environment/points_no_ground,
-      /environment/points_in_base_link,
-      /environment/lidar_detected_objects,
-      /environment/map_update,
-      /environment/semantic_map,
-      /environment/base_map #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
+    - VEHICLE_BRIDGE_EXCLUSION_LIST= ${VEHICLE_BRIDGE_EXCLUSION_LIST} #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
 
   streets-nats-bridge:
     build:
@@ -58,7 +45,7 @@ services:
     - NATS_IP=<IP> #REQUIRED variable, replace IP with IP address of NATS server
     - NATS_PORT=4222
     - KAFKA_CONSUMER_RESET=earliest
-    - STREETS_BRIDGE_EXCLUSION_LIST= #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
+    - STREETS_BRIDGE_EXCLUSION_LIST= ${STREETS_BRIDGE_EXCLUSION_LIST} #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
   
   cloud-nats-bridge:
     build:
@@ -83,4 +70,4 @@ services:
       - CARMA_CLOUD_BRIDGE_LOG_HANDLER=console #"console": Print logs on console; "file": Save logs to file; "all": Prints logs on console and file
       - CARMA_CLOUD_BRIDGE_TCR_STRING=TrafficControlRequest #TCR string to search for in carma cloud log
       - CARMA_CLOUD_BRIDGE_TCM_STRING=TrafficControlMessage #TCM string to search for in carma cloud log
-      - CLOUD_BRIDGE_EXCLUSION_LIST= #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
+      - CLOUD_BRIDGE_EXCLUSION_LIST= ${CLOUD_BRIDGE_EXCLUSION_LIST} #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
