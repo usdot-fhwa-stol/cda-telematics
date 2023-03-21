@@ -5,6 +5,10 @@ services:
           context: ./telematic_units/carma_vehicle_bridge
           dockerfile: Dockerfile
     image: usdotfhwastoldev/carma_vehicle_nats_bridge:develop
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "1"
     container_name: carma_vehicle_bridge
     network_mode: host
     entrypoint: /ws/ros_entrypoint.sh
@@ -28,6 +32,10 @@ services:
           context: ./telematic_units/carma_street_bridge
           dockerfile: Dockerfile
     image: usdotfhwastoldev/carma_street_nats_bridge:develop
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "1"
     container_name: carma_street_bridge
     network_mode: host
     volumes:
@@ -52,6 +60,10 @@ services:
           context: ./telematic_units/carma_cloud_bridge
           dockerfile: Dockerfile
     image: usdotfhwastoldev/carma_cloud_nats_bridge:develop
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "1"
     container_name: carma_cloud_bridge
     network_mode: host
     volumes:
