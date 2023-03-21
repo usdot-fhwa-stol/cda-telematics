@@ -18,6 +18,9 @@ import java.net.URISyntaxException;
 import java.time.Duration;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 /**
  * The NatsConsumer object creates a connection to the telematic nats server and subscribes to 
@@ -90,30 +93,37 @@ public class NatsConsumer {
      * This dispatcher is created to get the list of available topics for each unit that is stored in NATS
      */
     public void updateAvailableTopicList() {
-        logger.info("Creating dispatcher for all available topics");
+	String error_msg = "";
+    	try {
+            	Future<Message> future = nc.request("streets_id.available_topics", "test".getBytes(StandardCharsets.UTF_8));
+	        Message msg;
+            	msg = future.get();
+            	String reply = new String(msg.getData(), StandardCharsets.UTF_8);
+            	logger.debug("Available topics request. Reply: " + reply);
 
-        Dispatcher d = nc.createDispatcher((msg) -> {
-            String str = new String(msg.getData(), StandardCharsets.UTF_8);
-            logger.info("Received available_topic message: " + str);
+            	JSONObject jsonObject = new JSONObject(reply); 
+            	JSONArray topicList = jsonObject.getJSONArray("topics");
 
-            JSONObject jsonObject = new JSONObject(str); 
-            JSONArray topicList = jsonObject.getJSONArray("topics");
-
-            //Add the topics to the topic list if they don't already exist
-            for(int i=0; i<topicList.length(); i++) 
-            {
-                String topicName = topicList.getJSONObject(i).getString("name");
-                if (!topic_list.contains(topicName)) {
-                    topic_list.add(topicName);
-                    logger.info("Added to topic list: " + topicName);
-                }
-            }
+            	//Add the topics to the topic list if they don't already exist
+            	for(int i=0; i<topicList.length(); i++) 
+            	{
+                	String topicName = topicList.getJSONObject(i).getString("name");
+                	if (!topic_list.contains(topicName)) {
+                    		topic_list.add(topicName);
+                    		logger.info("Added to topic list: " + topicName);
+                	}
+            	}
             
-            //Update the old topic list variable for comparison in the status check method
-            topic_list_old = new ArrayList<String>(topic_list);
-        });
+            	//Update the old topic list variable for comparison in the status check method
+            	topic_list_old = new ArrayList<String>(topic_list);
 
-        d.subscribe("*.available_topics");
+        } catch (InterruptedException | ExecutionException e) {
+            error_msg = "Response interrupted for subject: ";
+            logger.error(error_msg, e);
+        } catch (CancellationException e) {
+            error_msg = "No response ";
+            logger.error(error_msg, e);
+        }
     }
 
     /**
