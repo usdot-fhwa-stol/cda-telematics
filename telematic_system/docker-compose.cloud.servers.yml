@@ -23,7 +23,7 @@ services:
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
-      - ALLOW_CLIENT_URL=<telematic-web-client-uri:port>
+      - ALLOW_CLIENT_URL=https://cav-telematics.com
       - GRAFANA_HTPASSWORD=/opt/apache2/grafana_htpasswd
       - SESSION_TIMEOUT=3600
       - SECRET=my_secret_telematic_ui
@@ -41,9 +41,9 @@ services:
     build:
       context: "./telematic_apps/web_app/client"
       args:
-        REACT_APP_MESSAGING_SERVER_URI: "<telematic-messaging-server-uri:port>"
-        REACT_APP_WEB_SERVER_URI: <telematic-web-server-uri:port>
-        REACT_APP_GRAFANA_URI: <grafana-uri:port>
+        REACT_APP_MESSAGING_SERVER_URI: "https://topic-service.cav-telematics.com"
+        REACT_APP_WEB_SERVER_URI: "https://ui-service.cav-telematics.com"
+        REACT_APP_GRAFANA_URI: "https://grafana.cav-telematics.com"
     restart: always
     network_mode: host
     depends_on:
@@ -55,8 +55,16 @@ services:
       context: "./telematic_apps/apache2"
     restart: always
     network_mode: host
+    environment:
+      - CLIENT_LOCAL_URL=http://127.0.0.1:8082/
+      - GRAFANA_LOCAL_URL=http://127.0.0.1:3000/
+      - TOPICSERVICE_LOCAL_URL=http://127.0.0.1:8080/
+      - UISERVICE_LOCAL_URL=http://127.0.0.1:9010/
     depends_on:
       - grafana
+      - telematic_messaging_server
+      - telematic_web_client
+      - telematic_web_server
     volumes:
       - /opt/apache2/grafana_htpasswd:/etc/apache2/grafana_htpasswd
 
