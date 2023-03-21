@@ -357,19 +357,8 @@ class StreetsNatsBridge():
             self.logger.info(
                 " In topic_request: Received a request to publish the following topics: " + str(requested_topics))
 
-            # Remove topics from subscribers list that weren't called in new request
-            for existing_topic in list(self.subscribers_list):
-                if (existing_topic not in requested_topics):
-                    try:
-                        self.logger.info('Trying to unsubscribe from topic: "%s"' % existing_topic)
-                        self.subscribers_list.remove(existing_topic)
-                    except:
-                        self.logger.error('Unable to unsubscribe from topic: "%s" '% existing_topic)
-
-            # Add requested topics to subscriber list if not already there
-            for topic in requested_topics:
-                if topic not in self.subscribers_list:
-                    self.subscribers_list.append(topic)
+            # Update subscriber list with the latest topic request
+            self.subscribers_list = requested_topics
 
             self.logger.info(
                 " In topic_request: UPDATED subscriber list: " + str(self.subscribers_list))
