@@ -357,7 +357,7 @@ class Ros2NatsBridgeNode(Node):
                 ordereddict_msg["timestamp"] = timestamp_microseconds
             #If no ROS timestamp is available, use the bridge time for the NATS message
             
-            if ordereddict_msg["timestamp"] == 0 or len(str(ordereddict_msg["timestamp"])) == 0 or len(str(ordereddict_msg["timestamp"])) == 1:
+            if "timestamp" not in ordereddict_msg or  ordereddict_msg["timestamp"] == 0 or len(str(ordereddict_msg["timestamp"])) == 0 or len(str(ordereddict_msg["timestamp"])) == 1:
                 ordereddict_msg["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # microseconds
             
             try:

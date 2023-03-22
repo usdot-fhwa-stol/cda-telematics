@@ -226,7 +226,7 @@ class StreetsNatsBridge():
                         message["timestamp"] = epoch_micro          
                         
                     #if no timestamp is provided in the kafka data, use the bridge time
-                    if message["timestamp"] == 0 or len(str(message["timestamp"])) == 0 or len(str(message["timestamp"])) == 1:
+                    if "timestamp" not in message or len(str(message["timestamp"])) == 0 or len(str(message["timestamp"])) == 1:
                         message["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # utc timestamp in microseconds
 
                     # telematic cloud server will look for topic names with the pattern ".data."
