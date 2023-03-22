@@ -102,12 +102,12 @@ public class NatsInfluxPush implements CommandLineRunner {
             unit_id_list = config.vehicle_unit_id_list;
         }
         else if(bucket_type.equals(Config.BucketType.STREETS)){
-            subscription_topic = config.platform_subscription_topic;
+            subscription_topic = config.streets_subscription_topic;
             data_type = "Streets";
             unit_id_list = config.streets_unit_id_list;
         }
         else if(bucket_type.equals(Config.BucketType.CLOUD)){
-            subscription_topic = config.platform_subscription_topic;
+            subscription_topic = config.cloud_subscription_topic;
             data_type = "Cloud";
             unit_id_list = config.cloud_unit_id_list;
         }

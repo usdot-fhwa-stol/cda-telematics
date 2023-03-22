@@ -159,9 +159,25 @@ public class NatsConsumer {
      * Create an asynchronous subsciption to available subjects and publish to influxdb using the InfluxDataWriter
      */
     public void async_subscribe(InfluxDataWriter influxDataWriter) {
-        //get current number of subjects subscribed to
+        logger.info(data_type + " NatsConsumer in async subscribe");
+
+        //get current size of the topic list
         int currentSize = topic_list.size();
-        int numberDispatchers = currentSize / topics_per_dispatcher;
+
+        //calculate the number of dispatchers to create based on the topic list size
+        int numberDispatchers;
+        //if topic list size smaller than topic_per_dispatcher just need one dispatcher
+        if (currentSize <= topics_per_dispatcher) {
+            numberDispatchers = 1;
+        }
+        //if there is a remainder in division, need to add 1 dispatcher 
+        else if ((currentSize % topics_per_dispatcher) > 0) {
+            numberDispatchers = (currentSize / topics_per_dispatcher) + 1;
+        }
+        //if the current size is a multiple of the topics_per_dispatcher, simply divide the two
+        else {
+            numberDispatchers = currentSize / topics_per_dispatcher;
+        }
         int subjectListIterator = 0;
 
         //Create desired number of dispatchers based on number of topics, and configured topic per dispatcher value
@@ -170,7 +186,24 @@ public class NatsConsumer {
 
             Dispatcher newDispatcher = createNewDispatcher(influxDataWriter);
             //Get the topics that this dispatcher should subscribe to
-            List<String> topicsToSubscribe = topic_list.subList(subjectListIterator, subjectListIterator+topics_per_dispatcher);
+            List<String> topicsToSubscribe = new ArrayList<String>();
+
+            //First check if the topic list is smaller than the topics_per_dispatcher
+            //If it is, the sublist will be have current_size number of elements
+            //NOTE: subList is between first parameter, exclusive, to second parameter, inclusive
+            if (currentSize < topics_per_dispatcher) {
+                topicsToSubscribe = topic_list.subList(subjectListIterator, subjectListIterator+currentSize);
+            }
+            //Next check if the iterator plus the topics_per_dispatcher will exceed the size of the topic list
+            //If it will, get the number of items remaining in the list and add that to the current iterator
+            else if ((subjectListIterator+topics_per_dispatcher) > topic_list.size())
+            {
+                topicsToSubscribe = topic_list.subList(subjectListIterator, subjectListIterator+(topic_list.size()-subjectListIterator)+1);
+            }
+            else {
+                topicsToSubscribe = topic_list.subList(subjectListIterator, subjectListIterator+topics_per_dispatcher);
+            }
+
             //Iterate through and subscribe to each topic
             for (String topic: topicsToSubscribe) {
                 //need to remove slashes from topic name to match nats subject format
