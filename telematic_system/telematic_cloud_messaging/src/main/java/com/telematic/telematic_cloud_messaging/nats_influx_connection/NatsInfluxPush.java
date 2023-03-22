@@ -69,8 +69,10 @@ public class NatsInfluxPush implements CommandLineRunner {
             config.influx_write_timeout = Integer.parseInt(prop.getProperty("INFLUX_WRITE_TIMEOUT"));
             config.nats_registered_units_uri = prop.getProperty("NATS_REGISTERED_UNITS_URI");
             config.topics_per_dispatcher = Integer.parseInt(prop.getProperty("NUMBER_TOPICS_PER_DISPATCHER"));
-            // config.nats_registered_units_uri = prop.getProperty("NATS_REGISTERED_UNITS_URI");
             config.nats_api = prop.getProperty("NATS_API");
+            config.vehicle_unit_id_list = prop.getProperty("VEHICLE_UNIT_ID_LIST");
+            config.streets_unit_id_list = prop.getProperty("STREETS_UNIT_ID_LIST");
+            config.cloud_unit_id_list = prop.getProperty("CLOUD_UNIT_ID_LIST");
 
             try{
                 config.influx_bucket_type = BucketType.valueOf(prop.getProperty("INFLUX_BUCKET_TYPE"));
@@ -90,20 +92,24 @@ public class NatsInfluxPush implements CommandLineRunner {
         // Create NATS and InfluxWriter
         logger.info("Created thread for " + bucket_type + " Data");
         
-        String influx_bucket = "";
+        String data_type = "";
         String subscription_topic = "";
+        String unit_id_list = "";
 
         if(bucket_type.equals(Config.BucketType.PLATFORM)){
-            influx_bucket = config.influx_bucket_platform;
             subscription_topic = config.platform_subscription_topic;
+            data_type = "Platform";
+            unit_id_list = config.vehicle_unit_id_list;
         }
         else if(bucket_type.equals(Config.BucketType.STREETS)){
-            influx_bucket = config.influx_bucket_streets;
-            subscription_topic = config.streets_subscription_topic;
+            subscription_topic = config.platform_subscription_topic;
+            data_type = "Streets";
+            unit_id_list = config.streets_unit_id_list;
         }
         else if(bucket_type.equals(Config.BucketType.CLOUD)){
-            influx_bucket = config.influx_bucket_cloud;
-            subscription_topic = config.cloud_subscription_topic;
+            subscription_topic = config.platform_subscription_topic;
+            data_type = "Cloud";
+            unit_id_list = config.cloud_unit_id_list;
         }
         else{
             Thread.currentThread().interrupt();
@@ -111,7 +117,7 @@ public class NatsInfluxPush implements CommandLineRunner {
         }
 
         NatsConsumer natsObject = new NatsConsumer(config.nats_uri, subscription_topic, config.nats_max_reconnects, 
-        config.nats_api, config.topics_per_dispatcher);
+        config.nats_api, config.topics_per_dispatcher, unit_id_list, data_type);
 
         InfluxDataWriter influxDataWriter = new InfluxDataWriter(config_, bucket_type);
 
@@ -131,7 +137,7 @@ public class NatsInfluxPush implements CommandLineRunner {
             }
         }
 
-        //populate topic list
+        //initially populate topic list
         natsObject.updateAvailableTopicList();
         //subscribe to data and publish
         natsObject.async_subscribe(influxDataWriter);

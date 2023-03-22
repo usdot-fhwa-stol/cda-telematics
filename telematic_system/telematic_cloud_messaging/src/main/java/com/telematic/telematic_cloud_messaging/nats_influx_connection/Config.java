@@ -59,7 +59,13 @@ public class Config {
     int topics_per_dispatcher;
     // API endpoint
     String nats_api;
-
+    // List of vehicle unit ids
+    String vehicle_unit_id_list;
+    // List of streets unit ids
+    String streets_unit_id_list;
+    // List of cloud unit ids
+    String cloud_unit_id_list;
+    
     public Config(){}
 
     // Converts config object parameters to a string
@@ -84,7 +90,10 @@ public class Config {
         "\ninflux_connect_timeout: " + influx_connect_timeout +
         "\ninflux_write_timeout: " + influx_write_timeout +
         "\nnats_topic_per_dispatcher: " + topics_per_dispatcher+
-        "\nnats_api: " + nats_api);
+        "\nnats_api: " + nats_api +
+        "\nvehicle_unit_id_list: " + vehicle_unit_id_list +
+        "\nstreets_unit_id_list: " + streets_unit_id_list +
+        "\ncloud_unit_id_list: " + cloud_unit_id_list);
 
         return config_str;
 

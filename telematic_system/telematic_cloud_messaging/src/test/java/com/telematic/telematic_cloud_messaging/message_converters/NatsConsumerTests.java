@@ -22,7 +22,9 @@ public class NatsConsumerTests {
             int nats_max_reconnects = 5;
             String nats_registered_units_uri = "http://ec2-44-206-13-7.compute-1.amazonaws.com:8080/registeredUnits";
             int topics_per_dispatcher = 3;
-            NatsConsumer natsObject = new NatsConsumer(nats_uri, nats_subscribe_str, nats_max_reconnects, nats_registered_units_uri, topics_per_dispatcher);
+            String unit_id_list = "cloud_id, streets_id";
+            NatsConsumer natsObject = new NatsConsumer(nats_uri, nats_subscribe_str, nats_max_reconnects, nats_registered_units_uri,
+            topics_per_dispatcher, unit_id_list, "streets");
             assertTrue(natsObject.getNatsConnected() == false);
             
             assertTrue(natsObject.getNatsURI().equals(nats_uri));
