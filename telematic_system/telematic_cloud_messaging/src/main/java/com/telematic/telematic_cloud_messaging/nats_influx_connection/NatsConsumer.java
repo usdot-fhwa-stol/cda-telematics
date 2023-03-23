@@ -187,12 +187,13 @@ public class NatsConsumer {
             //Get the topics that this dispatcher should subscribe to
             List<String> topicsToSubscribe = new ArrayList<String>();
 
-            //First check if the (currentSize - topicListIterator) is smaller than the topics_per_dispatcher
-            //If it is, the sublist will be have current_size number of elements
+            //First check if the (newTopicListSize - iterator) is smaller than the topics_per_dispatcher
+            //If it is, the sublist will start at the iterator and go to the end of the list
             //NOTE: subList is between first parameter, inlusive, to second parameter, exclusive
             if ((newTopicListSize - iterator) < topics_per_dispatcher) {
                 topicsToSubscribe = newTopicList.subList(iterator, newTopicListSize);
             }
+            //Get the next topics_per_dispatcher elements and update the iterator
             else {
                 topicsToSubscribe = newTopicList.subList(iterator, iterator+topics_per_dispatcher);
 
@@ -224,7 +225,7 @@ public class NatsConsumer {
         List<String> currentListCopy =  new ArrayList<String>(topic_list);
         currentListCopy.removeAll(topic_list_old);
 
-        //Check if there are newly added elements
+        //Check if there are newly added elements and create dispatchers using async_subscribe
         if (currentListCopy.size() > 0)
         {
             this.async_subscribe(influxDataWriter, currentListCopy);
