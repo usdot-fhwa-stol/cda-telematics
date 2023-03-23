@@ -13,9 +13,6 @@ import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValueP
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.Duration;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.concurrent.CancellationException;
