@@ -94,7 +94,7 @@ const UnitTopicList = React.memo((props) => {
         //clear the refresh  button status
         setRefreshMsg('');
         //clear TopicContext for all seleted topics of current units
-        TopicCtx.removeUnits(selectedUnitIdentifiers);        
+        TopicCtx.removeUnits(selectedUnitIdentifiers); 
     };
 
     //Refresh button click to send request to server to get latest list of available topics for the current selected units
