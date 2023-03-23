@@ -41,7 +41,7 @@ const Login = React.memo(() => {
         //Checking if login is successful
         status.then(resData => {
             if (resData.errCode !== undefined) {
-                setLoginErrMsg('Your username or password is incorrect!');
+                setLoginErrMsg(resData.errMsg);
                 setLoginState(false);
                 return;
             }

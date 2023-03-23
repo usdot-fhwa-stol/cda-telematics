@@ -6,7 +6,7 @@ import axios, { CanceledError } from 'axios';
  * @Return Response status and save a bulk of topics for each event and unit combination
  */
 const createDefaultTopicsByEventUnits = async (seletedUnitsTopics, user_id) => {
-  const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/default_event_topics/create`
+  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/default_event_topics/create`
   let event_id = 0;
   let unit_identifiers = [];
   seletedUnitsTopics.forEach(element => {
@@ -34,7 +34,7 @@ const createDefaultTopicsByEventUnits = async (seletedUnitsTopics, user_id) => {
  * @Return Response status and load a bulk of topics for each event and list of units for the event
  */
 const findAllDefaultTopicsByEventUnits = async (event_id, selectedUnitIdentifiers, user_id) => {
-  const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/default_event_topics/all`
+  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/default_event_topics/all`
   if (selectedUnitIdentifiers.length === 0 || event_id === 0 || event_id === undefined) {
     return { errCode: CanceledError.ERR_BAD_REQUEST, errMsg: "Event id or units cannot be empty" };
   }
@@ -55,4 +55,5 @@ const findAllDefaultTopicsByEventUnits = async (event_id, selectedUnitIdentifier
   }
 }
 
-export { createDefaultTopicsByEventUnits, findAllDefaultTopicsByEventUnits }
+export { createDefaultTopicsByEventUnits, findAllDefaultTopicsByEventUnits };
+

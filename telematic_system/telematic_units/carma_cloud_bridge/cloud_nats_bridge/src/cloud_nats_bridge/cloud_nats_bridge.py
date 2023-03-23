@@ -391,14 +391,8 @@ class CloudNatsBridge():
             requested_topics = data['topics']
             self.logger.info(" In topic_request: Received a request to publish/remove the following topics: " + str(requested_topics))
 
-            # Add requested topics to subscriber list if not already there, remove if already there
-            for topic in requested_topics:
-                if topic not in self.subscribers_list:
-                    self.subscribers_list.append(topic)
-
-            for subscribed_topic in self.subscribers_list:
-                if subscribed_topic not in requested_topics:
-                    self.subscribers_list.remove(subscribed_topic)
+            # Update subscriber list with the latest topic request
+            self.subscribers_list = requested_topics
 
             self.logger.info(" In topic_request: UPDATED subscriber list: " + str(self.subscribers_list))
 
