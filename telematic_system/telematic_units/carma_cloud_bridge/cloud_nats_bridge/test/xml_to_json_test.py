@@ -1,9 +1,21 @@
 import pytest
 import sys
 sys.path.insert(1, '../src')
-from cloud_nats_bridge import CloudNatsBridge
+import unittest
+import cloud_nats_bridge
+from cloud_nats_bridge import cloud_nats_bridge
+from cloud_nats_bridge.cloud_nats_bridge import CloudNatsBridge
+import os
 
-if __name__ == '__main__':
+def test_main():
+    # Set environment variables
+    os.environ["CARMA_CLOUD_BRIDGE_LOG_ROTATION_SIZE_BYTES"] = "1"
+    os.environ["CARMA_CLOUD_LOG"]= os.getcwd() + "/sample_cc_log.log"
+    os.environ["CARMA_CLOUD_BRIDGE_LOG_NAME"]="cloud_nats_bridge"
+    os.environ["CARMA_CLOUD_BRIDGE_LOG_HANDLER"]="console"
+
+    os.environ["CLOUD_BRIDGE_EXCLUSION_LIST"]=""
+
     cloud_nats_bridge = CloudNatsBridge()
     
     #invalid tcr xml with "<" removed
@@ -18,3 +30,7 @@ if __name__ == '__main__':
 
     #Verify valid xml returns correct json
     assert (str(cloud_nats_bridge.xmlToJson(validTcrXML)) == validTcrJson)
+
+
+if __name__ == '__main__':
+    unittest.main()
