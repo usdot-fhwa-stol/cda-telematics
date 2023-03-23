@@ -137,10 +137,7 @@ public class NatsInfluxPush implements CommandLineRunner {
             }
         }
 
-        //initially populate topic list
-        natsObject.updateAvailableTopicList();
         //subscribe to data and publish
-        natsObject.async_subscribe(influxDataWriter);
         logger.info("Waiting for data from nats..");
 
         //Initialize thread that will check for new topics and create dispatchers every 30 seconds
@@ -160,6 +157,7 @@ public class NatsInfluxPush implements CommandLineRunner {
             }
         };
         update_topic_thread.start();
+        logger.info("Update topic thread started");
     }
 
     /**

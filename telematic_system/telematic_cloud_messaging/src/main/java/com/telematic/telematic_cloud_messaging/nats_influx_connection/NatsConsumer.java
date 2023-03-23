@@ -39,7 +39,7 @@ public class NatsConsumer {
     int topics_per_dispatcher;
     List<String> unit_id_list;
     String data_type;
-    int subjectListIterator = 0;
+    int topicListIterator = 0;
     private static final Logger logger = LoggerFactory.getLogger(NatsConsumer.class);
 
     /**
@@ -159,29 +159,25 @@ public class NatsConsumer {
     /**
      * Create an asynchronous subsciption to available subjects and publish to influxdb using the InfluxDataWriter
      */
-    public void async_subscribe(InfluxDataWriter influxDataWriter) {
+    public void async_subscribe(InfluxDataWriter influxDataWriter, List<String> newTopicList) {
         logger.info(data_type + " NatsConsumer in async subscribe");
 
-        //get current size of the topic list
-        int currentSize = topic_list.size();
-
-        //compare with the current iterator value
-        int offset = currentSize - subjectListIterator;
+        //get size of the new topic list
+        int newTopicListSize = newTopicList.size();
 
         //calculate the number of dispatchers to create based on the topic list size
-        int numberDispatchers;
-        //if topic list size smaller than topic_per_dispatcher just need one dispatcher
-        if (offset <= topics_per_dispatcher) {
-            numberDispatchers = 1;
-        }
+        int numberDispatchers = 1;
+        
         //if there is a remainder in division, need to add 1 dispatcher 
-        else if ((offset % topics_per_dispatcher) > 0) {
-            numberDispatchers = (offset / topics_per_dispatcher) + 1;
+        if ((newTopicListSize % topics_per_dispatcher) > 0) {
+            numberDispatchers = (newTopicListSize / topics_per_dispatcher) + 1;
         }
-        //if the current size is a multiple of the topics_per_dispatcher, simply divide the two
+        //if the new topic list size is a multiple of the topics_per_dispatcher, simply divide the two
         else {
-            numberDispatchers = offset / topics_per_dispatcher;
+            numberDispatchers = newTopicListSize / topics_per_dispatcher;
         }
+
+        int iterator = 0;
 
         //Create desired number of dispatchers based on number of topics, and configured topic per dispatcher value
         for (int i = 0; i < numberDispatchers; i++) {
@@ -191,20 +187,16 @@ public class NatsConsumer {
             //Get the topics that this dispatcher should subscribe to
             List<String> topicsToSubscribe = new ArrayList<String>();
 
-            //First check if the (currentSize - subjectListIterator) is smaller than the topics_per_dispatcher
+            //First check if the (currentSize - topicListIterator) is smaller than the topics_per_dispatcher
             //If it is, the sublist will be have current_size number of elements
-            //NOTE: subList is between first parameter, exclusive, to second parameter, inclusive
-            if (offset < topics_per_dispatcher) {
-                topicsToSubscribe = topic_list.subList(subjectListIterator, subjectListIterator+offset);
-            }
-            //Next check if the iterator plus the topics_per_dispatcher will exceed the size of the topic list
-            //If it will, get the number of items remaining in the list and add that to the current iterator
-            else if ((subjectListIterator+topics_per_dispatcher) > currentSize)
-            {
-                topicsToSubscribe = topic_list.subList(subjectListIterator, subjectListIterator+offset+1);
+            //NOTE: subList is between first parameter, inlusive, to second parameter, exclusive
+            if ((newTopicListSize - iterator) < topics_per_dispatcher) {
+                topicsToSubscribe = newTopicList.subList(iterator, newTopicListSize);
             }
             else {
-                topicsToSubscribe = topic_list.subList(subjectListIterator, subjectListIterator+topics_per_dispatcher);
+                topicsToSubscribe = newTopicList.subList(iterator, iterator+topics_per_dispatcher);
+
+                iterator += topics_per_dispatcher;
             }
 
             //Iterate through and subscribe to each topic
@@ -214,8 +206,6 @@ public class NatsConsumer {
                 newDispatcher.subscribe(nats_subscribe_str+topicStr);
                 logger.info(data_type + " NatsConsumer dispatcher " + String.valueOf(i) + " subscribed to " + nats_subscribe_str+topicStr);
             }
-            //Update the iterator to move to the next set of topics
-            subjectListIterator = subjectListIterator + topics_per_dispatcher;
         }       
     }
 
@@ -237,16 +227,8 @@ public class NatsConsumer {
         //Check if there are newly added elements
         if (currentListCopy.size() > 0)
         {
-            this.async_subscribe(influxDataWriter);
+            this.async_subscribe(influxDataWriter, currentListCopy);
         }
-        //Create a new dispatcher for each new topic
-        // for (String topic: currentListCopy) 
-        // {
-        //     Dispatcher newDispatcher = createNewDispatcher(influxDataWriter);
-        //     //need to remove slashes from topic name to match nats subject format
-        //     String topicStr = topic.replace("/", "");
-        //     newDispatcher.subscribe(nats_subscribe_str+topicStr);
-        //     logger.info(data_type + " NatsConsumer creating new dispatcher for " + nats_subscribe_str+topicStr);
-        // }
+        
     }
 }
