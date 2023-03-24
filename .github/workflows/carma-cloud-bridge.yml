@@ -26,7 +26,7 @@ jobs:
       options: --user root
     steps:
       - uses: actions/checkout@v3
-      - run: sudo apt update && sudo apt -y install python3-coverage python3-pytest ros-foxy-rclpy && sudo apt -y install glibc-source && sudo apt -y install libc6
+      - run: sudo apt update && sudo apt -y install python3-coverage python3-pytest python3-watchdog ros-foxy-rclpy && sudo apt -y install glibc-source && sudo apt -y install libc6
       - name: Install dep
         run: python3 -m pip install -r ./telematic_system/telematic_units/carma_cloud_bridge/requirements.txt
       - run: ls -la && source /opt/ros/foxy/setup.bash && cd ./telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/test/ && python3 -m coverage run -m pytest && python3 -m coverage xml
