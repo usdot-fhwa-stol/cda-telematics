@@ -53,7 +53,15 @@ public class Config {
     int influx_connect_timeout;
     // Time in milliseconds after which the request to write data to the influxdb bucket times out
     int influx_write_timeout;
-
+    // Maximum number of topics to assign to dispatcher
+    int topics_per_dispatcher;
+    // List of vehicle unit ids
+    String vehicle_unit_id_list;
+    // List of streets unit ids
+    String streets_unit_id_list;
+    // List of cloud unit ids
+    String cloud_unit_id_list;
+    
     public Config(){}
 
     // Converts config object parameters to a string
@@ -76,7 +84,11 @@ public class Config {
         "\ninflux_pwd: " + influx_pwd +
         "\nnats_max_reconnects: " + nats_max_reconnects +
         "\ninflux_connect_timeout: " + influx_connect_timeout +
-        "\ninflux_write_timeout: " + influx_write_timeout);
+        "\ninflux_write_timeout: " + influx_write_timeout +
+        "\nnats_topic_per_dispatcher: " + topics_per_dispatcher+
+        "\nvehicle_unit_id_list: " + vehicle_unit_id_list +
+        "\nstreets_unit_id_list: " + streets_unit_id_list +
+        "\ncloud_unit_id_list: " + cloud_unit_id_list);
 
         return config_str;
 

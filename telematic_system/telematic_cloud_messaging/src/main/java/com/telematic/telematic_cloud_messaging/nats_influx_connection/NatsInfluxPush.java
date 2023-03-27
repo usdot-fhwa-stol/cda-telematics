@@ -67,6 +67,10 @@ public class NatsInfluxPush implements CommandLineRunner {
             config.influx_token = prop.getProperty("INFLUX_TOKEN");
             config.influx_connect_timeout = Integer.parseInt(prop.getProperty("INFLUX_CONNECT_TIMEOUT"));
             config.influx_write_timeout = Integer.parseInt(prop.getProperty("INFLUX_WRITE_TIMEOUT"));
+            config.topics_per_dispatcher = Integer.parseInt(prop.getProperty("NUMBER_TOPICS_PER_DISPATCHER"));
+            config.vehicle_unit_id_list = prop.getProperty("VEHICLE_UNIT_ID_LIST");
+            config.streets_unit_id_list = prop.getProperty("STREETS_UNIT_ID_LIST");
+            config.cloud_unit_id_list = prop.getProperty("CLOUD_UNIT_ID_LIST");
 
             try{
                 config.influx_bucket_type = BucketType.valueOf(prop.getProperty("INFLUX_BUCKET_TYPE"));
@@ -86,27 +90,32 @@ public class NatsInfluxPush implements CommandLineRunner {
         // Create NATS and InfluxWriter
         logger.info("Created thread for " + bucket_type + " Data");
         
-        String influx_bucket = "";
+        String unit_type = "";
         String subscription_topic = "";
+        String unit_id_list = "";
 
         if(bucket_type.equals(Config.BucketType.PLATFORM)){
-            influx_bucket = config.influx_bucket_platform;
             subscription_topic = config.platform_subscription_topic;
+            unit_type = "Platform";
+            unit_id_list = config.vehicle_unit_id_list;
         }
         else if(bucket_type.equals(Config.BucketType.STREETS)){
-            influx_bucket = config.influx_bucket_streets;
             subscription_topic = config.streets_subscription_topic;
+            unit_type = "Streets";
+            unit_id_list = config.streets_unit_id_list;
         }
         else if(bucket_type.equals(Config.BucketType.CLOUD)){
-            influx_bucket = config.influx_bucket_cloud;
             subscription_topic = config.cloud_subscription_topic;
+            unit_type = "Cloud";
+            unit_id_list = config.cloud_unit_id_list;
         }
         else{
             Thread.currentThread().interrupt();
             logger.error("Invalid data type for pushing Influx data");
         }
 
-        NatsConsumer natsObject = new NatsConsumer(config.nats_uri, subscription_topic, config.nats_max_reconnects);
+        NatsConsumer natsObject = new NatsConsumer(config.nats_uri, subscription_topic, config.nats_max_reconnects, 
+        config.topics_per_dispatcher, unit_id_list, unit_type);
 
         InfluxDataWriter influxDataWriter = new InfluxDataWriter(config_, bucket_type);
 
@@ -125,10 +134,28 @@ public class NatsInfluxPush implements CommandLineRunner {
                 logger.info("Couldn't connect to influx or nats, retrying..");
             }
         }
-       
+
         //subscribe to data and publish
-        natsObject.async_subscribe(influxDataWriter);
         logger.info("Waiting for data from nats..");
+
+        //Initialize thread that will check for new topics and create dispatchers every 30 seconds
+        Thread update_topic_thread = new Thread() {
+            public void run() {
+                while(true) {
+                    natsObject.unitStatusCheck(influxDataWriter);
+                    try {
+                        Thread.sleep(30000);
+                    }
+                    catch (InterruptedException e)
+                    {
+                        Thread.currentThread().interrupt();
+                        logger.info("Update topic thread sleeping..");
+                    }
+                }
+            }
+        };
+        update_topic_thread.start();
+        logger.info("Update topic thread started");
     }
 
     /**

@@ -93,7 +93,11 @@ This node creates a bridge between nats and ros and enables the software to publ
 
 	The IP address of nats server.
 
-
+#### Available topics
+- Sample response for available topics from carma platform
+	```
+	{"unit_id": "DOT-45244", "unit_type": "platform", "unit_name": "BlueLexus", "timestamp": "1678998191815233965", "event_name": "wfd_full_integration_testing", "location": "TFHRC", "testing_type": "Integration", "topics": [{"name": "/environment/tcr_bounding_points", "type": "carma_v2x_msgs/msg/TrafficControlRequestPolygon"}, {"name": "/guidance/cooperative_lane_change_status", "type": "carma_planning_msgs/msg/LaneChangeStatus"}, {"name": "/hardware_interface/as/pacmod/parsed_tx/accel_rpt", "type": "pacmod3_msgs/msg/SystemRptFloat"}, {"name": "/hardware_interface/as/pacmod/parsed_tx/brake_rpt", "type": "pacmod3_msgs/msg/SystemRptFloat"}, {"name": "/hardware_interface/vehicle/twist", "type": "geometry_msgs/msg/TwistStamped"}, {"name": "/localization/current_pose", "type": "geometry_msgs/msg/PoseStamped"}, {"name": "/localization/gnss_pose", "type": "geometry_msgs/msg/PoseStamped"}, {"name": "/message/bsm_outbound", "type": "carma_v2x_msgs/msg/BSM"}, {"name": "/message/outgoing_geofence_request", "type": "carma_v2x_msgs/msg/TrafficControlRequest"}, {"name": "/parameter_events", "type": "rcl_interfaces/msg/ParameterEvent"}, {"name": "/rosout", "type": "rcl_interfaces/msg/Log"}]}
+	```
 
 ## Bugs & Feature Requests
 
