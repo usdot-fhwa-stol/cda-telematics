@@ -218,14 +218,15 @@ class StreetsNatsBridge():
                         message["timestamp"] = timestamp
                     #do special conversion for spat message using moy
                     elif topic == "modified_spat":
-                        timestamp = int(message["payload"]["time_stamp"])
+                        timestamp = int(message["payload"]["intersections"][0]["time_stamp"])
                         moy = int(message["payload"]["intersections"][0]["moy"])
                         #Use moy and timestamp fields to get epoch time for each record
                         epoch_micro = int((moy* minuteToMilli) + timestamp + first_day_epoch)*milliToMicro #convert moy to microseconds    
 
                         message["timestamp"] = epoch_micro          
-                    #if no timestamp is provided in the kafka data, use the bridge time
-                    else:
+                        
+                    #if no timestamp (unit of microsecond that has at least 16 digits) is provided in the kafka data, use the bridge time
+                    if "timestamp" not in message or len(str(message["timestamp"])) < 16:
                         message["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # utc timestamp in microseconds
 
                     # telematic cloud server will look for topic names with the pattern ".data."
@@ -357,19 +358,8 @@ class StreetsNatsBridge():
             self.logger.info(
                 " In topic_request: Received a request to publish the following topics: " + str(requested_topics))
 
-            # Remove topics from subscribers list that weren't called in new request
-            for existing_topic in list(self.subscribers_list):
-                if (existing_topic not in requested_topics):
-                    try:
-                        self.logger.info('Trying to unsubscribe from topic: "%s"' % existing_topic)
-                        self.subscribers_list.remove(existing_topic)
-                    except:
-                        self.logger.error('Unable to unsubscribe from topic: "%s" '% existing_topic)
-
-            # Add requested topics to subscriber list if not already there
-            for topic in requested_topics:
-                if topic not in self.subscribers_list:
-                    self.subscribers_list.append(topic)
+            # Update subscriber list with the latest topic request
+            self.subscribers_list = requested_topics
 
             self.logger.info(
                 " In topic_request: UPDATED subscriber list: " + str(self.subscribers_list))

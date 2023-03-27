@@ -31,7 +31,7 @@ const getAvailableLiveTopicsByEventUnits = async (selectedUnitIdentifiers) => {
 const requestSelectedLiveUnitsTopics = async (seletedUnitTopicListToConfirm) => {
     const URL = `${process.env.REACT_APP_MESSAGING_SERVER_URI}/requestSelectedTopics`;
     let sentStatus = [];
-    await Promise.all(seletedUnitTopicListToConfirm.map(async selectdUnitTopics => {
+    return await Promise.all(seletedUnitTopicListToConfirm.map(async selectdUnitTopics => {
         let body = {
             unit_id: selectdUnitTopics.unit_identifier,
             unit_name: selectdUnitTopics.unit_name,
@@ -57,8 +57,8 @@ const requestSelectedLiveUnitsTopics = async (seletedUnitTopicListToConfirm) => 
                 errMsg: err.response !== undefined ? unitStatus + err.response.statusText + err.response.data : unitStatus + "No reponse from server."
             });
         }
+        return sentStatus;
     }));
-    return sentStatus;
 }
 
 export { getAvailableLiveTopicsByEventUnits, requestSelectedLiveUnitsTopics }

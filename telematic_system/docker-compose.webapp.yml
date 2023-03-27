@@ -1,0 +1,74 @@
+version: "3"
+services:
+  telematic_web_server:
+      build:
+        context: "./telematic_apps/web_app/server"
+      restart: always
+      logging:
+        options:
+          max-size: "10m"
+          max-file: "1"
+      network_mode: host
+      environment:
+        - NODE_ENV=development
+        - CHOKIDAR_USEPOLLING=true
+        - ALLOW_CLIENT_URL=<telematic-web-client-uri>
+        - GRAFANA_HTPASSWORD=/opt/apache2/grafana_htpasswd
+        - SESSION_TIMEOUT=3600
+        - SECRET=my_secret_telematic_ui
+        # Server port
+        - PORT=9010
+        # MYSQL DB credentials. Need to be replaced with actual MYSQL DB during deployment
+        - DB_HOST=<DB_HOST>
+        - DB_USER=<DB_USER>
+        - DB_PASSWORD=<DB_PASSWORD>
+        - GRAFANA_DB=<GRAFANA_DB>
+      volumes:
+        - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
+
+  telematic_web_client:
+    build:
+      context: "./telematic_apps/web_app/client"
+      args:
+        REACT_APP_MESSAGING_SERVER_URI: "<telematic-cloud-messaging-server-uri>"
+        REACT_APP_WEB_SERVER_URI: <telematic-web-server-uri>
+        REACT_APP_GRAFANA_URI: <grafana-uri>
+    restart: always
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "1"
+    network_mode: host
+    depends_on:
+      - telematic_web_server
+
+  apache2:
+    build:
+      context: "./telematic_apps/apache2"
+    restart: always
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "1"
+    network_mode: host
+    depends_on:
+      - grafana
+    volumes:
+      - /opt/apache2/grafana_htpasswd:/etc/apache2/grafana_htpasswd
+
+  grafana:
+    build:
+      context: "./telematic_apps/grafana"
+    restart: always
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "1"
+    network_mode: host
+    volumes:
+      - /opt/grafana/logs:/var/log/grafana
+      - ./telematic_apps/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - /opt/grafana/data:/var/lib/grafana
+      - /opt/grafana/provisioning:/home/grafana/conf/provisioning
+      - /home/ubuntu/.aws/credentials:/usr/share/grafana/.aws/credentials
+    user: "472" #grafana user id

@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const registerNewUser = async (username, email, password, org_id) => {
-    const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/users/register`
+    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/register`
 
     try {
         const { data } = await axios.post(URL, {
@@ -18,7 +18,7 @@ const registerNewUser = async (username, email, password, org_id) => {
 }
 
 const updatePassword = async (username, email, new_password) => {
-    const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/users/forget/password`
+    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/forget/password`
     try {
         const { data } = await axios.post(URL, {
             username: username,
@@ -33,7 +33,7 @@ const updatePassword = async (username, email, new_password) => {
 }
 
 const loginUser = async (username, password) => {
-    const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/users/login`
+    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/login`
     try {
         const { data } = await axios.post(URL, {
             username: username,
@@ -42,13 +42,13 @@ const loginUser = async (username, password) => {
         return data;
     } catch (err) {
         console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        return { errCode: err.response !==undefined ? err.response.status: err.code, errMsg: err.response!==undefined && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !==undefined? err.response.statusText : err.message)}
     }
 }
 
 
 const deleteUser = async (username) => {
-    const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/users/delete`
+    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/delete`
 
     try {
         const { data } = await axios.delete(URL + "?username=" + username, { withCredentials: true });
@@ -61,7 +61,7 @@ const deleteUser = async (username) => {
 
 
 const listUsers = async () => {
-    const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/users/all`
+    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/all`
 
     try {
         const { data } = await axios.get(URL, { withCredentials: true });
@@ -72,7 +72,7 @@ const listUsers = async () => {
     }
 }
 const updateUserServerAdmin = async (req) => {
-    const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/users/update/server/admin`
+    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/update/server/admin`
     try {
         const { data } = await axios.post(URL, req, { withCredentials: true });
         return data;
@@ -82,7 +82,7 @@ const updateUserServerAdmin = async (req) => {
     }
 }
 const checkServerSession = async () => {
-    const URL = `${window.location.protocol}//${window.location.hostname}:9010/api/users/ping`
+    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/ping`
     try {
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;

@@ -16,6 +16,6 @@ WORKDIR /ws
 
 ADD cloud_nats_bridge src/cloud_nats_bridge
 
-WORKDIR /ws/src/cloud_nats_bridge/src
+WORKDIR /ws/src/cloud_nats_bridge/src/cloud_nats_bridge
 
 CMD [ "python", "-u", "main.py" ]
