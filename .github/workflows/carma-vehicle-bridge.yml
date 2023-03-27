@@ -26,7 +26,7 @@ jobs:
       options: --user root
     steps:
       - uses: actions/checkout@v3
-      - run: sudo apt update && sudo apt -y install python3-coverage python3-pytest ros-foxy-rclpy
+      - run: sudo apt update && sudo apt -y install python3-coverage python3-pytest python3-watchdog python3-xmltodict ros-foxy-rclpy
       - run: python3 -m pip install nats-py
       - run: source /opt/ros/foxy/setup.bash && python3 -m coverage run -m pytest
         shell: bash
