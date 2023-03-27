@@ -26,30 +26,36 @@ import java.util.Arrays;
  * that is used to publish the received data to the Influx database.
  */
 public class NatsConsumer {
+    //URI where the NATS service is hosted
     String nats_uri;
+    //Number of reconnect attempts to make to NATS
     int nats_max_reconnects;
+    //String used for subscribing to various subjects
     String nats_subscribe_str;
+    //boolean for if we are connected to NATS
     boolean nats_connected;
+    //connection object
     Connection nc;
+    //global list of all available topics from registered units
     List<String> topic_list;
-    String nats_api;
+    //configurable int used for number of topics to assign per dispatcher
     int topics_per_dispatcher;
+    //list of registered unts
     List<String> unit_id_list;
+    //String for if this NatsConsumer is assigned to platform, streets, or cloud data
     String data_type;
-    int topicListIterator = 0;
     private static final Logger logger = LoggerFactory.getLogger(NatsConsumer.class);
 
     /**
      * Constructor to instantiate NatsConsumer object
      */
-    public NatsConsumer(String nats_uri, String nats_subscribe_str, int nats_max_reconnects, String nats_api, int topics_per_dispatcher,
+    public NatsConsumer(String nats_uri, String nats_subscribe_str, int nats_max_reconnects, int topics_per_dispatcher,
     String unit_ids, String data_type) {
         logger.info(data_type + " creating new NatsConsumer");
 
         this.nats_uri = nats_uri;
         this.nats_subscribe_str = nats_subscribe_str;
         this.nats_max_reconnects = nats_max_reconnects;
-        this.nats_api = nats_api;
         this.topics_per_dispatcher = topics_per_dispatcher;
         this.data_type = data_type;
 
@@ -208,7 +214,8 @@ public class NatsConsumer {
     }
 
     /**
-     * This will be run every minute to check if the registered units have changed and update the topic list accordingly
+     * This will be run every 30 seconds to update the global topic list variable and call async_subscribe
+     * to create dispatchers for these new topics
      */
     public void unitStatusCheck(InfluxDataWriter influxDataWriter) {
         logger.info(data_type + " NatsConsumer checking for new topics");
@@ -220,6 +227,8 @@ public class NatsConsumer {
 
         //Create a copy of the current topic list and compare with the old topic list copy
         List<String> currentListCopy =  new ArrayList<String>(topic_list);
+        //Remove all variable that were in the topic_list_old variable. This leaves only the new topics
+        //in this currentListCopy variable
         currentListCopy.removeAll(topic_list_old);
 
         //Check if there are newly added elements and create dispatchers using async_subscribe

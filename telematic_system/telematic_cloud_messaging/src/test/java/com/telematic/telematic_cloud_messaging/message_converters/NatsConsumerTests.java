@@ -20,10 +20,9 @@ public class NatsConsumerTests {
             String nats_uri = "127.0.0.1"; //edit to aws nats ipv4
             String nats_subscribe_str = "*.data.*";
             int nats_max_reconnects = 5;
-            String nats_registered_units_uri = "http://ec2-44-206-13-7.compute-1.amazonaws.com:8080/registeredUnits";
             int topics_per_dispatcher = 3;
             String unit_id_list = "cloud_id, streets_id";
-            NatsConsumer natsObject = new NatsConsumer(nats_uri, nats_subscribe_str, nats_max_reconnects, nats_registered_units_uri,
+            NatsConsumer natsObject = new NatsConsumer(nats_uri, nats_subscribe_str, nats_max_reconnects,
             topics_per_dispatcher, unit_id_list, "streets");
             assertTrue(natsObject.getNatsConnected() == false);
             
