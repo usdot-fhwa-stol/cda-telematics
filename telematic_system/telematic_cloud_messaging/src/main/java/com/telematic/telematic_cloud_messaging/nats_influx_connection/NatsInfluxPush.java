@@ -90,23 +90,23 @@ public class NatsInfluxPush implements CommandLineRunner {
         // Create NATS and InfluxWriter
         logger.info("Created thread for " + bucket_type + " Data");
         
-        String data_type = "";
+        String unit_type = "";
         String subscription_topic = "";
         String unit_id_list = "";
 
         if(bucket_type.equals(Config.BucketType.PLATFORM)){
             subscription_topic = config.platform_subscription_topic;
-            data_type = "Platform";
+            unit_type = "Platform";
             unit_id_list = config.vehicle_unit_id_list;
         }
         else if(bucket_type.equals(Config.BucketType.STREETS)){
             subscription_topic = config.streets_subscription_topic;
-            data_type = "Streets";
+            unit_type = "Streets";
             unit_id_list = config.streets_unit_id_list;
         }
         else if(bucket_type.equals(Config.BucketType.CLOUD)){
             subscription_topic = config.cloud_subscription_topic;
-            data_type = "Cloud";
+            unit_type = "Cloud";
             unit_id_list = config.cloud_unit_id_list;
         }
         else{
@@ -115,7 +115,7 @@ public class NatsInfluxPush implements CommandLineRunner {
         }
 
         NatsConsumer natsObject = new NatsConsumer(config.nats_uri, subscription_topic, config.nats_max_reconnects, 
-        config.topics_per_dispatcher, unit_id_list, data_type);
+        config.topics_per_dispatcher, unit_id_list, unit_type);
 
         InfluxDataWriter influxDataWriter = new InfluxDataWriter(config_, bucket_type);
 
