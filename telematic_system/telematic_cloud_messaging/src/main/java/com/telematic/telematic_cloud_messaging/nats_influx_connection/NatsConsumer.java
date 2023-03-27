@@ -43,27 +43,27 @@ public class NatsConsumer {
     //list of registered unts
     List<String> unit_id_list;
     //String for if this NatsConsumer is assigned to platform, streets, or cloud data
-    String data_type;
+    String unit_type;
     private static final Logger logger = LoggerFactory.getLogger(NatsConsumer.class);
 
     /**
      * Constructor to instantiate NatsConsumer object
      */
     public NatsConsumer(String nats_uri, String nats_subscribe_str, int nats_max_reconnects, int topics_per_dispatcher,
-    String unit_ids, String data_type) {
-        logger.info(data_type + " creating new NatsConsumer");
+    String unit_ids, String unit_type) {
+        logger.info(unit_type + " creating new NatsConsumer");
 
         this.nats_uri = nats_uri;
         this.nats_subscribe_str = nats_subscribe_str;
         this.nats_max_reconnects = nats_max_reconnects;
         this.topics_per_dispatcher = topics_per_dispatcher;
-        this.data_type = data_type;
+        this.unit_type = unit_type;
 
         nats_connected = false;
         nc = null;
         topic_list = new ArrayList<String>();
         unit_id_list = Arrays.asList(unit_ids.split(","));
-        logger.info(data_type + " NatsConsumer unit id list: " + unit_id_list);
+        logger.info(unit_type + " NatsConsumer unit id list: " + unit_id_list);
     }
 
     /**
@@ -88,7 +88,7 @@ public class NatsConsumer {
         try {
             Options options = new Options.Builder().server(nats_uri).maxReconnects(nats_max_reconnects).build();
             nc = Nats.connect(options);
-            logger.info(data_type + " NatsConsumer successfully connected to nats server");
+            logger.info(unit_type + " NatsConsumer successfully connected to nats server");
 
             nats_connected = true;
         }
@@ -113,7 +113,7 @@ public class NatsConsumer {
                 Message msg;
                 msg = future.get();
                 String reply = new String(msg.getData(), StandardCharsets.UTF_8);
-                logger.debug(data_type + " NatsConsumer available topics request. Reply: " + reply);
+                logger.debug(unit_type + " NatsConsumer available topics request. Reply: " + reply);
 
                 JSONObject jsonObject = new JSONObject(reply); 
                 JSONArray topicList = jsonObject.getJSONArray("topics");
@@ -124,14 +124,14 @@ public class NatsConsumer {
                     String topicName = topicList.getJSONObject(i).getString("name");
                     if (!topic_list.contains(topicName)) {
                         topic_list.add(topicName);
-                        logger.info(data_type + " NatsConsumer added to topic list: " + topicName);
+                        logger.info(unit_type + " NatsConsumer added to topic list: " + topicName);
                     }
                 }
 
             } 
             catch (InterruptedException | ExecutionException | CancellationException e) 
             {
-                logger.error(data_type + " NatsConsumer no topic response from unit id: " + unit_id);
+                logger.error(unit_type + " NatsConsumer no topic response from unit id: " + unit_id);
             }
             catch (Exception e) {
                 logger.error(ExceptionUtils.getStackTrace(e));
@@ -163,7 +163,7 @@ public class NatsConsumer {
      * Create an asynchronous subsciption to available subjects and publish to influxdb using the InfluxDataWriter
      */
     public void async_subscribe(InfluxDataWriter influxDataWriter, List<String> newTopicList) {
-        logger.info(data_type + " NatsConsumer in async subscribe");
+        logger.info(unit_type + " NatsConsumer in async subscribe");
 
         //get size of the new topic list
         int newTopicListSize = newTopicList.size();
@@ -184,7 +184,7 @@ public class NatsConsumer {
 
         //Create desired number of dispatchers based on number of topics, and configured topic per dispatcher value
         for (int i = 0; i < numberDispatchers; i++) {
-            logger.info(data_type + " NatsConsumer creating dispatcher number " + String.valueOf(i));
+            logger.info(unit_type + " NatsConsumer creating dispatcher number " + String.valueOf(i));
 
             Dispatcher newDispatcher = createNewDispatcher(influxDataWriter);
             //Get the topics that this dispatcher should subscribe to
@@ -208,7 +208,7 @@ public class NatsConsumer {
                 //need to remove slashes from topic name to match nats subject format
                 String topicStr = topic.replace("/", "");
                 newDispatcher.subscribe(nats_subscribe_str+topicStr);
-                logger.info(data_type + " NatsConsumer dispatcher " + String.valueOf(i) + " subscribed to " + nats_subscribe_str+topicStr);
+                logger.info(unit_type + " NatsConsumer dispatcher " + String.valueOf(i) + " subscribed to " + nats_subscribe_str+topicStr);
             }
         }       
     }
@@ -218,7 +218,7 @@ public class NatsConsumer {
      * to create dispatchers for these new topics
      */
     public void unitStatusCheck(InfluxDataWriter influxDataWriter) {
-        logger.info(data_type + " NatsConsumer checking for new topics");
+        logger.info(unit_type + " NatsConsumer checking for new topics");
         //Set topic_list_old to the current topic_list
         List<String> topic_list_old = new ArrayList<String>(topic_list);
 
