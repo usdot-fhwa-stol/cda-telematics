@@ -50,7 +50,6 @@ def parseInfluxfile(logname):
         for metadata in metadata_list:
             if "topic_name" in metadata:
                 topic_name = metadata.split("=")[1]
-                print("topic_name: ", topic_name)
                 if topic_name not in unique_topics:
                         unique_topics.append(topic_name)
 
