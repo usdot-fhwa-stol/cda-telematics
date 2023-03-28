@@ -120,6 +120,9 @@ public class UnitsStatusService implements CommandLineRunner {
                     // map, add event id and zero number of unit.
                     if (!numRegisteredUnitsEventMap.containsKey(eventId)) {
                         numRegisteredUnitsEventMap.put(eventId, 0);
+                    }else{
+                        //if the registered unit is not running (Not reply), decrease the num of registered unit for this map
+                        numRegisteredUnitsEventMap.put(eventId, numRegisteredUnitsEventMap.get(eventId) -1);
                     }
                 } catch (ExecutionException e) {
                     logger.error(checkUnitsStatus, e);
