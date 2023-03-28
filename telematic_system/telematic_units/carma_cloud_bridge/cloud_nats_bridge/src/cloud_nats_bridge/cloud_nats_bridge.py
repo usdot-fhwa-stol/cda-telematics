@@ -74,6 +74,8 @@ class FileListener(FileSystemEventHandler):
                     newLine = line
 
                     #convert carma cloud timestamp and current date to time since epoch
+                    if newLine.split(" ").__len__() < 2:
+                        continue
                     timestamp = newLine.split(" ")[1]
                     date = self.today.strftime("%m/%d/%y")
                     datetime = date + " " + timestamp
