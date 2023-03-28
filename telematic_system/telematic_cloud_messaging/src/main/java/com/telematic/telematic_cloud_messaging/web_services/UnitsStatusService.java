@@ -28,7 +28,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.google.gson.JsonObject;
 import com.telematic.telematic_cloud_messaging.models.Events;
 import com.telematic.telematic_cloud_messaging.repository.EventsService;
 import com.telematic.telematic_cloud_messaging.repository.UnitsService;
@@ -131,7 +130,6 @@ public class UnitsStatusService implements CommandLineRunner {
             // number of registered units for their events are 0, remove the event live
             // status
             for (Map.Entry<Integer, ArrayList<String>> map_entry : registeredUnitsEventMap.entrySet()) {
-                logger.info(map_entry.toString());
                 if (map_entry.getValue().size() > 0) {
                     eventsService.updateEventStatus(EVENT_STATUS_LIVE, map_entry.getKey());
                 } else {
