@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -62,6 +63,8 @@ public class UnitsStatusService implements CommandLineRunner {
 
     // Global list to keep track of latest registered units
     private static List<JSONObject> registeredUnitList = new LinkedList<JSONObject>();
+    // Global list to keep track of the map of event and registered units
+    private static HashMap<Integer, ArrayList<String>> registeredUnitsEventMap = new HashMap<>();
 
     /***
      * @brief
@@ -90,7 +93,6 @@ public class UnitsStatusService implements CommandLineRunner {
         if (conn != null) {
             logger.debug(
                     "Checking units status at timestamp (Unit of second) = : " + System.currentTimeMillis() / 1000);
-            HashMap<Integer, Integer> numRegisteredUnitsEventMap = new HashMap<>();
             for (JSONObject registered_unit : registeredUnitList) {
                 String unitId = (String) registered_unit.get("unit_id");
                 Integer eventId = (Integer) registered_unit.get("event_id");
@@ -103,24 +105,27 @@ public class UnitsStatusService implements CommandLineRunner {
                     String reply = new String(msg.getData(), StandardCharsets.UTF_8);
                     logger.debug("Checking unit status.  Unit =" + unitId + " Reply: " + reply);
 
-                    // If registered unit is running, increase the number of registered unit for
-                    // this event. If event is not in the map, add event id and one number of unit.
-                    Integer numUnitsPerEvent = numRegisteredUnitsEventMap.containsKey(eventId)
-                            ? numRegisteredUnitsEventMap.get(eventId) + 1
-                            : 1;
-                    numRegisteredUnitsEventMap.put(eventId, numUnitsPerEvent);
-
+                    // If registered unit is running and registered unit id not in the event map,
+                    // add registered unit to the event map
+                    if (!registeredUnitsEventMap.containsKey(eventId)) {
+                        ArrayList<String> unitIdArr = new ArrayList<>();
+                        unitIdArr.add(unitId);
+                        registeredUnitsEventMap.put(eventId, unitIdArr);
+                    } else if (registeredUnitsEventMap.containsKey(eventId)
+                            && !registeredUnitsEventMap.get(eventId).contains(unitId)) {
+                        registeredUnitsEventMap.get(eventId).add(unitId);
+                    }
                 } catch (CancellationException ex) {
                     // No reply remove unit from registeredUnitList
                     logger.error(
                             "Checking unit status. Unit = " + unitId + " failed. Remove from registered unit list.");
-                    registeredUnitList.remove(registered_unit);
-
-                    // If the registered unit is not running (No reply), and event is not in the
-                    // map, add event id and zero number of unit.
-                    if (!numRegisteredUnitsEventMap.containsKey(eventId)) {
-                        numRegisteredUnitsEventMap.put(eventId, 0);
+                    // if the registered unit is not running (Not reply), remove registered unit for
+                    // this map
+                    if (registeredUnitsEventMap.containsKey(eventId)
+                            && registeredUnitsEventMap.get(eventId).contains(unitId)) {
+                        registeredUnitsEventMap.get(eventId).remove(unitId);
                     }
+                    registeredUnitList.remove(registered_unit);
                 } catch (ExecutionException e) {
                     logger.error(checkUnitsStatus, e);
                 }
@@ -128,8 +133,8 @@ public class UnitsStatusService implements CommandLineRunner {
             // Checking the map of registered units and their associated events. If the
             // number of registered units for their events are 0, remove the event live
             // status
-            for (Map.Entry<Integer, Integer> map_entry : numRegisteredUnitsEventMap.entrySet()) {
-                if (map_entry.getValue() > 0) {
+            for (Map.Entry<Integer, ArrayList<String>> map_entry : registeredUnitsEventMap.entrySet()) {
+                if (map_entry.getValue().size() > 0) {
                     eventsService.updateEventStatus(EVENT_STATUS_LIVE, map_entry.getKey());
                 } else {
                     eventsService.updateEventStatus("", map_entry.getKey());
@@ -180,8 +185,9 @@ public class UnitsStatusService implements CommandLineRunner {
                             }
                         }
                         registeredUnitList.add(jsonObj);
-                    }else{
-                        logger.error("Cannot find the unit ="+jsonObj.get("unit_id").toString()+ " assgined to any events at " + cur_timestamp.toString());
+                    } else {
+                        logger.error("Cannot find the unit =" + jsonObj.get("unit_id").toString()
+                                + " assgined to any events at " + cur_timestamp.toString());
                     }
 
                     // Send a reply to the telematic units
