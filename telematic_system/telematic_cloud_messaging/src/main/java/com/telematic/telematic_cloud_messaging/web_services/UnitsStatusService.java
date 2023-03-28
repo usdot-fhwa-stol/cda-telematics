@@ -63,7 +63,7 @@ public class UnitsStatusService implements CommandLineRunner {
 
     // Global list to keep track of latest registered units
     private static List<JSONObject> registeredUnitList = new LinkedList<JSONObject>();
-    //Global list to keep track of the map of event and registered units
+    // Global list to keep track of the map of event and registered units
     private static HashMap<Integer, ArrayList<String>> registeredUnitsEventMap = new HashMap<>();
 
     /***
@@ -105,23 +105,27 @@ public class UnitsStatusService implements CommandLineRunner {
                     String reply = new String(msg.getData(), StandardCharsets.UTF_8);
                     logger.debug("Checking unit status.  Unit =" + unitId + " Reply: " + reply);
 
-                    // If registered unit is running and registered unit id not in the event map, add registered unit to the event map
-                    if (registeredUnitsEventMap.containsKey(eventId) && !registeredUnitsEventMap.get(eventId).contains(unitId)) {
-                        registeredUnitsEventMap.get(eventId).add(unitId);
-                    }else{
+                    // If registered unit is running and registered unit id not in the event map,
+                    // add registered unit to the event map
+                    if (!registeredUnitsEventMap.containsKey(eventId)) {
                         ArrayList<String> unitIdArr = new ArrayList<>();
                         unitIdArr.add(unitId);
                         registeredUnitsEventMap.put(eventId, unitIdArr);
+                    } else if (registeredUnitsEventMap.containsKey(eventId)
+                            && !registeredUnitsEventMap.get(eventId).contains(unitId)) {
+                        registeredUnitsEventMap.get(eventId).add(unitId);
                     }
                 } catch (CancellationException ex) {
                     // No reply remove unit from registeredUnitList
                     logger.error(
                             "Checking unit status. Unit = " + unitId + " failed. Remove from registered unit list.");
-                    // if the registered unit is not running (Not reply), remove registered unit for this map
-                    if (registeredUnitsEventMap.containsKey(eventId) && registeredUnitsEventMap.get(eventId).contains(unitId)) {
-                        registeredUnitsEventMap.get(eventId).remove(unitId);                     
-                     }
-                    registeredUnitList.remove(registered_unit);                    
+                    // if the registered unit is not running (Not reply), remove registered unit for
+                    // this map
+                    if (registeredUnitsEventMap.containsKey(eventId)
+                            && registeredUnitsEventMap.get(eventId).contains(unitId)) {
+                        registeredUnitsEventMap.get(eventId).remove(unitId);
+                    }
+                    registeredUnitList.remove(registered_unit);
                 } catch (ExecutionException e) {
                     logger.error(checkUnitsStatus, e);
                 }
