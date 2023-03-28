@@ -25,7 +25,7 @@ def parseInfluxfile(logname):
             continue
         split_line = line.split("INFO")
 
-        # Log Timestamp
+        # Log Timestamp UTC
         if len(split_line[0].strip()) == 0:
             continue
         write_time_datetime_utc = datetime.strptime(
@@ -34,20 +34,18 @@ def parseInfluxfile(logname):
             tzinfo=pytz.UTC)
         local_zone = tz.tzlocal()
 
-        # Convert timezone of datetime from UTC to local
+        # Convert timezone of log datetime from UTC to local
         write_time_datetime_local = write_time_datetime_utc.astimezone(
             local_zone)
         write_timestamp_local = int(write_time_datetime_local.timestamp()*1000)
-        print('Log timestamp in Local Time zone: ', write_timestamp_local)
 
-        # Data content
+        # Log message content
         split_line_msg = line.split("Sending to influxdb:")
         if split_line_msg.__len__() < 2:
             continue
         split_line_msg = split_line_msg[1].strip()
         msg_timestamp_in_milli = int(
             int(split_line_msg.split(" ")[2].strip())/1000)
-        print("Message timestamp in local: ", msg_timestamp_in_milli)
         metadata_list = split_line_msg.split(" ")[0].split(",")
         for metadata in metadata_list:
             if "topic_name" in metadata:
@@ -57,7 +55,7 @@ def parseInfluxfile(logname):
                         unique_topics.append(topic_name)
 
         delay = (write_timestamp_local - msg_timestamp_in_milli)/1000
-        writer.writerow([topic_name, datetime.fromtimestamp(msg_timestamp_in_milli/1000.0), write_time_datetime_local, delay])
+        writer.writerow([topic_name,str(datetime.fromtimestamp(msg_timestamp_in_milli/1000.0)) , write_time_datetime_local, delay])
 
     print("Number of unique topics: ", len(unique_topics))
     print(unique_topics)
