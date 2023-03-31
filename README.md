@@ -1,6 +1,6 @@
 | Sonar Code Quality |
 |--------------------|
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-fhwa-stol_carma-messenger&metric=alert_status)](https://sonarcloud.io/dashboard?id=usdot-fhwa-stol_carma-messenger) | 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-fhwa-stol_cda-telematics&metric=alert_status)](https://sonarcloud.io/dashboard?id=usdot-fhwa-stol_cda-telematics) |
 
 # GitHub Actions Build status
 | Carma-streets-bridge | Carma-vehicle-bridge | telematics-cloud-messaging |
