@@ -280,13 +280,18 @@ class CloudNatsBridge():
                 continue
 
     async def queue_send(self):
+         """
+            Read data from the message queue and sent to nats
+        """
         self.logger.info("In queue send")
         while(True):
             try:
+                #Get message in the queue without blocking
                 cc_message = self.message_queue.get_nowait()
-                self.logger.info(" In queue_send: Publishing to nats: " + str(cc_message))
-
+                self.logger.info(" In queue_send: Publishing to nats: " + str(cc_message[1]))
+                #Publish message to nats
                 await self.nc.publish(cc_message[0], cc_message[1])
+            #If there are no messages in the queue, sleep
             except asyncio.QueueEmpty:
                 await asyncio.sleep(self.async_sleep_rate)
                 continue
