@@ -144,10 +144,11 @@ class CloudNatsBridge():
         self.nc = NATS()
         self.cloud_topics = ["TCR","TCM"]  # list of available carma-cloud topics
         self.subscribers_list = []  # list of topics the user has requested to publish
-        self.async_sleep_rate = 0.0001  # asyncio sleep rate
+        self.async_sleep_rate = 0.00001  # asyncio sleep rate
         self.registered = False
         #Member variables to store the exclusion list
         self.exclusion_list = []
+        self.message_queue = asyncio.Queue()
 
         self.cloud_info = {
             UnitKeys.UNIT_ID.value: self.unit_id,
@@ -233,7 +234,7 @@ class CloudNatsBridge():
 
         return json_data
 
-    async def nats_send(self):
+    async def queue_populate(self):
         """
             Sends newly generated TCR/TCMs to nats based on the current subscriber list.
         """
@@ -241,8 +242,8 @@ class CloudNatsBridge():
 
         global new_carma_cloud_message_type, new_carma_cloud_message, last_carma_cloud_message, epoch_time
 
-        try:
-            while(True):
+        while(True):
+            try:
                 topic = new_carma_cloud_message_type
                 #check if topic in subscriber list and compare the new cc message with the last
                 if topic in self.subscribers_list and (new_carma_cloud_message != last_carma_cloud_message):
@@ -269,18 +270,26 @@ class CloudNatsBridge():
                         self.topic_name = "cloud." + self.unit_id + ".data." + topic
 
                         # publish the encoded data to the nats server
-                        self.logger.info(" In nats_send: Publishing to nats: " + str(message))
+                        self.logger.info(" In queue populate: adding to queue: " + str(message))
 
-                        last_carma_cloud_message = new_carma_cloud_message
-
-                        await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
-                    else:
-                        last_carma_cloud_message = new_carma_cloud_message
-                
+                        await self.message_queue.put([self.topic_name, json.dumps(message).encode('utf-8')])
+                    last_carma_cloud_message = new_carma_cloud_message
                 await asyncio.sleep(self.async_sleep_rate)
-        except:
-            self.logger.error("Error publishing message")
-            pass
+            except:
+                self.logger.error("Error publishing message")
+                continue
+
+    async def queue_send(self):
+        self.logger.info("In queue send")
+        while(True):
+            try:
+                cc_message = self.message_queue.get_nowait()
+                self.logger.info(" In queue_send: Publishing to nats: " + str(cc_message))
+
+                await self.nc.publish(cc_message[0], cc_message[1])
+            except asyncio.QueueEmpty:
+                await asyncio.sleep(self.async_sleep_rate)
+                continue
 
     async def nats_connect(self):
         """
