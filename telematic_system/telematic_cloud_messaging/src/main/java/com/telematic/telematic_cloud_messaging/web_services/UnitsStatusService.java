@@ -151,7 +151,7 @@ public class UnitsStatusService implements CommandLineRunner {
      */
     @Override
     public void run(String... args) throws Exception {
-         //Reset all event status in case some live event status is not cleared
+         //on startup: reset all event status in case some live event status is not cleared
          try {
             eventsService.resetEventStatus();
             logger.info("Events status is reset!");
