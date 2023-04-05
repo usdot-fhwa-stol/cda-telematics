@@ -176,7 +176,7 @@ const TopicPage = React.memo(() => {
               items.forEach(item => {
                 if (item.data !== undefined && !messageList.includes(item.data)) {
                   messageList.push(item.data);
-                  num_success += 1;
+                 num_success += 1;
                 } else if (item.errCode !== undefined && !messageList.includes(item.errMsg)) {
                   messageList.push(item.errMsg);
                   num_failed += 1;
@@ -185,9 +185,12 @@ const TopicPage = React.memo(() => {
             }
           });
         }
-
+        if(num_failed === 0 && num_success === 0)
+        {
+            messageList.push("Failed to send request. Please click the confirm selected topics button again.")
+        }
         //Notification
-        let severity = num_failed === 0 ? NOTIFICATION_STATUS.SUCCESS : (num_success === 0 ? NOTIFICATION_STATUS.ERROR : NOTIFICATION_STATUS.WARNING);
+        let severity = num_failed === 0 && num_success === 0 ? NOTIFICATION_STATUS.ERROR : (num_success === 0 ? NOTIFICATION_STATUS.ERROR : NOTIFICATION_STATUS.WARNING);
         setAlertStatus({
           open: true,
           severity: severity,
