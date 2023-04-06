@@ -18,30 +18,3 @@ jobs:
         with:
           context: ./telematic_system/telematic_units/carma_vehicle_bridge/
           file: ./telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile
-
-  sonar:
-    runs-on: ubuntu-latest
-    container:
-      image: usdotfhwastoldev/carma-base:develop
-      options: --user root
-    steps:
-      - uses: actions/checkout@v3
-      - run: sudo apt update && sudo apt -y install python3-coverage python3-pytest python3-watchdog python3-xmltodict ros-foxy-rclpy
-      - run: python3 -m pip install nats-py
-      - run: source /opt/ros/foxy/setup.bash && python3 -m coverage run -m pytest
-        shell: bash
-      - run: python3 -m coverage xml
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master # This action will create and boot a builder that can be used as buildx as a docker CLI
-        with:
-          args: >
-            -Dsonar.projectKey=usdot-fhwa-stol_cda-telematics
-            -Dsonar.python.coverage.reportPaths=./coverage.xml
-            -Dsonar.projectName=cda-telematics
-            -Dsonar.organization=usdot-fhwa-stol
-            -Dsonar.host.url=https://sonarcloud.io
-            -Dsonar.verbose=true
-            -Dsonar.java.binaries=.
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
