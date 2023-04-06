@@ -15,9 +15,12 @@ from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler, LoggingEventHandler
 import xmltodict
 import pandas as pd
+from multiprocessing import Queue
+from queue import Empty
 
 #global variable for current list of topics subscribed to
 subscriber_list = []
+message_queue = Queue()
 
 class EventKeys(Enum):
     EVENT_NAME = "event_name"
@@ -42,64 +45,21 @@ class FileListener(FileSystemEventHandler):
     """
     The FileListener class is used to listen to the carma cloud log file for new TCR/TCM messages.
     """
-    def __init__(self, cc_logpath, bridge_logname, tcr_search_string, tcm_search_string, nats_connection, unit_metadata):
+    def __init__(self, cc_logpath, bridge_logname, tcr_search_string, tcm_search_string):
         self.lock = Lock()
         self.logger = logging.getLogger(bridge_logname) 
         self.tcr_search_string = tcr_search_string
         self.tcm_search_string = tcm_search_string
         self.cc_log_path = cc_logpath
         self.today = date.today()
-        self.nats_connection = nats_connection
-        self.unit_metadata = unit_metadata
-
+        
         #Need to get current number of lines in file for future comparison
         with open(f'{self.cc_log_path}', 'r', encoding="utf-8") as f:
             self.current_lines = len(f.readlines())
         f.close()
 
         self.logger.info("FileListener created for: " + str(self.cc_log_path))
-
-    def xmlToJson(self, xmlString):
-        """
-            Convert the TCR/TCM xml to dictionary, then to json. If xml is invalid, return empty string.
-        """
-        json_data = ""
-        try:
-            data_dict = xmltodict.parse(xmlString)
-            json_data = json.dumps(data_dict)
-        except:
-            self.logger.info("Error converting xml to json for: " + str(xmlString))
-
-        return json_data
     
-    def natsMessageSend(self, topic, payload, line_timestamp):
-        """
-            This method is used to construct the NATS message using the appropriate unit and event metadata. It then
-            publishes this message to NATS.
-        """
-        json_data = self.xmlToJson(payload)
-
-        if json_data != "":
-            message = {}
-            message["payload"] = json.loads(json_data)
-            message[UnitKeys.UNIT_ID.value] = self.unit_metadata[UnitKeys.UNIT_ID.value]
-            message[UnitKeys.UNIT_TYPE.value] = self.unit_metadata[UnitKeys.UNIT_TYPE.value]
-            message[UnitKeys.UNIT_NAME.value] = self.unit_metadata[UnitKeys.UNIT_NAME.value]
-            message[TopicKeys.MSG_TYPE.value] = topic
-            message[EventKeys.EVENT_NAME.value] = self.unit_metadata[EventKeys.EVENT_NAME.value]
-            message[EventKeys.TESTING_TYPE.value] = self.unit_metadata[EventKeys.TESTING_TYPE.value]
-            message[EventKeys.LOCATION.value] = self.unit_metadata[EventKeys.LOCATION.value]
-            message[TopicKeys.TOPIC_NAME.value] = topic
-            message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
-            message["log_timestamp"] = line_timestamp 
-
-            # telematic cloud server will look for topic names with the pattern ".data."
-            self.topic_name = "cloud." + self.unit_metadata[UnitKeys.UNIT_ID.value] + ".data." + topic
-
-            # publish the encoded data to the nats server
-            self.logger.info(" Sending to nats: " + str(message))
-            self.nats_connection.publish(self.topic_name, json.dumps(message).encode('utf-8'))
-
     def findNewCarmaCloudMessage(self):
         """This method will parse the newly generated line in the carma cloud log file and assign
         the xml and message type to the appropriate global variables. It also assigns the epoch_time
@@ -129,8 +89,8 @@ class FileListener(FileSystemEventHandler):
                         new_carma_cloud_message = newLine[startingIndex:]                                
                         self.logger.info("Carma Cloud generated new " + str(topic) + " message with payload: " + str(new_carma_cloud_message))
                         
-                        #send new data to nats
-                        self.natsMessageSend(topic, new_carma_cloud_message, epoch_time)
+                        message_queue.put([topic, new_carma_cloud_message, epoch_time])
+                        self.logger.info("Current queue size: " + str(message_queue.qsize()))
 
                     elif self.tcr_search_string in newLine and "TCR" in subscriber_list:
                         topic = "TCR"
@@ -138,9 +98,9 @@ class FileListener(FileSystemEventHandler):
                         new_carma_cloud_message = newLine[startingIndex:]                                
                         self.logger.info("Carma Cloud generated new " + str(topic) + " message with payload: " + str(new_carma_cloud_message))
                         
-                        #send new data to nats
-                        self.natsMessageSend(topic, new_carma_cloud_message, epoch_time)
-
+                        message_queue.put([topic, new_carma_cloud_message, epoch_time])
+                        self.logger.info("Current queue size: " + str(message_queue.qsize()))
+                       
                     self.current_lines = line_count
 
                 line_count += 1
@@ -183,7 +143,7 @@ class CloudNatsBridge():
         self.unit_name = "Dev CC"
         self.nc = NATS()
         self.cloud_topics = ["TCR","TCM"]  # list of available carma-cloud topics
-        self.async_sleep_rate = 0.0001  # asyncio sleep rate
+        self.async_sleep_rate = 0.00001  # asyncio sleep rate
         self.registered = False
         #Member variables to store the exclusion list
         self.exclusion_list = []
@@ -253,11 +213,57 @@ class CloudNatsBridge():
         splitter = self.carma_cloud_log.split("/")
         directory = "/" + splitter[1] + "/" + splitter[2] + "/" + splitter[3]
 
-        event_handler = FileListener(self.carma_cloud_log, self.log_name, self.tcr_search_string, self.tcm_search_string, 
-            self.nc, self.cloud_info)
+        event_handler = FileListener(self.carma_cloud_log, self.log_name, self.tcr_search_string, self.tcm_search_string)
         observer = Observer()        
         observer.schedule(event_handler, directory, recursive=True)
         observer.start()
+
+    def xmlToJson(self, xmlString):
+            """
+                Convert the TCR/TCM xml to dictionary, then to json. If xml is invalid, return empty string.
+            """
+            json_data = ""
+            try:
+                data_dict = xmltodict.parse(xmlString)
+                json_data = json.dumps(data_dict)
+            except:
+                self.logger.info("Error converting xml to json for: " + str(xmlString))
+
+            return json_data
+            
+    async def queue_send(self):
+        self.logger.info("In queue send")
+
+        while(True):
+            #Try to get a message from the queue, sleep if the queue is empty
+            try:
+                cc_message = message_queue.get(block=False)
+                topic = cc_message[0]
+                payload = cc_message[1]
+                log_timestamp = cc_message[2]
+                json_data = self.xmlToJson(payload)
+
+                 #add required metadata to TCR/TCM payload
+                message = {}
+                message["payload"] = json.loads(json_data)
+                message[UnitKeys.UNIT_ID.value] = self.unit_id
+                message[UnitKeys.UNIT_TYPE.value] = self.unit_type
+                message[UnitKeys.UNIT_NAME.value] = self.unit_name
+                message[TopicKeys.MSG_TYPE.value] = topic
+                message[EventKeys.EVENT_NAME.value] = self.cloud_info[EventKeys.EVENT_NAME.value]
+                message[EventKeys.TESTING_TYPE.value] = self.cloud_info[EventKeys.TESTING_TYPE.value]
+                message[EventKeys.LOCATION.value] = self.cloud_info[EventKeys.LOCATION.value]
+                message[TopicKeys.TOPIC_NAME.value] = topic
+                message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
+                message["log_timestamp"] = log_timestamp 
+
+                # telematic cloud server will look for topic names with the pattern ".data."
+                self.topic_name = "cloud." + self.unit_id + ".data." + topic
+
+                self.logger.info(" In queue_send: Publishing to nats: " + str(message))
+                await self.nc.publish(self.topic_name, json.dumps(message).encode('utf-8'))
+            except Empty:
+                await asyncio.sleep(self.async_sleep_rate)
 
     async def nats_connect(self):
         """
