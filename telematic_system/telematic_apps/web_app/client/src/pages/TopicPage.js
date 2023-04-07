@@ -185,9 +185,12 @@ const TopicPage = React.memo(() => {
             }
           });
         }
-
+        if(num_failed === 0 && num_success === 0)
+        {
+            messageList.push("Failed to send request. Please click the confirm selected topics button again.")
+        }
         //Notification
-        let severity = num_failed === 0 ? NOTIFICATION_STATUS.SUCCESS : (num_success === 0 ? NOTIFICATION_STATUS.ERROR : NOTIFICATION_STATUS.WARNING);
+        let severity = num_failed === 0 && num_success === 0 ? NOTIFICATION_STATUS.ERROR : (num_failed === 0 && num_success !== 0 ? NOTIFICATION_STATUS.SUCCESS: (num_failed !==0 && num_success===0? NOTIFICATION_STATUS.ERROR : NOTIFICATION_STATUS.WARNING));
         setAlertStatus({
           open: true,
           severity: severity,
