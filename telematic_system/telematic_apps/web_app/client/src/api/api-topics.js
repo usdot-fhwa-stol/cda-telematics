@@ -54,7 +54,7 @@ const requestSelectedLiveUnitsTopics = async (seletedUnitTopicListToConfirm) => 
         } catch (err) {
             sentStatus.push({
                 errCode: err.response !== undefined ? err.response.status : "404",
-                errMsg: err.response !== undefined ? unitStatus + err.response.statusText + err.response.data : unitStatus + "No reponse from server."
+                errMsg: err.response !== undefined ? unitStatus + err.response.statusText +". " + err.response.data : unitStatus + "No reponse from server."
             });
         }
         return sentStatus;
