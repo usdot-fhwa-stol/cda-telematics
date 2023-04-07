@@ -219,17 +219,17 @@ class CloudNatsBridge():
         observer.start()
 
     def xmlToJson(self, xmlString):
-            """
-                Convert the TCR/TCM xml to dictionary, then to json. If xml is invalid, return empty string.
-            """
-            json_data = ""
-            try:
-                data_dict = xmltodict.parse(xmlString)
-                json_data = json.dumps(data_dict)
-            except:
-                self.logger.info("Error converting xml to json for: " + str(xmlString))
+        """
+            Convert the TCR/TCM xml to dictionary, then to json. If xml is invalid, return empty string.
+        """
+        json_data = ""
+        try:
+            data_dict = xmltodict.parse(xmlString)
+            json_data = json.dumps(data_dict)
+        except:
+            self.logger.info("Error converting xml to json for: " + str(xmlString))
 
-            return json_data
+        return json_data
             
     async def queue_send(self):
         self.logger.info("In queue send")
