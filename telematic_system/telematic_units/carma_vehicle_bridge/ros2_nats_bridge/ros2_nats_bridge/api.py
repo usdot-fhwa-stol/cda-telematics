@@ -168,7 +168,7 @@ class Ros2NatsBridgeNode(Node):
             try:
                 response = await self.nc.request(self.vehicle_info[UnitKeys.UNIT_ID.value] + ".register_unit",  vehicle_info_message, timeout=5)
                 message = response.data.decode('utf-8')
-                self.logger.warn(
+                self.logger.info(
                     "Registering unit received response: {message}".format(message=message))
                 message_json = json.loads(message)
                 self.vehicle_info[EventKeys.EVENT_NAME.value] = message_json[EventKeys.EVENT_NAME.value]
@@ -200,7 +200,7 @@ class Ros2NatsBridgeNode(Node):
             receives request from server and responds with available topics
         """
         async def send_list_of_topics(msg):
-            self.logger.warn(
+            self.logger.info(
                 f"Received a message on '{msg.subject} {msg.reply}': {msg.data.decode()}")
 
             self.vehicle_info["timestamp"] = str(
@@ -212,7 +212,7 @@ class Ros2NatsBridgeNode(Node):
             await self.nc.publish(msg.reply, message)
 
         try:
-            self.logger.error("Awaiting for available_topics")
+            self.logger.info("Awaiting for available_topics")
             await self.nc.subscribe(self.vehicle_info[UnitKeys.UNIT_ID.value] + ".available_topics", self.vehicle_info[UnitKeys.UNIT_ID.value], send_list_of_topics)
         except:
             self.logger.error("Error for available_topics")
@@ -233,7 +233,7 @@ class Ros2NatsBridgeNode(Node):
                 self.destroy_subscription(self.subscribers_list[topic])
                 # Remove iteration with "topic"
                 del self.subscribers_list[topic]
-                self.logger.warn('Unsubscribed from "%s"' % topic)
+                self.logger.info('Unsubscribed from "%s"' % topic)
             except:
                 self.logger.error("Unable to remove subscription to topic")
 
@@ -243,7 +243,7 @@ class Ros2NatsBridgeNode(Node):
                 import message type to scope
                 create subscriber for every topic in request message
             """
-            self.logger.warn(
+            self.logger.info(
                 f"Received a message on '{msg.subject} {msg.reply}': {msg.data.decode()}")
             await self.nc.publish(msg.reply, b"request received!")
             data = json.loads(msg.data.decode("utf-8"))
