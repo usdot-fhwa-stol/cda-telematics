@@ -26,8 +26,13 @@ public class JSON2KeyValuePairsConverter {
                     pairs += key + "=\"NA\"";
                 }
                 else {
+                    //Edge case for hostBSMId and TCR/TCM ID where the Ids can be all digits or alpha characters
+                    if (key.toString().contains("hostBSMId") || key.toString().contains("TrafficControlRequest.reqid")  || key.toString().contains("tcmV01.reqid"))
+                    {
+                        pairs += key + "=\"" + value.toString().replaceAll("\\s", "") + "\"";
+                    }
                     // Regex matching integers
-                    if (value.toString().matches("[-+]?\\d*")) {
+                    else if (value.toString().matches("[-+]?\\d*")) {
                         pairs += key + "=" + value;
                     }
                     // Regex matching decimals

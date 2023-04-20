@@ -34,5 +34,33 @@ public class JSONFlattenerHelperTests {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+
+        String mo_json_str = "{\"payload\":{\"metadata\":{\"hostBSMId\":\"bb906b4e\",\"hostStaticId\":\"DOT-45244\",\"planId\":\"a95fe925-1c09-43eb-b40e-5abe7611b187\",\"targetStaticId\":\"UNSET\",\"timestamp\":\"0000001681146252589\"},\"trajectory\":{\"location\":{\"ecefX\":110457775,\"ecefY\":-484207718,\"ecefZ\":398843563,\"timestamp\":\"0000000000000000000\"},\"offsets\":[{\"offsetX\":51,\"offsetY\":-3,\"offsetZ\":-18},{\"offsetX\":96,\"offsetY\":-1,\"offsetZ\":-28},{\"offsetX\":96,\"offsetY\":-2,\"offsetZ\":-29},{\"offsetX\":96,\"offsetY\":-2,\"offsetZ\":-28},{\"offsetX\":96,\"offsetY\":-1,\"offsetZ\":-28},{\"offsetX\":96,\"offsetY\":-2,\"offsetZ\":-29},{\"offsetX\":96,\"offsetY\":-1,\"offsetZ\":-28},{\"offsetX\":96,\"offsetY\":-2,\"offsetZ\":-29},{\"offsetX\":97,\"offsetY\":-1,\"offsetZ\":-28},{\"offsetX\":96,\"offsetY\":-2,\"offsetZ\":-28},{\"offsetX\":96,\"offsetY\":0,\"offsetZ\":-27},{\"offsetX\":97,\"offsetY\":-1,\"offsetZ\":-27},{\"offsetX\":96,\"offsetY\":1,\"offsetZ\":-26},{\"offsetX\":97,\"offsetY\":1,\"offsetZ\":-26},{\"offsetX\":97,\"offsetY\":1,\"offsetZ\":-25},{\"offsetX\":98,\"offsetY\":2,\"offsetZ\":-24},{\"offsetX\":97,\"offsetY\":3,\"offsetZ\":-24},{\"offsetX\":97,\"offsetY\":3,\"offsetZ\":-23},{\"offsetX\":98,\"offsetY\":3,\"offsetZ\":-22},{\"offsetX\":98,\"offsetY\":5,\"offsetZ\":-22},{\"offsetX\":97,\"offsetY\":4,\"offsetZ\":-21},{\"offsetX\":77,\"offsetY\":4,\"offsetZ\":-16},{\"offsetX\":100,\"offsetY\":6,\"offsetZ\":-21},{\"offsetX\":100,\"offsetY\":7,\"offsetZ\":-20},{\"offsetX\":100,\"offsetY\":6,\"offsetZ\":-19},{\"offsetX\":100,\"offsetY\":8,\"offsetZ\":-18},{\"offsetX\":100,\"offsetY\":8,\"offsetZ\":-18},{\"offsetX\":100,\"offsetY\":9,\"offsetZ\":-17},{\"offsetX\":100,\"offsetY\":9,\"offsetZ\":-16},{\"offsetX\":101,\"offsetY\":10,\"offsetZ\":-16},{\"offsetX\":100,\"offsetY\":10,\"offsetZ\":-15},{\"offsetX\":100,\"offsetY\":10,\"offsetZ\":-16},{\"offsetX\":101,\"offsetY\":11,\"offsetZ\":-14},{\"offsetX\":100,\"offsetY\":11,\"offsetZ\":-15},{\"offsetX\":100,\"offsetY\":11,\"offsetZ\":-15},{\"offsetX\":101,\"offsetY\":10,\"offsetZ\":-14},{\"offsetX\":100,\"offsetY\":11,\"offsetZ\":-14},{\"offsetX\":100,\"offsetY\":12,\"offsetZ\":-15},{\"offsetX\":101,\"offsetY\":11,\"offsetZ\":-14},{\"offsetX\":100,\"offsetY\":11,\"offsetZ\":-14},{\"offsetX\":100,\"offsetY\":12,\"offsetZ\":-14},{\"offsetX\":101,\"offsetY\":11,\"offsetZ\":-13},{\"offsetX\":100,\"offsetY\":12,\"offsetZ\":-14},{\"offsetX\":101,\"offsetY\":11,\"offsetZ\":-13}]}},\"unit_id\":\"streets_id\",\"unit_type\":\"infrastructure\",\"unit_name\":\"WestIntersection\",\"msg_type\":\"v2xhub_mobility_path_in\",\"event_name\":\"WFD_Verification_2\",\"testing_type\":\"Verification\",\"location\":\"TFHRC\",\"topic_name\":\"v2xhub_mobility_path_in\",\"timestamp\":1681146252589000}";
+        String flattened_mo_json_str = helper.flattenJsonStr(mo_json_str);
+        try {
+            JSONObject flattened_json = (JSONObject) parser.parse(flattened_mo_json_str);
+            assertEquals("bb906b4e", flattened_json.get("payload.metadata.hostBSMId"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        String tcr_json_str = "{\"payload\":{\"TrafficControlRequest\":{\"@port\":\"22222\",\"@list\":\"true\",\"reqid\":\"4947918446524149\",\"reqseq\":\"0\",\"scale\":\"-1\",\"bounds\":{\"oldest\":\"28000218\",\"reflon\":\"-771510185\",\"reflat\":\"389543898\",\"offsets\":[{\"deltax\":\"3232\",\"deltay\":\"0\"},{\"deltax\":\"3232\",\"deltay\":\"1577\"},{\"deltax\":\"0\",\"deltay\":\"1577\"}]}}},\"unit_id\":\"cloud_id\",\"unit_type\":\"infrastructure\",\"unit_name\":\"DevCC\",\"msg_type\":\"TCR\",\"event_name\":\"WFD_Verification_2\",\"testing_type\":\"Verification\",\"location\":\"TFHRC\",\"topic_name\":\"TCR\",\"timestamp\":1681309089575201.0,\"log_timestamp\":1681309089425000.0}";
+        String flattened_tcr_json_str = helper.flattenJsonStr(tcr_json_str);
+        try {
+            JSONObject flattened_json = (JSONObject) parser.parse(flattened_tcr_json_str);
+            assertEquals("4947918446524149", flattened_json.get("payload.TrafficControlRequest.reqid"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        String tcm_json_str ="{\"payload\":{\"TrafficControlMessage\":{\"tcmV01\":{\"reqid\":\"4947918446524142\",\"reqseq\":\"0\",\"msgtot\":\"1\",\"msgnum\":\"1\",\"id\":\"007d1d1c5ea3f134ab2e9d868a033372\",\"updated\":\"0\",\"params\":{\"vclasses\":{\"micromobile\":\"None\",\"motorcycle\":\"None\",\"passenger-car\":\"None\",\"light-truck-van\":\"None\",\"bus\":\"None\",\"two-axle-six-tire-single-unit-truck\":\"None\",\"three-axle-single-unit-truck\":\"None\",\"four-or-more-axle-single-unit-truck\":\"None\",\"four-or-fewer-axle-single-trailer-truck\":\"None\",\"five-axle-single-trailer-truck\":\"None\",\"six-or-more-axle-single-trailer-truck\":\"None\",\"five-or-fewer-axle-multi-trailer-truck\":\"None\",\"six-axle-multi-trailer-truck\":\"None\",\"seven-or-more-axle-multi-trailer-truck\":\"None\"},\"schedule\":{\"start\":\"28004757\",\"end\":\"153722867280912\",\"dow\":\"1111111\"},\"regulatory\":{\"true\":\"None\"},\"detail\":{\"maxspeed\":\"45\"}},\"geometry\":{\"proj\":\"epsg:3785\",\"datum\":\"WGS84\",\"reftime\":\"28004757\",\"reflon\":\"-771490031\",\"reflat\":\"389549140\",\"refelv\":\"0\",\"refwidth\":\"405\",\"heading\":\"3312\"}}}}}";
+        String flattened_tcm_json_str = helper.flattenJsonStr(tcm_json_str);
+        System.out.println(flattened_tcm_json_str);
+        try {
+            JSONObject flattened_json = (JSONObject) parser.parse(flattened_tcm_json_str);
+            assertEquals("4947918446524142", flattened_json.get("payload.TrafficControlMessage.tcmV01.reqid"));
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
     }
 }
