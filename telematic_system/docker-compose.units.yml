@@ -7,7 +7,7 @@ services:
     image: usdotfhwastoldev/carma_vehicle_nats_bridge:develop
     logging:
       options:
-        max-size: "10m"
+        max-size: "2g"
         max-file: "1"
     container_name: carma_vehicle_bridge
     network_mode: host
@@ -34,7 +34,7 @@ services:
     image: usdotfhwastoldev/carma_street_nats_bridge:develop
     logging:
       options:
-        max-size: "10m"
+        max-size: "2g"
         max-file: "1"
     container_name: carma_street_bridge
     network_mode: host
@@ -62,7 +62,7 @@ services:
     image: usdotfhwastoldev/carma_cloud_nats_bridge:develop
     logging:
       options:
-        max-size: "10m"
+        max-size: "2g"
         max-file: "1"
     container_name: carma_cloud_bridge
     network_mode: host
