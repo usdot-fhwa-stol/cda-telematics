@@ -1,18 +1,12 @@
 package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
-import java.io.*;
-import java.util.Properties;
+
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
-import com.fasterxml.jackson.annotation.JsonValue;
-import com.google.gson.JsonObject;
 import com.influxdb.client.*;
 import com.influxdb.client.InfluxDBClientOptions;
-import com.influxdb.client.domain.Authorization;
 import com.influxdb.client.domain.WritePrecision;
 import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
 
@@ -20,8 +14,6 @@ import okhttp3.OkHttpClient;
 
 import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
 
-import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
 import org.json.*;  
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -202,7 +194,7 @@ public class InfluxDataWriter {
         JSONObject payloadJson = publishDataJson.getJSONObject("payload");
         
         String flattenedPayloadJson = jsonFlattener.flattenJsonStr(payloadJson.toString());
-        String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson);
+        String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson, config_.to_str_values);
 
         String unit_id = publishDataJson.getString("unit_id").replaceAll("\\s", "_");
         String unit_type = publishDataJson.getString("unit_type").replaceAll("\\s", "_");

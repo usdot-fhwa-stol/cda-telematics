@@ -5,6 +5,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.Config;
 import com.telematic.telematic_cloud_messaging.nats_influx_connection.InfluxDataWriter;
@@ -71,6 +73,7 @@ public class NatsInfluxPush implements CommandLineRunner {
             config.vehicle_unit_id_list = prop.getProperty("VEHICLE_UNIT_ID_LIST");
             config.streets_unit_id_list = prop.getProperty("STREETS_UNIT_ID_LIST");
             config.cloud_unit_id_list = prop.getProperty("CLOUD_UNIT_ID_LIST");
+            config.to_str_values = Arrays.asList(prop.getProperty("TO_STR_VALUES").split(","));
 
             try{
                 config.influx_bucket_type = BucketType.valueOf(prop.getProperty("INFLUX_BUCKET_TYPE"));
