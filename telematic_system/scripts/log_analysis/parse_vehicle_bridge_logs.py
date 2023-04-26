@@ -22,6 +22,7 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
         start_time = (datetime.datetime.fromtimestamp(start_time_epoch).astimezone(pytz.utc)).replace(tzinfo=None)
         end_time = (datetime.datetime.fromtimestamp(end_time_epoch).astimezone(pytz.utc)).replace(tzinfo=None) 
         
+        # For each published message logged, convert payload to json and extract required info
         for line in vehicle_bridge_log:
             print(line)
             topic_name = ""
@@ -80,7 +81,7 @@ def read_log_table():
 
 def main():
     if len(sys.argv) < 2:
-        print('Run with: "python3 influxLogParser.py logname"')
+        print('Run with: "python3 parse_vehicle_bridge_logs.py logname"')
     else:       
         logname = sys.argv[1]
 

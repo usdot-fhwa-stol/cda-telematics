@@ -164,7 +164,7 @@ def combineFiles(log_dir):
 
 def main():
     if len(sys.argv) < 2:
-        print('Run with: "python3 combine_files_2.py directory_name"')
+        print('Run with: "python3 get_message_drop.py directory_name"')
     else:
         log_dir = sys.argv[1]
         combineFiles(log_dir)

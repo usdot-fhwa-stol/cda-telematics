@@ -51,6 +51,9 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
         search_string = " Sending to influxdb"
 
         count = 0
+
+        # Search through lines in messaging server logs to get payload info for message being sent to influx
+        # Since the message is a flattened json, it needs to be split manually and read to extract required info (unit_id, topic name, message/payload timestamp and log timestamp)
         for line in influx_log:
             split_line = line.split(":")
             
@@ -77,7 +80,6 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
                 payload = "event=" + payload
                 # Remove timestamp at end of line
                 payload = payload.rsplit(" ", 1)[0]
-                # print(payload)
                 payload_list = payload.split(",")
                 
                 unit_type = ""
@@ -176,7 +178,7 @@ def read_log_table():
 
 def main():
     if len(sys.argv) < 2:
-        print('Run with: "python3 influxLogParser.py logname"')
+        print('Run with: "python3 parse_messaging_server_logs.py logname"')
     else:       
         logname = sys.argv[1]
         log_timesheet_df = read_log_table()
