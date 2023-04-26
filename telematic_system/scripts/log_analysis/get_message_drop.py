@@ -123,13 +123,9 @@ def combineFiles(log_dir):
             print("Total count: ", bridge_total_message_count)
             print("Percentage of messages received",(1 - (bridge_missing_message_count/bridge_total_message_count))*100)
 
-            topics_with_empty_count = {}
-            for index, row  in bridge_df_combined.iterrows():
-                if pd.isnull(row['Message Time']):
-                    if row['Topic'] not in topics_with_empty_count:
-                        topics_with_empty_count[row['Topic']] = 1
-                    else:
-                        topics_with_empty_count[row['Topic']] += 1
+
+            topics_with_empty_count = (bridge_df_combined['Message Time'].isnull().groupby([bridge_df_combined['Topic']]).sum().astype(int).reset_index(name='count'))
+            topics_with_empty_count = topics_with_empty_count.loc[~(topics_with_empty_count['count']==0)]
             
             print("{} missed messages: ".format(key))
             print(topics_with_empty_count)
