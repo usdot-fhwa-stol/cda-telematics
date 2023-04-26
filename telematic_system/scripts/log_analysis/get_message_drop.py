@@ -44,12 +44,14 @@ def combineFiles(log_dir):
         elif "Fusion" in required_file.split("_"):
             fusion_csv = file
     
-    # if vehicle_bridge_csv == "" and fusion_csv == "" and bluelexus_csv == "":
-    #     sys.exit("Did not find any vehicle bridge csv logs in directory. File name needs to include the word Vehicle or BlueLexus or Fusion separated underscores(_)")
-    if streets_bridge_csv == "":
-        sys.exit("Did not find any streets bridge csv logs in directory. File name needs to include the word Streets separated underscores(_)")
-    # elif cloud_bridge_csv == "":
-    #     sys.exit("Did not find any cloud bridge csv logs in directory. File name needs to include the word Cloud separated underscores(_)")
+    if vehicle_bridge_csv == "" and fusion_csv == "" and bluelexus_csv == "":
+        sys.exit("Did not find any vehicle bridge csv logs in directory. File name needs to start with the word Vehicle or BlueLexus or Fusion separated by underscores(_)")
+    elif not streets_bridge_csv:
+        sys.exit("Did not find any streets bridge csv logs in directory. File name needs to start with the word Streets separated by underscores(_)")
+    elif not cloud_bridge_csv:
+        sys.exit("Did not find any cloud bridge csv logs in directory. File name needs to start with the word Cloud separated by underscores(_)")
+    elif not messaging_server_csv:
+        sys.exit("Did not find any Messaging server csv logs in directory. File name needs to start with the word Messaging by separated underscores(_)")
     
 
 

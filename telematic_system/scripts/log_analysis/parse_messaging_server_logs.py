@@ -16,11 +16,11 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
     
     with open(logname,'r') as influx_log:
 
-        delay_results_file = open('{}_{}_delay_2_parsed.csv'.format(fileName,run_num), 'w')
+        delay_results_file = open('{}_{}_delay_parsed.csv'.format(fileName,run_num), 'w')
         delay_writer = csv.writer(delay_results_file)
         delay_writer.writerow(["Unit Id","Topic","Message Time","Log_Timestamp(s)", "Delay(s)"])
 
-        message_drop_results_file = open('{}_{}_message_2_drop_parsed.csv'.format(fileName, run_num), 'w')
+        message_drop_results_file = open('{}_{}_message_drop_parsed.csv'.format(fileName, run_num), 'w')
         message_drop_writer = csv.writer(message_drop_results_file)
         message_drop_writer.writerow(["Unit Id","Topic","Message Time","Log_Timestamp(s)"])
 
