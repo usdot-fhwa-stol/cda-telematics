@@ -16,7 +16,20 @@ import matplotlib.dates as mdates
 import warnings
 warnings.filterwarnings("ignore")
 
+'''
+This script combines bridge logs with the messaging server logs to give the number of dropped messages from each unit.
 
+Input: The script looks within the the argument directory for csv files from Messaging Server, Vehicle Bridge, Streets Bridge and Cloud Bridge log 
+,which are parsed log output from the bridges, to calculate the number of dropped messages from each unit.
+
+Required Input File Format: 
+The csv files to be read currently need to follow a specific format. 
+The messaging server parsed csv needs to start with the word "Messaging" separated by underscores
+Streets bridge parsed csv file name needs to start with the word Streets separated by underscores(_)
+Vehicle bridge parsed csv file name needs to start with the word Vehicle or BlueLexus or Fusion separated by underscores(_)
+Cloud bridge parsed csv  file name needs to start with the word Messaging by separated underscores(_)
+
+'''
 def combineFiles(log_dir):
     messaging_server_csv = ""
     bluelexus_csv = ""
@@ -56,18 +69,6 @@ def combineFiles(log_dir):
 
 
     messaging_server_df = pd.read_csv(messaging_server_csv)
-    # messaging_server_df = messaging_server_df.rename({'Log_Timestamp(s)':'Messaging_Server_Timestamp'})
-
-    #Infrastructure topics including streets and cloud
-    infrastructure_topics = ['TCR','TCM','v2xhub_mobility_operation_in', 'v2xhub_scheduling_plan_sub', 
-                    'modified_spat', 'v2xhub_map_msg_in', 'tsc_config_state', 'v2xhub_mobility_path_in', 'v2xhub_bsm_in', 'vehicle_status_intent_output', 'desired_phase_plan']
-
-    #carma streets topics
-    streets_topics = ['v2xhub_mobility_operation_in', 'v2xhub_scheduling_plan_sub', 
-                    'modified_spat', 'v2xhub_map_msg_in', 'tsc_config_state', 'v2xhub_mobility_path_in', 'v2xhub_bsm_in', 'vehicle_status_intent_output', 'desired_phase_plan']
-    
-    # cloud topics
-    cloud_topics = ['TCR', 'TCM']
 
     infrastructure_units = ['streets_id', 'cloud_id']
 
@@ -112,36 +113,36 @@ def combineFiles(log_dir):
     for key in bridge_dfs:
         if key in messaging_server_dfs:
             
-            vehicle_df_combined = pd.merge(bridge_dfs[key], messaging_server_dfs[key],  how='left', left_on=['Topic','Payload Timestamp'], right_on = ['Topic','Message Time'])
-            vehicle_df_combined.to_csv(log_dir + key + "_combined.csv")
+            bridge_df_combined = pd.merge(bridge_dfs[key], messaging_server_dfs[key],  how='left', left_on=['Topic','Payload Timestamp'], right_on = ['Topic','Message Time'])
+            bridge_df_combined.to_csv(log_dir + key + "_combined.csv")
 
-            vehicle_missing_message_count = vehicle_df_combined['Log_Timestamp(s)'].isnull().sum()
-            vehicle_total_message_count = len(vehicle_df_combined['Payload Timestamp'])
+            bridge_missing_message_count = bridge_df_combined['Log_Timestamp(s)'].isnull().sum()
+            bridge_total_message_count = len(bridge_df_combined['Payload Timestamp'])
             print("Message drop for unit: ", key)
-            print("Missing count: ", vehicle_missing_message_count)
-            print("Total count: ", vehicle_total_message_count)
-            print("Percentage of messages received",(1 - (vehicle_missing_message_count/vehicle_total_message_count))*100)
+            print("Missing count: ", bridge_missing_message_count)
+            print("Total count: ", bridge_total_message_count)
+            print("Percentage of messages received",(1 - (bridge_missing_message_count/bridge_total_message_count))*100)
 
-            vehicle_topics_with_empty_count = {}
-            for index, row  in vehicle_df_combined.iterrows():
+            topics_with_empty_count = {}
+            for index, row  in bridge_df_combined.iterrows():
                 if pd.isnull(row['Message Time']):
-                    if row['Topic'] not in vehicle_topics_with_empty_count:
-                        vehicle_topics_with_empty_count[row['Topic']] = 1
+                    if row['Topic'] not in topics_with_empty_count:
+                        topics_with_empty_count[row['Topic']] = 1
                     else:
-                        vehicle_topics_with_empty_count[row['Topic']] += 1
+                        topics_with_empty_count[row['Topic']] += 1
             
             print("{} missed messages: ".format(key))
-            print(vehicle_topics_with_empty_count)
+            print(topics_with_empty_count)
 
             # Plot vehicle data
-            vehicle_df_combined = vehicle_df_combined[vehicle_df_combined['Message Time'].isnull()]
-            vehicle_df_combined['Payload Timestamp'] = pd.to_datetime(vehicle_df_combined['Payload Timestamp'], infer_datetime_format=True)
-            vehicle_df_combined['Message Time'] = pd.to_datetime(vehicle_df_combined['Message Time'], infer_datetime_format=True)
+            bridge_df_combined = bridge_df_combined[bridge_df_combined['Message Time'].isnull()]
+            bridge_df_combined['Payload Timestamp'] = pd.to_datetime(bridge_df_combined['Payload Timestamp'], infer_datetime_format=True)
+            bridge_df_combined['Message Time'] = pd.to_datetime(bridge_df_combined['Message Time'], infer_datetime_format=True)
             
 
-            ax1 = plt.plot(vehicle_df_combined['Topic'], vehicle_df_combined['Payload Timestamp'], '|')
+            ax1 = plt.plot(bridge_df_combined['Topic'], bridge_df_combined['Payload Timestamp'], '|')
+            
             #Plot start and end lines
-            # print(messaging_server_dfs[key])
             start_time = pd.to_datetime(messaging_server_dfs[key]['Log_Timestamp(s)'].iloc[0])
             end_time = pd.to_datetime(messaging_server_dfs[key]['Log_Timestamp(s)'].iloc[-1])
 

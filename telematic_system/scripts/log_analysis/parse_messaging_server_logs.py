@@ -9,7 +9,14 @@ import numpy as np
 import pandas as pd
 import glob
 
+'''
+This script reads docker logs from the messaging server according to timestamps defined in the test log sheet.
+The log sheet is defined as a csv with columns (test_num, run_num, epoch_start_time, epoch_end_time)
 
+Messaging_server logs are parsed to extract the unit_id, topic name , payload timestamp, the log_timestamp(Time at which message was recorded).
+The script returns 2 csv's, one contains the calculated Delay, which is the difference between the log timestamp and payload timestamp.
+The second csv returned is for message drop analysis.
+'''
 
 def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
     fileName = logname.split(".")[0]
@@ -93,7 +100,8 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
                     if "unit_id" in item_split:
                         unit_id = item_split[1]
                         continue
-
+                    
+                    # If topic is map_msg, get timestamp from metadata.timestamp
                     if topic_name == "v2xhub_map_msg_in":
                         if "metadata.timestamp" in item_split:
                             # Get metadata timestamp
@@ -104,9 +112,8 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
 
                         
 
-
+                # Convert timestamp to datetime
                 try:
-                    # print(topic_name)
                     # Get payload timestamp from bridge
                     if topic_name != "v2xhub_map_msg_in":
                         payload_timestamp_string = str(log_line.split(" ")[-1])[:-1]
@@ -144,6 +151,7 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
     print("Number of unique topics: ", len(unique_topics))
     print(unique_topics)
     
+    ## Calculate required statistics
     delay_np_array = np.array(delay_records)
     if delay_np_array.size > 1: 
         delay_max = np.amax(delay_np_array)
@@ -184,7 +192,6 @@ def main():
 
         test_df = log_timesheet_df[test_case]
         
-
         for index in range(0, len(test_df)):
             start_time_epoch = test_df['Start Time'].values[index]
             end_time_epoch = test_df['End Time'].values[index]
