@@ -50,6 +50,10 @@ public class JSON2KeyValuePairsConverter {
                         else if (value.toString().matches("^[+-]?\\d+(?:\\.\\d*(?:[eE][+-]?\\d+)?)?$")) {
                             pairs += key + "=" + 0.0;
                         }
+                        //Leave NaN value as float (Assuming influx treats NaN value as float type) and do not convert to string
+                        else if (value.toString().toLowerCase().strip().equals("nan")){
+                            pairs += key + "=" + value;
+                        }
                         // If none of the above Regex matches, considering it as string
                         else {
                             pairs += key + "=\"" + value.toString().replaceAll("\\s", "") + "\"";
