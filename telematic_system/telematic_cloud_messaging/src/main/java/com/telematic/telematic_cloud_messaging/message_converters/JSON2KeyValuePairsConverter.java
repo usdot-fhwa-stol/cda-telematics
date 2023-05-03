@@ -31,7 +31,7 @@ public class JSON2KeyValuePairsConverter {
                     boolean is_skip = false;
                     for (String value_item: to_str_values)
                     {
-                        if (key.toString().contains(value_item)){
+                        if (key.toString().strip().equals(value_item)){
                             pairs += key + "=\"" + value.toString().replaceAll("\\s", "") + "\"";
                             is_skip = true;
                         }
