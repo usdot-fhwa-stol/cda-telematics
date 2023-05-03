@@ -52,7 +52,8 @@ public class JSON2KeyValuePairsConverter {
                         }
                         //Leave NaN value as float (Assuming influx treats NaN value as float type) and do not convert to string
                         else if (value.toString().toLowerCase().strip().equals("nan")){
-                            pairs += key + "=" + value;
+                            // Drop fields with NaN values
+                            continue;
                         }
                         // If none of the above Regex matches, considering it as string
                         else {
