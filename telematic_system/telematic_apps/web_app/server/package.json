@@ -1,0 +1,38 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon ./bin/www"
+  },
+  "dependencies": {
+    "axios": "^0.27.2",
+    "cookie-parser": "~1.4.4",
+    "cookie-session": "^2.0.0",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "dotenv": "^16.0.3",
+    "express": "~4.16.1",
+    "express-session": "^1.17.3",
+    "htpasswd-mgr": "^1.1.7",
+    "http-errors": "~1.6.3",
+    "morgan": "~1.9.1",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.3.3",
+    "nats": "2.7.1",
+    "password-salt-and-hash": "^1.0.5",
+    "pug": "2.0.0-beta11",
+    "request": "^2.88.2",
+    "rest-request": "^1.0.12",
+    "sequelize": "^6.25.2",
+    "uuid-by-string": "^4.0.0"
+  },
+  "author": "Samir Tabriz",
+  "license": "Apache-2.0",
+  "description": "telematic web app",
+  "main": "app.js",
+  "keywords": [],
+  "devDependencies": {
+    "nodemon": "^2.0.21"
+  }
+}

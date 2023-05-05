@@ -1,0 +1,39 @@
+version: "3.0"
+
+services:
+  nats:
+    image: 'nats:2.7.3-alpine3.15'
+    ports:
+      - "8222:8222"
+      - "4222:4222"
+      - "6222:6222"
+
+  api:
+    build:
+      context: "./api"
+    entrypoint: ./api-server
+    links:
+      - nats
+    environment:
+      - "NATS_URI=nats://nats:4222"
+    depends_on:
+      - nats
+    ports:
+      - "8080:8080"
+
+  worker:
+    build:
+      context: "./worker"
+    entrypoint: ./worker
+    links:
+      - nats
+    environment:
+      - "NATS_URI=nats://nats:4222"
+      - "INFLUXDB_TOKEN=*****" #Replace with correct token
+      - "INFLUXDB_URI=http://<influxdb_host_ip>:8086"
+      - "INFLUXDB_ORG=my-org"
+      - "INFLUXDB_BUCKET=platform-dev"
+    depends_on:
+      - nats
+    ports:
+      - "8181:8181"

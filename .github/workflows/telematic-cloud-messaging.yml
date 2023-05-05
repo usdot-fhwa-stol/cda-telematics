@@ -1,0 +1,39 @@
+name: "CI: telematic-cloud-messaging"
+
+on:
+  pull_request:
+  push:
+    branches-ignore:
+      - "develop"
+
+jobs:
+  docker: # The docker job is to build & push the code for telematic cloud messaging 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3 # This action checks-out repository under $GITHUB_WORKSPACE, so our workflow can access it
+      - name: Set up Docker Buildx # This action will create and boot a builder that can be used as buildx as a docker CLI
+        uses: docker/setup-buildx-action@v2
+      - name: Build
+        uses: docker/build-push-action@v3
+        with:
+          context: ./telematic_system/telematic_cloud_messaging/
+          file: ./telematic_system/telematic_cloud_messaging/Dockerfile
+          path: telematic_system/telematic_cloud_messaging/
+
+  sonar: # sonar job is to setup and run sonar scan analysis on telematic cloud messaging code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3 # The setup-java action provides the functionality for GitHub Actions runners for Downloading and setting up a requested version of Java
+        with:
+          java-version: 17
+          distribution: "temurin"
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          cd ./telematic_system/telematic_cloud_messaging/
+          mvn -e -X clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Pcoverage -Dsonar.projectKey=usdot-fhwa-stol_cda-telematics -Dsonar.projectName=cda-telematics -Dsonar.organization=usdot-fhwa-stol -Dsonar.host.url=https://sonarcloud.io

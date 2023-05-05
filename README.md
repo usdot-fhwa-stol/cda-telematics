@@ -1,4 +1,9 @@
-# cda-telematics
+## GitHub Actions Build status
+| Carma-streets-bridge | Carma-vehicle-bridge | telematics-cloud-messaging |
+|-----|-----|-----|
+[![carma-streets-bridge](https://github.com/usdot-fhwa-stol/cda-telematics/actions/workflows/carma-streets-bridge.yml/badge.svg?branch=feature_gha)](https://github.com/usdot-fhwa-stol/cda-telematics/actions/workflows/carma-streets-bridge.yml) | [![carma-vehicle-bridge](https://github.com/usdot-fhwa-stol/cda-telematics/actions/workflows/carma-vehicle-bridge.yml/badge.svg)](https://github.com/usdot-fhwa-stol/cda-telematics/actions/workflows/carma-vehicle-bridge.yml) | [![telematic-cloud-messaging](https://github.com/usdot-fhwa-stol/cda-telematics/actions/workflows/telematic-cloud-messaging.yml/badge.svg)](https://github.com/usdot-fhwa-stol/cda-telematics/actions/workflows/telematic-cloud-messaging.yml)
+
+# CDA-Telematics
 This project will create an open-source Module that can be installed on any vehicle (e.g. a CARMA Platform and/or Messenger vehicle, an L0 or L1 production vehicle, etc.) that will collect data about the vehicle and wirelessly send it out in real time for data analysis. The same Module, with any modifications, if necessary, will also be compatible with CARMA Streets and CARMA Cloud. On the receiving end of this data, a user will have a Data Processing & Visualization Tool available to visualize and/or plot the data that was sent using the Module(s). This Module can be thought of as a Fleet Management tool with extra capabilities to support CDA research and education.
 
 ## Architecture Diagram
@@ -6,6 +11,8 @@ This project will create an open-source Module that can be installed on any vehi
   
 ![architecture](https://user-images.githubusercontent.com/34483068/171265484-67177ebb-69f7-4286-9602-016043079958.png)
 
+## Release Notes
+The current version of CDA-Telematics tool and release history of the CARMA software platform: [CARMA Release Notes](<docs/Release_notes.md>)
 
 ## Documentation
 Documentation of the setup, operation, and design of the CDA Telematics can be found on the project [Confluence](https://usdot-carma.atlassian.net/wiki/spaces/WFD2/overview) pages. 

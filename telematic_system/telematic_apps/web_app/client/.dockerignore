@@ -1,0 +1,22 @@
+## General
+node_modules/
+.git/
+yarn-error.log
+README.md
+Dockerfile
+.gitignore
+.dockerignore
+
+## Compiled output
+build/
+
+## Editors
+.idea/
+.vscode/
+.editorconfig
+
+## Others
+pm2.ecosystem.config.js
+docker-compose.yml
+.env
+.prettierrc.json
