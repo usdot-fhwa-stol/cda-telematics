@@ -170,7 +170,7 @@ jobs:
           sonar.projectBaseDir=$GITHUB_WORKSPACE
           sonar.projectKey=usdot-fhwa-stol_cda-telematics
           sonar.projectName=cda-telematics
-          sonar.python.coverage.reportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/test/coverage.xml,$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/test/coverage.xml
+          sonar.python.coverage.reportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/coverage.xml,$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/coverage.xml
           sonar.python.version=3.9
           cloud_nats_bridge.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge
           cloud_nats_bridge.sonar.sources=src
