@@ -28,6 +28,7 @@ jobs:
           python3 -m coverage run -m pytest
           cd ..
           python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py" --data-file=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/test/.coverage
+          find / -name coverage.xml 2>/dev/null
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
@@ -65,6 +66,7 @@ jobs:
           python3 -m coverage run -m pytest
           cd ..
           python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py" --data-file=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/test/.coverage
+          find / -name coverage.xml 2>/dev/null
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
