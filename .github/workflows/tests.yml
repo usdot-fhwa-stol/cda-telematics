@@ -16,15 +16,19 @@ jobs:
       - name: Install dependencies
         run: |
           apt-get update
-          apt-get -y install python3-coverage python3-pip python3-pytest
+          apt-get -y install python3-pip python3-pytest
       - name: Install requirements
         run: python3 -m pip install -r $GITHUB_WORKSPACE/telematic_system/telematic_units/carma_cloud_bridge/requirements.txt
+      - name: Install requirements
+        run: python3 -m pip install coverage
       - name: Run tests
         run: |
           export PYTHONPATH=$PYTHONPATH:/usr/lib/python3/dist-packages
           cd $GITHUB_WORKSPACE/telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/test/
           python3 -m coverage run -m pytest
-          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
+          cd $GITHUB_WORKSPACE
+          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py" --data-file=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/test/.coverage
+          mv $GITHUB_WORKSPACE/coverage.xml telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/test/coverage.xml
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
@@ -43,7 +47,8 @@ jobs:
         shell: bash
         run: |
           apt-get update
-          apt-get -y install python3-coverage python3-pip python3-pytest python3-pytest-asyncio ros-foxy-rclpy unzip
+          apt-get -y install python3-pip python3-pytest python3-pytest-asyncio ros-foxy-rclpy unzip
+          sudo python3 -m pip install coverage
           cd $GITHUB_WORKSPACE/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge
           source /opt/ros/foxy/setup.bash
           rosdep update
@@ -59,7 +64,9 @@ jobs:
           # Delete connection test
           rm -f test_prep257.py
           python3 -m coverage run -m pytest
-          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
+          cd $GITHUB_WORKSPACE
+          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py" --data-file=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/test/.coverage
+          mv $GITHUB_WORKSPACE/coverage.xml telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/test/coverage.xml
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
