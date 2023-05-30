@@ -33,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: carma-cloud-bridge-coverage
-          path: telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/test/coverage.xml
+          path: telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/coverage.xml
           if-no-files-found: error
   carma_vehicle_bridge_coverage:
     runs-on: ubuntu-latest
@@ -71,7 +71,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: carma-vehicle-bridge-coverage
-          path: telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/test/coverage.xml
+          path: telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge/coverage.xml
           if-no-files-found: error
   telematic_cloud_messaging_coverage:
     runs-on: ubuntu-latest
