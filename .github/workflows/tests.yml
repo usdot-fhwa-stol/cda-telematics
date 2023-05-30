@@ -157,6 +157,7 @@ jobs:
           version: 4.8.0.2856
       - name: Generate sonar properties file
         run: |
+          find / -name coverage.xml 2>/dev/null
           cat <<EOF > /tmp/sonar-scanner.properties
           sonar.host.url=https://sonarcloud.io
           sonar.coverage.jacoco.xmlReportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_cloud_messaging/target/site/jacoco/jacoco.xml
