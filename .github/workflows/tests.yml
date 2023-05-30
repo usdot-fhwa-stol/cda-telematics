@@ -127,12 +127,12 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: carma-cloud-bridge-coverage
-          path: carma_cloud_bridge
+          path: telematic_system/carma_cloud_bridge
       - name: Download code coverage results
         uses: actions/download-artifact@v3
         with:
           name: carma-vehicle-bridge-coverage
-          path: carma_vehicle_bridge
+          path: telematic_system/carma_vehicle_bridge
       - name: Download code coverage results
         uses: actions/download-artifact@v3
         with:
