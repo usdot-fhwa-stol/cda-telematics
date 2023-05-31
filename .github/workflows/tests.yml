@@ -127,7 +127,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: carma-cloud-bridge-coverage
-          path: telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/coverage.xml
+          path: telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/
       - name: Download code coverage results
         uses: actions/download-artifact@v3
         with:
