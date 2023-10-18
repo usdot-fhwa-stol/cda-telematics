@@ -61,7 +61,7 @@ class Ros2NatsBridgeNode(Node):
         self.exclusion_list = []
         
         # Get is_sim env variable as boolean
-        self.is_sim = os.getenv("IS_SIM", 'False').lower() in ('true', '1', 't')
+        self.is_sim = os.getenv("IS_SIM", 'False').lower() in ('true', '1')
 
         self.vehicle_info = {
             UnitKeys.UNIT_ID.value: os.getenv("VEHICLE_BRIDGE_UNIT_ID"),
