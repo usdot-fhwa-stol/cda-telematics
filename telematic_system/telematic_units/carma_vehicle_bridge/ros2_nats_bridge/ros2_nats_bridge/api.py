@@ -338,7 +338,7 @@ class Ros2NatsBridgeNode(Node):
             nanosecondToSecond = 0.000000001 #convert nanoseconds to seconds
             secondToMicro = 1000000 #convert seconds to microseconds
 
-            # If CDASim use current system time instead of ros header time
+            # If simulation environment - use current system time instead of ros header time
             if self.is_sim :
                 ordereddict_msg["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # microseconds
             else:   
