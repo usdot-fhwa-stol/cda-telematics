@@ -55,7 +55,8 @@ services:
     - NATS_PORT=4222
     - KAFKA_CONSUMER_RESET=earliest
     - STREETS_BRIDGE_EXCLUSION_LIST= ${STREETS_BRIDGE_EXCLUSION_LIST} #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
-  
+    - IS_SIM=False #OPTIONAL variable to treat incoming messages as coming from simulation env.  In this case the bridge will use system time as message timestamp. Defaults to False.
+
   cloud-nats-bridge:
     build:
           context: ./telematic_units/carma_cloud_bridge
@@ -68,7 +69,7 @@ services:
     container_name: carma_cloud_bridge
     network_mode: host
     volumes:
-           - ./logs:/var/logs           
+           - ./logs:/var/logs
            - /opt/tomcat/logs:/opt/tomcat/logs
     environment:
       - NATS_IP=<IP> #REQUIRED variable, replace IP with IP address of NATS server
