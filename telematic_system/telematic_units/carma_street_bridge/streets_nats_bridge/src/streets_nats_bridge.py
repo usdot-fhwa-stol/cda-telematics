@@ -45,10 +45,8 @@ class StreetsNatsBridge():
     def __init__(self):
 
         # Load parameters defined as environment variables. Defined the docker-compose file.
-        # IP addr where the NATS server is hosted.
-        self.nats_ip = os.getenv('NATS_IP')
-        # Port at which NATS is communicating on the speficied IP.
-        self.nats_port = os.getenv('NATS_PORT')
+        # IP addr:Port where the NATS server is hosted.
+        self.nats_ip_port = os.getenv("NATS_SERVER_IP_PORT")
         # IP addr where the kafka broker is hosted.
         self.kafka_ip = os.getenv('KAFKA_BROKER_IP')
         # Port at which kafka broker communicates.
@@ -251,7 +249,7 @@ class StreetsNatsBridge():
             the public ipv4 address of the EC2 instance should be used.
         """
         self.logger.info(" In nats_connect: Attempting to connect to nats server at: " +
-                         str(self.nats_ip) + ":" + str(self.nats_port))
+                         str(self.nats_ip_port))
 
         async def disconnected_cb():
             self.logger.info(
@@ -267,7 +265,7 @@ class StreetsNatsBridge():
                 " In nats_connect: Error with nats server: {0}".format(err))
 
         try:
-            await self.nc.connect("nats://"+str(self.nats_ip)+":"+str(self.nats_port),
+            await self.nc.connect("nats://"+str(self.nats_ip_port),
                                   error_cb=error_cb,
                                   reconnected_cb=reconnected_cb,
                                   disconnected_cb=disconnected_cb,
