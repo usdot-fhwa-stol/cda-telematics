@@ -115,10 +115,12 @@ exports.findUserRequestByUserEventUnit = (req, res) => {
  exports.findAllUserRequestByEventUnit = (req, res) => {
     const event_id = req.query.event_id;
     const unit_identifiers = req.query.unit_identifiers;
-    var condition = [];
-    condition.push({ event_id: event_id });
-    condition.push({ unit_identifier: unit_identifiers });
-    user_topic_request.findAll({ where: condition })
+    const exclude_user_id = req.query.exclude_user_id;
+    user_topic_request.findAll({ where: {
+        event_id: event_id,
+        unit_identifier: unit_identifiers,
+        updated_by :{ [Op.ne]: exclude_user_id}
+    } })
         .then(data => {
             res.status(200).send(data);
         }).catch(err => {

@@ -30,10 +30,11 @@ const upsertUserTopicRequestForEventUnits = async (seletedUnitsTopics, user_id) 
 /**
  *@brief Load or find the user topic request for the given event and list of units
  * @Params event id used to uniquely identifer each event
+ * @Params current user id to exclude
  * @Params selectedUnitIdentifiers: A list of unit identifiers. Each unit identifier is a string and is used to uniquely identify each unit.
  * @Return Response status and load a bulk of topics for each event and list of units for the event
  */
-const findAllUserTopicRequestByEventUnits = async (event_id, selectedUnitIdentifiers) => {
+const findUsersTopicRequestByEventUnits = async (event_id, selectedUnitIdentifiers, exclude_user_id) => {
   const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/user_topic_request/all`
   if (selectedUnitIdentifiers.length === 0 || event_id === 0 || event_id === undefined) {
     return { errCode: CanceledError.ERR_BAD_REQUEST, errMsg: "Event id or units cannot be empty" };
@@ -44,6 +45,7 @@ const findAllUserTopicRequestByEventUnits = async (event_id, selectedUnitIdentif
       withCredentials: true,
       params: {
         event_id: event_id,
+        exclude_user_id: exclude_user_id,
         unit_identifiers: selectedUnitIdentifiers,
       },
     },);
@@ -83,4 +85,4 @@ const findAllUserTopicRequestByEventUnits = async (event_id, selectedUnitIdentif
   }
 }
 
-export { upsertUserTopicRequestForEventUnits,findUserTopicRequestByUserEventUnits, findAllUserTopicRequestByEventUnits,  }
+export { upsertUserTopicRequestForEventUnits,findUserTopicRequestByUserEventUnits, findUsersTopicRequestByEventUnits,  }

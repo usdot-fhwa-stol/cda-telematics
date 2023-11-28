@@ -24,4 +24,7 @@ public class EventsService {
             eventRepository.save(event.get());
         }
     }
+    public void resetEventStatus(){
+        eventRepository.resetEventStatus();
+    }
 }

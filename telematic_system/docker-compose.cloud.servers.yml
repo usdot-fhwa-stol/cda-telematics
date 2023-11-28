@@ -5,7 +5,7 @@ services:
     restart: always
     logging:
       options:
-        max-size: "10m"
+        max-size: "2g"
         max-file: "1"
     network_mode: host
 
@@ -17,7 +17,7 @@ services:
     restart: always
     logging:
       options:
-        max-size: "10m"
+        max-size: "2g"
         max-file: "1"
     network_mode: host
     environment:

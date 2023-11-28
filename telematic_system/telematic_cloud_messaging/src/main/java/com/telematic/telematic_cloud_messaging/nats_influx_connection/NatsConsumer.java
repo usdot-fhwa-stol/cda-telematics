@@ -1,15 +1,9 @@
 package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
 import io.nats.client.*;
-import java.io.*;
-import java.util.Properties;
 import java.util.List;
 import java.util.ArrayList;
 import java.nio.charset.StandardCharsets;
-import org.springframework.boot.CommandLineRunner;
-import com.telematic.telematic_cloud_messaging.nats_influx_connection.InfluxDataWriter;
-import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
-import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -102,7 +96,6 @@ public class NatsConsumer {
      * the topic list variable
      */
     public void updateAvailableTopicList() {
-        String error_msg = "";
         
         for (String unit_id: unit_id_list) {
             try 
