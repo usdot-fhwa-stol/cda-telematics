@@ -1,5 +1,7 @@
 package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
+import java.util.*;
+
 /**
  * The Config object instantiates a configuration object which stores information to create a connection to the telematic nats server 
  * and influxdb bucket.
@@ -61,6 +63,8 @@ public class Config {
     String streets_unit_id_list;
     // List of cloud unit ids
     String cloud_unit_id_list;
+    //List of values in the stream that should only be set to string data type
+    List<String> to_str_values;
     
     public Config(){}
 
@@ -88,7 +92,8 @@ public class Config {
         "\nnats_topic_per_dispatcher: " + topics_per_dispatcher+
         "\nvehicle_unit_id_list: " + vehicle_unit_id_list +
         "\nstreets_unit_id_list: " + streets_unit_id_list +
-        "\ncloud_unit_id_list: " + cloud_unit_id_list);
+        "\ncloud_unit_id_list: " + cloud_unit_id_list + 
+        "\nto_str_values:" + to_str_values.toString());
 
         return config_str;
 

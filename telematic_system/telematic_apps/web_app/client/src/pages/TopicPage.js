@@ -20,7 +20,7 @@ import { findAllEvents } from '../api/api-events';
 import { findAllLocations } from '../api/api-locations';
 import { findAllTestingTypes } from '../api/api-testing-types';
 import { requestSelectedLiveUnitsTopics } from '../api/api-topics';
-import { findAllUserTopicRequestByEventUnits, upsertUserTopicRequestForEventUnits } from '../api/user_topic_request';
+import { findUsersTopicRequestByEventUnits, upsertUserTopicRequestForEventUnits } from '../api/user_topic_request';
 import { VALID_UNIT_TYPES } from '../components/events/EventMetadata';
 import InfrastructureTopicList from '../components/topics/InfrastructureTopicList';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
@@ -117,12 +117,11 @@ const TopicPage = React.memo(() => {
       event_id = item.event_id;
     });
 
-    //Find all existing users's topic request before sending the current user's topic request
-    findAllUserTopicRequestByEventUnits(event_id, unit_identifiers).then(data => {
+    //Find all existing users's topic request except current user topic request before sending the current user's topic request
+    findUsersTopicRequestByEventUnits(event_id, unit_identifiers, authCtx.user_id).then(data => {
       let updatedSeletedUnitTopicListToConfirm = [];
       if (data !== undefined
         && Array.isArray(data)
-        && data.length > 0
         && seletedUnitTopicListToConfirm !== undefined
         && Array.isArray(seletedUnitTopicListToConfirm)) {
         seletedUnitTopicListToConfirm.forEach(item => {
@@ -145,7 +144,6 @@ const TopicPage = React.memo(() => {
               });
             });
           }
-
           //Loop through existing all users' topic request
           data.forEach(dataItem => {
             //Check the same unit for current user topics request and all users' topics request
@@ -187,9 +185,12 @@ const TopicPage = React.memo(() => {
             }
           });
         }
-
+        if(num_failed === 0 && num_success === 0)
+        {
+            messageList.push("Failed to send request. Please click the confirm selected topics button again.")
+        }
         //Notification
-        let severity = num_failed === 0 ? NOTIFICATION_STATUS.SUCCESS : (num_success === 0 ? NOTIFICATION_STATUS.ERROR : NOTIFICATION_STATUS.WARNING);
+        let severity = num_failed === 0 && num_success === 0 ? NOTIFICATION_STATUS.ERROR : (num_failed === 0 && num_success !== 0 ? NOTIFICATION_STATUS.SUCCESS: (num_failed !==0 && num_success===0? NOTIFICATION_STATUS.ERROR : NOTIFICATION_STATUS.WARNING));
         setAlertStatus({
           open: true,
           severity: severity,

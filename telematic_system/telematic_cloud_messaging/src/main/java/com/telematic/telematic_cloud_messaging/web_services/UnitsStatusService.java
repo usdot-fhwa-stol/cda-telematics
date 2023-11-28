@@ -151,6 +151,13 @@ public class UnitsStatusService implements CommandLineRunner {
      */
     @Override
     public void run(String... args) throws Exception {
+         //on startup: reset all event status in case some live event status is not cleared
+         try {
+            eventsService.resetEventStatus();
+            logger.info("Events status is reset!");
+        } catch (Exception e) {
+            logger.error("Cannot reset events status! ERROR: " + e.getMessage());
+        } 
         Connection conn = natsConn.getConnection();
         if (conn != null) {
             logger.debug("register units subscribe to subject: " + registerUnit);
