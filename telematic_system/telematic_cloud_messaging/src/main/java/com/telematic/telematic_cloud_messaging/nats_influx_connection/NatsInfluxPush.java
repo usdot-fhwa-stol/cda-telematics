@@ -73,7 +73,8 @@ public class NatsInfluxPush implements CommandLineRunner {
             config.vehicle_unit_id_list = prop.getProperty("VEHICLE_UNIT_ID_LIST");
             config.streets_unit_id_list = prop.getProperty("STREETS_UNIT_ID_LIST");
             config.cloud_unit_id_list = prop.getProperty("CLOUD_UNIT_ID_LIST");
-            config.to_str_values = Arrays.asList(prop.getProperty("TO_STR_VALUES").split(","));
+            config.to_str_fields = Arrays.asList(prop.getProperty("TO_STR_FIELDS").split(","));
+            config.ignore_fields = Arrays.asList(prop.getProperty("IGNORE_FIELDS").split(","));
 
             try{
                 config.influx_bucket_type = BucketType.valueOf(prop.getProperty("INFLUX_BUCKET_TYPE"));
