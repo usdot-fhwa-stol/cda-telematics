@@ -29,10 +29,6 @@ services:
   telematic_web_client:
     build:
       context: "./telematic_apps/web_app/client"
-      args:
-        REACT_APP_MESSAGING_SERVER_URI: "https://topic-service.cav-telematics.com"
-        REACT_APP_WEB_SERVER_URI: "https://ui-service.cav-telematics.com"
-        REACT_APP_GRAFANA_URI: "https://grafana.cav-telematics.com"
     restart: always
     logging:
       options:
@@ -41,6 +37,12 @@ services:
     network_mode: host
     depends_on:
       - telematic_web_server
+    environment:
+      - REACT_APP_MESSAGING_SERVER_URI=http://127.0.0.1:8080/
+      - REACT_APP_WEB_SERVER_URI=http://127.0.0.1:9010/
+      - REACT_APP_GRAFANA_URI=http://127.0.0.1:3000/
+    volumes:
+      - ./web_client.production.env.js:/usr/share/nginx/html/env.js
 
   apache2:
     build:
@@ -54,7 +56,7 @@ services:
     environment:
       - CLIENT_LOCAL_URL=http://127.0.0.1:8082/
       - GRAFANA_LOCAL_URL=http://127.0.0.1:3000/
-      - TOPICSERVICE_LOCAL_URL=<telematic-cloud-messaging-server-private-url>
+      - TOPICSERVICE_LOCAL_URL=<http://127.0.0.1:8080/>
       - UISERVICE_LOCAL_URL=http://127.0.0.1:9010/
     depends_on:
       - grafana

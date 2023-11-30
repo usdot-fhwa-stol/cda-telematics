@@ -1,12 +1,13 @@
 
 import axios, { CanceledError } from 'axios';
+import {URL_Web_Server_Prefix } from "../env"
 /**
  *@brief Save the default topics setting for the given list of event and unit combinations
  * @Param The list of events and units combinations
  * @Return Response status and save a bulk of topics for each event and unit combination
  */
 const createDefaultTopicsByEventUnits = async (seletedUnitsTopics, user_id) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/default_event_topics/create`
+  const URL = `${URL_Web_Server_Prefix}/api/default_event_topics/create`
   let event_id = 0;
   let unit_identifiers = [];
   seletedUnitsTopics.forEach(element => {
@@ -34,7 +35,7 @@ const createDefaultTopicsByEventUnits = async (seletedUnitsTopics, user_id) => {
  * @Return Response status and load a bulk of topics for each event and list of units for the event
  */
 const findAllDefaultTopicsByEventUnits = async (event_id, selectedUnitIdentifiers, user_id) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/default_event_topics/all`
+  const URL = `${URL_Web_Server_Prefix}/api/default_event_topics/all`
   if (selectedUnitIdentifiers.length === 0 || event_id === 0 || event_id === undefined) {
     return { errCode: CanceledError.ERR_BAD_REQUEST, errMsg: "Event id or units cannot be empty" };
   }

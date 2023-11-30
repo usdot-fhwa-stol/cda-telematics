@@ -1,7 +1,8 @@
 import axios from 'axios';
+import {URL_Web_Server_Prefix } from "../env"
 
 const registerNewUser = async (username, email, password, org_id) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/register`
+    const URL = `${URL_Web_Server_Prefix}/api/users/register`
 
     try {
         const { data } = await axios.post(URL, {
@@ -18,7 +19,7 @@ const registerNewUser = async (username, email, password, org_id) => {
 }
 
 const updatePassword = async (username, email, new_password) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/forget/password`
+    const URL = `${URL_Web_Server_Prefix}/api/users/forget/password`
     try {
         const { data } = await axios.post(URL, {
             username: username,
@@ -33,7 +34,7 @@ const updatePassword = async (username, email, new_password) => {
 }
 
 const loginUser = async (username, password) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/login`
+    const URL = `${URL_Web_Server_Prefix}/api/users/login`
     try {
         const { data } = await axios.post(URL, {
             username: username,
@@ -48,7 +49,7 @@ const loginUser = async (username, password) => {
 
 
 const deleteUser = async (username) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/delete`
+    const URL = `${URL_Web_Server_Prefix}/api/users/delete`
 
     try {
         const { data } = await axios.delete(URL + "?username=" + username, { withCredentials: true });
@@ -61,7 +62,7 @@ const deleteUser = async (username) => {
 
 
 const listUsers = async () => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/all`
+    const URL = `${URL_Web_Server_Prefix}/api/users/all`
 
     try {
         const { data } = await axios.get(URL, { withCredentials: true });
@@ -72,7 +73,7 @@ const listUsers = async () => {
     }
 }
 const updateUserServerAdmin = async (req) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/update/server/admin`
+    const URL = `${URL_Web_Server_Prefix}/api/users/update/server/admin`
     try {
         const { data } = await axios.post(URL, req, { withCredentials: true });
         return data;
@@ -82,7 +83,7 @@ const updateUserServerAdmin = async (req) => {
     }
 }
 const checkServerSession = async () => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/ping`
+    const URL = `${URL_Web_Server_Prefix}/api/users/ping`
     try {
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;

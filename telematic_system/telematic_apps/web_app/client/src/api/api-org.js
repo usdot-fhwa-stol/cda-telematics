@@ -1,6 +1,7 @@
 import axios from 'axios';
+import {URL_Web_Server_Prefix } from "../env"
 const listOrgs = async () => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/all`
+    const URL = `${URL_Web_Server_Prefix}/api/org/all`
     try {
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
@@ -11,7 +12,7 @@ const listOrgs = async () => {
 }
 
 const listOrgUsers = async () => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/all/users`
+    const URL = `${URL_Web_Server_Prefix}/api/org/all/users`
     try {
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
@@ -22,7 +23,7 @@ const listOrgUsers = async () => {
 }
 
 const addOrgUser = async (reqData) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/user/add`
+    const URL = `${URL_Web_Server_Prefix}/api/org/user/add`
 
     try {
         const { data } = await axios.post(URL, {
@@ -36,7 +37,7 @@ const addOrgUser = async (reqData) => {
 }
 
 const getUserRole = async (reqData) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/role/get`
+    const URL = `${URL_Web_Server_Prefix}/api/org/role/get`
     try {
         const { data } = await axios.post(URL, {
             data: reqData
@@ -50,7 +51,7 @@ const getUserRole = async (reqData) => {
 
 
 const getOrgsByUser = async (userId) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/user/find`
+    const URL = `${URL_Web_Server_Prefix}/api/org/user/find`
 
     try {
         const { data } = await axios.post(URL, {
@@ -64,7 +65,7 @@ const getOrgsByUser = async (userId) => {
 }
 
 const updateOrgUser = async (reqData) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/user/update`
+    const URL = `${URL_Web_Server_Prefix}/api/org/user/update`
 
     try {
         const { data } = await axios.post(URL, {
@@ -79,7 +80,7 @@ const updateOrgUser = async (reqData) => {
 
 
 const deleteOrgUser = async (req) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/user/delete`
+    const URL = `${URL_Web_Server_Prefix}/api/org/user/delete`
     if (req === undefined || req.user_id === undefined || req.org_id === undefined) {
         console.error("Cannot delete org user because request data is empty")
     }

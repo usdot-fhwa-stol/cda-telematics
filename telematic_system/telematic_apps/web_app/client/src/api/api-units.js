@@ -1,12 +1,13 @@
 
 import axios from 'axios';
+import {URL_Web_Server_Prefix } from "../env"
 /**
  *@brief Create a unit
  * @Return Response status and message
  */
 const createUnit = async (unit) => {
     try {
-        const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/units/create`
+        const URL = `${URL_Web_Server_Prefix}/api/units/create`
         const { data } = await axios.post(URL, unit, { withCredentials: true });
         return data;
     } catch (err) {
@@ -21,7 +22,7 @@ const createUnit = async (unit) => {
  */
 const findAllUnits = async () => {
     try {
-        const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/units/all`
+        const URL = `${URL_Web_Server_Prefix}/api/units/all`
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
