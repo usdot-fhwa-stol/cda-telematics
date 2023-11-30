@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {env, URL_Web_Messaging_Server_Prefix } from "../env"
+import {env } from "../env"
 
 /**
  *@brief Send request to telematic_cloud_messaging web service to get available topics for the given unit identifiers
@@ -9,7 +9,7 @@ import {env, URL_Web_Messaging_Server_Prefix } from "../env"
 const getAvailableLiveTopicsByEventUnits = async (selectedUnitIdentifiers) => {
     let sentStatus = [];
     await Promise.all(selectedUnitIdentifiers.map(async selectedUnitIdentifier => {
-        const URL = `${URL_Web_Messaging_Server_Prefix}/requestAvailableTopics/${selectedUnitIdentifier}`
+        const URL = `${env.REACT_APP_MESSAGING_SERVER_URI}/requestAvailableTopics/${selectedUnitIdentifier}`
         try {
             const { data } = await axios.get(URL);
             sentStatus.push(data);
@@ -30,7 +30,7 @@ const getAvailableLiveTopicsByEventUnits = async (selectedUnitIdentifiers) => {
  * @Return Response status and message from telematic_cloud_messaging server.
  */
 const requestSelectedLiveUnitsTopics = async (seletedUnitTopicListToConfirm) => {
-    const URL = `${URL_Web_Messaging_Server_Prefix}/requestSelectedTopics`;
+    const URL = `${env.REACT_APP_MESSAGING_SERVER_URI}/requestSelectedTopics`;
     let sentStatus = [];
     return await Promise.all(seletedUnitTopicListToConfirm.map(async selectdUnitTopics => {
         let body = {

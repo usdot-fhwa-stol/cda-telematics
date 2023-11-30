@@ -1,6 +1,6 @@
 
 import axios from 'axios';
-import {URL_Web_Server_Prefix } from "../env"
+import {env} from "../env"
 
 /**
  *@brief Create a location
@@ -8,7 +8,7 @@ import {URL_Web_Server_Prefix } from "../env"
  * @Return Response status and message
  */
 const createLocation = async (location) => {
-  const URL = `${URL_Web_Server_Prefix}/api/locations/create`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/locations/create`
   try {
     const { data } = await axios.post(URL, location, { withCredentials: true });
     return data;
@@ -23,7 +23,7 @@ const createLocation = async (location) => {
  * @Return Response status and a list of locations
  */
 const findAllLocations = async () => {
-  const URL = `${URL_Web_Server_Prefix}/api/locations/all`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/locations/all`
   try {
     const { data } = await axios.get(URL, { withCredentials: true });
     return data;

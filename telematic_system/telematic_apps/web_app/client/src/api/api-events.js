@@ -1,5 +1,5 @@
 import axios from 'axios';
-import {URL_Web_Server_Prefix } from "../env"
+import {env} from "../env"
 
 /**
  *@brief Create an event in database (DB)
@@ -8,7 +8,7 @@ import {URL_Web_Server_Prefix } from "../env"
  */
 const createEvent = async (event) => {
     try {
-        const URL = `${URL_Web_Server_Prefix}/api/events/create`
+        const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/events/create`
         const { data } = await axios.post(URL, event, { withCredentials: true });
         return data;
     } catch (err) {
@@ -24,7 +24,7 @@ const createEvent = async (event) => {
  */
 const findAllEvents = async (criteria) => {
     try {
-        let URL = `${URL_Web_Server_Prefix}/api/events/all`;
+        let URL = `${env.REACT_APP_WEB_SERVER_URI}/api/events/all`;
         if (criteria !== undefined && Object.keys(criteria).length > 0) {
             URL += "?";
             let key_values = "";
@@ -50,7 +50,7 @@ const findAllEvents = async (criteria) => {
  */
 const editEvent = async (event) => {
     try {
-        const URL = `${URL_Web_Server_Prefix}/api/events/update/${event.id}`;
+        const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/events/update/${event.id}`;
         const { data } = await axios.put(URL, event, { withCredentials: true });
         return data;
     } catch (err) {
@@ -66,7 +66,7 @@ const editEvent = async (event) => {
  */
 const assignUnit2Event = async (assign_event_unit) => {
     try {
-        const URL = `${URL_Web_Server_Prefix}/api/event_units/create`
+        const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/event_units/create`
         const { data } = await axios.post(URL, assign_event_unit, { withCredentials: true });
         return data;
     } catch (err) {
@@ -82,7 +82,7 @@ const assignUnit2Event = async (assign_event_unit) => {
  */
 const unAssignUnit2Event = async (event_unit) => {
     try {
-        const URL = `${URL_Web_Server_Prefix}/api/event_units/delete?event_id=${event_unit.event_id}&unit_id=${event_unit.unit.id}`;
+        const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/event_units/delete?event_id=${event_unit.event_id}&unit_id=${event_unit.unit.id}`;
         const { data } = await axios.delete(URL, { withCredentials: true });
         return data;
     } catch (err) {
@@ -98,7 +98,7 @@ const unAssignUnit2Event = async (event_unit) => {
  */
 const deleteEvent = async (id) => {
     try {
-        const URL = `${URL_Web_Server_Prefix}/api/events/delete/${id}`
+        const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/events/delete/${id}`
         const { data } = await axios.delete(URL, { withCredentials: true });
         return data;
     } catch (err) {
