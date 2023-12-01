@@ -13,11 +13,21 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+import { BrowserRouter } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
-import App from './App';
+import App from '../App';
+import { AuthContextProvider } from "../context/auth-context";
+import { TopicContextProvider } from "../context/topic-context";
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
+test('renders login screen', () => {
+  render(
+    <BrowserRouter>
+      <AuthContextProvider>
+        <TopicContextProvider>
+          <App />
+        </TopicContextProvider>
+      </AuthContextProvider>
+    </BrowserRouter>);
+  const linkElement = screen.getByText(/Sign In/i);
   expect(linkElement).toBeInTheDocument();
 });
