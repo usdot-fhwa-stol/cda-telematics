@@ -37,10 +37,6 @@ services:
     network_mode: host
     depends_on:
       - telematic_web_server
-    environment:
-      - REACT_APP_MESSAGING_SERVER_URI=http://127.0.0.1:8080/
-      - REACT_APP_WEB_SERVER_URI=http://127.0.0.1:9010/
-      - REACT_APP_GRAFANA_URI=http://127.0.0.1:3000/
     volumes:
       - ./web_client.production.env.js:/usr/share/nginx/html/env.js
 
