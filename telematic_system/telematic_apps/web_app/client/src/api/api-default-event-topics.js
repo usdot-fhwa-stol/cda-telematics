@@ -18,8 +18,6 @@ const createDefaultTopicsByEventUnits = async (seletedUnitsTopics, user_id) => {
     return { errCode: "404", errMsg: "Event id or units cannot be empty" };
   }
 
-  console.log(seletedUnitsTopics)
-
   try {
     const { data } = await axios.post(URL, {unitsTopics: seletedUnitsTopics, user_id: user_id}, { withCredentials: true });
     return data;

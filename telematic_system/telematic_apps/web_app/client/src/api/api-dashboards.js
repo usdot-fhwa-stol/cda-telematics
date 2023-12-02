@@ -86,7 +86,6 @@ const deleteEventDashboards = async (event_id, dashboard_id) => {
 
   try {
     const { data } = await axios.delete(URL+"?event_id="+event_id+"&dashboard_id="+dashboard_id, { withCredentials: true });
-    console.log(data)
     return data;
   } catch (err) {
     
