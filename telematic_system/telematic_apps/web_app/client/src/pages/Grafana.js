@@ -47,7 +47,7 @@ const Grafana = () => {
           width="100%"
           height="100%"
           frameBorder="0"
-          allowFullscreen />
+          allowFullScreen />
       </Grid>
 
     </React.Fragment>
