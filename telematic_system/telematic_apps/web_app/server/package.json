@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=5000  --watchAll --coverage --verbose"
+    "test": "cross-env NODE_ENV=test jest --testTimeout=5000 --coverage --verbose"
   },
   "dependencies": {
     "axios": "^0.27.2",

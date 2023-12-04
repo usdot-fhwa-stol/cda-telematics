@@ -123,7 +123,7 @@ jobs:
           cd $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/server
           npm init -y
           npm install --force
-          npm test -- --coverage || true
+          npm run test --coverage || true
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
