@@ -11,43 +11,43 @@ beforeEach(() => {
     axios.delete.mockResolvedValue(response);
 })
 
-test('Search dashboard not throw', async () => {
+test('Login user not throw', async () => {
     await loginUser('username', 'password').then(data=>expect(data).toEqual({status: 'success'}));
     jest.resetAllMocks();
     await expect(() => loginUser('username', 'password')).not.toThrow();
 });
 
-test('Get dashboards for a given organization not throw', async () => {
+test('Delete a user not throw', async () => {
     await deleteUser('username').then(data=>expect(data).toEqual({status: 'success'}));
     jest.resetAllMocks();
     await expect(() => deleteUser('username')).not.toThrow();
 });
 
-test('List dashboards for a given event not throw', async () => {
+test('Update password not throw', async () => {
     await updatePassword('username', 'email', 'new_password').then(data=>expect(data).toEqual({status: 'success'}));
     jest.resetAllMocks();
     await expect(() => updatePassword('username', 'email', 'new_password')).not.toThrow();
 });
 
-test('Update dashboards that are associated to an event', async () => {
+test('Register a user', async () => {
     await registerNewUser('user name', 'email', 'password', 'org id').then(data=>expect(data).toEqual({status: 'success'}));
     jest.resetAllMocks();
     await expect(() => registerNewUser('user name', 'email', 'password', 'org id')).not.toThrowError();
 })
 
-test('Delete dashboards that are associated to an event', async () => {
+test('List all users', async () => {
     await listUsers().then(data=>expect(data).toEqual({status: 'success'}));
     jest.resetAllMocks();
     await expect(() => listUsers()).not.toThrowError();
 })
 
-test('Delete dashboards that are associated to an event', async () => {
+test('Update user permission to server admin', async () => {
     await updateUserServerAdmin({}).then(data=>expect(data).toEqual({status: 'success'}));
     jest.resetAllMocks();
     await expect(() => updateUserServerAdmin({})).not.toThrowError();
 })
 
-test('Delete dashboards that are associated to an event', async () => {
+test('Check if server session is established', async () => {
     await checkServerSession().then(data=>expect(data).toEqual({status: 'success'}));
     jest.resetAllMocks();
     await expect(() => checkServerSession()).not.toThrowError();

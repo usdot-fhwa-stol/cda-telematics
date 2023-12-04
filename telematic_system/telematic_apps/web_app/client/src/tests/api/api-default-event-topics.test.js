@@ -11,7 +11,7 @@ beforeEach(() => {
     axios.delete.mockResolvedValue(response);
 })
 
-test('Search dashboard not throw', async () => {
+test('Get all default topics for units not throw', async () => {
     await findAllDefaultTopicsByEventUnits('event id', ['unit identifier'], 'user id')
         .then(data => expect(data).toEqual({ status: 'success' }));
     jest.resetAllMocks();
@@ -19,7 +19,7 @@ test('Search dashboard not throw', async () => {
     await expect(() => findAllDefaultTopicsByEventUnits('event id', [], 'user id')).not.toThrow();
 });
 
-test('Get dashboards for a given organization not throw', async () => {
+test('Save default topics for units not throw', async () => {
     const seletedUnitsTopics = [
         {
             event_id: 'event id',

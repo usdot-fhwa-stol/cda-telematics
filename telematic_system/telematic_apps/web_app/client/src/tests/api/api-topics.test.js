@@ -10,7 +10,7 @@ beforeEach(() => {
     axios.post.mockResolvedValue(response);
 })
 
-test('Search dashboard not throw', async () => {
+test('Get available topics for each event and their units not throw', async () => {
     let selectedUnitIdentifiers = [{ unit_identifier: 'unit_id' }];
     await getAvailableLiveTopicsByEventUnits(selectedUnitIdentifiers)
         .then(data => expect(data).toEqual([{ status: 'success' }]));
@@ -18,7 +18,7 @@ test('Search dashboard not throw', async () => {
     await expect(() => getAvailableLiveTopicsByEventUnits(selectedUnitIdentifiers)).not.toThrow();
 });
 
-test('Get dashboards for a given organization not throw', async () => {
+test('Request selected topics for selected units not throw', async () => {
     let selectedUnitTopcis = [
         {
             unit_identifier: 'unit_identifier',
