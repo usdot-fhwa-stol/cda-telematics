@@ -131,7 +131,7 @@ jobs:
           path: telematic_system/telematic_apps/web_app/server/coverage/*
           if-no-files-found: error
   sonar:
-    needs: [carma_vehicle_bridge_coverage, carma_cloud_bridge_coverage, telematic_cloud_messaging_coverage, web_app_client_coverage, web_app_server_coverage]
+    needs: [telematic_cloud_messaging_coverage, web_app_client_coverage, web_app_server_coverage]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout ${{ github.event.repository.name }}
