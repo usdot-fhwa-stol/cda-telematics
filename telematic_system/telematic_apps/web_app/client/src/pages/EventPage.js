@@ -274,7 +274,6 @@ const EventPage = React.memo(() => {
   }
 
   useEffect(() => {
-    authCtx.updateViewCount();
     const res_loc_data = findAllLocations();
     res_loc_data.then(json => {
       if (json !== undefined && json.errCode === undefined) {

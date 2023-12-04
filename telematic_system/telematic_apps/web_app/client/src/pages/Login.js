@@ -104,7 +104,7 @@ const Login = React.memo(() => {
                     onClose={handleClose}
                     autoHideDuration={6000}
                     key="Login">
-                    <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                    <Alert data-testid='alert-msg' onClose={handleClose} severity="error" sx={{ width: '100%' }}>
                         {loginErrMsg}
                     </Alert>
                 </Snackbar>
@@ -125,6 +125,7 @@ const Login = React.memo(() => {
                                     margin="normal"
                                     required
                                     id="username"
+                                    inputProps={ {'data-testid':'username'}}
                                     label="User Name"
                                     name="username"
                                     autoComplete="username"
@@ -135,6 +136,7 @@ const Login = React.memo(() => {
                                     margin="normal"
                                     required
                                     name="password"
+                                    inputProps={{'data-testid':'password'}}
                                     label="Password"
                                     type="password"
                                     id="password"

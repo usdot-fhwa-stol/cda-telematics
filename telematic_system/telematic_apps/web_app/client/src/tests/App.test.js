@@ -14,20 +14,26 @@
  * the License.
  */
 import { BrowserRouter } from 'react-router-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import App from '../App';
 import { AuthContextProvider } from "../context/auth-context";
 import { TopicContextProvider } from "../context/topic-context";
+import { act } from 'react-dom/test-utils';
 
-test('renders login screen', () => {
-  render(
-    <BrowserRouter>
-      <AuthContextProvider>
-        <TopicContextProvider>
-          <App />
-        </TopicContextProvider>
-      </AuthContextProvider>
-    </BrowserRouter>);
-  const linkElement = screen.getByText(/Sign In/i);
-  expect(linkElement).toBeInTheDocument();
+test('renders login screen', async () => {
+  await act(() => {
+    render(
+      <BrowserRouter>
+        <AuthContextProvider>
+          <TopicContextProvider>
+            <App />
+          </TopicContextProvider>
+        </AuthContextProvider>
+      </BrowserRouter>);
+  })
+
+  await waitFor(() => {
+    const linkElement = screen.getByText(/Sign In/i);
+    expect(linkElement).toBeInTheDocument();
+  })
 });

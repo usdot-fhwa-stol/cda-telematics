@@ -12,10 +12,10 @@ import AuthContext from '../context/auth-context';
 
 const AdminPage = () => {
     //Add Alert notification
-    const [alertStatus, setAlertStatus] = useState({});
-    const [users, setUsers] = useState([]);
-    const [orgs, setOrgs] = useState([]);
-    const [orgsUsers, setOrgsUsers] = useState([]);
+    const [alertStatus, setAlertStatus] = React.useState({});
+    const [users, setUsers] =  React.useState([]);
+    const [orgs, setOrgs] =  React.useState([]);
+    const [orgsUsers, setOrgsUsers] =  React.useState([]);
     const authContxt = React.useContext(AuthContext);
 
     const closeAlertHandler = () => {
@@ -79,7 +79,6 @@ const AdminPage = () => {
     }
 
     useEffect(() => {
-        authContxt.updateViewCount();
         const user_response = listUsers();
         user_response.then(data => {
             if (data !== undefined && Array.isArray(data) && data.length !== 0) {
@@ -159,7 +158,7 @@ const AdminPage = () => {
                 <UserRoleManagement
                     users={users}
                     orgs={orgs}
-                    orgsUsers={orgsUsers}
+                    orgsusers={orgsUsers}
                     onAddUserToOrg={handleAddUserToOrg}
                     onUserOrgRoleChange={handleUserOrgRoleChange}
                     onUserOrgRoleDelete={handleUserOrgRoleDelete}
