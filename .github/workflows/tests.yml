@@ -101,7 +101,7 @@ jobs:
           npm install -g nodemon
           npm init -y
           npm install --force
-          npm test -- --coverage || true
+          npm test
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
