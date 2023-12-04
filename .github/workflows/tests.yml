@@ -131,6 +131,7 @@ jobs:
           path: telematic_system/telematic_apps/web_app/server/coverage/*
           if-no-files-found: error
   sonar:
+    # Remove cloud bridge and vehicle bridge coverage temporarily as test build failed
     needs: [telematic_cloud_messaging_coverage, web_app_client_coverage, web_app_server_coverage]
     runs-on: ubuntu-latest
     steps:
