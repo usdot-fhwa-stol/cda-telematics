@@ -138,13 +138,13 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      # Comment out cloud bridge code coverage for now because of test failure
+      # Comment out cloud bridge code coverage temporarily because of test failure
       # - name: Download code coverage results
       #   uses: actions/download-artifact@v3
       #   with:
       #     name: carma-cloud-bridge-coverage
       #     path: carma_cloud_bridge
-      # Comment out vehicle bridge code coverage for now because of test failure
+      # Comment out vehicle bridge code coverage temporarily because of test failure
       # - name: Download code coverage results
       #   uses: actions/download-artifact@v3
       #   with:
@@ -173,17 +173,18 @@ jobs:
         shell: bash
         run: |
           find "$GITHUB_WORKSPACE" -name "lcov.info"
-      - name: Rewrite workspace path in coverage.xml
-        shell: python
-        run: |
-          for coverage_file in ["/home/runner/work/cda-telematics/cda-telematics/carma_cloud_bridge/coverage.xml", "/home/runner/work/cda-telematics/cda-telematics/carma_vehicle_bridge/coverage.xml"] :
-            with open(coverage_file, 'r') as coverage :
-              coverage_content = coverage.read()
+      # Comment out coverage for vehicle and cloud bridge temporarily because of test failure
+      # - name: Rewrite workspace path in coverage.xml
+      #   shell: python
+      #   run: |
+      #     for coverage_file in ["/home/runner/work/cda-telematics/cda-telematics/carma_cloud_bridge/coverage.xml", "/home/runner/work/cda-telematics/cda-telematics/carma_vehicle_bridge/coverage.xml"] :
+      #       with open(coverage_file, 'r') as coverage :
+      #         coverage_content = coverage.read()
             
-            coverage_content = coverage_content.replace('/__w/', '/home/runner/work/')
+      #       coverage_content = coverage_content.replace('/__w/', '/home/runner/work/')
             
-            with open(coverage_file, 'w') as coverage:
-              coverage.write(coverage_content)
+      #       with open(coverage_file, 'w') as coverage:
+      #         coverage.write(coverage_content)
       - name: Setup SonarScanner
         uses: warchant/setup-sonar-scanner@v4
         with:
