@@ -205,6 +205,7 @@ jobs:
           sonar.projectName=cda-telematics
           sonar.python.coverage.reportPaths=$GITHUB_WORKSPACE/carma_cloud_bridge/coverage.xml,$GITHUB_WORKSPACE/carma_vehicle_bridge/coverage.xml
           sonar.python.version=3.9
+          sonar.verbose=true
           cloud_nats_bridge.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge
           cloud_nats_bridge.sonar.sources=src
           cloud_nats_bridge.sonar.tests=test
@@ -226,5 +227,5 @@ jobs:
         uses: usdot-fhwa-stol/actions/sonar-scanner@main
         with:
           sonar-properties-path: /tmp/sonar-scanner.properties
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
+          sonar-token: ${{ secrets.TELEMATIC_SONAR_TOKEN }}
           working-dir: $GITHUB_WORKSPACE
