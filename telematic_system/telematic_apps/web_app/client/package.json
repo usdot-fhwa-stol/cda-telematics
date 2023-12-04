@@ -30,7 +30,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --watchAll --coverage",
+    "test": "react-scripts test --coverage",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -63,7 +63,6 @@
     "coveragePathIgnorePatterns": [
       "node_modules",
       "src/index.js",
-      "src/reportWebVitals.js",
       "src/tests"
     ]
   },
