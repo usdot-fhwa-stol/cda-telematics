@@ -1,14 +1,15 @@
-import { afterEach, jest, test } from '@jest/globals'
-import { fireEvent, render, screen } from '@testing-library/react'
+import { test } from '@jest/globals'
+import { render, screen } from '@testing-library/react'
 import { act } from 'react-dom/test-utils'
+import { BrowserRouter } from 'react-router-dom'
 import Grafana from '../../pages/Grafana'
 
-test('Forgot password page', async () => {
+test('Grafana page', async () => {
     await act(async () => {
-        render(<Grafana />)
+        render(
+            <BrowserRouter>
+                <Grafana />
+            </BrowserRouter>)
     })
-
-    await act(async () => {
-        // fireEvent.load()
-    });
+    expect(screen.getByRole('progressbar')).toBeInTheDocument();
 })
