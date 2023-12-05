@@ -170,10 +170,6 @@ jobs:
         shell: bash
         run: |
           find "$GITHUB_WORKSPACE" -name "jacoco.xml"
-      - name: Find lcov.info
-        shell: bash
-        run: |
-          find "$GITHUB_WORKSPACE" -name "lcov.info"
       # Comment out coverage for vehicle and cloud bridge temporarily because of test failure
       # - name: Rewrite workspace path in coverage.xml
       #   shell: python
@@ -186,13 +182,23 @@ jobs:
             
       #       with open(coverage_file, 'w') as coverage:
       #         coverage.write(coverage_content)
-      - name: Move web app client and server code coverage file into one
+      - name: Move web app client and server code coverage files into one
         run: |
             cd $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app
-            mkdir coverage
+            mkdir coverage && coverage-merged-reports
             mv client/coverage/lcov.info coverage/lcov_server.info
             mv server/coverage/lcov.info coverage/lcov_client.info
-            npx lcov-result-merger 'coverage/lcov_*.info' 'coverage/lcov.info'
+      - name: Merge web app coverage reports
+        uses: selfagency/merge-coverage@v1.1.2
+        with:
+          coverage-reports: $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage
+          output-folder: $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage-merged-reports
+          formats: lcov
+          artifacts: false      
+      - name: Find lcov*.info
+        shell: bash
+        run: |
+          find "$GITHUB_WORKSPACE" -name "lcov*.info"
       - name: Setup SonarScanner
         uses: warchant/setup-sonar-scanner@v4
         with:
@@ -205,7 +211,7 @@ jobs:
           sonar.exclusions=**/__init__.py,**/*test*.py,**/test/**
           sonar.coverage.exclusions=**/__init__.py,**/*test*.py,**/test/**
           sonar.java.binaries=$GITHUB_WORKSPACE/telematic_system/telematic_cloud_messaging/target/
-          sonar.javascript.lcov.reportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage/lcov.info
+          sonar.javascript.lcov.reportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage-merged-reports/lcov*.info
           sonar.modules=cloud_nats_bridge,ros2_nats_bridge,streets_nats_bridge,telematic_cloud_messaging,web_app_client,web_app_server
           sonar.organization=usdot-fhwa-stol
           sonar.projectBaseDir=$GITHUB_WORKSPACE
