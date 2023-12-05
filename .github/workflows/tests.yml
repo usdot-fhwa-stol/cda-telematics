@@ -190,6 +190,7 @@ jobs:
             mv server/coverage/lcov.info coverage/lcov_client.info
             npm install -g lcov-result-merger 
             npx lcov-result-merger 'coverage/lcov_*.info' 'coverage/lcov.info'
+            cat coverage/lcov.info
       - name: Find lcov*.info
         shell: bash
         run: |
