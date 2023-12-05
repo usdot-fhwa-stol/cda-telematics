@@ -207,7 +207,7 @@ jobs:
           sonar.scm.disabled=false
           sonar.scm.enabled=true
           sonar.scm.provider=git
-          sonar.javascript.file.suffixes=.js
+          sonar.javascript.file.suffixes=.js,.jsx
           extraProperties: |
             sonar.verbose=true
           sonar.python.coverage.reportPaths=$GITHUB_WORKSPACE/carma_cloud_bridge/coverage.xml,$GITHUB_WORKSPACE/carma_vehicle_bridge/coverage.xml
