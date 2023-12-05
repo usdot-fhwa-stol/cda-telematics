@@ -223,9 +223,11 @@ jobs:
           web_app_client.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/client
           web_app_client.sonar.sources=src
           web_app_client.sonar.tests=src/tests
+          web_app_client.sonar.exclusions =src/tests/**
           web_app_server.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/server
           web_app_server.sonar.sources=.
           web_app_server.sonar.tests=tests
+          web_app_server.sonar.exclusions=tests/**
           EOF
       - name: Run SonarScanner
         uses: usdot-fhwa-stol/actions/sonar-scanner@main
