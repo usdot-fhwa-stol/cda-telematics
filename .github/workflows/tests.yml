@@ -204,6 +204,10 @@ jobs:
           sonar.projectBaseDir=$GITHUB_WORKSPACE
           sonar.projectKey=usdot-fhwa-stol_cda-telematics
           sonar.projectName=cda-telematics
+          sonar.scm.disabled=false
+          sonar.scm.enabled=true
+          sonar.scm.provider=git
+          sonar.javascript.file.suffixes=.js
           extraProperties: |
             sonar.verbose=true
           sonar.python.coverage.reportPaths=$GITHUB_WORKSPACE/carma_cloud_bridge/coverage.xml,$GITHUB_WORKSPACE/carma_vehicle_bridge/coverage.xml
