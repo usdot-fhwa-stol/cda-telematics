@@ -185,16 +185,9 @@ jobs:
       - name: Move web app client and server code coverage files into one
         run: |
             cd $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app
-            mkdir coverage coverage-merged-reports
+            mkdir coverage
             mv client/coverage/lcov.info coverage/lcov_server.info
             mv server/coverage/lcov.info coverage/lcov_client.info
-      - name: Merge web app coverage reports
-        uses: selfagency/merge-coverage@v1.1.2
-        with:
-          coverage-reports: $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage
-          output-folder: $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage-merged-reports
-          formats: lcov
-          artifacts: false      
       - name: Find lcov*.info
         shell: bash
         run: |
@@ -211,7 +204,7 @@ jobs:
           sonar.exclusions=**/__init__.py,**/*test*.py,**/test/**
           sonar.coverage.exclusions=**/__init__.py,**/*test*.py,**/test/**
           sonar.java.binaries=$GITHUB_WORKSPACE/telematic_system/telematic_cloud_messaging/target/
-          sonar.javascript.lcov.reportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage-merged-reports/lcov*.info
+          sonar.javascript.lcov.reportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage/lcov*.info
           sonar.modules=cloud_nats_bridge,ros2_nats_bridge,streets_nats_bridge,telematic_cloud_messaging,web_app_client,web_app_server
           sonar.organization=usdot-fhwa-stol
           sonar.projectBaseDir=$GITHUB_WORKSPACE
