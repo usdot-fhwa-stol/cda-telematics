@@ -188,10 +188,11 @@ jobs:
       #         coverage.write(coverage_content)
       - name: Move web app client and server code coverage file into one
         run: |
-            cd $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/server/coverage && mv lcov.info $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage/lcov_server.info
-            cd $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/client/coverage && mv lcov.info $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage/lcov_client.info
-            cd $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage
-            npx lcov-result-merger 'lcov_*.info' 'lcov.info'
+            cd $GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app
+            mkdir coverage
+            mv client/coverage/lcov.info coverage/lcov_server.info
+            mv server/coverage/lcov.info coverage/lcov_client.info
+            npx lcov-result-merger 'coverage/lcov_*.info' 'coverage/lcov.info'
       - name: Setup SonarScanner
         uses: warchant/setup-sonar-scanner@v4
         with:
