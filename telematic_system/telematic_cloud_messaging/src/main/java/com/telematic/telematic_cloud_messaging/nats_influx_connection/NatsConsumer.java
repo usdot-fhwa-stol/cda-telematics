@@ -3,6 +3,9 @@ package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 import io.nats.client.*;
 import java.util.List;
 import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.nio.charset.StandardCharsets;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -109,15 +112,19 @@ public class NatsConsumer {
                 logger.debug(unit_type + " NatsConsumer available topics request. Reply: " + reply);
 
                 JSONObject jsonObject = new JSONObject(reply); 
-                JSONArray topicList = jsonObject.getJSONArray("topics");
+                Object topicsObject = jsonObject.get("topics");
 
                 //Add the topics to the topic list if they don't already exist
-                for(int i=0; i<topicList.length(); i++) 
+                if(topicsObject instanceof JSONArray)
                 {
-                    String topicName = topicList.getJSONObject(i).getString("name");
-                    if (!topic_list.contains(topicName)) {
-                        topic_list.add(topicName);
-                        logger.info(unit_type + " NatsConsumer added to topic list: " + topicName);
+                    JSONArray topicList = (JSONArray)topicsObject;
+                    for(int i=0; i<topicList.length(); i++) 
+                    {
+                        String topicName = topicList.getJSONObject(i).getString("name");
+                        if (!topic_list.contains(topicName)) {
+                            topic_list.add(topicName);
+                            logger.info(unit_type + " NatsConsumer added to topic list: " + topicName);
+                        }
                     }
                 }
 
