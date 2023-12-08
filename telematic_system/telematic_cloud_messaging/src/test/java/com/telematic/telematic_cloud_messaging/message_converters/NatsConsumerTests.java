@@ -1,10 +1,13 @@
 package com.telematic.telematic_cloud_messaging.message_converters;
 
-import static org.junit.Assert.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -34,5 +37,33 @@ public class NatsConsumerTests {
             System.out.println("Couldnt connect to nats in test");
             e.printStackTrace();
         }
+    }
+    @Test
+    public void availableTopicsJsonParseTest(){
+        try 
+        {
+            String jsonNullStr = "{topics: null}";
+            JSONObject jsonObj = new JSONObject(jsonNullStr);
+            Object obj = jsonObj.get("topics");
+            assertFalse(obj instanceof JSONArray);
+
+            String jsonEmptyStr = "{topics: []}";
+            jsonObj = new JSONObject(jsonEmptyStr);
+            Object topicsObject = jsonObj.get("topics");
+            assertTrue(topicsObject instanceof JSONArray);
+            JSONArray topicList = (JSONArray)topicsObject;
+            assertTrue(topicList.length()==0);
+
+            String jsonTopicsStr = "{topics: [test: test]}";
+            jsonObj = new JSONObject(jsonTopicsStr);
+            topicsObject = jsonObj.get("topics");
+            assertTrue(topicsObject instanceof JSONArray);
+            topicList = (JSONArray)topicsObject;
+            assertTrue(topicList.length()==1);
+        } catch (JSONException e) 
+        {
+            e.printStackTrace();
+        }
+
     }
 }
