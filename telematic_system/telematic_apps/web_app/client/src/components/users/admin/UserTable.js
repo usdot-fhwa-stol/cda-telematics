@@ -68,7 +68,7 @@ const UserTable = (props) => {
                                                 onUserOrgRoleChange={props.onUserOrgRoleChange}
                                                 onUserOrgRoleDelete={props.onUserOrgRoleDelete}
                                                 columns={columns} orgs={props.orgs}
-                                                orgsUsers={props.orgsUsers}
+                                                orgsusers={props.orgsusers}
                                                 onChangeServerAdmin={props.onChangeServerAdmin} />
                                         );
                                     })}

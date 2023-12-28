@@ -45,7 +45,7 @@ const Layout = React.memo((props) => {
                 }
             })
         }
-    }, [authContext.sessionToken, authContext.view_count])
+    }, [authContext.sessionToken])
 
     const StyledListItemButton = withStyles({
         root: {

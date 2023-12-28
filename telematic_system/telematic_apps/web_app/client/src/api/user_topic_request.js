@@ -22,8 +22,9 @@ const upsertUserTopicRequestForEventUnits = async (seletedUnitsTopics, user_id) 
     const { data } = await axios.post(URL, { unitsTopics: seletedUnitsTopics, user_id: user_id }, { withCredentials: true });
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    
+      return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
   }
 }
 
@@ -51,8 +52,9 @@ const findUsersTopicRequestByEventUnits = async (event_id, selectedUnitIdentifie
     },);
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    
+      return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
   }
 }
 
@@ -80,8 +82,9 @@ const findUsersTopicRequestByEventUnits = async (event_id, selectedUnitIdentifie
     },);
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    
+      return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
   }
 }
 
