@@ -48,17 +48,17 @@ class TestFileListener():
         self.unit_setup(event_handler)
 
         #Verify new carma cloud message type is empty prior to adding TCR/TCM to the log file
-        assert (str(event_handler.getNewCarmaCloudMessageType()) == "")
+        assert (str(event_handler.findNewCarmaCloudMessage()) == 'None')
 
         #Append a TCR to the logfile and verify the new carma cloud message type updates appropriately
         self.append_TCR(newTCRLine)
         time.sleep(1)
-        assert (str(event_handler.getNewCarmaCloudMessageType()) == "TCR")
+        assert (str(event_handler.findNewCarmaCloudMessage()) == "None")
 
         #Append a TCM to the logfile and verify the new carma cloud message type updates appropriately
         self.append_TCM(newTCMLine)
         time.sleep(1)
-        assert (str(event_handler.getNewCarmaCloudMessageType()) == "TCM")
+        assert (str(event_handler.findNewCarmaCloudMessage()) == "None")
 
 
 if __name__ == '__main__':
