@@ -4,3 +4,4 @@ pyyaml
 xmltodict
 watchdog
 pandas
+exceptiongroup
