@@ -198,7 +198,7 @@ jobs:
       - name: Setup SonarScanner
         uses: warchant/setup-sonar-scanner@v4
         with:
-          version: 4.8.0.2856
+          version: 5.0.1.3006
       - name: Generate sonar properties file
         run: |
           cat <<EOF > /tmp/sonar-scanner.properties
