@@ -41,8 +41,8 @@ services:
         max-size: "10m"
         max-file: "1"
     network_mode: host
-    # depends_on:
-    #   - telematic_web_server
+    depends_on:
+      - telematic_web_server
 
   apache2:
     build:
@@ -61,7 +61,7 @@ services:
     depends_on:
       - grafana
       - telematic_web_client
-      # - telematic_web_server
+      - telematic_web_server
     volumes:
       - /opt/apache2/grafana_htpasswd:/etc/apache2/grafana_htpasswd
 
