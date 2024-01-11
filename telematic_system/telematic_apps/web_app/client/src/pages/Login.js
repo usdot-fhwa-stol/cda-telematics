@@ -77,7 +77,7 @@ const Login = React.memo(() => {
             authContext.login(
                 resData.id,
                 resData.login,
-                resData.session_token,
+                resData.token,
                 resData.email,
                 resData.last_seen_at,
                 resData.org_id,

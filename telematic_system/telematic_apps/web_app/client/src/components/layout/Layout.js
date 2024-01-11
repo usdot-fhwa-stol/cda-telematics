@@ -38,14 +38,14 @@ const Layout = React.memo((props) => {
 
     useEffect(() => {
         if (authContext.sessionToken !== null) {
-            const response = checkServerSession();
+            const response = checkServerSession(authContext.sessionToken);
             response.then((data) => {
                 if (data !== undefined && data.expired !== undefined && data.expired) {
                     setOpen(true);
                 }
             })
         }
-    }, [authContext.sessionToken, authContext.view_count])
+    }, [authContext.sessionToken])
 
     const StyledListItemButton = withStyles({
         root: {

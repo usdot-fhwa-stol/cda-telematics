@@ -79,7 +79,6 @@ const AdminPage = () => {
     }
 
     useEffect(() => {
-        authContxt.updateViewCount();
         const user_response = listUsers();
         user_response.then(data => {
             if (data !== undefined && Array.isArray(data) && data.length !== 0) {

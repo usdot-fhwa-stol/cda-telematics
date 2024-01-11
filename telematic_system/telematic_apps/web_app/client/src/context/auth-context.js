@@ -32,7 +32,7 @@ const AuthContext = React.createContext({
   logout: () => { },
   updateRole: (role) => { },
   updateOrg: (org_id, org_name) => { },
-  updateViewCount: () => { },
+  updateSessionToken: () => { },
 })
 
 export const AuthContextProvider = (props) => {
@@ -86,8 +86,8 @@ export const AuthContextProvider = (props) => {
   const updateRoleHandler = (role) => {
     setRole(role);
   }
-  const updateViewCountHandler = () => {
-    setViewCount(prev => prev + 1);
+  const setSessionTokenHandler = (token) => {
+    setSessionToken(token);
   }
   const updateOrgHandler = (org_id, org_name) => {
     setOrgName(org_name);
@@ -111,7 +111,7 @@ export const AuthContextProvider = (props) => {
     logout: logoutHandler,
     updateRole: updateRoleHandler,
     updateOrg: updateOrgHandler,
-    updateViewCount: updateViewCountHandler
+    updateSessionToken: setSessionTokenHandler
   }}>{props.children}</AuthContext.Provider>
 }
 
