@@ -1,5 +1,6 @@
 version: "3"
 services:
+
   influxdb:
     image:  influxdb:${INFLUXDB_DEV_TAG} 
     container_name: influxdb-dev
@@ -21,6 +22,7 @@ services:
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
     volumes:
       - /opt/influxdb2/data:/var/lib/influxdb2 # data directory
+
   mysqldb:
     image: mysql:5.7
     restart: always
@@ -44,6 +46,7 @@ services:
         max-size: "2g"
         max-file: "1"
     network_mode: host
+
   grafana:
       build:
         context: "./telematic_apps/grafana"
