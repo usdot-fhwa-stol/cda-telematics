@@ -60,6 +60,7 @@ services:
         - /opt/grafana/provisioning:/home/grafana/conf/provisioning
         - /home/ubuntu/.aws/credentials:/usr/share/grafana/.aws/credentials
       user: "472" #grafana user id
+
   telematic_web_server:
       build:
         context: "./telematic_apps/web_app/server"
@@ -140,10 +141,10 @@ services:
     environment:
       - NATS_URI=nats://localhost:4222
 
-  secrets:
-      mysql_password:
-          file: ./secrets/mysql_password.txt
-      mysql_root_password:
-          file: ./secrets/mysql_root_password.txt
-  volumes:
-    mysql-datavolume:
+secrets:
+  mysql_password:
+      file: ./secrets/mysql_password.txt
+  mysql_root_password:
+      file: ./secrets/mysql_root_password.txt
+volumes:
+  mysql-datavolume:
