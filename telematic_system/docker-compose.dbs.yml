@@ -5,7 +5,7 @@ services:
     container_name: influxdb-dev
     ports:
       - '8086:8086'
-    # restart: always
+    restart: always
     logging:
       options:
         max-size: "10m"
