@@ -6,13 +6,18 @@ if [ -d /opt/grafana ]; then
   echo "Directory /opt/grafana exists."
 else
   mkdir /opt/grafana
+  mkdir /opt/grafana/logs
+  mkdir /opt/grafana/data
+  mkdir /opt/grafana/provisioning
 fi
 chmod 777 -R /opt/grafana
 
-if [ /opt/apache2/grafana_htpasswd ]; then
+if [ -f /opt/apache2/grafana_htpasswd ]; then
   echo "File /opt/apache2/grafana_htpasswd exists."
 else
+    mkdir /opt/apache2
     touch /opt/apache2/grafana_htpasswd
+    chmod 777 /opt/apache2/grafana_htpasswd
 fi
 
 if [ -d /opt/influxdb2 ]; then
@@ -22,4 +27,4 @@ else
 fi
 chmod 777 -R /opt/influxdb2
 
-cp telematic-local.env .env
+cp telematic.local.env .env

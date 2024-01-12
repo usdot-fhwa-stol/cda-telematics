@@ -6,7 +6,7 @@ services:
     container_name: influxdb-dev
     ports:
       - '8086:8086'
-    # restart: always
+    restart: always
     logging:
       options:
         max-size: "10m"
@@ -38,6 +38,7 @@ services:
       - mysql_root_password
     volumes:
       - mysql-datavolume:/var/lib/mysql
+  
   nats:
     image: 'nats:2.7.3-alpine3.15'
     restart: always
@@ -56,6 +57,9 @@ services:
           max-size: "10m"
           max-file: "1"
       network_mode: host
+      depends_on:
+        - mysqldb
+
       volumes:
         - /opt/grafana/logs:/var/log/grafana
         - ./telematic_apps/grafana/grafana.ini:/etc/grafana/grafana.ini
