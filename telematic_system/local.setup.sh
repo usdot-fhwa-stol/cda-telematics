@@ -17,7 +17,7 @@ if [ -f /opt/apache2/grafana_htpasswd ]; then
 else
     mkdir /opt/apache2
     touch /opt/apache2/grafana_htpasswd
-    chmod 777 /opt/apache2/grafana_htpasswd
+    chmod 777 -R /opt/apache2
 fi
 
 if [ -d /opt/influxdb2 ]; then
