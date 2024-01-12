@@ -117,5 +117,7 @@ module.exports = (seq, Sequelize) => {
         underscored: true,
         freezeTableName: true 
     });
+    //Do not sync user table
+    User.sync = () => Promise.resolve();
     return User;
 }
