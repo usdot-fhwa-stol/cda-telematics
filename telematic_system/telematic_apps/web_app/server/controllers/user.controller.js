@@ -212,7 +212,7 @@ exports.loginUser = (req, res) => {
                         process.env.SECRET,
                         { expiresIn: "1h" });
                     result.token = token;
-                    result.tokenExpiredAt = Math.round(new Date().getTime()/1000);
+                    result.tokenExpiredAt = Math.round(new Date().getTime()/1000) + 3600;
                     res.status(200).send(result);
                 }).catch((err) => {
                     console.error(err)
