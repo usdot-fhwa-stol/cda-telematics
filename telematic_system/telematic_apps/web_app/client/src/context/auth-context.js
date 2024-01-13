@@ -14,7 +14,7 @@
  * the License.
  */
 import React, { useState } from 'react';
-import { useClearSessionStorage, useSessionStorageString } from "react-use-window-sessionstorage";
+import { useClearSessionStorage, useSessionStorageNumber, useSessionStorageString } from "react-use-window-sessionstorage";
 
 const AuthContext = React.createContext({
   isAuth: false,
@@ -49,7 +49,7 @@ export const AuthContextProvider = (props) => {
   const [name, setName] = useSessionStorageString("name", null);
   const [sessionToken, setSessionToken] = useSessionStorageString("sessionToken", null);
   const clearSessionStorage = useClearSessionStorage();
-  const [sessionExpiredAt, setSessionExpiredAt] = useState(0);
+  const [sessionExpiredAt, setSessionExpiredAt] = useSessionStorageNumber("sessionExpiredAt",0);
 
   const loginHandler = (user_id, username, sessionToken, sessionExpiredAt, email, last_seen_at, org_id, name, is_admin) => {
     if (username !== undefined && username !== ""
