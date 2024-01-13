@@ -39,8 +39,7 @@ var verifyToken = (req) => {
   //Authorization: 'TOKEN'
   const token = req.headers.authorization;
   if (token) {
-    const decodedToken = jwt.verify(token, process.env.SECRET);   
-    console.log(decodedToken) 
+    const decodedToken = jwt.verify(token, process.env.SECRET);  
     if (decodedToken && decodedToken.exp > (new Date().getTime() / 1000)) {
       return true;
     }

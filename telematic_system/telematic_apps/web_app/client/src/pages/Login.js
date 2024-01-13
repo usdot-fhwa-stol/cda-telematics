@@ -78,6 +78,7 @@ const Login = React.memo(() => {
                 resData.id,
                 resData.login,
                 resData.token,
+                resData.tokenExpiredAt,
                 resData.email,
                 resData.last_seen_at,
                 resData.org_id,

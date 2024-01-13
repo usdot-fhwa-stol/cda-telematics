@@ -34,6 +34,7 @@ const NavMenu = React.memo(() => {
         //update user role if changed
         if (authCtx.user_id !== null && authCtx.user_id !== undefined && authCtx.org_id !== null
             && authCtx.org_id !== undefined && parseInt(authCtx.org_id) !== 0 && authCtx.sessionToken !== null) {
+            //Update headers with auth token            
             checkServerSession(authCtx.sessionToken);
             getUserRole({
                 user_id: parseInt(authCtx.user_id),
