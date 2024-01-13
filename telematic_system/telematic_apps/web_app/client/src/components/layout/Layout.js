@@ -38,7 +38,7 @@ const Layout = React.memo((props) => {
 
     useEffect(() => {
         //Check token expiration
-        if(authContext.sessionToken !== null && authContext.sessionExpiredAt < Math.round(new Date().getTime()/1000))
+        if(authContext.sessionToken === undefined || ( authContext.sessionToken !== null && authContext.sessionExpiredAt < Math.round(new Date().getTime()/1000)))
         {
             //expired
             setOpen(true);
