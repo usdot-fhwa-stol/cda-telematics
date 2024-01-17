@@ -149,6 +149,7 @@ services:
     depends_on:
       - nats
       - mysqldb
+      - influxdb
     restart: always
     logging:
       options:
@@ -157,7 +158,7 @@ services:
     network_mode: host
     environment:
       - NATS_URI=nats://localhost:4222
-      - WAIT_HOSTS=localhost:3307,localhost:4222
+      - WAIT_HOSTS=localhost:3307,localhost:4222,localhost:8086
       - WAIT_TIMEOUT=300
       - WAIT_SLEEP_INTERVAL=30
       - WAIT_HOST_CONNECT_TIMEOUT=30
