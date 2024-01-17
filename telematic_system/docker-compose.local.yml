@@ -22,6 +22,7 @@ services:
       - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
     volumes:
       - /opt/influxdb2/data:/var/lib/influxdb2 # data directory
+      - /opt/influxdb2/:/etc/influxdb2 # data directory
 
   mysqldb:
     image: mysql:5.7
@@ -77,7 +78,15 @@ services:
           max-size: "10m"
           max-file: "1"
       network_mode: host
+      depends_on:
+        - mysqldb      
+        - grafana
+      command: sh -c "/wait && npm start"
       environment:
+        - WAIT_HOSTS=localhost:3306
+        - WAIT_HOSTS_TIMEOUT=300
+        - WAIT_SLEEP_INTERVAL=30
+        - WAIT_HOST_CONNECT_TIMEOUT=30
         - NODE_ENV=dev.comelopment
         - CHOKIDAR_USEPOLLING=true
         - ALLOW_CLIENT_URL=http://local.cav-telematics.com:8888
@@ -139,6 +148,7 @@ services:
       dockerfile: "local.Dockerfile"
     depends_on:
       - nats
+      - mysqldb
     restart: always
     logging:
       options:

@@ -20,6 +20,7 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var indexRouter = require("./routes/index");
 const jwt = require("jsonwebtoken");
+const data = require("./config/data");
 
 var app = express();
 const cors = require("cors");
@@ -134,6 +135,16 @@ grafana_db.seq
   .sync()
   .then(() => {
     console.log("Synced grafana_db.");
+    //Initialize data
+    grafana_db.testing_types.bulkCreate(data.initial_testing_types_array, {
+      fields: ["name"],
+      updateOnDuplicate: ["name"],
+    });
+
+    grafana_db.states.bulkCreate(data.initial_states_array, {
+      fields: ["code", "name"],
+      updateOnDuplicate: ["code", "name"],
+    });
   })
   .catch((err) => {
     console.log("Failed to sync grafana_db: " + err.message);
