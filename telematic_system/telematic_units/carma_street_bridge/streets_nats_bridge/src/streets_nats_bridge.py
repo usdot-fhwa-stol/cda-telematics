@@ -45,15 +45,13 @@ class StreetsNatsBridge():
     def __init__(self):
 
         # Load parameters defined as environment variables. Defined the docker-compose file.
-        # IP addr where the NATS server is hosted. 
-        self.nats_ip = os.getenv('NATS_IP')
-        # Port at which NATS is communicating on the speficied IP.
-        self.nats_port = os.getenv('NATS_PORT')
+        # IP addr:Port where the NATS server is hosted.
+        self.nats_ip_port = os.getenv("NATS_SERVER_IP_PORT")
         # IP addr where the kafka broker is hosted.
         self.kafka_ip = os.getenv('KAFKA_BROKER_IP')
         # Port at which kafka broker communicates.
         self.kafka_port = os.getenv('KAFKA_BROKER_PORT')
-        # Unit ID for the streets nats bride. 
+        # Unit ID for the streets nats bride.
         self.unit_id = os.getenv('STREETS_BRIDGE_UNIT_ID')
         # Unit type for the streets bridge.
         self.unit_type = os.getenv('STREETS_BRIDGE_UNIT_TYPE')
@@ -61,7 +59,7 @@ class StreetsNatsBridge():
         self.log_level = os.getenv('STREETS_BRIDGE_LOG_LEVEL')
         # Name of the log file where logs from the unit will be stored
         self.log_name = os.getenv('STREETS_BRIDGE_LOG_NAME')
-        # Path to the log file 
+        # Path to the log file
         self.log_path = os.getenv('STREETS_BRIDGE_LOG_PATH')
         # Size of data which can be stored in the log file, before it is refreshed
         self.log_rotation = int(os.getenv('STREETS_BRIDGE_LOG_ROTATION_SIZE_BYTES'))
@@ -74,7 +72,10 @@ class StreetsNatsBridge():
         self.registered = False
 
         self.log_handler_type = os.getenv('STREETS_BRIDGE_LOG_HANDLER_TYPE')
-        
+
+        # Get is_sim env variable as boolean
+        self.is_sim = os.getenv("IS_SIM", 'FALSE').lower() in ('true', '1')
+
         #Member variables to store the exclusion list
         self.exclusion_list = []
 
@@ -113,9 +114,9 @@ class StreetsNatsBridge():
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")
         log_name = self.log_name + dt_string + ".log"
         formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        
+
         # Create a rotating log handler that will rotate after maxBytes rotation
-        # The backup count is how many rotating logs will be created after reaching the maxBytes size       
+        # The backup count is how many rotating logs will be created after reaching the maxBytes size
         if log_type == LogType.FILE.value:
             self.log_handler = RotatingFileHandler(self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
         else:
@@ -132,7 +133,7 @@ class StreetsNatsBridge():
             self.logger.setLevel(logging.ERROR)
             self.log_handler.setLevel(logging.ERROR)
 
-        self.logger.addHandler(self.log_handler)  
+        self.logger.addHandler(self.log_handler)
 
 
     async def run_async_kafka_consumer(self):
@@ -157,7 +158,7 @@ class StreetsNatsBridge():
             self.streets_topics = []
             for topic in await self.kafka_consumer.topics():
                 self.streets_topics.append(topic)
-                
+
             self.logger.info(
                 " In createAsyncKafkaConsumer: All available Kafka topics = " + str(self.streets_topics))
 
@@ -181,7 +182,7 @@ class StreetsNatsBridge():
     async def kafka_read(self):
         self.logger.info(" In kafka_read: Reading carma-streets kafka traffic")
 
-        #Need to get utc epoch time of first day of year to use with moy and timestamp               
+        #Need to get utc epoch time of first day of year to use with moy and timestamp
         naive = datetime(int(date.today().year), 1, 1, 0, 0, 0) #datetime format (year, month, day, hour, minute, second)
         utc = pytz.utc
         first_day_epoch = utc.localize(naive).timestamp()*1000
@@ -208,26 +209,29 @@ class StreetsNatsBridge():
                     message[EventKeys.LOCATION.value] = self.streets_info[EventKeys.LOCATION.value]
                     message[TopicKeys.TOPIC_NAME.value] = topic
 
-                    #Check if metadata sections exists, if it does use this timestamp for message sent to NATS
-                    if "metadata" in message["payload"]:
-                        timestamp = int(str(message["payload"]["metadata"]["timestamp"]).lstrip("0"))*milliToMicro #convert to microseconds
-                        message["timestamp"] = timestamp
-                    #need to check if there is a "timestamp" key --> desired phase plan message
-                    elif "timestamp" in message["payload"]:
-                        timestamp = int(str(message["payload"]["timestamp"]).lstrip("0"))*milliToMicro #convert to microseconds
-                        message["timestamp"] = timestamp
-                    #do special conversion for spat message using moy
-                    elif topic == "modified_spat":
-                        timestamp = int(message["payload"]["intersections"][0]["time_stamp"])
-                        moy = int(message["payload"]["intersections"][0]["moy"])
-                        #Use moy and timestamp fields to get epoch time for each record
-                        epoch_micro = int((moy* minuteToMilli) + timestamp + first_day_epoch)*milliToMicro #convert moy to microseconds    
-
-                        message["timestamp"] = epoch_micro          
-                        
-                    #if no timestamp (unit of microsecond that has at least 16 digits) is provided in the kafka data, use the bridge time
-                    if "timestamp" not in message or len(str(message["timestamp"])) < 16:
+                    if self.is_sim:
                         message["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # utc timestamp in microseconds
+                    else:
+                        #Check if metadata sections exists, if it does use this timestamp for message sent to NATS
+                        if "metadata" in message["payload"]:
+                            timestamp = int(str(message["payload"]["metadata"]["timestamp"]).lstrip("0"))*milliToMicro #convert to microseconds
+                            message["timestamp"] = timestamp
+                        #need to check if there is a "timestamp" key --> desired phase plan message
+                        elif "timestamp" in message["payload"]:
+                            timestamp = int(str(message["payload"]["timestamp"]).lstrip("0"))*milliToMicro #convert to microseconds
+                            message["timestamp"] = timestamp
+                        #do special conversion for spat message using moy
+                        elif topic == "modified_spat":
+                            timestamp = int(message["payload"]["intersections"][0]["time_stamp"])
+                            moy = int(message["payload"]["intersections"][0]["moy"])
+                            #Use moy and timestamp fields to get epoch time for each record
+                            epoch_micro = int((moy* minuteToMilli) + timestamp + first_day_epoch)*milliToMicro #convert moy to microseconds
+
+                            message["timestamp"] = epoch_micro
+
+                        #if no timestamp (unit of microsecond that has at least 16 digits) is provided in the kafka data, use the bridge time
+                        if "timestamp" not in message or len(str(message["timestamp"])) < 16:
+                            message["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # utc timestamp in microseconds
 
                     # telematic cloud server will look for topic names with the pattern ".data."
                     self.topic_name = "streets." + self.unit_id + ".data." + topic
@@ -245,7 +249,7 @@ class StreetsNatsBridge():
             the public ipv4 address of the EC2 instance should be used.
         """
         self.logger.info(" In nats_connect: Attempting to connect to nats server at: " +
-                         str(self.nats_ip) + ":" + str(self.nats_port))
+                         str(self.nats_ip_port))
 
         async def disconnected_cb():
             self.logger.info(
@@ -261,7 +265,7 @@ class StreetsNatsBridge():
                 " In nats_connect: Error with nats server: {0}".format(err))
 
         try:
-            await self.nc.connect("nats://"+str(self.nats_ip)+":"+str(self.nats_port),
+            await self.nc.connect("nats://"+str(self.nats_ip_port),
                                   error_cb=error_cb,
                                   reconnected_cb=reconnected_cb,
                                   disconnected_cb=disconnected_cb,
@@ -304,7 +308,7 @@ class StreetsNatsBridge():
 
     async def register_unit(self):
         """
-            send request to server to register unit and waits for ack 
+            send request to server to register unit and waits for ack
         """
         self.logger.info("Entering register unit")
         streets_info_message = json.dumps(
@@ -328,7 +332,7 @@ class StreetsNatsBridge():
 
     async def check_status(self):
         """
-            process request from server to check status 
+            process request from server to check status
         """
         async def send_status(msg):
             await self.nc.publish(msg.reply, b"OK")

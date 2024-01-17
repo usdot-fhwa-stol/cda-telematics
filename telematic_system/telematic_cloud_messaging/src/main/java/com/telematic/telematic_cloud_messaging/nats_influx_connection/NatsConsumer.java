@@ -1,18 +1,24 @@
 package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
-import io.nats.client.*;
-import java.util.List;
-import java.util.ArrayList;
 import java.nio.charset.StandardCharsets;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.Arrays;
+
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.nats.client.Connection;
+import io.nats.client.Dispatcher;
+import io.nats.client.Message;
+import io.nats.client.Nats;
+import io.nats.client.Options;
 
 /**
  * The NatsConsumer object creates a connection to the telematic nats server and subscribes to 
@@ -109,15 +115,19 @@ public class NatsConsumer {
                 logger.debug(unit_type + " NatsConsumer available topics request. Reply: " + reply);
 
                 JSONObject jsonObject = new JSONObject(reply); 
-                JSONArray topicList = jsonObject.getJSONArray("topics");
+                Object topicsObject = jsonObject.get("topics");
 
                 //Add the topics to the topic list if they don't already exist
-                for(int i=0; i<topicList.length(); i++) 
+                if(topicsObject instanceof JSONArray)
                 {
-                    String topicName = topicList.getJSONObject(i).getString("name");
-                    if (!topic_list.contains(topicName)) {
-                        topic_list.add(topicName);
-                        logger.info(unit_type + " NatsConsumer added to topic list: " + topicName);
+                    JSONArray topicList = (JSONArray)topicsObject;
+                    for(int i=0; i<topicList.length(); i++) 
+                    {
+                        String topicName = topicList.getJSONObject(i).getString("name");
+                        if (!topic_list.contains(topicName)) {
+                            topic_list.add(topicName);
+                            logger.info(unit_type + " NatsConsumer added to topic list: " + topicName);
+                        }
                     }
                 }
 

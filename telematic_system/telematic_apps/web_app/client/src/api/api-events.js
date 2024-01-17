@@ -11,8 +11,8 @@ const createEvent = async (event) => {
         const { data } = await axios.post(URL, event, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+        return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
     }
 }
 
@@ -36,8 +36,8 @@ const findAllEvents = async (criteria) => {
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+        return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
     }
 }
 
@@ -53,8 +53,8 @@ const editEvent = async (event) => {
         const { data } = await axios.put(URL, event, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+        return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
     }
 }
 
@@ -69,8 +69,8 @@ const assignUnit2Event = async (assign_event_unit) => {
         const { data } = await axios.post(URL, assign_event_unit, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+        return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
     }
 }
 
@@ -85,8 +85,9 @@ const unAssignUnit2Event = async (event_unit) => {
         const { data } = await axios.delete(URL, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 
@@ -101,8 +102,9 @@ const deleteEvent = async (id) => {
         const { data } = await axios.delete(URL, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 

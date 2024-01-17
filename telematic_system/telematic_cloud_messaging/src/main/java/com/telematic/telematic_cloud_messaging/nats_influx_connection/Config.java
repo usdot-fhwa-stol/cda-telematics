@@ -63,8 +63,10 @@ public class Config {
     String streets_unit_id_list;
     // List of cloud unit ids
     String cloud_unit_id_list;
-    //List of values in the stream that should only be set to string data type
-    List<String> to_str_values;
+    //List of fields in the stream that should only be set to string data type
+    List<String> to_str_fields;
+    //List of fields in the stream that should be ignored
+    List<String> ignore_fields;
     
     public Config(){}
 
@@ -93,7 +95,8 @@ public class Config {
         "\nvehicle_unit_id_list: " + vehicle_unit_id_list +
         "\nstreets_unit_id_list: " + streets_unit_id_list +
         "\ncloud_unit_id_list: " + cloud_unit_id_list + 
-        "\nto_str_values:" + to_str_values.toString());
+        "\nto_str_fields:" + to_str_fields.toString() +
+        "\nignore_fields:" + ignore_fields.toString());
 
         return config_str;
 

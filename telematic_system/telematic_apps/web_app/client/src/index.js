@@ -17,7 +17,6 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
-import reportWebVitals from './reportWebVitals';
 
 /*
  * Copyright (C) 2019-2022 LEIDOS.
@@ -53,4 +52,3 @@ root.render(
   </React.StrictMode>
 );
 
-reportWebVitals();
