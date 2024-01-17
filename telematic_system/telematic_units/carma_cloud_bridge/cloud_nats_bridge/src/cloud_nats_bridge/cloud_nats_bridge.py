@@ -64,7 +64,10 @@ class FileListener(FileSystemEventHandler):
         the xml and message type to the appropriate global variables. It also assigns the epoch_time
         variable which will be used to create a bridge timestamp that will be added to the message sent
         to nats """
+        with open(f'{self.cc_log_path}', 'r', encoding="utf-8") as f:
+            line_count = 1
             for line in f:
+                if line_count > self.current_lines:
                     newLine = line
 
                     #convert carma cloud timestamp and current date to time since epoch
@@ -223,9 +226,6 @@ class CloudNatsBridge():
             self.logger.info("Error converting xml to json for: " + str(xmlString))
 
         return json_data
-            
-    async def queue_send(self):
-        self.logger.info("In queue send")
 
     async def queue_send(self):
         self.logger.info("In queue send")
