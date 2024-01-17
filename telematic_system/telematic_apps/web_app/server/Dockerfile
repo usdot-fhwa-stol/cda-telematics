@@ -14,8 +14,8 @@ RUN npm install
 COPY . .
 
 # Add docker-compose-wait tool -------------------
-ENV WAIT_VERSION 2.7.2
+ENV WAIT_VERSION 2.12.1
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
 RUN chmod +x /wait
 
-ENTRYPOINT ["npm", "start"]
+ENTRYPOINT ["/bin/sh", "-c", "/wait && npm start"]
