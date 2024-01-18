@@ -68,8 +68,7 @@ app.post("/*", function (req, res, next) {
   if (
     req.url === "/api/users/forget/password" ||
     req.url === "/api/users/login" ||
-    req.url === "/api/users/register" ||
-    req.url === "/api/users/session/regenerate"
+    req.url === "/api/users/register"
   ) {
     //Pass request for the above URLs
     next();

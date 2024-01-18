@@ -15,7 +15,7 @@
  */
 module.exports = app => {
   const users = require("../controllers/user.controller");
-  var router = require('express').Router();
+  let router = require('express').Router();
 
   /* GET users ping. */
   router.get('/ping', function (req, res, next) {

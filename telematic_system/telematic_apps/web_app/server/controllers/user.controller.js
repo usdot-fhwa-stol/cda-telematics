@@ -196,7 +196,7 @@ exports.loginUser = (req, res) => {
             if (is_pwd_match) {
                 //Update user credential file
                 htpasswordManager.upsertUser(req.body.username, req.body.password).then((status) => {
-                    var result = {
+                    let result = {
                         id: data[0].id,
                         last_seen_at: data[0].last_seen_at,
                         is_admin: data[0].is_admin,
