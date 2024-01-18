@@ -36,7 +36,7 @@ console.log("Allowed client URL: " + process.env.ALLOW_CLIENT_URL);
 //Allow cors from selected clients
 app.use(cors(corsOptions));
 
-var verifyToken = (req) => {
+const verifyToken = (req) => {
   //Authorization: 'TOKEN'
   const token = req.headers.authorization;
   if (token) {
@@ -53,17 +53,15 @@ app.get("/*", function (req, res, next) {
   if (req.url === "/api/org/all") {
     //Pass request for the above URLs
     next();
+  } else if (verifyToken(req)) {
+    next();
   } else {
-    if (!verifyToken(req)) {
-      res
-        .status("401")
-        .send({ message: "User session is expired", reason: "expire" });
-      res.end();
-    } else {
-      next();
+    res
+      .status("401")
+      .send({ message: "User session is expired", reason: "expire" });
+    res.end();
     }
-  }
-});
+  });
 
 // Access session when receiving POST request
 app.post("/*", function (req, res, next) {
@@ -75,17 +73,15 @@ app.post("/*", function (req, res, next) {
   ) {
     //Pass request for the above URLs
     next();
+  } else if (verifyToken(req)) {
+    next();
   } else {
-    if (!verifyToken(req)) {
-      res
-        .status("401")
-        .send({ message: "User session is expired", reason: "expire" });
-      res.end();
-    } else {
-      next();
+    res
+      .status("401")
+      .send({ message: "User session is expired", reason: "expire" });
+    res.end();
     }
-  }
-});
+  });
 
 //Access session when receiving DELETE request
 app.delete("/*", function (req, res, next) {

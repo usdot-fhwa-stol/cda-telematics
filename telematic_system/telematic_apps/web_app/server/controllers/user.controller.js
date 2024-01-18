@@ -207,7 +207,7 @@ exports.loginUser = (req, res) => {
                         username: data[0].login,
                     }
                     //Creating jwt token
-                    token = jwt.sign(
+                    let token = jwt.sign(
                         result,
                         process.env.SECRET,
                         { expiresIn: "1h" });
