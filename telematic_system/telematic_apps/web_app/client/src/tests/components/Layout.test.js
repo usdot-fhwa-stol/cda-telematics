@@ -1,14 +1,12 @@
-import { expect, jest, test } from "@jest/globals";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { expect, test } from "@jest/globals";
+import { render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { act } from "react-dom/test-utils";
-import AuthContext from "../../context/auth-context";
-import NavMenu from "../../components/layout/NavMenu";
-import MainRouter from "../../components/layout/MainRouter";
-import Layout from "../../components/layout/Layout";
 import { BrowserRouter } from "react-router-dom";
+import Layout from "../../components/layout/Layout";
+import AuthContext from "../../context/auth-context";
 
-test("Test NavMenu checkServerSession", async () => {
+test("Test Layout", async () => {
   await act(async () => {
     const value = {
       user_id: 1,
