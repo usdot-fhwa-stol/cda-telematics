@@ -196,7 +196,7 @@ jobs:
         run: |
           find "$GITHUB_WORKSPACE" -name "lcov*.info"
       - name: Setup SonarScanner
-        uses: warchant/setup-sonar-scanner@v4
+        uses: warchant/setup-sonar-scanner@v7
         with:
           version: 4.8.0.2856
       - name: Generate sonar properties file
