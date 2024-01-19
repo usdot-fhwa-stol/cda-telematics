@@ -40,7 +40,12 @@ const loginUser = async (username, password) => {
         const { data } = await axios.post(URL, {
             username: username,
             password: password
-        }, { withCredentials: true });
+        }, { withCredentials: true });   
+        if(data.token ===undefined)
+        {
+            return { errCode: 500, errMsg: "No token"}
+        }     
+        axios.defaults.headers.common['Authorization'] = data.token;
         return data;
     } catch (err) {
         
@@ -86,7 +91,8 @@ const updateUserServerAdmin = async (req) => {
   
     }
 }
-const checkServerSession = async () => {
+const checkServerSession = async (token) => {
+    axios.defaults.headers.common['Authorization'] = token;
     const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/users/ping`
     try {
         const { data } = await axios.get(URL, { withCredentials: true });

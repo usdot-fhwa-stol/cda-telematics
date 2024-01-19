@@ -11,7 +11,7 @@ test("Auth context login", () => {
             {authCtx.sessionToken !== null && <p>{authCtx.role}</p>}
             {authCtx.sessionToken !== null && <p>{authCtx.org_name} </p>}
             {authCtx.sessionToken === null && <p>Log out</p>}
-            <button onClick={() => { authCtx.login(1, 'test user name', 'session token', 'email', 'last seen at', 1, 'org name', false) }}>login</button>
+            <button onClick={() => { authCtx.login(1, 'test user name', 'session token', 1000,'email', 'last seen at', 1, 'org name', false) }}>login</button>
             <button onClick={() => { authCtx.logout() }}>logout</button>
             <button onClick={() => { authCtx.login(1, undefined, undefined, 'email', 'last seen at', 1, 'org name', false) }}>invalid login</button>
             <button onClick={() => { authCtx.updateRole('viewer') }}>update role</button>

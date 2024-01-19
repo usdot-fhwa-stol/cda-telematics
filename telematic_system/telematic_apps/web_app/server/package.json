@@ -19,6 +19,7 @@
     "htpasswd-mgr": "^1.1.7",
     "http-errors": "~1.6.3",
     "jest": "^29.7.0",
+    "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "mysql": "^2.18.1",
     "mysql2": "^2.3.3",
@@ -31,7 +32,6 @@
     "supertest": "^6.3.3",
     "uuid-by-string": "^4.0.0"
   },
-  "author": "Samir Tabriz",
   "license": "Apache-2.0",
   "description": "telematic web app",
   "main": "app.js",

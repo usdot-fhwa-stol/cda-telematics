@@ -12,7 +12,7 @@ beforeEach(() => {
 })
 
 test('Login user not throw', async () => {
-    await loginUser('username', 'password').then(data=>expect(data).toEqual({status: 'success'}));
+    await loginUser('username', 'password').then(data=>expect(data).toEqual({"errCode": 500,"errMsg": "No token"}));
     jest.resetAllMocks();
     await expect(() => loginUser('username', 'password')).not.toThrow();
 });

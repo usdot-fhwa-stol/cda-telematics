@@ -1,9 +1,11 @@
 const { user, Sequelize } = require("../models");
-var manager = require('htpasswd-mgr');
+const manager = require('htpasswd-mgr');
 const user_controller = require('../controllers/user.controller')
 const saltHash = require('password-salt-and-hash')
-var grafana_htpasswd = '/opt/apache2/grafana_htpasswd';
-var htpasswordManager = manager(grafana_htpasswd)
+let grafana_htpasswd = '/opt/apache2/grafana_htpasswd';
+let htpasswordManager = manager(grafana_htpasswd)
+
+process.env.SECRET = "my test secret";
 
 describe("loginUser", () => {
     test("Should login", async () => {

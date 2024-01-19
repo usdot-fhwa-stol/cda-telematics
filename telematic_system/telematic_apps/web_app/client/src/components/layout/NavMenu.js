@@ -23,7 +23,7 @@ import { styled } from '@mui/material/styles';
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { getUserRole } from '../../api/api-org';
-import { deleteUser } from '../../api/api-user';
+import { checkServerSession, deleteUser } from '../../api/api-user';
 import AuthContext from '../../context/auth-context';
 import { USER_ROLES } from '../users/UserMetadata';
 import { withStyles } from '@mui/styles';
@@ -33,7 +33,9 @@ const NavMenu = React.memo(() => {
     useEffect(() => {
         //update user role if changed
         if (authCtx.user_id !== null && authCtx.user_id !== undefined && authCtx.org_id !== null
-            && authCtx.org_id !== undefined && parseInt(authCtx.org_id) !== 0) {
+            && authCtx.org_id !== undefined && parseInt(authCtx.org_id) !== 0 && authCtx.sessionToken !== null) {
+            //Update headers with auth token            
+            checkServerSession(authCtx.sessionToken);
             getUserRole({
                 user_id: parseInt(authCtx.user_id),
                 org_id: parseInt(authCtx.org_id)

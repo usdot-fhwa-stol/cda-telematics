@@ -18,6 +18,7 @@ const Sequelize = require('sequelize');
 
 const seq = new Sequelize(dbConfig.GRAFANA_DB, dbConfig.USER, dbConfig.PASSWORD, {
     host: dbConfig.HOST,
+    port: dbConfig.PORT,
     dialect: dbConfig.dialect,
     define: dbConfig.define,
     pool: {

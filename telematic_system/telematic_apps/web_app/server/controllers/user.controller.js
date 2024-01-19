@@ -19,6 +19,8 @@ const { org_user, user, Sequelize } = require("../models");
 const { Op } = require("sequelize");
 const { addOrgUser } = require('./org.controller');
 const getUuid = require('uuid-by-string');
+const jwt = require("jsonwebtoken");
+require('dotenv').config();
 var grafana_htpasswd = process.env.GRAFANA_HTPASSWORD!=undefined && process.env.GRAFANA_HTPASSWORD.length > 0 ? process.env.GRAFANA_HTPASSWORD : '/opt/apache2/grafana_htpasswd';
 var htpasswordManager = manager(grafana_htpasswd)
 /**
@@ -193,9 +195,8 @@ exports.loginUser = (req, res) => {
             let is_pwd_match = saltHash.verifySaltHash(data[0].salt, data[0].password, req.body.password);
             if (is_pwd_match) {
                 //Update user credential file
-                let session_token = getUuid(data[0].login + data[0].email + data[0].password + Date.now().toString());
                 htpasswordManager.upsertUser(req.body.username, req.body.password).then((status) => {
-                    var result = {
+                    let result = {
                         id: data[0].id,
                         last_seen_at: data[0].last_seen_at,
                         is_admin: data[0].is_admin,
@@ -204,9 +205,14 @@ exports.loginUser = (req, res) => {
                         org_id: data[0].org_id,
                         login: data[0].login,
                         username: data[0].login,
-                        session_token: session_token
                     }
-                    req.session.token = session_token;
+                    //Creating jwt token, and the token expire in an hour
+                    let token = jwt.sign(
+                        result,
+                        process.env.SECRET,
+                        { expiresIn: "1h" });
+                    result.token = token;
+                    result.tokenExpiredAt = Math.round(new Date().getTime()/1000) + 3600;
                     res.status(200).send(result);
                 }).catch((err) => {
                     console.error(err)
