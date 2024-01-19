@@ -85,7 +85,7 @@ services:
       environment:
         - WAIT_HOSTS=localhost:3307,localhost:3000
         - WAIT_TIMEOUT=300
-        - WAIT_SLEEP_INTERVAL=30
+        - WAIT_SLEEP_INTERVAL=5
         - WAIT_HOST_CONNECT_TIMEOUT=30
         - NODE_ENV=dev.comelopment
         - CHOKIDAR_USEPOLLING=true
@@ -160,7 +160,7 @@ services:
       - NATS_URI=nats://localhost:4222
       - WAIT_HOSTS=localhost:3307,localhost:4222,localhost:8086
       - WAIT_TIMEOUT=300
-      - WAIT_SLEEP_INTERVAL=30
+      - WAIT_SLEEP_INTERVAL=5
       - WAIT_HOST_CONNECT_TIMEOUT=30
 
 secrets:

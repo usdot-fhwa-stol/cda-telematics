@@ -32,7 +32,6 @@
     "supertest": "^6.3.3",
     "uuid-by-string": "^4.0.0"
   },
-  "author": "Samir Tabriz",
   "license": "Apache-2.0",
   "description": "telematic web app",
   "main": "app.js",
