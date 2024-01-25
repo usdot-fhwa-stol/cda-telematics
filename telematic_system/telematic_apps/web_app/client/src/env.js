@@ -1,1 +1,1 @@
-export const env = process.env.NODE_ENV === "production" ? { ...window['env'] } : { ...process.env }
+export const env = { ...window['env'] } 
