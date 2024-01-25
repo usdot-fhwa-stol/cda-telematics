@@ -13,8 +13,9 @@ const registerNewUser = async (username, email, password, org_id) => {
         }, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 
@@ -28,8 +29,9 @@ const updatePassword = async (username, email, new_password) => {
         }, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 
@@ -39,10 +41,15 @@ const loginUser = async (username, password) => {
         const { data } = await axios.post(URL, {
             username: username,
             password: password
-        }, { withCredentials: true });
+        }, { withCredentials: true });   
+        if(data.token ===undefined)
+        {
+            return { errCode: 500, errMsg: "No token"}
+        }     
+        axios.defaults.headers.common['Authorization'] = data.token;
         return data;
     } catch (err) {
-        console.log(err);
+        
         return { errCode: err.response !==undefined ? err.response.status: err.code, errMsg: err.response!==undefined && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !==undefined? err.response.statusText : err.message)}
     }
 }
@@ -55,8 +62,9 @@ const deleteUser = async (username) => {
         const { data } = await axios.delete(URL + "?username=" + username, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 
@@ -68,8 +76,9 @@ const listUsers = async () => {
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 const updateUserServerAdmin = async (req) => {
@@ -78,21 +87,23 @@ const updateUserServerAdmin = async (req) => {
         const { data } = await axios.post(URL, req, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
-const checkServerSession = async () => {
+const checkServerSession = async (token) => {
+    axios.defaults.headers.common['Authorization'] = token;
     const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/users/ping`
     try {
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
+        
         return {
-            errCode: err.response.status, errMsg: err.response.data !== undefined
-                && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText,
-            expired: err.response.data !== undefined && err.response.data.reason !== undefined ? true : false
+            errCode:  err.response !== undefined ? err.response.status : "", errMsg:  err.response !== undefined&& err.response.data !== undefined
+                && err.response.data.message !== undefined ? err.response.data.message :  ( err.response !== undefined ? err.response.statusText: ""),
+            expired:  err.response !== undefined && err.response.data !== undefined && err.response.data.reason !== undefined ? true : false
         }
     }
 }

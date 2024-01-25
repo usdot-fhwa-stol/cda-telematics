@@ -14,8 +14,8 @@ const searchDashboards = async (org_id, search_text) => {
       }, { withCredentials: true });
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    
+    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
   }
 }
 
@@ -33,9 +33,9 @@ const getDashboardsByOrg = async (org_id) => {
       }, { withCredentials: true });
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
-  }
+    
+    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+ }
 }
 
 /**
@@ -52,8 +52,8 @@ const listEventDashboards = async (event_id) => {
       }, { withCredentials: true });
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    
+    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
   }
 }
 
@@ -72,8 +72,8 @@ const updateEventDashboards = async (event_id, dashboard_id) => {
       }, { withCredentials: true });
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    
+    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
   }
 }
 
@@ -87,11 +87,10 @@ const deleteEventDashboards = async (event_id, dashboard_id) => {
 
   try {
     const { data } = await axios.delete(URL+"?event_id="+event_id+"&dashboard_id="+dashboard_id, { withCredentials: true });
-    console.log(data)
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    
+    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
   }
 }
 

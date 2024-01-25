@@ -27,6 +27,7 @@ module.exports = (seq, Sequelize) => {
             type: Sequelize.STRING,
             defaultValue: '',
             allowNull: false,
+            unique: true
         },
         created_at: {
             type: 'TIMESTAMP',

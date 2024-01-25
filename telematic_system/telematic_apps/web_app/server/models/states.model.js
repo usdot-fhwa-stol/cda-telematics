@@ -21,11 +21,13 @@ module.exports = (seq, Sequelize) => {
             type: Sequelize.STRING,
             primaryKey: true,
             allowNull: false,
+            unique: true
         },
         code: {
             type: Sequelize.STRING,
             defaultValue: '',
             allowNull: false,
+            unique: true
         }
     }, {
         underscored: true

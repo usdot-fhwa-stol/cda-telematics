@@ -6,8 +6,9 @@ const listOrgs = async () => {
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 
@@ -17,8 +18,9 @@ const listOrgUsers = async () => {
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 
@@ -31,8 +33,9 @@ const addOrgUser = async (reqData) => {
         }, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 
@@ -44,8 +47,9 @@ const getUserRole = async (reqData) => {
         }, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 
@@ -59,8 +63,9 @@ const getOrgsByUser = async (userId) => {
         }, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 
@@ -73,8 +78,9 @@ const updateOrgUser = async (reqData) => {
         }, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 
@@ -82,14 +88,14 @@ const updateOrgUser = async (reqData) => {
 const deleteOrgUser = async (req) => {
     const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/org/user/delete`
     if (req === undefined || req.user_id === undefined || req.org_id === undefined) {
-        console.error("Cannot delete org user because request data is empty")
+        return { errCode: "", errMsg: "Cannot delete org user because request data is empty"};
     }
     try {
         const { data } = await axios.delete(URL + "?org_id=" + req.org_id + "&user_id=" + req.user_id, { withCredentials: true });
         return data;
-    } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    } catch (err) {        
+          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
     }
 }
 

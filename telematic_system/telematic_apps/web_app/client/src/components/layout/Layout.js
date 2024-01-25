@@ -37,15 +37,25 @@ const Layout = React.memo((props) => {
     }, [authContext]);
 
     useEffect(() => {
-        if (authContext.sessionToken !== null) {
-            const response = checkServerSession();
+        //Check token expiration
+        if(authContext.sessionToken === undefined || ( authContext.sessionToken !== null && authContext.sessionExpiredAt < Math.round(new Date().getTime()/1000)))
+        {
+            //expired
+            setOpen(true);
+        }
+       else if (authContext.sessionToken !== null) 
+       {
+            //valid tokened, update headers with auth token
+            const response = checkServerSession(authContext.sessionToken);
             response.then((data) => {
                 if (data !== undefined && data.expired !== undefined && data.expired) {
                     setOpen(true);
                 }
-            })
+            }).catch(error => {
+                setOpen(true);
+            });
         }
-    }, [authContext.sessionToken, authContext.view_count])
+    }, [authContext.sessionToken, authContext.sessionExpiredAt])
 
     const StyledListItemButton = withStyles({
         root: {

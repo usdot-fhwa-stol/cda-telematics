@@ -14,13 +14,14 @@
  * the License.
  */
 import React, { useState } from 'react';
-import { useClearSessionStorage, useSessionStorageString } from "react-use-window-sessionstorage";
+import { useClearSessionStorage, useSessionStorageNumber, useSessionStorageString } from "react-use-window-sessionstorage";
 
 const AuthContext = React.createContext({
   isAuth: false,
   username: null,
   email: null,
   sessionToken: null,
+  sessionExpiredAt: null,
   last_seen_at: null,
   org_id: null,
   org_name: null,
@@ -28,11 +29,11 @@ const AuthContext = React.createContext({
   user_id: null,
   role: null,
   view_count: null,
-  login: (id, username, sessionToken, email, last_seen_at, org_id, name, is_admin) => { },
+  login: (id, username, sessionToken, sessionExpiredAt, email, last_seen_at, org_id, name, is_admin) => { },
   logout: () => { },
   updateRole: (role) => { },
   updateOrg: (org_id, org_name) => { },
-  updateViewCount: () => { },
+  updateSessionToken: (token) => { },
 })
 
 export const AuthContextProvider = (props) => {
@@ -48,9 +49,9 @@ export const AuthContextProvider = (props) => {
   const [name, setName] = useSessionStorageString("name", null);
   const [sessionToken, setSessionToken] = useSessionStorageString("sessionToken", null);
   const clearSessionStorage = useClearSessionStorage();
-  const [view_count, setViewCount] = useState(0);
+  const [sessionExpiredAt, setSessionExpiredAt] = useSessionStorageNumber("sessionExpiredAt",0);
 
-  const loginHandler = (user_id, username, sessionToken, email, last_seen_at, org_id, name, is_admin) => {
+  const loginHandler = (user_id, username, sessionToken, sessionExpiredAt, email, last_seen_at, org_id, name, is_admin) => {
     if (username !== undefined && username !== ""
       && sessionToken !== undefined && sessionToken !== "") {
       setUserId(user_id);
@@ -58,6 +59,7 @@ export const AuthContextProvider = (props) => {
       setUsername(username);
       setEmail(email);
       setSessionToken(sessionToken);
+      setSessionExpiredAt(sessionExpiredAt);
       setLastSeenAt(last_seen_at);
       setOrgId(org_id);
       setName(name);
@@ -86,8 +88,8 @@ export const AuthContextProvider = (props) => {
   const updateRoleHandler = (role) => {
     setRole(role);
   }
-  const updateViewCountHandler = () => {
-    setViewCount(prev => prev + 1);
+  const setSessionTokenHandler = (token) => {
+    setSessionToken(token);
   }
   const updateOrgHandler = (org_id, org_name) => {
     setOrgName(org_name);
@@ -106,12 +108,12 @@ export const AuthContextProvider = (props) => {
     org_name: org_name,
     is_admin: is_admin,
     role: role,
-    view_count: view_count,
+    sessionExpiredAt: sessionExpiredAt,
     login: loginHandler,
     logout: logoutHandler,
     updateRole: updateRoleHandler,
     updateOrg: updateOrgHandler,
-    updateViewCount: updateViewCountHandler
+    updateSessionToken: setSessionTokenHandler
   }}>{props.children}</AuthContext.Provider>
 }
 

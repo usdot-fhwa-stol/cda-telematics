@@ -13,8 +13,9 @@ const createLocation = async (location) => {
     const { data } = await axios.post(URL, location, { withCredentials: true });
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    
+      return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
   }
 }
 
@@ -28,8 +29,9 @@ const findAllLocations = async () => {
     const { data } = await axios.get(URL, { withCredentials: true });
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    
+      return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  
   }
 }
 

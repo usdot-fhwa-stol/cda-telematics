@@ -8,7 +8,7 @@ const UserRoleManagement = (props) => {
       <UserTable key={`user-table`}
         users={props.users}
         orgs={props.orgs}
-        orgsUsers={props.orgsUsers}
+        orgsusers={props.orgsusers}
         onAddUserToOrg={props.onAddUserToOrg}
         onUserOrgRoleChange={props.onUserOrgRoleChange}
         onUserOrgRoleDelete={props.onUserOrgRoleDelete}

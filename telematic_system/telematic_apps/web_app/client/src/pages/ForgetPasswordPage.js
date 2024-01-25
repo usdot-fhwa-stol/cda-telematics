@@ -13,7 +13,7 @@ const ForgetPasswordPage = () => {
   const [open, setOpen] = useState(false);
   const [confirmNewPwd, setconfirmNewPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
-  const [errStatus, setErrorStatus] = useState('');
+  const [errStatus, setErrorStatus] = useState('info');
   const [errorMsg, setErrorMsg] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -126,6 +126,7 @@ const ForgetPasswordPage = () => {
                 <TextField id="name"
                   label="User Name *"
                   variant='outlined'
+                  inputProps={{'data-testid':'username'}}
                   fullWidth
                   {...register('name')}
                   error={errors.name ? true : false}
@@ -140,6 +141,7 @@ const ForgetPasswordPage = () => {
                   variant='outlined'
                   fullWidth
                   margin="normal"
+                  inputProps={{'data-testid':'email'}}
                   {...register('email')}
                   value={email}
                   error={errors.email ? true : false}
@@ -152,6 +154,7 @@ const ForgetPasswordPage = () => {
                   label="New Password *"
                   name="new_password"
                   type="password"
+                  inputProps={{'data-testid':'password'}}
                   fullWidth
                   value={newPwd}
                   margin="normal"
@@ -168,6 +171,7 @@ const ForgetPasswordPage = () => {
                   fullWidth
                   margin="normal"
                   name="confirm_new_password"
+                  inputProps={{'data-testid':'new_password'}}
                   type="password"
                   {...register('confirm_new_password')}
                   error={errors.confirm_new_password ? true : false}

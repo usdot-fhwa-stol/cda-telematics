@@ -14,7 +14,7 @@ const getAvailableLiveTopicsByEventUnits = async (selectedUnitIdentifiers) => {
             const { data } = await axios.get(URL);
             sentStatus.push(data);
         } catch (err) {
-            console.log(err);
+            
             sentStatus.push({
                 errCode: err.response !== undefined ? err.response.status : "404",
                 errMsg: err.response !== undefined ? selectedUnitIdentifier + ": " + err.response.statusText + err.response.data : selectedUnitIdentifier + ": No reponse from server."
