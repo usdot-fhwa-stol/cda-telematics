@@ -52,7 +52,7 @@ services:
     environment:
       - CLIENT_LOCAL_URL=http://127.0.0.1:8082/
       - GRAFANA_LOCAL_URL=http://127.0.0.1:3000/
-      - TOPICSERVICE_LOCAL_URL=http://127.0.0.1:8080/
+      - TOPICSERVICE_LOCAL_URL=<http://telematic-cloud-messaging-server-private-url:8080/>
       - UISERVICE_LOCAL_URL=http://127.0.0.1:9010/
     depends_on:
       - grafana
