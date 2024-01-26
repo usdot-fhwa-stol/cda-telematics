@@ -129,7 +129,7 @@ const RegisterUser = () => {
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">                       
                     The created user is by default assigned viewer role. Please send email to
-                            <Link href={`mailto:${adminEmails.join(',')}?subject=Role update request&body=Request`}> administrators </Link>
+                            <Link href={`mailto:${adminEmails.join(';')}?subject=Role update request&body=Request`}> administrators </Link>
                             &nbsp;to update your role.
                     </DialogContentText>
                 </DialogContent>

@@ -1,9 +1,10 @@
 import axios from 'axios';
+import {env } from "../env"
 /**
  *@brief List all dashboards urls belong to the current user organization
  */
 const searchDashboards = async (org_id, search_text) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/dashboards/org/search`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/dashboards/org/search`
 
 
   try {
@@ -22,7 +23,7 @@ const searchDashboards = async (org_id, search_text) => {
  *@brief List all dashboards urls belong to the current user organization
  */
 const getDashboardsByOrg = async (org_id) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/dashboards/org/all`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/dashboards/org/all`
 
 
   try {
@@ -41,7 +42,7 @@ const getDashboardsByOrg = async (org_id) => {
  *@brief List all dashboards urls belong to the selected event
  */
 const listEventDashboards = async (event_id) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/list`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/list`
 
 
   try {
@@ -61,7 +62,7 @@ const listEventDashboards = async (event_id) => {
  *@brief Update all dashboards urls belong to the selected event
  */
 const updateEventDashboards = async (event_id, dashboard_id) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/update`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/update`
 
 
   try {
@@ -81,7 +82,7 @@ const updateEventDashboards = async (event_id, dashboard_id) => {
  *@brief Remove dashboards urls belong to the selected event
  */
 const deleteEventDashboards = async (event_id, dashboard_id) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/delete`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/delete`
 
 
   try {

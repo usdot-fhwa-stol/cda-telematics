@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {env} from "../env"
 
 /**
  *@brief Find all testing types
@@ -6,7 +7,7 @@ import axios from 'axios';
  */
 const findAllTestingTypes= async (criteria) => {
     try {
-        let URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/testing_types/all`;
+        let URL = `${env.REACT_APP_WEB_SERVER_URI}/api/testing_types/all`;
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {

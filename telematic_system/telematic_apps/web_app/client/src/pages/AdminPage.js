@@ -1,6 +1,6 @@
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Grid, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { addOrgUser, deleteOrgUser, listOrgs, listOrgUsers, updateOrgUser } from '../api/api-org';
 import { listUsers, updateUserServerAdmin } from '../api/api-user';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
