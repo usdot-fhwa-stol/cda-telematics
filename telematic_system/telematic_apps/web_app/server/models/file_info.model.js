@@ -13,8 +13,6 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-const grafana_db = require("../models")
-
 module.exports = (seq, Sequelize) => {
     const file_info = seq.define("file_info", {
         id: {
@@ -28,10 +26,11 @@ module.exports = (seq, Sequelize) => {
             defaultValue: '',
             allowNull: false,
         },
-        orignal_file_name: {
+        original_filename: {
             type: Sequelize.STRING,
             defaultValue: '',
             allowNull: false,
+            unique: true
         },
         process_status: {
             type: Sequelize.STRING,
@@ -55,7 +54,7 @@ module.exports = (seq, Sequelize) => {
         },
         description: {
             type: Sequelize.TEXT,
-            allowNull: false,
+            allowNull: true,
         },
         created_at: {
             type: 'TIMESTAMP',

@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=5000 --coverage --verbose"
+    "test": "cross-env NODE_ENV=test jest --testTimeout=5000 --coverage --verbose",
+    "file-upload-service": "nodemon ./fileupload.service.js"
   },
   "dependencies": {
     "axios": "^0.27.2",
@@ -15,6 +16,9 @@
     "debug": "~2.6.9",
     "dotenv": "^16.0.3",
     "express": "~4.16.1",
+    "@aws-sdk/client-s3": "^3.485.0",
+    "@aws-sdk/lib-storage": "^3.485.0",
+    "@fortawesome/fontawesome-free": "^6.0.0",
     "express-session": "^1.17.3",
     "htpasswd-mgr": "^1.1.7",
     "http-errors": "~1.6.3",
