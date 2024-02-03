@@ -18,7 +18,6 @@ const CONCURRENT_QUEUE_SIZE = 5; // optional size of the concurrent queue, defau
 /**
  * Upload file to S3 bucket
  * @param {*} file File to write to S3 bucket
- * @param {*} fileInfo metadata about the uploaded file
  * @returns Future promises
  */
 exports.uploadToS3 = (file) => {
@@ -49,6 +48,7 @@ exports.uploadToS3 = (file) => {
           UPLOADSTATUS.ERROR,
           fileInfoWithError
         );
+        reject(fileInfoWithError);
       });
 
       // upload to S3
@@ -90,7 +90,7 @@ exports.uploadToS3 = (file) => {
             UPLOADSTATUS.ERROR,
             fileInfoWithError
           );
-          reject(err);
+          reject(fileInfoWithError);
         });
     }; //File open end
   });

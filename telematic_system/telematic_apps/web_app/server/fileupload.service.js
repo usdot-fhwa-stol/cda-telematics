@@ -1,19 +1,18 @@
 const http = require("http");
 require("dotenv").config();
-const {uploadFile} = require("./file_upload/file_uploader");
+const { uploadFile } = require("./file_upload/file_uploader");
 const port = process.env.UPLOAD_HTTP_PORT;
 const uploadTimeout = parseInt(process.env.UPLOAD_TIME_OUT, 3600000);
 
 const requestListener = async function (req, res) {
-  await uploadFile (req)
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  await uploadFile(req)
     .then((data) => {
-      res.setHeader("Access-Control-Allow-Origin", "*");
       res.writeHead(200);
       res.write(JSON.stringify(data));
       res.end();
     })
     .catch((err) => {
-      res.setHeader("Access-Control-Allow-Origin", "*");
       res.writeHead(401);
       res.end(JSON.stringify(err));
     });
