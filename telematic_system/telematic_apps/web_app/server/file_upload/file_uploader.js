@@ -19,9 +19,22 @@ exports.uploadFile = async (req) => {
   return new Promise(async (resolve, reject) => {
     const form = formidable(options);
     const nc = await CreateNatsConn();
+    let totalFileCount = 0;
+    let fileCount = 0;
     form.parse(req, (err, fields, files) => {
-      console.debug(files)
-      console.debug(fields)
+      let localFiles = files["files[]"];
+      totalFileCount = localFiles.length;
+      //Send processing request for file upload to HOST
+      if (uploadDest.trim().toLowerCase() !== "s3") {
+        for (let index = 0; index < totalFileCount; index++) {
+          let processing_request = {
+            filepath: localFiles[index].filepath,
+            uploaded_destination: uploadDest,
+          };
+          pub_file_processing_req(nc, JSON.stringify(processing_request));
+        }
+        nc.close();
+      }
     });
 
     form
@@ -45,27 +58,31 @@ exports.uploadFile = async (req) => {
             .then((data) => {
               let processing_request = {
                 filepath: file.originalFilename,
-                upload_destination: uploadDest,
+                uploaded_destination: uploadDest,
               };
               pub_file_processing_req(nc, JSON.stringify(processing_request));
               resolve({
                 message: " File uploaded to S3!!",
                 data: data,
               });
+              fileCount += 1;
+              //Close NATS connection when all files are uploaded
+              if (fileCount === totalFileCount) {
+                nc.close();
+              }
             })
             .catch((err) => {
               reject(err);
+              fileCount += 1;
+              //Close NATS connection when all files are uploaded or failed
+              if (fileCount === totalFileCount) {
+                nc.close();
+              }
             });
         } else {
           //Write file to HOST machine
           file.filepath = uploadDestPath + "/" + file.originalFilename;
-          let processing_request = {
-            filepath: file.filepath,
-            upload_destination: uploadDest,
-          };
-          pub_file_processing_req(nc, JSON.stringify(processing_request));
         }
-      });
-      nc.close();
+      }); //End fileBegin
   });
 };
