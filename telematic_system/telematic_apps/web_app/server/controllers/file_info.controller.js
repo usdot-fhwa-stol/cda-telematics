@@ -2,17 +2,36 @@ const { file_info } = require("../models");
 
 /**
  * List file info
- * @param {*} JSON Filter conditions
+ * @param {*} req_fields Filter conditions
  */
-exports.findAll = (condition) => {
-  events
+exports.list = async (req_fields, res) => {
+  if (!req_fields) {
+    res.writeHead(400);
+    return {
+      message: "Content cannot be empty.",
+    };
+  }
+  let condition = {};
+  if (req_fields.filename) condition.original_filename = req_fields.filename;
+  if (req_fields.description) condition.description = req_fields.description;
+  return await file_info
     .findAll({
       where: condition,
+      order: [["updated_at", "DESC"]],
     })
     .then((data) => {
-      return data;
+      if (!data || data.length === 0) {
+        res.writeHead(404);
+        return {
+          message: "there is no uploaded files metadata.",
+        };
+      } else {
+        res.writeHead(200);
+        return data;
+      }
     })
     .catch((err) => {
+      res.writeHead(500);
       return {
         message: err.message || "Error while findAll uploaded files metadata.",
       };
@@ -33,8 +52,8 @@ exports.upsertFileInfo = (fileInfo) => {
       upload_status: fileInfo.status ? fileInfo.status : null,
       upload_error_msg: fileInfo.error ? JSON.stringify(fileInfo.error) : null,
       size: fileInfo.size ? fileInfo.size : null,
-      created_by: 1,
-      updated_by: 1,
+      created_by: fileInfo.created_by ? fileInfo.created_by : 1,
+      updated_by: fileInfo.updated_by ? fileInfo.updated_by : 1,
       description: fileInfo.description ? fileInfo.description : null,
     };
     let condition = { original_filename: fileInfo.originalFilename };
