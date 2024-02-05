@@ -41,7 +41,7 @@ module.exports = (seq, Sequelize) => {
             allowNull: true,
         },
         size: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.BIGINT.UNSIGNED,
             allowNull: true,
         },
         upload_status: {
