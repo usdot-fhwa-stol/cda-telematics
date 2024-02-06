@@ -22,7 +22,7 @@ const {
 
 const { CreateNatsConn } = require("../nats_client/nats_connection");
 const {
-  pub_file_processing_req,
+  pubFileProcessingReq,
 } = require("../nats_client/file_processing_nats_publisher");
 
 exports.uploadFile = async (req) => {
@@ -102,7 +102,7 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
         uploaded_destination: uploadDest,
       };
       if (NATSConn) {
-        await pub_file_processing_req(
+        await pubFileProcessingReq(
           NATSConn,
           JSON.stringify(processing_request)
         );
@@ -167,7 +167,7 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
           uploaded_destination: uploadDest,
         };
         if (NATSConn) {
-          await pub_file_processing_req(
+          await pubFileProcessingReq(
             NATSConn,
             JSON.stringify(processing_request)
           );
