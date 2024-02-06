@@ -5,9 +5,11 @@ const {
 } = require("../controllers/file_info.controller");
 const uploadDest = process.env.UPLOAD_DESTINATION;
 const uploadDestPath = process.env.UPLOAD_DESTINATION_PATH;
+const uploadMaxFileSize = parseInt(process.env.UPLOAD_MAX_FILE_SIZE);
+
 const options = {
-  maxFileSize: 20 * 1024 * 1024 * 1024, //20 GBs converted to bytes,
-  maxTotalFileSize: 20 * 1024 * 1024 * 1024, //20 GBs converted to bytes,
+  maxFileSize: uploadMaxFileSize,
+  maxTotalFileSize: uploadMaxFileSize,
   allowEmptyFiles: false,
   keepExtensions: true,
   multiples: true,
@@ -68,19 +70,27 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
     let localFiles = files["files"];
     totalFileCount = localFiles.length ? localFiles.length : 1;
     let localFields = fields["fields"];
-    let totalFieldsCount = localFields.length ? localFields.length : 1;
+    let totalFieldsCnt =
+      Array.isArray(localFields) && localFields.length ? localFields.length : 1;
 
     for (let index = 0; index < totalFileCount; index++) {
       let localFile = totalFileCount > 1 ? localFiles[index] : localFiles;
 
-      //Populate file info description
-      for (let fieldIdx = 0; fieldIdx < totalFieldsCount; fieldIdx++) {
-        let localField = JSON.parse(localFields[fieldIdx]);
-        if (localField.filename === localFile.originalFilename) {
+      //Populate file info with description field
+      for (let fieldIdx = 0; fieldIdx < totalFieldsCnt; fieldIdx++) {
+        let localField = JSON.parse(
+          totalFieldsCnt === 1 ? localFields : localFields[fieldIdx]
+        );
+        if (
+          localField.filename &&
+          localField.description &&
+          localField.filename === localFile.originalFilename
+        ) {
           localFile.description = localField.description;
         }
       }
 
+      //Update file info status
       updateFileUploadStatusEmitter(listener).emit(
         UPLOADSTATUS.COMPLETED,
         localFile
@@ -120,12 +130,13 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
   let fileCount = 0;
   let totalFileCount = 0;
   let localFields = {};
-  let totalFieldsCount = 0;
+  let totalFieldsCnt = 0;
   form.parse(req, async (err, fields, files) => {
     let localFiles = files["files"];
     totalFileCount = localFiles.length ? localFiles.length : 1;
     localFields = fields["fields"];
-    totalFieldsCount = localFields.length ? localFields.length : 1;
+    totalFieldsCnt =
+      Array.isArray(localFields) && localFields.length ? localFields.length : 1;
   });
 
   form.on("fileBegin", async (formName, file) => {
@@ -138,7 +149,7 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
     await uploadToS3(file)
       .then(async (data) => {
         //Populate file info description
-        for (let fieldIdx = 0; fieldIdx < totalFieldsCount; fieldIdx++) {
+        for (let fieldIdx = 0; fieldIdx < totalFieldsCnt; fieldIdx++) {
           let localField = JSON.parse(localFields[fieldIdx]);
           if (localField.filename === data.originalFilename) {
             data.description = localField.description;
