@@ -44,14 +44,13 @@ exports.uploadFile = async (req) => {
           });
         });
       if (uploadDest.trim().toLowerCase() === "s3") {
-        parseS3FileUpload(req, form, listener, NATSConn);
+        parseS3FileUpload(req, form, listener, NATSConn)
       } else {
         parseLocalFileUpload(req, form, listener, NATSConn);
       }
     } catch (error) {
-      console.log(error);
       reject({
-        error: error.message ? error.message : "Unknown server error.",
+        error: error.message || "Unknown server error.",
       });
     }
   });
@@ -68,7 +67,7 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
   let totalFileCount = 0;
   form.parse(req, async (err, fields, files) => {
     let localFiles = files["files"];
-    totalFileCount = localFiles.length ? localFiles.length : 1;
+    totalFileCount = Array.isArray(localFiles) && localFiles.length ? localFiles.length : 1;
     let localFields = fields["fields"];
     let totalFieldsCnt =
       Array.isArray(localFields) && localFields.length ? localFields.length : 1;
@@ -96,16 +95,14 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
         localFile
       );
 
-      //Send processing request for uploaded file to HOST
+      //Send processing request for uploaded file to HOST      
       let processingReq = {
-        filepath: localFile.filepath,
+        filepath: data.filepath,
+        filename: data.originalFilename,
         uploaded_destination: uploadDest,
       };
       if (NATSConn) {
-        await pubFileProcessingReq(
-          NATSConn,
-          JSON.stringify(processingReq)
-        );
+        await pubFileProcessingReq(NATSConn, JSON.stringify(processingReq));
       }
     }
     if (NATSConn) {
@@ -133,7 +130,7 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
   let totalFieldsCnt = 0;
   form.parse(req, async (err, fields, files) => {
     let localFiles = files["files"];
-    totalFileCount = localFiles.length ? localFiles.length : 1;
+    totalFileCount =  Array.isArray(localFiles) &&  localFiles.length ? localFiles.length : 1;
     localFields = fields["fields"];
     totalFieldsCnt =
       Array.isArray(localFields) && localFields.length ? localFields.length : 1;
@@ -150,8 +147,14 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
       .then(async (data) => {
         //Populate file info description
         for (let fieldIdx = 0; fieldIdx < totalFieldsCnt; fieldIdx++) {
-          let localField = JSON.parse(localFields[fieldIdx]);
-          if (localField.filename === data.originalFilename) {
+          let localField = JSON.parse(
+            totalFieldsCnt === 1 ? localFields : localFields[fieldIdx]
+          );
+          if (
+            localField.filename &&
+            localField.description &&
+            localField.filename === data.originalFilename
+          ) {
             data.description = localField.description;
           }
         }
@@ -163,14 +166,12 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
 
         //Send file process request to NATS
         let processingReq = {
-          filepath: file.originalFilename,
+          filepath: data.filepath,
+          filename: data.originalFilename,
           uploaded_destination: uploadDest,
         };
         if (NATSConn) {
-          await pubFileProcessingReq(
-            NATSConn,
-            JSON.stringify(processingReq)
-          );
+          await pubFileProcessingReq(NATSConn, JSON.stringify(processingReq));
         }
 
         //Close NATS connection when all files are uploaded
@@ -178,10 +179,6 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
         if (fileCount === totalFileCount && NATSConn) {
           await NATSConn.close();
         }
-        return {
-          message: " File uploaded to S3!!",
-          data: data,
-        };
       })
       .catch(async (err) => {
         updateFileUploadStatusEmitter(listener).emit(UPLOADSTATUS.ERROR, err);
@@ -190,7 +187,7 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
         if (fileCount === totalFileCount) {
           await NATSConn.close();
         }
-        throw new Error(err);
+        console.log(err)
       });
   }); //End fileBegin
 };
