@@ -2,8 +2,12 @@ const http = require("http");
 const formidable = require("formidable");
 require("dotenv").config();
 const { uploadFile } = require("./file_upload/file_upload_service");
-const { listAllFiles, filterFiles } = require("./file_upload/file_list_service");
+const {
+  listAllFiles,
+  filterFiles,
+} = require("./file_upload/file_list_service");
 const port = process.env.UPLOAD_HTTP_PORT;
+const allowedOrigin = process.env.ALLOW_CLIENT_URL
 const uploadTimeout = parseInt(process.env.UPLOAD_TIME_OUT, 3600000);
 const HTTP_METHODS = {
   POST: "POST",
@@ -14,15 +18,12 @@ const HTTP_URLS = {
   API_FILE_UPLOADED_LIST: "/api/upload/list/all",
 };
 
-const requestListener = async function (req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  switch (req.method) {
-    case HTTP_METHODS.POST:
-      postListener(req, res);
-      break;
-    default:
-      health_check(req, res);
-      break;
+const requestListener = function (req, res) {
+  res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+  if (req.method === HTTP_METHODS.POST) {
+    postListener(req, res);
+  } else {
+    health_check(req, res);
   }
 };
 
@@ -67,7 +68,7 @@ const httpServer = http
     });
   })
   .listen(port, () => {
-    console.log(`Server is running on http://${port}`);
+    console.log(`Server is running on http://${port}. Allowed client url ${allowedOrigin}`);
   });
 httpServer.headersTimeout = uploadTimeout;
 httpServer.keepAliveTimeout = uploadTimeout;
