@@ -1,8 +1,8 @@
 const http = require("http");
 const formidable = require("formidable");
 require("dotenv").config();
-const { uploadFile } = require("./file_upload/file_uploader");
-const { list } = require("./controllers/file_info.controller");
+const { uploadFile } = require("./file_upload/file_upload_service");
+const { listAllFiles, filterFiles } = require("./file_upload/file_list_service");
 const port = process.env.UPLOAD_HTTP_PORT;
 const uploadTimeout = parseInt(process.env.UPLOAD_TIME_OUT, 3600000);
 const HTTP_METHODS = {
@@ -11,7 +11,7 @@ const HTTP_METHODS = {
 };
 const HTTP_URLS = {
   API_FILE_UPLOAD: "/api/upload",
-  API_FILE_UPLOADED_LIST: "/api/upload/list",
+  API_FILE_UPLOADED_LIST: "/api/upload/list/all",
 };
 
 const requestListener = async function (req, res) {
@@ -37,7 +37,7 @@ const postListener = async (req, res) => {
   switch (req.url.split("?")[0]) {
     case HTTP_URLS.API_FILE_UPLOADED_LIST:
       formidable().parse(req, async (err, fields, files) => {
-        res.write(JSON.stringify(await list(fields, res)));
+        res.write(JSON.stringify(await listAllFiles(req, res)));
         res.end();
       });
       break;
@@ -49,7 +49,7 @@ const postListener = async (req, res) => {
           res.end();
         })
         .catch((err) => {
-          res.writeHead(401);
+          res.writeHead(500);
           res.end(JSON.stringify(err));
         });
       break;
@@ -72,7 +72,4 @@ const httpServer = http
 httpServer.headersTimeout = uploadTimeout;
 httpServer.keepAliveTimeout = uploadTimeout;
 httpServer.timeout = uploadTimeout;
-httpServer.maxHeadersCount = 2000;
-httpServer.maxConnections = 2000;
-httpServer.maxBodyLength = 2000;
 httpServer.requestTimeout = uploadTimeout;

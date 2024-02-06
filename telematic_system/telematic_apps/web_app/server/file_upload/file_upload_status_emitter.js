@@ -34,8 +34,7 @@ class FileUploadStatusListener {
       });
     }
     this.status = status;
-    console.log("Status updated to: " + status);
-    console.log(status + "\tfileInfo: " + JSON.stringify(fileInfo));
+    console.log("Status updated to: " + status + "\tFileInfo: " + JSON.stringify(fileInfo));
   }
 }
 

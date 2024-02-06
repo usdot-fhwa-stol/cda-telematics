@@ -5,7 +5,7 @@
   "scripts": {
     "start": "nodemon ./bin/www",
     "test": "cross-env NODE_ENV=test jest --testTimeout=5000 --coverage --verbose",
-    "fileupload-service": "nodemon ./fileupload.service.js"
+    "file-upload-server": "nodemon ./file_upload_server.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.485.0",
