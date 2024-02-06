@@ -67,8 +67,13 @@ class ServiceManager:
         self.influx_token = os.getenv("INFLUX_TOKEN")
         self.influx_url = os.getenv("INFLUX_URL")
 
+        #Fields in the ros message to force to string type.
+        self.to_str_fields= os.getenv("TO_STR_FIELDS")
+        # Fields in the ros message to ignore
+        self.ignore_fields= os.getenv("IGNORE_FIELDS")
+
         # Create rosbag parser object
-        self.rosbag_parser = Rosbag2Parser(self.influx_bucket, self.influx_org, self.influx_token, self.influx_url, self.topic_exclusion_list, self.rosbag_dir, self.logger)
+        self.rosbag_parser = Rosbag2Parser(self.influx_bucket, self.influx_org, self.influx_token, self.influx_url, self.topic_exclusion_list, self.rosbag_dir, self.to_str_fields, self.ignore_fields, self.logger)
 
         #nats connection status
         self.is_nats_connected = False
@@ -116,11 +121,10 @@ class ServiceManager:
 
         async def disconnected_cb():
             self.registered = False
-            #self.logger.warn("Got disconnected...")
+            self.logger.warn("Got disconnected...")
 
         async def reconnected_cb():
-            print("Got reconnected")
-            # self.logger.warn("Got reconnected...")
+            self.logger.warn("Got reconnected...")
 
         async def error_cb(err):
             self.logger.error("{0}".format(err))
@@ -136,7 +140,7 @@ class ServiceManager:
                     self.logger.info("Connected to NATS Server!")
                     self.is_nats_connected = True
                 finally:
-                    self.logger.warn("Client is trying to connect to NATS Server Done.")
+                    self.logger.info("Client is trying to connect to NATS Server Done.")
 
             await asyncio.sleep(0.0001)
 
