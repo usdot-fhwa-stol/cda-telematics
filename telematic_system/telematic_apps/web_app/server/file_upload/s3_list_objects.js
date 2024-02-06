@@ -24,7 +24,7 @@ exports.listObjects = async () => {
       command
     );
     const contentsList = Contents.map((c) => ({
-      originalFilename: c.Key,
+      original_filename: c.Key,
       size: c.Size,
       filepath: Bucket,
     }));

@@ -13,31 +13,27 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-const { list, upsertFileInfo } = require("../controllers/file_info.controller");
-const { listObjects } = require("../file_upload/s3_list_objects");
+const fileInfoController = require("../controllers/file_info.controller");
+const listObjectsModule = require("../file_upload/s3_list_objects");
 const { UPLOADSTATUS } = require("./file_upload_status_emitter");
 const uploadDest = process.env.UPLOAD_DESTINATION;
 
-exports.filterFiles = async (req_fields, res) => {
-  let contents = [];
-  let data = await list(req_fields, res);
-  if (!data || data.errorMsg) {
-    throw new Error(
-      "Error get a list file info from MYSQL DB: " +
-        (data.errorMsg ? data.errorMsg : "Unknown")
-    );
-  } else {
-    contents.push(...data);
+const filterFiles = async (req_fields) => {
+  try {
+    return await fileInfoController.list(req_fields);
+  } catch (err) {
+    console.log("Cannot filter a list of DB files!");
+    console.trace();
+    throw err;
   }
-  return contents;
 };
 
-exports.listAllFiles = async () => {
+const listAllFiles = async () => {
   try {
-    if (uploadDest.trim().toLowerCase() === "s3") {
+    if (uploadDest && uploadDest.trim().toLowerCase() === "s3") {
       return await listAllDBFilesAndS3Objects();
     } else {
-      await listAllDBFiles();
+      return await listAllDBFiles();
     }
   } catch (err) {
     console.log(err);
@@ -47,10 +43,9 @@ exports.listAllFiles = async () => {
 
 const listAllDBFiles = async () => {
   try {
-    let data = await list({});
-    return data;
+    return await fileInfoController.list({});
   } catch (err) {
-    console.log("Cannot get a list of DB files!");
+    console.log("Cannot get a list of All DB files!");
     console.trace();
     throw err;
   }
@@ -60,33 +55,41 @@ const listAllDBFilesAndS3Objects = async () => {
   try {
     let contents = [];
     let existingFileNames = [];
-    let data = await list({});
+    let data = await fileInfoController.list({});
     contents.push(...data);
     for (const d of data) {
       existingFileNames.push(d.original_filename);
     }
 
-    let objects = await listObjects();
+    let objects = await listObjectsModule.listObjects();
     console.log("Your bucket contains the following objects:");
     console.log(objects);
 
     //Update database with the list of S3 Objects
     if (Array.isArray(objects)) {
       for (const object of objects) {
-        if (!existingFileNames.includes(object.originalFilename)) {
+        if (!existingFileNames.includes(object.original_filename)) {
           let newFileFromS3 = { ...object, status: UPLOADSTATUS.COMPLETED };
           console.log(
             "Below S3 object not found in MYSQL DB. Insert object into DB:"
           );
           console.log(newFileFromS3);
-          let newFile = upsertFileInfo(newFileFromS3);
+          let newFile = fileInfoController.upsertFileInfo(newFileFromS3);
           contents.push(newFile);
         }
       }
     }
     return contents;
   } catch (err) {
-    console.log("Cannot get a list of DB files or S3 objects!");
+    console.log("Cannot get a list of all DB files or S3 objects!");
+    console.trace();
     throw err;
   }
+};
+
+module.exports = {
+  listAllFiles,
+  filterFiles,
+  listAllDBFiles,
+  listAllDBFilesAndS3Objects,
 };

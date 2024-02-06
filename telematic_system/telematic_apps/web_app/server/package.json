@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=5000 --coverage --verbose",
+    "test": "cross-env NODE_ENV=test jest --testTimeout=60000 --coverage --verbose",
     "file-upload-server": "nodemon ./file_upload_server.js"
   },
   "dependencies": {

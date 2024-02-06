@@ -72,7 +72,6 @@ exports.uploadFile = async (req) => {
     });
   } catch (error) {
     console.log(error);
-    console.trace();
     throw error;
   }
 }; //End upload file

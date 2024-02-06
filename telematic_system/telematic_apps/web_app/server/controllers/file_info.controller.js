@@ -14,6 +14,7 @@
  * the License.
  */
 const { file_info } = require("../models");
+const ADMIN_ID = 1;
 
 /**
  * List file info
@@ -41,9 +42,12 @@ exports.list = (filterFields) => {
     });
 };
 
-exports.updateFileDescription = async (original_filename, description) => {
+exports.updateFileDescription = async (originalFilename, description) => {
+  if (!originalFilename) {
+    throw new Error("originalFilename cannot be undefined");
+  }
   let condition = {};
-  condition.original_filename = original_filename;
+  condition.original_filename = originalFilename;
   return await file_info
     .findAll({
       where: condition,
@@ -85,14 +89,17 @@ exports.updateFileDescription = async (original_filename, description) => {
  * Return update success or not. True success, otherwise false.
  */
 exports.upsertFileInfo = async (fileInfo) => {
+  if (!fileInfo?.originalFilename) {
+    throw new Error("originalFilename cannot be undefined");
+  }
   let fileInfoLocal = {
     original_filename: fileInfo.originalFilename,
     content_location: fileInfo.filepath,
     upload_status: fileInfo.status ? fileInfo.status : null,
     upload_error_msg: fileInfo.error ? JSON.stringify(fileInfo.error) : null,
     size: fileInfo.size ? fileInfo.size : null,
-    created_by: fileInfo.created_by ? fileInfo.created_by : 1,
-    updated_by: fileInfo.updated_by ? fileInfo.updated_by : 1,
+    created_by: fileInfo.created_by ? fileInfo.created_by : ADMIN_ID,
+    updated_by: fileInfo.updated_by ? fileInfo.updated_by : ADMIN_ID,
   };
   if (fileInfo.description) {
     fileInfoLocal.description = fileInfo.description;
