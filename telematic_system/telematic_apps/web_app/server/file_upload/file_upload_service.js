@@ -97,14 +97,14 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
       );
 
       //Send processing request for uploaded file to HOST
-      let processing_request = {
+      let processingReq = {
         filepath: localFile.filepath,
         uploaded_destination: uploadDest,
       };
       if (NATSConn) {
         await pubFileProcessingReq(
           NATSConn,
-          JSON.stringify(processing_request)
+          JSON.stringify(processingReq)
         );
       }
     }
@@ -162,14 +162,14 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
         );
 
         //Send file process request to NATS
-        let processing_request = {
+        let processingReq = {
           filepath: file.originalFilename,
           uploaded_destination: uploadDest,
         };
         if (NATSConn) {
           await pubFileProcessingReq(
             NATSConn,
-            JSON.stringify(processing_request)
+            JSON.stringify(processingReq)
           );
         }
 
