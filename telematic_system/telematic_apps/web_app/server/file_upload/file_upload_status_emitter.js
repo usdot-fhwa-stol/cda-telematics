@@ -31,6 +31,7 @@ class FileUploadStatusListener {
       fileInfo = { ...fileInfo, status: status };
       file_info_controller.upsertFileInfo(fileInfo).catch((err) => {
         console.log(err);
+        console.trace();
       });
     }
     this.status = status;

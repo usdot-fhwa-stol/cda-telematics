@@ -18,25 +18,19 @@ exports.listObjects = async () => {
     Bucket: Bucket,
   });
   let contents = [];
-  try {
-    let isTruncated = true;
-    while (isTruncated) {
-      const { Contents, IsTruncated, NextContinuationToken } =
-        await client.send(command);
-      const contentsList = Contents.map((c) => ({
-        originalFilename: c.Key,
-        size: c.Size,
-        filepath: Bucket,
-      }));
-      isTruncated = IsTruncated;
-      contents.push(...contentsList);
-      command.input.ContinuationToken = NextContinuationToken;
-    }
-    return contents;
-  } catch (err) {
-    contents = {
-      errorMsg: err,
-    };
-    return contents;
+  let isTruncated = true;
+  while (isTruncated) {
+    const { Contents, IsTruncated, NextContinuationToken } = await client.send(
+      command
+    );
+    const contentsList = Contents.map((c) => ({
+      originalFilename: c.Key,
+      size: c.Size,
+      filepath: Bucket,
+    }));
+    isTruncated = IsTruncated;
+    contents.push(...contentsList);
+    command.input.ContinuationToken = NextContinuationToken;
   }
+  return contents;
 };

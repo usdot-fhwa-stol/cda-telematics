@@ -32,9 +32,9 @@ const {
  * @returns Promise with upload result
  */
 exports.uploadFile = async (req) => {
-  return await new Promise((resolve, reject) => {
-    try {
-      const NATSConn = CreateNatsConn();
+  try {
+    const NATSConn = await CreateNatsConn();
+    return await new Promise((resolve, reject) => {
       const listener = new FileUploadStatusListener(UPLOADSTATUS.UNKNOWN);
       const form = formidable(options);
       form
@@ -54,16 +54,12 @@ exports.uploadFile = async (req) => {
       } else {
         parseLocalFileUpload(req, form, listener, NATSConn);
       }
-    } catch (error) {
-      reject(
-        new Error(
-          JSON.stringify({
-            error: error.message || "Unknown server error.",
-          })
-        )
-      );
-    }
-  });
+    });
+  } catch (error) {
+    console.log(error);
+    console.trace();
+    throw error;
+  }
 }; //End upload file
 
 /**
@@ -87,7 +83,7 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
       let localFile = totalFileCount > 1 ? localFiles[index] : localFiles;
 
       //Populate file info with description field
-      localFile = updateFileInfoWithDescription(formFields,totalFieldsCnt, localFile);
+      updateFileInfoWithDescription(formFields, totalFieldsCnt, localFile);
 
       //Update file info status
       updateFileUploadStatusEmitter(listener).emit(
@@ -145,9 +141,9 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
     );
     //Write stream into S3 bucket
     await uploadToS3(file)
-      .then(async (data) => {
+      .then((data) => {
         //Populate file info description
-        data = updateFileInfoWithDescription(formFields,totalFieldsCnt, data);
+        updateFileInfoWithDescription(formFields, totalFieldsCnt, data);
         //Update file upload status
         updateFileUploadStatusEmitter(listener).emit(
           UPLOADSTATUS.COMPLETED,
@@ -161,39 +157,48 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
           uploaded_destination: uploadDest,
         };
         if (NATSConn) {
-          await pubFileProcessingReq(NATSConn, JSON.stringify(processingReq));
+          pubFileProcessingReq(NATSConn, JSON.stringify(processingReq));
         }
 
         //Close NATS connection when all files are uploaded
         fileCount += 1;
         if (fileCount === totalFileCount && NATSConn) {
-          await NATSConn.close();
+          NATSConn.close();
         }
       })
-      .catch(async (err) => {
+      .catch((err) => {
         updateFileUploadStatusEmitter(listener).emit(UPLOADSTATUS.ERROR, err);
         //Close NATS connection when all files are uploaded or failed
         fileCount += 1;
         if (fileCount === totalFileCount) {
-          await NATSConn.close();
+          NATSConn.close();
         }
+        console.log("Cannot upload file to S3 bucket due to error!");
+        console.trace();
         console.log(err);
       });
   }); //End fileBegin
 };
 
 const updateFileInfoWithDescription = (fields, totalFieldsCnt, fileInfo) => {
-  for (let fieldIdx = 0; fieldIdx < totalFieldsCnt; fieldIdx++) {
-    let localField = JSON.parse(
-      totalFieldsCnt === 1 ? fields : fields[fieldIdx]
-    );
-    if (
-      localField.filename &&
-      localField.description &&
-      localField.filename === data.originalFilename
-    ) {
-      fileInfo.description = localField.description;
+  try {
+    for (let fieldIdx = 0; fieldIdx < totalFieldsCnt; fieldIdx++) {
+      let localField = JSON.parse(
+        totalFieldsCnt === 1 ? fields : fields[fieldIdx]
+      );
+      if (
+        localField.filename &&
+        localField.description &&
+        localField.filename === fileInfo.originalFilename
+      ) {
+        fileInfo.description = localField.description;
+      }
     }
+  } catch (error) {
+    console.log(
+      "Cannot update file info with description from fields: " + fields
+    );
+    console.trace();
+    throw error;
   }
-  return fileInfo;
 };

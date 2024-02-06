@@ -4,19 +4,16 @@ const { file_info } = require("../models");
  * List file info
  * @param {*} filterFields Filter conditions
  */
-exports.list = async (filterFields, res) => {
+exports.list = (filterFields) => {
   if (!filterFields) {
-    res.writeHead(400);
-    return {
-      errorMsg: "Content cannot be empty.",
-    };
+    throw new Error("Content cannot be undefined");
   }
   let condition = {};
   if (filterFields.original_filename)
     condition.original_filename = filterFields.original_filename;
   if (filterFields.description)
     condition.description = filterFields.description;
-  return await file_info
+  return file_info
     .findAll({
       where: condition,
       order: [["updated_at", "DESC"]],
@@ -25,12 +22,7 @@ exports.list = async (filterFields, res) => {
       return data;
     })
     .catch((err) => {
-      console.log(err);
-      return {
-        errorMsg:
-          err.message ||
-          "Error while findAll uploaded files metadata from MYSQL DB.",
-      };
+      throw err;
     });
 };
 

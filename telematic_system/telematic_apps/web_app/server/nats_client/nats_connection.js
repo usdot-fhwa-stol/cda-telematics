@@ -8,7 +8,7 @@ exports.CreateNatsConn = async () => {
   try {
     nc = await connect(opts);
   } catch (err) {
-    throw new Error(`Error connecting to nats: ${err.message}`);
+    throw new Error(`Error connecting to NATS: ${err.message}`);
   }
   console.info(`Connected ${nc.getServer()}`);
   return nc;

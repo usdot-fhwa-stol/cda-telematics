@@ -7,7 +7,7 @@ const {
   filterFiles,
 } = require("./file_upload/file_list_service");
 const port = process.env.UPLOAD_HTTP_PORT;
-const allowedOrigin = process.env.ALLOW_CLIENT_URL
+const allowedOrigin = process.env.ALLOW_CLIENT_URL;
 const uploadTimeout = parseInt(process.env.UPLOAD_TIME_OUT, 3600000);
 const HTTP_METHODS = {
   POST: "POST",
@@ -38,8 +38,19 @@ const postListener = async (req, res) => {
   switch (req.url.split("?")[0]) {
     case HTTP_URLS.API_FILE_UPLOADED_LIST:
       formidable().parse(req, async (err, fields, files) => {
-        res.write(JSON.stringify(await listAllFiles(req, res)));
-        res.end();
+        await listAllFiles(req, res)
+          .then((data) => {
+            res.writeHead(200);
+            res.write(JSON.stringify(data));
+            res.end();
+          })
+          .catch((err) => {
+            res.writeHead(500);
+            res.write(
+              JSON.stringify({ error: err.message || "Unknown server error!" })
+            );
+            res.end();
+          });
       });
       break;
     case HTTP_URLS.API_FILE_UPLOAD:
@@ -51,7 +62,10 @@ const postListener = async (req, res) => {
         })
         .catch((err) => {
           res.writeHead(500);
-          res.end(JSON.stringify(err));
+          res.write(
+            JSON.stringify({ error: err.message || "Unknown server error!" })
+          );
+          res.end();
         });
       break;
     default:
@@ -68,7 +82,9 @@ const httpServer = http
     });
   })
   .listen(port, () => {
-    console.log(`Server is running on http://${port}. Allowed client url ${allowedOrigin}`);
+    console.log(
+      `Server is running on http://${port}. Allowed client url ${allowedOrigin}`
+    );
   });
 httpServer.headersTimeout = uploadTimeout;
 httpServer.keepAliveTimeout = uploadTimeout;
