@@ -7,15 +7,15 @@ require("dotenv").config();
 describe("Test NATS publisher", () => {
   it("Test NATS publish to topic ui.file.procressing", async () => {
     try {
-      const nc = await CreateNatsConn();
-      if (nc) {
+      const natsConn = await CreateNatsConn();
+      if (natsConn) {
         let processingReq = {
           filepath: "/opt/telematic/test.txt",
           upload_destination: "HOST",
         };
-        pubFileProcessingReq(nc, JSON.stringify(processingReq));
+        pubFileProcessingReq(natsConn, JSON.stringify(processingReq));
         setTimeout(() => {
-          nc.close();
+          natsConn.close();
         }, 1000);
       }
     } catch (err) {

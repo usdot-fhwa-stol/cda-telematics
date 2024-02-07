@@ -8,34 +8,14 @@ const listS3 = require("../../file_upload/s3_list_objects");
 const fileInfoController = require("../../controllers/file_info.controller");
 let objects = [
   {
-    id: 1,
-    content_location: "/opt/telematics/upload/filename",
     original_filename: "filename",
-    process_status: null,
-    process_error_msg: null,
     size: 23575448,
-    upload_status: "COMPLETED",
-    upload_error_msg: null,
-    description: "Random descriptions",
-    created_at: "2024-02-06T03:32:11.000Z",
-    created_by: 1,
-    updated_at: "2024-02-06T03:32:11.000Z",
-    updated_by: 1,
+    filepath: "s3-bucket-name"
   },
   {
-    id: 2,
-    content_location: "s3-bucket-name",
+    filepath: "s3-bucket-name",
     original_filename: "telematic.csv",
-    process_status: null,
-    process_error_msg: null,
     size: 1740113,
-    upload_status: "COMPLETED",
-    upload_error_msg: null,
-    description: null,
-    created_at: "2024-02-06T20:09:59.000Z",
-    created_by: 1,
-    updated_at: "2024-02-06T20:09:59.000Z",
-    updated_by: 1,
   },
 ];
 

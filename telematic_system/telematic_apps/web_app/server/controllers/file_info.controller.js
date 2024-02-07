@@ -25,10 +25,14 @@ exports.list = (filterFields) => {
     throw new Error("Content cannot be undefined");
   }
   let condition = {};
-  if (filterFields.original_filename)
+  if (filterFields.original_filename) {
     condition.original_filename = filterFields.original_filename;
-  if (filterFields.description)
+  }
+
+  if (filterFields.description) {
     condition.description = filterFields.description;
+  }
+
   return file_info
     .findAll({
       where: condition,
@@ -38,6 +42,7 @@ exports.list = (filterFields) => {
       return data;
     })
     .catch((err) => {
+      console.log("Error findAll file info from MYSQL DB!");
       throw err;
     });
 };
@@ -74,11 +79,10 @@ exports.updateFileDescription = async (originalFilename, description) => {
     })
     .catch((err) => {
       console.log(err);
-      return {
-        errorMsg:
-          err.message ||
-          "Error while updating description of uploaded files in MYSQL DB.",
-      };
+      throw new Error(
+        err.message ||
+          "Error while updating description of uploaded files in MYSQL DB."
+      );
     });
 };
 
@@ -92,12 +96,10 @@ exports.upsertFileInfo = async (fileInfo) => {
   let original_filename =
     fileInfo.originalFilename || fileInfo.original_filename || undefined;
   if (!original_filename) {
-    throw new Error(
-      "original_filename cannot be undefined"
-    );
+    throw new Error("original_filename cannot be undefined");
   }
   let fileInfoLocal = {
-    original_filename:original_filename,
+    original_filename: original_filename,
     content_location: fileInfo.filepath,
     upload_status: fileInfo.status ? fileInfo.status : null,
     upload_error_msg: fileInfo.error ? JSON.stringify(fileInfo.error) : null,
