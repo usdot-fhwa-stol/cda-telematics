@@ -22,4 +22,17 @@ describe("Test NATS publisher", () => {
       expect(err).not.toBeNull();
     }
   });
+
+  it("Test NATS publish to topic ui.file.procressing", async () => {
+    try {
+      const natsConn = undefined;
+      let processingReq = {
+        filepath: "/opt/telematic/test.txt",
+        upload_destination: "HOST",
+      };
+      await pubFileProcessingReq(natsConn, JSON.stringify(processingReq));
+    } catch (err) {
+      expect(err).not.toBeNull();
+    }
+  });
 });

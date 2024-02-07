@@ -15,9 +15,6 @@
  */
 const formidable = require("formidable");
 const { uploadToS3 } = require("./s3_uploader");
-const {
-  updateFileDescription,
-} = require("../controllers/file_info.controller");
 const uploadDest = process.env.UPLOAD_DESTINATION;
 const uploadDestPath = process.env.UPLOAD_DESTINATION_PATH;
 const uploadMaxFileSize = parseInt(process.env.UPLOAD_MAX_FILE_SIZE);

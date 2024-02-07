@@ -47,49 +47,10 @@ exports.list = (filterFields) => {
     });
 };
 
-exports.updateFileDescription = async (originalFilename, description) => {
-  if (!originalFilename) {
-    throw new Error("originalFilename cannot be undefined");
-  }
-  let condition = {};
-  condition.original_filename = originalFilename;
-  return await file_info
-    .findAll({
-      where: condition,
-      order: [["updated_at", "DESC"]],
-    })
-    .then(async (data) => {
-      if (data.length > 0) {
-        let updated_file = {
-          id: data.id,
-          description: description,
-        };
-        return await file_info
-          .update(updated_file, {
-            where: condition,
-          })
-          .then((num) => {
-            return num;
-          });
-      }
-      console.warn(
-        `Warning: Cannot update description as file [ ${original_filename} ] does not exist!`
-      );
-      return data;
-    })
-    .catch((err) => {
-      console.log(err);
-      throw new Error(
-        err.message ||
-          "Error while updating description of uploaded files in MYSQL DB."
-      );
-    });
-};
-
 /**
  * Create or update file info record in table
  * @param {*} file_info
- * e.g: {"size":0,"filepath":"/tmp/88734e92ec45dd40452a9a500.py","newFilename":"bsmscript.py","mimetype":"text/x-python","mtime":null,"originalFilename":"bsmscript.py"}
+ * e.g: {"size":0,"filepath":"/tmp/88734e92ec45dd40452a9a500.py","newFilename":"<filename>","mimetype":"text/x-python","mtime":null,"originalFilename":"<filename>"}
  * Return update success or not. True success, otherwise false.
  */
 exports.upsertFileInfo = async (fileInfo) => {
