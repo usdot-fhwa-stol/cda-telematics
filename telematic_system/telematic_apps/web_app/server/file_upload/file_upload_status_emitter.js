@@ -13,7 +13,7 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-const file_info_controller = require("../controllers/file_info.controller");
+const fileInfoController = require("../controllers/file_info.controller");
 
 /**
  * List of possible file upload status
@@ -44,7 +44,7 @@ class FileUploadStatusListener {
     //Update file info DB record identified by originalFilename
     if (fileInfo !== undefined && fileInfo.originalFilename !== undefined) {
       fileInfo = { ...fileInfo, status: status };
-      file_info_controller.upsertFileInfo(fileInfo).catch((err) => {
+      fileInfoController.upsertFileInfo(fileInfo).catch((err) => {
         console.log(err);
         console.trace();
       });

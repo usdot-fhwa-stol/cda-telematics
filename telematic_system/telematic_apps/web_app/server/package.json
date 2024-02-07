@@ -4,13 +4,14 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "test": "cross-env NODE_ENV=test jest --testTimeout=60000 --coverage --verbose",
+    "test": "cross-env NODE_ENV=test DOTENV_CONFIG_PATH=server.test.env jest --setupFiles=dotenv/config --testTimeout=60000 --coverage --verbose --detectOpenHandles  --forceExit",
     "file-upload-server": "nodemon ./file_upload_server.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.485.0",
     "@aws-sdk/lib-storage": "^3.485.0",
     "@fortawesome/fontawesome-free": "^6.0.0",
+    "@sensorfactdev/mock-node-nats": "^0.3.3",
     "axios": "^0.27.2",
     "cookie-parser": "~1.4.4",
     "cookie-session": "^2.0.0",

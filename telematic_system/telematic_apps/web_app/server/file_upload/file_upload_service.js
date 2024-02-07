@@ -36,7 +36,7 @@ const {
   FileUploadStatusListener,
 } = require("./file_upload_status_emitter");
 
-const { CreateNatsConn } = require("../nats_client/nats_connection");
+const NATSConnModule = require("../nats_client/nats_connection");
 const {
   pubFileProcessingReq,
 } = require("../nats_client/file_processing_nats_publisher");
@@ -48,7 +48,7 @@ const {
  */
 exports.uploadFile = async (req) => {
   try {
-    const NATSConn = await CreateNatsConn();
+    const NATSConn = await NATSConnModule.CreateNatsConn();
     return await new Promise((resolve, reject) => {
       const listener = new FileUploadStatusListener(UPLOADSTATUS.UNKNOWN);
       const form = formidable(options);
@@ -107,8 +107,8 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
 
       //Send processing request for uploaded file to HOST
       let processingReq = {
-        filepath: data.filepath,
-        filename: data.originalFilename,
+        filepath: localFile.filepath,
+        filename: localFile.originalFilename,
         uploaded_destination: uploadDest,
       };
       if (NATSConn) {

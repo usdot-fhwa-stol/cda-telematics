@@ -74,8 +74,11 @@ const listAllDBFilesAndS3Objects = async () => {
             "Below S3 object not found in MYSQL DB. Insert object into DB:"
           );
           console.log(newFileFromS3);
-          let newFile = fileInfoController.upsertFileInfo(newFileFromS3);
+          let newFile = await fileInfoController
+            .upsertFileInfo(newFileFromS3)
+            .catch((error) => console.log(error));
           contents.push(newFile);
+          console.log(newFile);
         }
       }
     }

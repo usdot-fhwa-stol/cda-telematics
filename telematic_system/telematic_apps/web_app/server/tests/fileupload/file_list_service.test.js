@@ -1,4 +1,3 @@
-require("dotenv").config();
 const {
   filterFiles,
   listAllDBFiles,
@@ -65,24 +64,9 @@ describe("List file service", () => {
     });
   });
 
-  it("Filter DB files successful", async () => {
-    jest.spyOn(fileInfoController, "list").mockResolvedValueOnce(fileInfos);
-    await filterFiles({}).then((data) => {
-      expect(data).not.toBeNull();
-    });
-  });
-
   it("List all S3 files throw error", async () => {
     await listAllDBFilesAndS3Objects().catch((err) => {
       expect(err.error).not.toBeNull();
-    });
-  });
-
-  it("List all S3 files successful", async () => {
-    jest.spyOn(fileInfoController, "list").mockResolvedValueOnce(fileInfos);
-    jest.spyOn(listS3, "listObjects").mockResolvedValueOnce(objects);
-    await listAllDBFilesAndS3Objects().then((data) => {
-      expect(data).not.toBeNull();
     });
   });
 
@@ -92,20 +76,37 @@ describe("List file service", () => {
     });
   });
 
+  it("List all DB files throw error", async () => {
+    await listAllDBFiles().catch((err) => {
+      expect(err.error).not.toBeNull();
+    });
+  });
+
+  jest
+    .spyOn(fileInfoController, "upsertFileInfo")
+    .mockResolvedValueOnce(objects[1]);
+
+  it("Filter DB files successful", async () => {
+    jest.spyOn(fileInfoController, "list").mockResolvedValueOnce(fileInfos);
+    await filterFiles({}).then((data) => {
+      expect(data).not.toBeNull();
+    });
+  });
   it("List all files successful", async () => {
     jest.spyOn(fileInfoController, "list").mockResolvedValueOnce(fileInfos);
-    jest
-      .spyOn(fileInfoController, "upsertFileInfo")
-      .mockResolvedValueOnce(fileInfos);
+    jest.spyOn(fileInfoController, "upsertFileInfo").mockResolvedValueOnce([]);
     jest.spyOn(listS3, "listObjects").mockResolvedValueOnce(objects);
     await listAllFiles().then((data) => {
       expect(data).not.toBeNull();
     });
   });
 
-  it("List all DB files throw error", async () => {
-    await listAllDBFiles().catch((err) => {
-      expect(err.error).not.toBeNull();
+  it("List all S3 files successful", async () => {
+    jest.spyOn(fileInfoController, "list").mockResolvedValueOnce(fileInfos);
+    jest.spyOn(fileInfoController, "upsertFileInfo").mockResolvedValueOnce([]);
+    jest.spyOn(listS3, "listObjects").mockResolvedValueOnce(objects);
+    await listAllDBFilesAndS3Objects().then((data) => {
+      expect(data).not.toBeNull();
     });
   });
 

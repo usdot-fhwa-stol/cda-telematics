@@ -105,3 +105,5 @@ httpServer.headersTimeout = uploadTimeout;
 httpServer.keepAliveTimeout = uploadTimeout;
 httpServer.timeout = uploadTimeout;
 httpServer.requestTimeout = uploadTimeout;
+
+module.exports = { httpServer };

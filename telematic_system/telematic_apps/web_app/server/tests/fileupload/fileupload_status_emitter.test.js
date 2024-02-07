@@ -5,7 +5,7 @@ const {
 } = require("../../file_upload/file_upload_status_emitter");
 
 describe("FileUpload Status Emitter", () => {
-  it("UPDATE()", async () => {
+  it("update file upload status", async () => {
     const listener = new FileUploadStatusListener(UPLOADSTATUS.UNKNOWN);
     const data = {
       id: 0,
