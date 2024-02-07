@@ -93,13 +93,13 @@ exports.updateFileDescription = async (originalFilename, description) => {
  * Return update success or not. True success, otherwise false.
  */
 exports.upsertFileInfo = async (fileInfo) => {
-  let original_filename =
+  let originalFilename =
     fileInfo.originalFilename || fileInfo.original_filename || undefined;
-  if (!original_filename) {
-    throw new Error("original_filename cannot be undefined");
+  if (!originalFilename) {
+    throw new Error("originalFilename cannot be undefined");
   }
   let fileInfoLocal = {
-    original_filename: original_filename,
+    original_filename: originalFilename,
     content_location: fileInfo.filepath,
     upload_status: fileInfo.status ? fileInfo.status : null,
     upload_error_msg: fileInfo.error ? JSON.stringify(fileInfo.error) : null,
@@ -110,7 +110,7 @@ exports.upsertFileInfo = async (fileInfo) => {
   if (fileInfo.description) {
     fileInfoLocal.description = fileInfo.description;
   }
-  let condition = { original_filename: original_filename };
+  let condition = { original_filename: originalFilename };
   return await file_info
     .findAll({
       where: condition,
