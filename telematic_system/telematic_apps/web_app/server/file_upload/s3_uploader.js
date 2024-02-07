@@ -7,8 +7,8 @@ const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_KEY;
 const region = process.env.S3_REGION;
 const Bucket = process.env.S3_BUCKET;
-const PART_SIZE = 1024 * 1024 * 10; // optional size of each part, in bytes, at least 10MB
-const CONCURRENT_QUEUE_SIZE = 5; // optional size of the concurrent queue, defaults to 5
+const PART_SIZE = parseInt(process.env.PART_SIZE);
+const CONCURRENT_QUEUE_SIZE = parseInt(process.env.CONCURRENT_QUEUE_SIZE); 
 
 /**
  * Upload file to S3 bucket
