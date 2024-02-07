@@ -77,8 +77,6 @@ class ServiceManager:
 
         #nats connection status
         self.is_nats_connected = False
-        # Additional control flag for continuous running
-        self.running = True
 
 
     def createLogger(self, log_type):
@@ -117,8 +115,6 @@ class ServiceManager:
             connect to nats server on EC2
         """
 
-        #self.logger.info("nats_connect called")
-
         async def disconnected_cb():
             self.registered = False
             self.logger.warn("Got disconnected...")
@@ -129,30 +125,27 @@ class ServiceManager:
         async def error_cb(err):
             self.logger.error("{0}".format(err))
 
-        while self.running:
-            if not self.is_nats_connected:
-                try:
-                    await self.nc.connect(self.nats_ip_port,
-                                        reconnected_cb=reconnected_cb,
-                                        disconnected_cb=disconnected_cb,
-                                        error_cb=error_cb,
-                                        max_reconnect_attempts=-1)
-                    self.logger.info("Connected to NATS Server!")
-                    self.is_nats_connected = True
-                finally:
-                    self.logger.info("Client is trying to connect to NATS Server Done.")
+        # while self.running:
+        if not self.is_nats_connected:
+            try:
+                await self.nc.connect(self.nats_ip_port,
+                                    reconnected_cb=reconnected_cb,
+                                    disconnected_cb=disconnected_cb,
+                                    error_cb=error_cb,
+                                    max_reconnect_attempts=-1)
+                self.logger.info("Connected to NATS Server!")
+                self.is_nats_connected = True
+            finally:
+                self.logger.info("Client is trying to connect to NATS Server Done.")
 
-            await asyncio.sleep(0.0001)
 
 
     async def process_rosbag(self):
         # This task is responsible for processing the rosbag in the queue - As long as the queue is not empty - keep processin
         # This is async because we should be able to keep adding items to the rosbag and keep this task active at the same time
-        while self.running:
+        #while self.running:
             #If Queue is not empty - create a new rosbag parser
-            if self.rosbag_queue and not self.rosbag_parser.is_processing:
-                self.logger.info("Entering queue processing")
-                self.rosbag_parser.is_processing = True
-                await self.rosbag_parser.process_rosbag(self.rosbag_queue.pop())
-
-            await asyncio.sleep(0.0001)
+        if self.rosbag_queue and not self.rosbag_parser.is_processing:
+            self.logger.info("Entering queue processing")
+            self.rosbag_parser.is_processing = True
+            await self.rosbag_parser.process_rosbag(self.rosbag_queue.pop())

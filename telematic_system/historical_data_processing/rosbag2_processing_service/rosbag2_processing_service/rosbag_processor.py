@@ -77,7 +77,7 @@ class Rosbag2Parser:
                             record += f"{attr_name}={attr_value},"
 
                         elif isinstance(attr_value, list):  # Handle arrays
-                            record += f"{attr_name}={str(attr_value)}"
+                            record += f'{attr_name}="{str(attr_value)}",'
                         else:
                             if isinstance(attr_value, str):
                                 attr_value = f'"{attr_value}"'  # Correctly format string values
@@ -87,14 +87,14 @@ class Rosbag2Parser:
                     # Remove last comma
                     record = record[:-1]
                     # Add timestamp at the end
-                    record += f",topic={topic} timestamp={msg_timestamp}"
-
+                    record += f" timestamp={msg_timestamp}"
+                    # print(record)
                     #Write record to influx
                     self.write_api.write(bucket=self.influx_bucket, org=self.influx_org, record=record)
 
             except Exception as e:
                 self.logger.warn(f"Failed to process ros message with exception: " + str(e))
-
+        self.logger.info("Completed rosbag processing for {rosbag2_name}")
         self.is_processing = False
 
 
