@@ -22,7 +22,7 @@ const filterFiles = async (req_fields) => {
   try {
     return await fileInfoController.list(req_fields);
   } catch (err) {
-    console.log("Cannot filter a list of DB files!");
+    console.error("Cannot filter a list of DB files!");
     console.trace();
     throw err;
   }
@@ -36,7 +36,7 @@ const listAllFiles = async () => {
       return await listAllDBFiles();
     }
   } catch (err) {
-    console.log(err);
+    console.error(err);
     throw err;
   }
 };
@@ -45,7 +45,7 @@ const listAllDBFiles = async () => {
   try {
     return await fileInfoController.list({});
   } catch (err) {
-    console.log("Cannot get a list of All DB files!");
+    console.error("Cannot get a list of All DB files!");
     console.trace();
     throw err;
   }
@@ -78,13 +78,12 @@ const listAllDBFilesAndS3Objects = async () => {
             .upsertFileInfo(newFileFromS3)
             .catch((error) => console.log(error));
           contents.push(newFile);
-          console.log(newFile);
         }
       }
     }
     return contents;
   } catch (err) {
-    console.log("Cannot get a list of all DB files or S3 objects!");
+    console.error("Cannot get a list of all DB files or S3 objects!");
     console.trace();
     throw err;
   }

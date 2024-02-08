@@ -22,7 +22,7 @@ describe("POST file upload service", () => {
 
   it("/api/upload ", async () => {
     jest
-    .spyOn(NATSConnModule, "CreateNatsConn")
+    .spyOn(NATSConnModule, "createNatsConn")
     .mockResolvedValueOnce(NATSMock.connect());
     let filename = "mock.txt";
     let formData = {

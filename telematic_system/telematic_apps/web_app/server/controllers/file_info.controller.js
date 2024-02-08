@@ -14,7 +14,6 @@
  * the License.
  */
 const { file_info } = require("../models");
-const ADMIN_ID = 1;
 
 /**
  * List file info
@@ -42,7 +41,7 @@ exports.list = (filterFields) => {
       return data;
     })
     .catch((err) => {
-      console.log("Error findAll file info from MYSQL DB!");
+      console.error("Error findAll file info from MYSQL DB!");
       throw err;
     });
 };
