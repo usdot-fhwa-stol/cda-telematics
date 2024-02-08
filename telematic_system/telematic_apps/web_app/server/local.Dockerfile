@@ -20,4 +20,6 @@ RUN chmod +x /wait
 RUN useradd -ms /bin/bash nonroot
 RUN chown -R nonroot /app
 USER nonroot
-ENTRYPOINT ["/bin/sh", "-c", "/wait && npm start"]
+RUN chmod +x service.sh
+
+CMD /wait && ./service.sh
