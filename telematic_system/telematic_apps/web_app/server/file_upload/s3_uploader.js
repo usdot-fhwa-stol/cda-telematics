@@ -6,7 +6,7 @@ require("dotenv").config();
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_KEY;
 const region = process.env.S3_REGION;
-const Bucket = process.env.S3_BUCKET;
+const bucket = process.env.S3_BUCKET;
 const PART_SIZE = parseInt(process.env.PART_SIZE);
 const CONCURRENT_QUEUE_SIZE = parseInt(process.env.CONCURRENT_QUEUE_SIZE); 
 
@@ -44,7 +44,7 @@ exports.uploadToS3 = (file) => {
           region,
         }),
         params: {
-          Bucket,
+          Bucket: bucket,
           Key: `${file.originalFilename}`,
           Body: this._writeStream,
         },

@@ -33,7 +33,7 @@ const {
   FileUploadStatusListener,
 } = require("./file_upload_status_emitter");
 
-const NATSConnModule = require("../nats_client/nats_connection");
+const natsConnModule = require("../nats_client/nats_connection");
 const {
   pubFileProcessingReq,
 } = require("../nats_client/file_processing_nats_publisher");
@@ -45,7 +45,7 @@ const {
  */
 exports.uploadFile = async (req) => {
   try {
-    const NATSConn = await NATSConnModule.CreateNatsConn();
+    const NATSConn = await natsConnModule.createNatsConn();
     return await new Promise((resolve, reject) => {
       const listener = new FileUploadStatusListener(UPLOADSTATUS.UNKNOWN);
       const form = formidable(options);

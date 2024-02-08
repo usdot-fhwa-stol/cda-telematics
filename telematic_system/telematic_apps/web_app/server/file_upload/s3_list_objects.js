@@ -4,7 +4,7 @@ require("dotenv").config();
 const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_KEY;
 const region = process.env.S3_REGION;
-const Bucket = process.env.S3_BUCKET;
+const bucket = process.env.S3_BUCKET;
 
 exports.listObjects = async () => {
   const client = new S3Client({
@@ -15,7 +15,7 @@ exports.listObjects = async () => {
     region,
   });
   const command = new ListObjectsV2Command({
-    Bucket: Bucket,
+    Bucket: bucket,
   });
   let contents = [];
   let isTruncated = true;
@@ -26,7 +26,7 @@ exports.listObjects = async () => {
     const contentsList = Contents.map((c) => ({
       original_filename: c.Key,
       size: c.Size,
-      filepath: Bucket,
+      filepath: bucket,
     }));
     isTruncated = IsTruncated;
     contents.push(...contentsList);

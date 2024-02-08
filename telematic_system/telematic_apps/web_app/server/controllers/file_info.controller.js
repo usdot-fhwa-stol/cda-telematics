@@ -59,14 +59,17 @@ exports.upsertFileInfo = async (fileInfo) => {
   if (!originalFilename) {
     throw new Error("originalFilename cannot be undefined");
   }
+  if (!(fileInfo.updated_by && fileInfo.created_by)) {
+    throw new Error("user cannot be undefined");
+  }
   let fileInfoLocal = {
     original_filename: originalFilename,
     content_location: fileInfo.filepath,
-    upload_status: fileInfo.status ? fileInfo.status : null,
+    upload_status: fileInfo.status || null,
     upload_error_msg: fileInfo.error ? JSON.stringify(fileInfo.error) : null,
-    size: fileInfo.size ? fileInfo.size : null,
-    created_by: fileInfo.created_by ? fileInfo.created_by : ADMIN_ID,
-    updated_by: fileInfo.updated_by ? fileInfo.updated_by : ADMIN_ID,
+    size: fileInfo.size || null,
+    created_by: fileInfo.created_by,
+    updated_by: fileInfo.updated_by,
   };
   if (fileInfo.description) {
     fileInfoLocal.description = fileInfo.description;

@@ -3,7 +3,7 @@ require("dotenv").config();
 const natsServers = process.env.NATS_SERVERS;
 const opts = { servers: natsServers, maxReconnectAttempts: -1 };
 
-exports.CreateNatsConn = async () => {
+exports.createNatsConn = async () => {
   let natsConn;
   try {
     natsConn = await NATS.connect(opts);
