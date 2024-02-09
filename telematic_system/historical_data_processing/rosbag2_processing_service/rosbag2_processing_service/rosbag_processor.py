@@ -88,13 +88,12 @@ class Rosbag2Parser:
                     record = record[:-1]
                     # Add timestamp at the end
                     record += f" timestamp={msg_timestamp}"
-                    # print(record)
                     #Write record to influx
                     self.write_api.write(bucket=self.influx_bucket, org=self.influx_org, record=record)
 
             except Exception as e:
                 self.logger.warn(f"Failed to process ros message with exception: " + str(e))
-        self.logger.info("Completed rosbag processing for {rosbag2_name}")
+        self.logger.info(f"Completed rosbag processing for {rosbag2_name}")
         self.is_processing = False
 
 

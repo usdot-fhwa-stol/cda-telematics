@@ -34,7 +34,6 @@ def main(args=None):
     ]
 
     loop.run_until_complete(asyncio.wait(tasks))
-
     loop.close()
 
 if __name__ == '__main__':

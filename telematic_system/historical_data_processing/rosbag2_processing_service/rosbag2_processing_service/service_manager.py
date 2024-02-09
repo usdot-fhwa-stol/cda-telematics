@@ -21,6 +21,8 @@ from logging.handlers import RotatingFileHandler
 from datetime import datetime
 from enum import Enum
 from .rosbag_processor import Rosbag2Parser
+import json
+#from MySQLdb  import _mysql
 
 class LogType(Enum):
     FILE = "file"
@@ -78,6 +80,8 @@ class ServiceManager:
         #nats connection status
         self.is_nats_connected = False
 
+        #TODO: Add Mysql database connection
+        #self.db = _mysql.connect(host="", user="", password="", database="")
 
     def createLogger(self, log_type):
         """Creates log file for the ROS2NatsBridge with configuration items based on the settings input in the params.yaml file"""
@@ -138,14 +142,35 @@ class ServiceManager:
             finally:
                 self.logger.info("Client is trying to connect to NATS Server Done.")
 
+            # Create subscriber for nats
+            try:
+                await self.nc.subscribe("ui.file.procressing", cb = self.process_rosbag)
+            except:
+                self.logger.warn("Failed to update rosbag queue")
+            pass
 
 
     async def process_rosbag(self):
         # This task is responsible for processing the rosbag in the queue - As long as the queue is not empty - keep processin
         # This is async because we should be able to keep adding items to the rosbag and keep this task active at the same time
-        #while self.running:
-            #If Queue is not empty - create a new rosbag parser
+
         if self.rosbag_queue and not self.rosbag_parser.is_processing:
             self.logger.info("Entering queue processing")
+            # TODO: Update mysql entry for rosbag
             self.rosbag_parser.is_processing = True
             await self.rosbag_parser.process_rosbag(self.rosbag_queue.pop())
+            # TODO: Update mysql entry for rosbag based on whether processing was successful
+
+
+    async def process_nats_request(self,msg):
+
+        # subject = msg.subject
+        data = msg.data.decode()
+        msg_json_object = json.loads(data)
+        rosbag_name = msg_json_object["filepath"].split("/")[-1]
+        # Add rosbag name to queue
+        if rosbag_name not in self.rosbag_queue:
+            self.rosbag_queue.append(rosbag_name)
+        else:
+            self.logger.warn(f"{rosbag_name} already queued to be processed")
+        #await msg.respond(f'Received processing request for {rosbag_name}'.encode("utf-8"))
