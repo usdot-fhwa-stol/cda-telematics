@@ -12,6 +12,13 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
+ * 
+ * 
+ * Description: Parse file upload request, and upload files to S3 bucket or copy to a local dedicated folder depending on whether uploading to S3 or local.
+ * 
+ * - uploadFile: Parse files and upload them to defined destination.
+ * - parseLocalFileUpload: Parse files before uploading them to a pre-configured local folder
+ * - parseS3FileUpload: Parse files before uploading them to S3 bucket
  */
 const formidable = require("formidable");
 const { uploadToS3 } = require("./s3_uploader");
@@ -99,9 +106,8 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
 
       //Send processing request for uploaded file to HOST
       let processingReq = {
-        filepath: localFile.filepath,
-        filename: localFile.originalFilename,
-        uploaded_destination: uploadDest,
+        uploaded_path: uploadDestPath,
+        filename: localFile.originalFilename
       };
       if (NATSConn) {
         await pubFileProcessingReq(NATSConn, JSON.stringify(processingReq));
@@ -155,9 +161,8 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
 
         //Send file process request to NATS
         let processingReq = {
-          filepath: data.filepath,
-          filename: data.originalFilename,
-          uploaded_destination: uploadDest,
+          uploaded_path: uploadDestPath,
+          filename: data.originalFilename
         };
         if (NATSConn) {
           pubFileProcessingReq(NATSConn, JSON.stringify(processingReq));

@@ -12,6 +12,16 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
+ * 
+ * Description:
+ * Provide functions to find a list of file_info from database table and S3 bucket.
+ * 
+ * - filterFiles: Query file_info database table based on input fields.
+ * - listAllFiles: Query all file_info from database and S3 bucket depending on whether files are uploaded to S3 or not.
+ * - listAllDBFiles: Query all file_info from database only.
+ * - listAllDBFilesAndS3Objects: Query all file_info from both database and S3 bucket. 
+ *   If the file exist in S3 bucket but not in database, insert the file metadata into file_info database table.
+ *   If the file exist in both S3 bucket and database, ignore files in S3 bucket.
  */
 const fileInfoController = require("../controllers/file_info.controller");
 const listObjectsModule = require("../file_upload/s3_list_objects");

@@ -12,6 +12,13 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
+ * 
+ * Description:
+ * An http server that provides APIs to serve file upload request and file list request.
+ * 
+ * - requestListener: A listener to inspect request URL and dispatch the request further to other listeners.
+ * - health_check: A function to provide a response of the server running status.
+ * - postListener: A listener to serve all post request and provide corresponding response.
  */
 const http = require("http");
 const formidable = require("formidable");

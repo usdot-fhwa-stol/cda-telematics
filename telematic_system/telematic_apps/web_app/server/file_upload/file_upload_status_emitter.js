@@ -12,6 +12,12 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
+ * 
+ * Description:
+ * A monitor to update file upload status.
+ * 
+ * - FileUploadStatusListener: A class to listen for upload status change and update database with the updated status.
+ * - updateFileUploadStatusEmitter: A dispatcher to call listener with updated upload status.
  */
 const fileInfoController = require("../controllers/file_info.controller");
 

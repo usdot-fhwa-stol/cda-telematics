@@ -12,11 +12,18 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
+ * 
+ * Description: 
+ * Provide functions to query and update to file_info database table.
+ * 
+ * - list: Query file info by input fields, and return a list of filtered file_info result.
+ * - upsertFileInfo: Update the file_info table based on the unique filename if file_info exist in the database table, and return the number
+ * of records updated. Otherwise, insert a new file_info record into the database table and return the new record. 
  */
 const { file_info } = require("../models");
 
 /**
- * List file info
+ * Query a list of file info from DB based on filters.
  * @param {*} filterFields Filter conditions
  */
 exports.list = (filterFields) => {
@@ -47,10 +54,10 @@ exports.list = (filterFields) => {
 };
 
 /**
- * Create or update file info record in table
- * @param {*} file_info
+ * Create or update file info record in DB table
+ * @param {*} file_info JSON object
  * e.g: {"size":0,"filepath":"/tmp/88734e92ec45dd40452a9a500.py","newFilename":"<filename>","mimetype":"text/x-python","mtime":null,"originalFilename":"<filename>"}
- * Return update success or not. True success, otherwise false.
+ * If update, return updated number of record. If insert, return inserted record.
  */
 exports.upsertFileInfo = async (fileInfo) => {
   let originalFilename =
