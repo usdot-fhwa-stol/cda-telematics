@@ -20,3 +20,4 @@ pm2.ecosystem.config.js
 docker-compose.yml
 .env
 .prettierrc.json
+package-lock.json

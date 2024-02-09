@@ -12,5 +12,6 @@ RUN npm install
 
 # Bundle app source
 COPY . .
+RUN chmod +x service.sh
 
-ENTRYPOINT ["npm", "start"]
+CMD ./service.sh

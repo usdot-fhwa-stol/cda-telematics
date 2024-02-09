@@ -52,4 +52,7 @@ mkdir /opt/influxdb2
 mkdir /opt/influxdb2/data
 chmod 777 -R /opt/influxdb2
 
+mkdir -p /opt/telematics/upload
+chmod 777 -R /opt/telematics
+
 cp telematic.local.env .env

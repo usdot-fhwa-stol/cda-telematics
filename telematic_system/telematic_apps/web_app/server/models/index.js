@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -46,6 +46,7 @@ grafana_db.org_user = require('./org_user.model')(seq, Sequelize);
 grafana_db.dashboard = require('./dashboard.model')(seq,Sequelize);
 grafana_db.event_dashboard = require('./event_dashboard.model')(seq,Sequelize);
 grafana_db.user_topic_request=require('./user_topic_request')(seq,Sequelize)
+grafana_db.file_info=require('./file_info.model')(seq,Sequelize)
 
 //Associations
 grafana_db.events.belongsToMany(grafana_db.units, {
