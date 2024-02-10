@@ -4,6 +4,7 @@ import React from 'react';
 import AuthContext from '../../../context/auth-context';
 import RolesDropDown from './RolesDropDown';
 import UserOrgRoleTable from './UserOrgRoleTable';
+import { CustomizedButton } from '../../ui/CustomizedButton';
 
 const UserOrgRoleEditDialog = (props) => {
     const [isAdmin, setIsAdmin] = React.useState('NO');
@@ -158,9 +159,10 @@ const UserOrgRoleEditDialog = (props) => {
                                 </Select>
                             </FormControl>
                             <RolesDropDown role={selectedOrgRole} onUserOrgRoleChange={handleUserRoleChange} />
-                            <Tooltip title="Click assign button to add user to the selected organizations." placement="top-start">
-                                <Button onClick={handleAddUserToOrg} data-testid='assign-user-to-org' variant="contained" sx={{ marginTop: 1 }}>Assign</Button>
-                            </Tooltip>
+                            <CustomizedButton title="Click assign button to add user to the selected organizations." 
+                                handler={handleAddUserToOrg} data-testid='assign-user-to-org'>
+                                Assign
+                            </CustomizedButton>
                             {
                                 orgAssignErr.color !== undefined && orgAssignErr.message !== undefined &&
                                 <FormHelperText sx={{
@@ -247,7 +249,7 @@ const UserOrgRoleEditDialog = (props) => {
                         onUserOrgRoleDelete={props.onUserOrgRoleDelete} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose} variant="outlined">Close</Button>
+                    <CustomizedButton handler={handleClose}>Close</CustomizedButton>
                 </DialogActions>
             </Dialog>
         </React.Fragment >

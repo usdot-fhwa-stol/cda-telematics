@@ -20,6 +20,7 @@ import { findUserTopicRequestByUserEventUnits } from '../../api/user_topic_reque
 import AuthContext from '../../context/auth-context';
 import TopicContext from '../../context/topic-context';
 import TopicListPerUnit from './TopicListPerUnit';
+import { CustomizedButton } from '../ui/CustomizedButton';
 
 const TopicList = React.memo((props) => {
     const [selectedUnits, setSelectedUnits] = useState([]);
@@ -306,27 +307,28 @@ const TopicList = React.memo((props) => {
                 </Card>
             </Grid>
             <Grid item xs={2} sx={{ textAlign: 'center', margin: 'auto' }}>
-                <Tooltip title="Move checked available topics" placement="top">
-                    <Button variant="outlined" onClick={addSelectedTopicsHandler}>&gt;&gt;</Button>
-                </Tooltip>
+                
+                <CustomizedButton title="Move all available topics" key="selectedTopics" handler = {addSelectedTopicsHandler}>
+                    &gt;&gt;
+                </CustomizedButton>
                 <br />
-                <Tooltip title="Move all available topics" placement="top">
-                    <Button variant="outlined" onClick={selectAllTopicsHandler} sx={{ marginTop: '10px' }}>&gt;&gt;&gt;</Button>
-                </Tooltip>
+                <CustomizedButton title="Move all available topics" key="selectedAllTopics" handler = {selectAllTopicsHandler}>
+                    &gt;&gt;&gt;
+                </CustomizedButton>
                 <br />
                 <br />
-                <Tooltip title="Move checked selected topics" placement="top">
-                    <Button variant="outlined" onClick={removeSelectedTopicsHandler}>&lt;&lt;</Button>
-                </Tooltip>
+                <CustomizedButton title="remove move checked selected topics"  key="removeSelectedTopics" handler = {removeSelectedTopicsHandler}>
+                    &lt;&lt;
+                </CustomizedButton>
                 <br />
-                <Tooltip title="Move all selected topics" placement="top">
-                    <Button variant="outlined" onClick={unSelectAllTopicsHandler} sx={{ marginTop: '10px' }}>&lt;&lt;&lt;</Button>
-                </Tooltip>
+                <CustomizedButton title="Move checked selected topics" key="MoveSelectedTopics" handler = {unSelectAllTopicsHandler}>
+                    &lt;&lt;&lt;
+                </CustomizedButton>
                 <br />
             </Grid>
             <Grid item xs={5}>
                 <Card sx={{ height: '500px', overflowY: 'scroll' }}>
-                    <CardHeader sx={{ color: "#000", backgroundColor: "#33bfff", padding: 1 }} title="Selected Topics" titleTypographyProps={{ variant: 'title' }} />
+                    <CardHeader sx={{ color: "#fff", backgroundColor: "#748c93", padding: 1 }} title="Selected Topics" titleTypographyProps={{ variant: 'title' }} />
                     <CardContent>
                         {
                             TopicCtx.selected_unit_topics_list !== undefined && TopicCtx.selected_unit_topics_list.length > 0

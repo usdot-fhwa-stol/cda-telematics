@@ -24,6 +24,7 @@ import { USER_ROLES } from '../users/UserMetadata';
 import DefaultTopicSettings from './DefaultTopicSettings';
 import TopicList from './TopicList';
 import { DEFAULT_TOPIC_CATEGORY_NAME } from './TopicMetadata';
+import { CustomizedRefreshButton } from '../ui/CustomizedRefreshButton';
 
 const UnitTopicList = React.memo((props) => {
     const authCtx = React.useContext(AuthContext)
@@ -259,11 +260,8 @@ const UnitTopicList = React.memo((props) => {
                                 </Grid>
                                 <Grid item xs={1} >
                                     <FormControl sx={{ m: 1, width: 30, display: "inline-flex" }}>
-                                        <Tooltip title={`Send request to get latest topic list for the selected ${props.unitSectionTitle}s.`} placement="top" arrow>
-                                            <Button variant="outlined" size='large' key={`refresh-${props.unitSectionTitle}-topics`} onClick={refreshAvailableLiveTopics4SelectedUnit}>
-                                                <SyncIcon sx={{ color: '#2196f3' }} />
-                                            </Button>
-                                        </Tooltip>
+                                    <CustomizedRefreshButton title={`Send request to get latest topic list for the selected ${props.unitSectionTitle}s.`} 
+                                        key={`refresh-${props.unitSectionTitle}-topics`}  handler ={refreshAvailableLiveTopics4SelectedUnit} />
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={2}>

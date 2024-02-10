@@ -3,13 +3,13 @@ import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrow
 import PasswordIcon from '@mui/icons-material/Password';
 import { Alert, Avatar, Box, Button, Container, FormControl, Grid, Snackbar, TextField } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { updatePassword } from '../api/api-user';
 import { SEVERITY } from '../components/users/UserMetadata';
 
-const ForgetPasswordPage = () => {
+const ForgetPasswordPage = memo(() => {
   const [open, setOpen] = useState(false);
   const [confirmNewPwd, setconfirmNewPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
@@ -203,6 +203,6 @@ const ForgetPasswordPage = () => {
       </ThemeProvider>
     </React.Fragment >
   )
-}
+});
 
 export default ForgetPasswordPage

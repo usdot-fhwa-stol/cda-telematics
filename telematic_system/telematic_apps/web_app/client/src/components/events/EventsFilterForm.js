@@ -19,6 +19,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import React, { useState } from 'react'
 import { findAllEvents } from '../../api/api-events'
 import { INVALID_EVENT_NAME_ID_STR, INVALID_LOCATION_ID, INVALID_LOCATION_ID_STR, INVALID_TESTING_TYPE_ID, INVALID_TESTING_TYPE_ID_STR, LIVE_EVENT } from './EventMetadata'
+import { CustomizedButton } from '../ui/CustomizedButton'
 
 const EventsFilterForm = (props) => {
   const timestampNow = new Date().getTime();
@@ -168,7 +169,7 @@ const EventsFilterForm = (props) => {
       </FormControl>
 
       <FormControl sx={{ margin: 1 }}>
-        <Button variant="outlined" size='large' onClick={onFilterEventsHandler}>Search</Button>
+        <CustomizedButton handler={onFilterEventsHandler}>Search</CustomizedButton>
       </FormControl>
     </React.Fragment>
   )

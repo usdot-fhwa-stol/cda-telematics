@@ -1,6 +1,6 @@
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Grid, Typography } from '@mui/material';
-import React, { useEffect } from 'react';
+import React, { memo, useEffect } from 'react';
 import { addOrgUser, deleteOrgUser, listOrgs, listOrgUsers, updateOrgUser } from '../api/api-org';
 import { listUsers, updateUserServerAdmin } from '../api/api-user';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
@@ -10,7 +10,7 @@ import UserRoleManagement from '../components/users/admin/UserRoleManagement';
 import { USER_ROLES } from '../components/users/UserMetadata';
 import AuthContext from '../context/auth-context';
 
-const AdminPage = () => {
+const AdminPage = memo(() => {
     //Add Alert notification
     const [alertStatus, setAlertStatus] = React.useState({});
     const [users, setUsers] =  React.useState([]);
@@ -166,6 +166,6 @@ const AdminPage = () => {
             }
         </React.Fragment>
     )
-}
+});
 
 export default AdminPage

@@ -32,6 +32,7 @@ import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
 import { USER_ROLES } from '../components/users/UserMetadata';
 import AuthContext from '../context/auth-context';
+import { CustomizedButton } from '../components/ui/CustomizedButton';
 
 const EventPage = React.memo(() => {
   const authCtx = React.useContext(AuthContext)
@@ -356,23 +357,23 @@ const EventPage = React.memo(() => {
           {
             authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
             <Grid item xs={12} justifyContent="flex-end" display="flex">
-              <Button variant="outlined" onClick={handleAddUnitDialog} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />}>
+              <CustomizedButton  handler={handleAddUnitDialog}  startIcon={<AddCircleIcon />}>
                 Add Unit
-              </Button>
+              </CustomizedButton>
               {
                 openAddUnitDialog &&
                 <AddUnitDialog close={!openAddUnitDialog} open={openAddUnitDialog} onSave={onSaveUnitHandler} onCloseAddUnitDialog={handleCloseUnitDialog} />
               }
-              <Button variant="outlined" onClick={handleOpenLocation} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />} >
+              <CustomizedButton  handler={handleOpenLocation}  startIcon={<AddCircleIcon />} >
                 Add Location
-              </Button>
+              </CustomizedButton>
               {
                 openAddLocationDialog &&
                 <AddLocationDialog stateList={stateList} close={!openAddLocationDialog} open={openAddLocationDialog} onSaveLocation={onSaveLocationHandler} onCloseAddLocationDialog={handleCloseLocation} />
               }
-              <Button variant="outlined" onClick={handleAddEventDialog} startIcon={<AddCircleIcon />} fullWidth={false} >
+              <CustomizedButton handler={handleAddEventDialog} startIcon={<AddCircleIcon />} fullWidth={false} >
                 Add Event
-              </Button>
+              </CustomizedButton>
               {
                 openAddEventDialog &&
                 <AddEventDialog title="Add Event" locationList={locationList} testingTypeList={testingTypeList} onEventSaveHandler={onEventSaveHandler} close={!openAddEventDialog} open={openAddEventDialog} onCloseEventDialog={handleCloseAddEventDialog} />

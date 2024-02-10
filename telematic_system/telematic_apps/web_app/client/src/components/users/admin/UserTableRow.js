@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import AuthContext from '../../../context/auth-context';
 import { USER_ROLES } from '../UserMetadata';
 import UserOrgRoleEditDialog from './UserOrgRoleEditDialog';
+import { CustomizedButton } from '../../ui/CustomizedButton';
 
 const UserTableRow = (props) => {
     const [open, setOpen] = useState(false);
@@ -154,9 +155,10 @@ const UserTableRow = (props) => {
                 }
                 <TableCell key={`user-table-row-actions-${props.userRow.id}`}>
                     <ButtonGroup variant="outlined" aria-label="controls">
-                        <Tooltip key={`user-table-row-control-${props.userRow.id}`} title="Update user organizations and roles">
-                            <Button onClick={handleOpen} data-testid={`user-table-open-btn-${props.userRow.id}`}><AssignmentIndIcon /></Button>
-                        </Tooltip>
+                        <CustomizedButton  key={`user-table-row-control-${props.userRow.id}`} title="Update user organizations and roles" handler={handleOpen} 
+                        data-testid={`user-table-open-btn-${props.userRow.id}`}>
+                            <AssignmentIndIcon />
+                        </CustomizedButton>
                     </ButtonGroup>
                 </TableCell>
             </TableRow>

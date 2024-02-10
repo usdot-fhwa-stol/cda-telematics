@@ -19,7 +19,7 @@ import { withStyles } from '@mui/styles';
 import React, { useContext, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { checkServerSession, deleteUser } from '../../api/api-user';
-import logo from '../../assets/carma.png';
+import logo from '../../assets/CAV_telematics_tool_logo_color.png';
 import AuthContext from '../../context/auth-context';
 import NavMenu from './NavMenu';
 
@@ -62,6 +62,7 @@ const Layout = React.memo((props) => {
             backgroundColor: "#e3e4e9",
             borderTopRightRadius: '15px',
             borderTopLeftRadius: '15px',
+            border: '1px solid #fff',
             fontWeight: 'bolder',
             "&.Mui-selected": {
                 backgroundColor: "#748c93",
@@ -83,9 +84,19 @@ const Layout = React.memo((props) => {
                         <Toolbar>
                             <Box
                                 component="img"
+                                sx={{width: '150px', height: '70px', marginRight: '10px'}}
                                 alt="Logo"
                                 src={logo} />
                             <List component="nav" sx={{ display: 'flex', fontWeight: "bolder", paddingBottom: 0 }}>
+                                <StyledListItemButton
+                                    component={Link} to="/telematic/events"
+                                    selected={location.pathname.includes("/telematic")}
+                                    divider={true}>
+                                    <ListItemText primary="Telematic" primaryTypographyProps={{
+                                        fontSize: '150%',
+                                        color: location.pathname.includes("/telematic") ? "#ffffff" : '#2c7474'
+                                    }} />
+                                </StyledListItemButton>
                                 <StyledListItemButton
                                     component={Link} to="/grafana"
                                     selected={"/grafana" === location.pathname}
@@ -96,19 +107,19 @@ const Layout = React.memo((props) => {
                                     }} />
                                 </StyledListItemButton>
                                 <StyledListItemButton
-                                    component={Link} to="/telematic/events"
-                                    selected={location.pathname.includes("/telematic")}
+                                    component={Link} to="/historical/data"
+                                    selected={location.pathname.includes("/historical/data")}
                                     divider={true}>
-                                    <ListItemText primary="Telematic" primaryTypographyProps={{
+                                    <ListItemText primary="Historical Data" primaryTypographyProps={{
                                         fontSize: '150%',
-                                        color: location.pathname.includes("/telematic") ? "#ffffff" : '#2c7474'
+                                        color: location.pathname.includes("/historical/data") ? "#ffffff" : '#2c7474'
                                     }} />
                                 </StyledListItemButton>
                             </List>
                         </Toolbar>
                     </AppBar>
                     {"/grafana" !== location.pathname && <NavMenu />}
-                    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+                    <Box component="main" sx={{ flexGrow: 1, p: 3  }}>
                         <Toolbar />
                         {props.children}
                     </Box>
@@ -145,7 +156,7 @@ const Layout = React.memo((props) => {
 
             {
                 authContext.sessionToken === null &&
-                <Box component="main" sx={{ flexGrow: 1 }}>
+                <Box component="main" sx={{ flexGrow: 1, minWidth: '1000px' }}>
                     {props.children}
                 </Box>
             }

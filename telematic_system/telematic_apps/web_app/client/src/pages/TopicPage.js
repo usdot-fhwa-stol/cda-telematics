@@ -31,6 +31,7 @@ import { PageAvatar } from '../components/ui/PageAvatar';
 import { USER_ROLES } from '../components/users/UserMetadata';
 import AuthContext from '../context/auth-context';
 import TopicContext from '../context/topic-context';
+import { CustomizedButton } from '../components/ui/CustomizedButton';
 
 const TopicPage = React.memo(() => {
   const authCtx = React.useContext(AuthContext)
@@ -293,9 +294,10 @@ const TopicPage = React.memo(() => {
             authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
             <Grid item xs={12} sx={{ textAlign: 'center' }}>
               <FormControl>
-                <Tooltip title="Send a request with a list of selected topics, and request telematic server to stream data for the selected topics." placement="top" arrow>
-                  <Button variant="outlined" onClick={confirmSelectedTopicHandler}>Confirm Selected Topics</Button>
-                </Tooltip>
+                <CustomizedButton title="Send a request with a list of selected topics, and request telematic server to stream data for the selected topics."
+                 handler={confirmSelectedTopicHandler}>
+                    Confirm Selected Topics
+                </CustomizedButton>
               </FormControl>
             </Grid>
           }

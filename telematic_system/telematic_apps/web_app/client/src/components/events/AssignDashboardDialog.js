@@ -20,6 +20,7 @@ import { searchDashboards } from '../../api/api-dashboards';
 import AuthContext from '../../context/auth-context';
 import DashboardCheckboxList from './DashboardCheckboxList';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { CustomizedButton } from '../ui/CustomizedButton';
 
 export const AssignDashboardDialog = (props) => {
     const [errorMsg, setErrorMsg] = useState('');
@@ -123,7 +124,7 @@ export const AssignDashboardDialog = (props) => {
                             onChange={searchTextChangeHandler} />
                     </FormControl>
                     <FormControl sx={{ width: '20%', top: 10, marginRight: 0, float: 'right' }}>
-                        <Button variant="outlined" size='large' onClick={searchHandler}>Search</Button>
+                        <CustomizedButton  key ="search_event" handler={searchHandler}>Search</CustomizedButton>
                     </FormControl>
                     {
                         searchedDashboards.length > 0 &&

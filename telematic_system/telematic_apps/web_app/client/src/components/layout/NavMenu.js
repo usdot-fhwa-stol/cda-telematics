@@ -17,6 +17,7 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import EventIcon from '@mui/icons-material/Event';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StreamIcon from '@mui/icons-material/Stream';
+import WorkHistorySharpIcon from '@mui/icons-material/WorkHistorySharp';
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Tooltip } from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer';
 import { styled } from '@mui/material/styles';
@@ -100,6 +101,7 @@ const NavMenu = React.memo(() => {
                 <Toolbar />
                 <Toolbar />
                 <List >
+                    { location.pathname.includes("/telematic") && 
                     <ListItem key="Events" disablePadding sx={{ display: 'block' }}>
                         <StyledListItemButton
                             component={Link} to="/telematic/events"
@@ -112,6 +114,8 @@ const NavMenu = React.memo(() => {
                             <ListItemText primary="Events" />
                         </StyledListItemButton>
                     </ListItem>
+                    }
+                    { location.pathname.includes("/telematic") && 
                     <ListItem key="Topics" disablePadding sx={{ display: 'block' }}>
                         <StyledListItemButton
                             component={Link} to="/telematic/topics"
@@ -124,8 +128,9 @@ const NavMenu = React.memo(() => {
                             <ListItemText primary="Topics" />
                         </StyledListItemButton>
                     </ListItem>
+                    }
                     {
-                        (parseInt(authCtx.is_admin) === 1 ||  authCtx.role === USER_ROLES.ADMIN) &&
+                        (location.pathname.includes("/telematic") && ( parseInt(authCtx.is_admin) === 1 ||  authCtx.role === USER_ROLES.ADMIN)) &&
                         <ListItem key="admin" disablePadding sx={{ display: 'block' }}>
                             <StyledListItemButton
                                 component={Link} to="/telematic/admin"
@@ -138,6 +143,20 @@ const NavMenu = React.memo(() => {
                                 <ListItemText primary="Topics" />
                             </StyledListItemButton>
                         </ListItem>
+                    }
+                    { location.pathname.includes("/historical/data") && 
+                    <ListItem key="ROS2rosbag" disablePadding sx={{ display: 'block' }}>
+                        <StyledListItemButton
+                            component={Link} to="/historical/data/ros2/rosbag"
+                            selected={"/historical/data/ros2/rosbag" === location.pathname}>
+                            <Tooltip title="ROS2 rosbag" placement="right-start" arrow>
+                                <ListItemIcon>
+                                    <WorkHistorySharpIcon />
+                                </ListItemIcon>
+                            </Tooltip>
+                            <ListItemText primary="ROS2 rosbag" />
+                        </StyledListItemButton>
+                    </ListItem>
                     }
                 </List>
                 <StyledListItemButton onClick={logoutHandler} sx={{

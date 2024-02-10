@@ -18,6 +18,12 @@ import { Box } from '@mui/system';
 import React from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 
+export const NOTIFICATION_STATUS={
+    SUCCESS: 'success',
+    WARNING: 'warning',
+    ERROR: 'error'
+  }
+  
 const SnackBarNotification = (props) => {
     const handleClose = (event) => {
         props.closeAlert();

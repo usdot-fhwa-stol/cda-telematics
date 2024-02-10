@@ -2,6 +2,9 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TableCell, TableRow, Tooltip } from '@mui/material';
 import React, { useState } from 'react';
 import RolesDropDown from './RolesDropDown';
+import { CustomizedButton } from '../../ui/CustomizedButton';
+import { CustomizedIcon } from '../../ui/CustomizedIcon';
+import { CustomizedOutlButton } from '../../ui/CustomizedOutlinedButton';
 const UserOrgROleTableRow = (props) => {
     const [open, setOpen] = useState(false);
     const handleOrgUserRoleChange = (role) => {
@@ -40,8 +43,8 @@ const UserOrgROleTableRow = (props) => {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant='outlined' sx={{ marginRight: '10px' }} onClick={handleClose}>No</Button>
-                    <Button variant='contained' onClick={handleConfirmDelete}>Yes</Button>
+                    <CustomizedOutlButton handler={handleClose}>No</CustomizedOutlButton>
+                    <CustomizedButton handler={handleConfirmDelete}>Yes</CustomizedButton>
                 </DialogActions>
             </Dialog>
             <TableRow
@@ -56,7 +59,7 @@ const UserOrgROleTableRow = (props) => {
                 <TableCell scope='row' key={`edit-user-role-control-${props.userOrgRole.login}-${props.userOrgRole.org_name}`}>
                     <Tooltip title={`Remove user from ${props.userOrgRole.org_name} organization`}
                         placement="top-start">
-                        <Button onClick={handleOrgUserRoleDelete}><DeleteIcon /></Button>
+                        <CustomizedIcon handler={handleOrgUserRoleDelete}><DeleteIcon /></CustomizedIcon>
                     </Tooltip>
                 </TableCell>
             </TableRow>
