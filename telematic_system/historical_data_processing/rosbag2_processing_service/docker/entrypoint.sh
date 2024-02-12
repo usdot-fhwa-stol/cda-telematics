@@ -14,18 +14,5 @@
 #  License for the specific language governing permissions and limitations under
 #  the License
 
-#Install processing service required libraries
-sudo pip3 install pip nats-py \
-    influxdb \
-    influxdb_client \
-    mcap-ros2-support \
-    python-dotenv
-
-source /opt/ros/foxy/setup.bash
-sudo apt update && apt install -y apt-utils \
-                                  python3-pybind11 \
-                                  ros-foxy-test-msgs
-
-# Build rosbag2
-cd /ws/
-colcon build --packages-up-to rosbag2_py
+source /ws/install/setup.bash
+# Startup service

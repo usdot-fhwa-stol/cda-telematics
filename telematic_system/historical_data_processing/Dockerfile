@@ -1,5 +1,3 @@
-#!/bin/bash
-
 #  Copyright (C) 2024 LEIDOS.
 #
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
@@ -14,18 +12,30 @@
 #  License for the specific language governing permissions and limitations under
 #  the License
 
-#Install processing service required libraries
-sudo pip3 install pip nats-py \
-    influxdb \
-    influxdb_client \
-    mcap-ros2-support \
-    python-dotenv
+FROM ros:foxy as base
 
-source /opt/ros/foxy/setup.bash
-sudo apt update && apt install -y apt-utils \
-                                  python3-pybind11 \
-                                  ros-foxy-test-msgs
+SHELL ["/bin/bash", "-c"]
 
-# Build rosbag2
-cd /ws/
-colcon build --packages-up-to rosbag2_py
+RUN set -xe \
+    && sudo apt-get update -y \
+    && sudo apt-get install -y \
+    git \
+    vim \
+    nano \
+    python3-pip
+
+WORKDIR /ws
+
+COPY rosbag2_processing_service/ src/
+RUN chmod +x /ws/src/docker/*
+RUN sudo bash /ws/src/docker/checkout.sh
+RUN sudo bash /ws/src/docker/install.sh
+
+COPY rosbag2_processing_service/docker/entrypoint.sh entrypoint.sh
+RUN chmod +x entrypoint.sh
+
+RUN sudo rm -rf src /var/lib/apt/lists/*
+
+RUN echo "source /ws/install/setup.bash" >> ~/.bashrc
+
+CMD ["bash"]
