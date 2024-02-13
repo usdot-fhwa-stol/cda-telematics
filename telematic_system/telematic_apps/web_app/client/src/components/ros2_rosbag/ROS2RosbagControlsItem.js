@@ -14,92 +14,69 @@
  * the License.
  */
 import EditIcon from "@mui/icons-material/Edit";
-import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
-import { Button, Tooltip } from "@mui/material";
+import RunningWithErrorsIcon from "@mui/icons-material/RunningWithErrors";
 import TableCell from "@mui/material/TableCell";
 import * as React from "react";
 import AuthContext from "../../context/auth-context";
+import { CustomizedOutlinedButton } from "../ui/CustomizedOutlinedButton";
 import { USER_ROLES } from "../users/UserMetadata";
-import DashboardDropDownMenu from "./DashboardDropDownMenu";
-import { EditEventDialog } from "./EditEventDialog";
+import ROS2RosbagDescriptionDialog from "./ROS2RosbagDescriptionDialog";
+import { PROCESSING_STATUS, UPLOAD_STATUS } from "./ROS2RosbagMetadata";
+import InfoPopover from "../ui/InfoPopover";
 
 const ROS2RosbagControlsItem = (props) => {
   const authCtx = React.useContext(AuthContext);
-  //Dashboards dropdown
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const handleClose = () => {
-    setAnchorEl(null);
-  };
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  //Edit ROS2Rosbag Dialog
+  const [open, setOpen] = React.useState(false);
+  const openHandler = () => {
+    setOpen(true);
   };
 
-  //Edit Event Dialog
-  const [openEditEventDialog, setOpenEditEventDialog] = React.useState(false);
-  const handleOpenEditEventDialog = () => {
-    setOpenEditEventDialog(true);
+  const handleProcessROS2RosbagReq = () => {
+    props.onProcessROS2RosbagReq(props.ROS2RosbagRow);
   };
-  const onEventSaveHandler = (eventInfo) => {
-    props.onEventSaveHandler(eventInfo);
-    setOpenEditEventDialog(false);
+  const closeHandler = () => {
+    setOpen(false);
   };
-  const onCloseEventDialog = () => {
-    setOpenEditEventDialog(false);
+
+  const saveRos2RosbagDescriptionHandler = (UpdatedFileInfo) => {
+    props.onSaveRos2RosbagDescription(UpdatedFileInfo);
   };
 
   return (
     <React.Fragment>
-      <TableCell tabIndex={-1} key={`dashboard-${props.eventRow.id}`}>
-        <Tooltip title="List of Dashboards" placement="top" arrow>
-          <Button
-            id="dashboards-options-button"
-            aria-controls={open ? "demo-customized-menu" : undefined}
-            aria-haspopup="true"
-            aria-expanded={open ? "true" : undefined}
-            variant="outlined"
-            disableElevation
-            onClick={handleClick}
-            endIcon={<KeyboardArrowDownIcon />}
-          >
-            Dashboards
-          </Button>
-        </Tooltip>
-        {open && (
-          <DashboardDropDownMenu
-            anchorEl={anchorEl}
-            open={open}
-            handleClose={handleClose}
-            eventRow={props.eventRow}
-          />
-        )}
-      </TableCell>
       {authCtx.role !== USER_ROLES.VIEWER &&
-        authCtx.role !== USER_ROLES.VIEWER &&
         authCtx.role !== undefined &&
         authCtx.role !== null &&
         authCtx.role !== "" && (
-          <TableCell tabIndex={-1} key={`controls-${props.eventRow.id}`}>
-            <EditEventDialog
-              title="Edit Event"
-              locationList={props.locationList}
-              testingTypeList={props.testingTypeList}
-              eventInfo={props.eventRow}
-              onEventSaveHandler={onEventSaveHandler}
-              onCloseEventDialog={onCloseEventDialog}
-              close={!openEditEventDialog}
-              open={openEditEventDialog}
-            />
-            <Tooltip title="Edit Event" placement="top" arrow>
-              <Button
-                variant="outlined"
-                size="small"
-                key={`edit-event-${props.eventRow.id}`}
-                onClick={handleOpenEditEventDialog}
-              >
-                <EditIcon sx={{ color: "primary.main" }} />
-              </Button>
-            </Tooltip>
+          <TableCell key={`controls-${props.ROS2RosbagRow.id}`}>
+            <ROS2RosbagDescriptionDialog
+              open={open}
+              onClose={closeHandler}
+              title={`Edit ROS2 Rosbag (${props.ROS2RosbagRow.original_filename}) Description`}
+              ROS2RosbagRow={props.ROS2RosbagRow}
+              OnDescriptionSave={saveRos2RosbagDescriptionHandler}
+            ></ROS2RosbagDescriptionDialog>
+            <CustomizedOutlinedButton
+              title={"Edit ROS2 Rosbag description"}
+              key={`edit-ROS2Rosbag-${props.ROS2RosbagRow.id}`}
+              onClick={openHandler}
+            >
+              <EditIcon />
+            </CustomizedOutlinedButton>
+
+            {props.ROS2RosbagRow !== undefined &&
+              props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.COMPLETED &&
+              props.ROS2RosbagRow.processing_status !==
+                PROCESSING_STATUS.COMPLETED && (
+                <CustomizedOutlinedButton
+                  title={"Process ROS2 Rosbag"}
+                  key={`process-ROS2Rosbag-${props.ROS2RosbagRow.id}`}
+                  onClick={handleProcessROS2RosbagReq}
+                >
+                  <RunningWithErrorsIcon />
+                </CustomizedOutlinedButton>
+              )}
           </TableCell>
         )}
     </React.Fragment>

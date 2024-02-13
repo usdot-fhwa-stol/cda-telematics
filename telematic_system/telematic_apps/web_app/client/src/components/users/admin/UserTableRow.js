@@ -1,10 +1,10 @@
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import { Button, ButtonGroup, TableCell, TableRow, Tooltip } from '@mui/material';
+import { ButtonGroup, TableCell, TableRow } from '@mui/material';
 import React, { useState } from 'react';
 import AuthContext from '../../../context/auth-context';
+import { CustomizedButton } from '../../ui/CustomizedButton';
 import { USER_ROLES } from '../UserMetadata';
 import UserOrgRoleEditDialog from './UserOrgRoleEditDialog';
-import { CustomizedButton } from '../../ui/CustomizedButton';
 
 const UserTableRow = (props) => {
     const [open, setOpen] = useState(false);
@@ -154,15 +154,12 @@ const UserTableRow = (props) => {
                     })
                 }
                 <TableCell key={`user-table-row-actions-${props.userRow.id}`}>
-                    <ButtonGroup variant="outlined" aria-label="controls">
-                        <CustomizedButton  key={`user-table-row-control-${props.userRow.id}`} title="Update user organizations and roles" handler={handleOpen} 
-                        data-testid={`user-table-open-btn-${props.userRow.id}`}>
-                            <AssignmentIndIcon />
-                        </CustomizedButton>
-                    </ButtonGroup>
+                    <CustomizedButton  key={`user-table-row-control-${props.userRow.id}`} title="Update user organizations and roles" onClick={handleOpen}>
+                        <AssignmentIndIcon />
+                    </CustomizedButton>
                 </TableCell>
             </TableRow>
-            {open && <UserOrgRoleEditDialog key={'user-org-dialog'}
+             <UserOrgRoleEditDialog key={'user-org-dialog'}
                 open={open}
                 onClose={handleClose}
                 orgs={props.orgs}
@@ -171,7 +168,7 @@ const UserTableRow = (props) => {
                 curSelectedOrgsRoles={curSelectedOrgsRoles}
                 onUserOrgRoleChange={handleUserOrgRoleUpdate}
                 onUserOrgRoleDelete={handleUserOrgRoleDelete}
-                onChangeServerAdmin={props.onChangeServerAdmin} />}
+                onChangeServerAdmin={props.onChangeServerAdmin} />
         </React.Fragment>
     )
 }

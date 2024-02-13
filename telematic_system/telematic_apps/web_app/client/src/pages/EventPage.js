@@ -15,7 +15,7 @@
  */
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import EventIcon from '@mui/icons-material/Event';
-import { Button, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { assignUnit2Event, createEvent, deleteEvent, editEvent, findAllEvents, unAssignUnit2Event } from '../api/api-events';
 import { createLocation, findAllLocations } from '../api/api-locations';
@@ -25,14 +25,14 @@ import { createUnit, findAllUnits } from '../api/api-units';
 import { AddEventDialog } from '../components/events/AddEventDialog';
 import { AddLocationDialog } from '../components/events/AddLocationDialog';
 import { AddUnitDialog } from '../components/events/AddUnitDialog';
-import EventsFilter from '../components/events/EventsFilter';
 import EventTable from '../components/events/EventTable';
+import EventsFilter from '../components/events/EventsFilter';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
+import { CustomizedButton } from '../components/ui/CustomizedButton';
 import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
 import { USER_ROLES } from '../components/users/UserMetadata';
 import AuthContext from '../context/auth-context';
-import { CustomizedButton } from '../components/ui/CustomizedButton';
 
 const EventPage = React.memo(() => {
   const authCtx = React.useContext(AuthContext)
@@ -357,21 +357,21 @@ const EventPage = React.memo(() => {
           {
             authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
             <Grid item xs={12} justifyContent="flex-end" display="flex">
-              <CustomizedButton  handler={handleAddUnitDialog}  startIcon={<AddCircleIcon />}>
+              <CustomizedButton onClick={handleAddUnitDialog}  startIcon={<AddCircleIcon />}>
                 Add Unit
               </CustomizedButton>
               {
                 openAddUnitDialog &&
                 <AddUnitDialog close={!openAddUnitDialog} open={openAddUnitDialog} onSave={onSaveUnitHandler} onCloseAddUnitDialog={handleCloseUnitDialog} />
               }
-              <CustomizedButton  handler={handleOpenLocation}  startIcon={<AddCircleIcon />} >
+              <CustomizedButton onClick={handleOpenLocation}  startIcon={<AddCircleIcon />} >
                 Add Location
               </CustomizedButton>
               {
                 openAddLocationDialog &&
                 <AddLocationDialog stateList={stateList} close={!openAddLocationDialog} open={openAddLocationDialog} onSaveLocation={onSaveLocationHandler} onCloseAddLocationDialog={handleCloseLocation} />
               }
-              <CustomizedButton handler={handleAddEventDialog} startIcon={<AddCircleIcon />} fullWidth={false} >
+              <CustomizedButton onClick={handleAddEventDialog} startIcon={<AddCircleIcon />} fullWidth={false} >
                 Add Event
               </CustomizedButton>
               {

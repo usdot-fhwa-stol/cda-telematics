@@ -14,7 +14,7 @@
  * the License.
  */
 import StreamIcon from '@mui/icons-material/Stream';
-import { Button, FormControl, Grid, Tooltip } from '@mui/material';
+import { FormControl, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { findAllEvents } from '../api/api-events';
 import { findAllLocations } from '../api/api-locations';
@@ -26,12 +26,12 @@ import InfrastructureTopicList from '../components/topics/InfrastructureTopicLis
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
 import TopicsFilter from '../components/topics/TopicsFilter';
 import VehicleTopicList from '../components/topics/VehicleTopicList';
+import { CustomizedButton } from '../components/ui/CustomizedButton';
 import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
 import { USER_ROLES } from '../components/users/UserMetadata';
 import AuthContext from '../context/auth-context';
 import TopicContext from '../context/topic-context';
-import { CustomizedButton } from '../components/ui/CustomizedButton';
 
 const TopicPage = React.memo(() => {
   const authCtx = React.useContext(AuthContext)
@@ -295,7 +295,7 @@ const TopicPage = React.memo(() => {
             <Grid item xs={12} sx={{ textAlign: 'center' }}>
               <FormControl>
                 <CustomizedButton title="Send a request with a list of selected topics, and request telematic server to stream data for the selected topics."
-                 handler={confirmSelectedTopicHandler}>
+                 onClick={confirmSelectedTopicHandler}>
                     Confirm Selected Topics
                 </CustomizedButton>
               </FormControl>

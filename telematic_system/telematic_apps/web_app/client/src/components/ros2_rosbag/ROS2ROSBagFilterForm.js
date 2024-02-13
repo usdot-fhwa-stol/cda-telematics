@@ -17,110 +17,176 @@
  * Filter the list of ROS2 rosbag files.
  */
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   FormControl,
+  Grid,
+  InputAdornment,
   InputLabel,
-  ListItemIcon,
-  ListItemText,
   MenuItem,
   Select,
+  TextField,
 } from "@mui/material";
-import React, { useRef, useState } from "react";
-const ROS2ROSBagFilterForm = (props) => {
-  const [filteredEventList, setFilteredEventList] = useState([]);
-  const [eventId, setEventId] = useState("");
-  const eventNameRef = useRef();
-  //Start time change
-  const timestampNow = new Date().getTime();
-  //End time change
-  const [endTime, setEndTime] = useState(timestampNow);
-  const [startTime, setStartTime] = useState(timestampNow);
-  //IsLive Event Checked
-  const [checked, setChecked] = React.useState(false);
-  const [disabledTimePicker, setDisabledTimePicker] = useState(false);
-  //Testing Type Change
+import React, { memo, useContext, useEffect, useState } from "react";
+import ROS2RosbagContext from "../../context/ROS2-rosbag-context";
+import { CustomizedButton } from "../ui/CustomizedButton";
+import { CustomizedRefreshButton } from "../ui/CustomizedRefreshButton";
+import ROS2RosbagUploadDialog from "./ROS2RosbagUploadDialog";
+
+const ROS2ROSBagFilterForm = memo((props) => {
+  const ROS2RosbagCtx = useContext(ROS2RosbagContext);
   const uploadStatusRef = React.useRef();
-  const [uploadStatusId, setuploadStatusId] = useState("");
-  //processingStatus Change
-  const processingStatusIdRef = React.useRef();
-  const [processingStatusId, setprocessingStatusId] = React.useState("");
+  const [uploadStatusStr, setUploadStatusStr] = useState("");
+  const processingStatusStrRef = React.useRef();
+  const [processingStatusStr, setProcessingStatusStr] = React.useState("");
+  const [inputText, setInputText] = React.useState("");
+  const [open, setOpen] = React.useState(false);
 
-  const handleuploadStatusChange = (event) => {
-    setuploadStatusId(event.target.value);
-    let filterCriteria = {};
-    if (!disabledTimePicker) {
-      filterCriteria.start_at = new Date(startTime);
-      filterCriteria.end_at = new Date(endTime);
-    }
+  const handleUploadStatusChange = (event) => {
+    setUploadStatusStr(event.target.value);
+    ROS2RosbagCtx.updateUploadStatusFilter(event.target.value);
   };
 
-  const handleprocessingStatusChange = (event) => {
-    setprocessingStatusId(event.target.value);
-    let filterCriteria = {};
-    if (!disabledTimePicker) {
-      filterCriteria.start_at = new Date(startTime);
-      filterCriteria.end_at = new Date(endTime);
-    }
+  const handleProcessingStatusChange = (event) => {
+    setProcessingStatusStr(event.target.value);
+    ROS2RosbagCtx.updateProcessStatusFilter(event.target.value);
   };
+
+  const handleInputTextChange = (event) => {
+    setInputText(event.target.value);
+    ROS2RosbagCtx.updateInputTextFilter(event.target.value);
+  };
+
+  const filterROS2RosbagListHandler = () => {
+    props.filterROS2RosbagList();
+  };
+
+  const refreshHandler = () => {
+    setProcessingStatusStr("");
+    setUploadStatusStr("");
+    setInputText("");
+    ROS2RosbagCtx.clear();
+    props.onRefresh();
+  };
+
+  const openHandler = () => {
+    setOpen(true);
+  };
+  const closeHandler = () => {
+    setOpen(false);
+  };
+
+  useEffect(() => {
+    filterROS2RosbagListHandler();
+  }, [ROS2RosbagCtx]);
 
   return (
-    <React.Fragment>
-      <FormControl sx={{ minWidth: 150, margin: 1 }}>
-        <InputLabel id="uploadStatusLabelId" sx={{paddingLeft: '20px'}}>Upload Status</InputLabel>
-        <Select
-          labelId="uploadStatusLabelId"
-          id="uploadStatusId"
-          value={uploadStatusId}
-          label="Upload Status"
-          inputProps={{
-            name: uploadStatusRef.current,
-            id: uploadStatusRef.current,
-          }}
-          IconComponent={FilterAltIcon}
-          sx={{ 
-          "& .MuiSvgIcon-root": {
-            left: "5px",
-          }}}
-          onChange={handleuploadStatusChange}
-        >
-          {props.uploadStatusList !== undefined &&
-            props.uploadStatusList.map((uploadStatus) => (
-              <MenuItem key={uploadStatus} value={uploadStatus}>
-                {uploadStatus}
-              </MenuItem>
-            ))}
-        </Select>
-      </FormControl>
+    <Grid container>
+      <Grid xs={10} item>
+        <FormControl sx={{ minWidth: 450, margin: 1 }}>
+          <TextField
+            fullWidth
+            value={inputText}
+            label="Search by ROS2 Rosbag name, description, updated or created by"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+            }}
+            onChange={handleInputTextChange}
+            id="searchROS2rRosbagLabelId"
+          ></TextField>
+        </FormControl>
+        <FormControl sx={{ minWidth: 200, margin: 1 }}>
+          <InputLabel id="uploadStatusLabelId" sx={{ paddingLeft: "20px" }}>
+            Upload Status
+          </InputLabel>
+          <Select
+            labelId="uploadStatusLabelId"
+            id="uploadStatusStr"
+            value={uploadStatusStr}
+            label="Upload Status"
+            inputProps={{
+              name: uploadStatusRef.current,
+              id: uploadStatusRef.current,
+            }}
+            IconComponent={FilterAltIcon}
+            sx={{
+              paddingLeft: "20px",
+              "& .MuiSvgIcon-root": {
+                left: "5px",
+              },
+            }}
+            onChange={handleUploadStatusChange}
+          >
+            {props.uploadStatusList !== undefined &&
+              props.uploadStatusList.map((uploadStatus) => (
+                <MenuItem key={uploadStatus} value={uploadStatus}>
+                  {uploadStatus}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
 
-      <FormControl sx={{ minWidth: 200, margin: 1 }}>
-        <InputLabel id="processingStatusIdLabelId" sx={{paddingLeft: '20px'}}>
-          Processing Status
-        </InputLabel>
-        <Select
-          labelId="processingStatusIdLabelId"
-          value={processingStatusId}
-          inputProps={{
-            name: processingStatusIdRef.current,
-            id: processingStatusIdRef.current,
+        <FormControl sx={{ minWidth: 200, margin: 1 }}>
+          <InputLabel
+            id="processingStatusStrLabelId"
+            sx={{ paddingLeft: "20px" }}
+          >
+            Processing Status
+          </InputLabel>
+          <Select
+            labelId="processingStatusStrLabelId"
+            value={processingStatusStr}
+            inputProps={{
+              name: processingStatusStrRef.current,
+              id: processingStatusStrRef.current,
+            }}
+            IconComponent={FilterAltIcon}
+            sx={{
+              paddingLeft: "20px",
+              "& .MuiSvgIcon-root": {
+                left: "5px",
+              },
+            }}
+            label="processingStatus"
+            onChange={handleProcessingStatusChange}
+          >
+            {props.processingStatusList !== undefined &&
+              props.processingStatusList.map((processingStatus) => (
+                <MenuItem key={processingStatus} value={processingStatus}>
+                  {processingStatus}
+                </MenuItem>
+              ))}
+          </Select>
+        </FormControl>
+        <FormControl
+          sx={{
+            paddingTop: "10px",
           }}
-          IconComponent={FilterAltIcon}
-          sx={{ 
-          "& .MuiSvgIcon-root": {
-            left: "5px",
-          }}}
-          label="processingStatus"
-          onChange={handleprocessingStatusChange}
         >
-          {props.processingStatusList !== undefined &&
-            props.processingStatusList.map((processingStatus) => (
-              <MenuItem key={processingStatus} value={processingStatus}>
-                {processingStatus}
-              </MenuItem>
-            ))}
-        </Select>
-      </FormControl>
-    </React.Fragment>
+          <CustomizedRefreshButton
+            title="Reset filters and refresh ROS2 Rosbags table"
+            onClick={refreshHandler}
+          ></CustomizedRefreshButton>
+        </FormControl>
+      </Grid>
+      <Grid item xs={2} sx={{ textAlign: "end" }}>
+        <ROS2RosbagUploadDialog open={open} onClose={closeHandler} title="Browse ROS2 Rosbag"/>
+        <FormControl sx={{ minWidth: 200, margin: 1 }}>
+          <CustomizedButton
+            title="Upload ROS2 Rosbag"
+            data-testid="uploadROS2RosbagBtn"
+            onClick={openHandler}
+          >
+            Browse ROS2 Rosbag
+          </CustomizedButton>
+        </FormControl>
+      </Grid>
+    </Grid>
   );
-};
+});
 
 export default ROS2ROSBagFilterForm;

@@ -1,10 +1,10 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 import AuthContext from '../../../context/auth-context';
+import { CustomizedButton } from '../../ui/CustomizedButton';
 import RolesDropDown from './RolesDropDown';
 import UserOrgRoleTable from './UserOrgRoleTable';
-import { CustomizedButton } from '../../ui/CustomizedButton';
 
 const UserOrgRoleEditDialog = (props) => {
     const [isAdmin, setIsAdmin] = React.useState('NO');
@@ -160,7 +160,7 @@ const UserOrgRoleEditDialog = (props) => {
                             </FormControl>
                             <RolesDropDown role={selectedOrgRole} onUserOrgRoleChange={handleUserRoleChange} />
                             <CustomizedButton title="Click assign button to add user to the selected organizations." 
-                                handler={handleAddUserToOrg} data-testid='assign-user-to-org'>
+                                onClick={handleAddUserToOrg} data-testid='assign-user-to-org'>
                                 Assign
                             </CustomizedButton>
                             {
@@ -249,7 +249,7 @@ const UserOrgRoleEditDialog = (props) => {
                         onUserOrgRoleDelete={props.onUserOrgRoleDelete} />
                 </DialogContent>
                 <DialogActions>
-                    <CustomizedButton handler={handleClose}>Close</CustomizedButton>
+                    <CustomizedButton title="Close user org role dialog" data-testid='close-assign-user-to-org' onClick={handleClose}>Close</CustomizedButton>
                 </DialogActions>
             </Dialog>
         </React.Fragment >

@@ -14,13 +14,13 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import { Button, Card, CardContent, CardHeader, Grid, Tooltip } from '@mui/material';
+import { Card, CardContent, CardHeader, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { findUserTopicRequestByUserEventUnits } from '../../api/user_topic_request';
 import AuthContext from '../../context/auth-context';
 import TopicContext from '../../context/topic-context';
-import TopicListPerUnit from './TopicListPerUnit';
 import { CustomizedButton } from '../ui/CustomizedButton';
+import TopicListPerUnit from './TopicListPerUnit';
 
 const TopicList = React.memo((props) => {
     const [selectedUnits, setSelectedUnits] = useState([]);
@@ -308,20 +308,20 @@ const TopicList = React.memo((props) => {
             </Grid>
             <Grid item xs={2} sx={{ textAlign: 'center', margin: 'auto' }}>
                 
-                <CustomizedButton title="Move all available topics" key="selectedTopics" handler = {addSelectedTopicsHandler}>
+                <CustomizedButton title="Move all available topics" key="selectedTopics" onClick={addSelectedTopicsHandler}>
                     &gt;&gt;
                 </CustomizedButton>
                 <br />
-                <CustomizedButton title="Move all available topics" key="selectedAllTopics" handler = {selectAllTopicsHandler}>
+                <CustomizedButton title="Move all available topics" key="selectedAllTopics" onClick={selectAllTopicsHandler}>
                     &gt;&gt;&gt;
                 </CustomizedButton>
                 <br />
                 <br />
-                <CustomizedButton title="remove move checked selected topics"  key="removeSelectedTopics" handler = {removeSelectedTopicsHandler}>
+                <CustomizedButton title="remove move checked selected topics"  key="removeSelectedTopics" onClick={removeSelectedTopicsHandler}>
                     &lt;&lt;
                 </CustomizedButton>
                 <br />
-                <CustomizedButton title="Move checked selected topics" key="MoveSelectedTopics" handler = {unSelectAllTopicsHandler}>
+                <CustomizedButton title="Move checked selected topics" key="MoveSelectedTopics" onClick={unSelectAllTopicsHandler}>
                     &lt;&lt;&lt;
                 </CustomizedButton>
                 <br />

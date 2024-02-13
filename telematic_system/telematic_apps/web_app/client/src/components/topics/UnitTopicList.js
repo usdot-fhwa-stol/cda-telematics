@@ -13,18 +13,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import SyncIcon from '@mui/icons-material/Sync';
-import { Button, Card, CardContent, CardHeader, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, Tooltip, Typography } from '@mui/material';
+import { Card, CardContent, CardHeader, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useContext, useEffect, useState } from 'react';
 import { getAvailableLiveTopicsByEventUnits } from '../../api/api-topics';
 import AuthContext from '../../context/auth-context';
 import TopicContext from '../../context/topic-context';
+import { CustomizedRefreshButton } from '../ui/CustomizedRefreshButton';
 import { USER_ROLES } from '../users/UserMetadata';
 import DefaultTopicSettings from './DefaultTopicSettings';
 import TopicList from './TopicList';
 import { DEFAULT_TOPIC_CATEGORY_NAME } from './TopicMetadata';
-import { CustomizedRefreshButton } from '../ui/CustomizedRefreshButton';
 
 const UnitTopicList = React.memo((props) => {
     const authCtx = React.useContext(AuthContext)

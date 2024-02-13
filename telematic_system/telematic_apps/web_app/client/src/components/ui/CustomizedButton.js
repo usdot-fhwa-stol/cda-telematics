@@ -1,6 +1,6 @@
 import { Button, Tooltip } from "@mui/material";
-import React, { memo } from "react";
 import { withStyles } from "@mui/styles";
+import React, { memo } from "react";
 
 export const CustomizedButton = memo((props) => {
   const StyledButton = withStyles({
@@ -16,16 +16,15 @@ export const CustomizedButton = memo((props) => {
   })(Button);
 
   return (
-      <Tooltip title={props.title} placement="top">
-        <StyledButton
-          startIcon={props.startIcon}
-          data-testid={props['data-testid']}
-          variant="contained"
-          key={props.key}
-          onClick={props.handler}
-        >
-          {props.children}
-        </StyledButton>
-      </Tooltip>
+    <Tooltip title={props.title}>
+      <StyledButton
+        startIcon={props.startIcon}
+        data-testid={props["data-testid"]}
+        variant="contained"
+        onClick={props.onClick}
+      >
+        {props.children}
+      </StyledButton>
+    </Tooltip>
   );
 });

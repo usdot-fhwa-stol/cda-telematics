@@ -21,6 +21,7 @@ import AuthContext from '../../context/auth-context';
 import DashboardCheckboxList from './DashboardCheckboxList';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { CustomizedButton } from '../ui/CustomizedButton';
+import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
 
 export const AssignDashboardDialog = (props) => {
     const [errorMsg, setErrorMsg] = useState('');
@@ -124,7 +125,7 @@ export const AssignDashboardDialog = (props) => {
                             onChange={searchTextChangeHandler} />
                     </FormControl>
                     <FormControl sx={{ width: '20%', top: 10, marginRight: 0, float: 'right' }}>
-                        <CustomizedButton  key ="search_event" handler={searchHandler}>Search</CustomizedButton>
+                        <CustomizedButton  key ="search_event" onClick={searchHandler}>Search</CustomizedButton>
                     </FormControl>
                     {
                         searchedDashboards.length > 0 &&
@@ -136,7 +137,7 @@ export const AssignDashboardDialog = (props) => {
                     }
                 </DialogContent>
                 <DialogActions>
-                    <Button variant='contained' sx={{ marginRight: '20px' }} onClick={onAssignDashboardHandler}>Assign</Button>
+                    <CustomizedButton onClick={onAssignDashboardHandler}>Assign</CustomizedButton>
                 </DialogActions>
                 <Divider sx={{ marginTop: '20px' }} />
                 <DialogTitle>
@@ -174,7 +175,7 @@ export const AssignDashboardDialog = (props) => {
                         }
                     </Box>
                     <DialogActions>
-                        <Button variant='outlined' onClick={onCloseHandler}>Close</Button>
+                        <CustomizedOutlinedButton onClick={onCloseHandler}>Close</CustomizedOutlinedButton>
                     </DialogActions>
                 </DialogContent>
             </Dialog>
@@ -201,8 +202,8 @@ export const AssignDashboardDialog = (props) => {
                             textAlign: 'center',
                             justifyContent: 'right'
                         }}>
-                            <Button variant='outlined' onClick={handleCloseConfirm}>Cancel</Button>
-                            <Button variant='contained' sx={{ marginLeft: '20px' }} onClick={handleConfirmRemoval}>Confirm</Button>
+                            <CustomizedOutlinedButton onClick={handleCloseConfirm}>Cancel</CustomizedOutlinedButton>
+                            <CustomizedButton onClick={handleConfirmRemoval}>Confirm</CustomizedButton>
                         </Box>
                     </DialogActions>
                 </Dialog>}

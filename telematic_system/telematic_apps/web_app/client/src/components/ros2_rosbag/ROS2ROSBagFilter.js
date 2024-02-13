@@ -12,35 +12,43 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
- * 
+ *
  * Description:
  * Upload ROS2 rosbag files and display the list of uploaded ROS2 rosbag files.
  */
-import { Card, CardContent, CardHeader, Grid } from '@mui/material'
-import { Box } from '@mui/system'
-import React from 'react'
-import ROS2ROSBagFilterForm from './ROS2ROSBagFilterForm'
+import { Card, CardContent, CardHeader, Grid } from "@mui/material";
+import { Box } from "@mui/system";
+import React from "react";
+import ROS2ROSBagFilterForm from "./ROS2ROSBagFilterForm";
 
 const ROS2ROSBagFilter = (props) => {
-
   const SearchROS2RosbagsHandler = (filteredEventList) => {
     props.onSearchROS2Rosbags(filteredEventList);
-  }
+  };
 
   return (
-    <React.Fragment>
-      <Grid container item xs={12} columnSpacing={3} sx={{ margin: '0px 3px' }}>
-        <Box sx={{ width: '100%' }}>
-          <Card>
-            <CardHeader sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }} title="Select an event" titleTypographyProps={{ variant: 'title' }} />
-            <CardContent>
-              <ROS2ROSBagFilterForm eventInfoList={props.eventInfoList} onSearchROS2Rosbags={SearchROS2RosbagsHandler} uploadStatusList={props.uploadStatusList} processingStatusList={props.processingStatusList} />
-            </CardContent>
-          </Card>
-        </Box>
-      </Grid>
-    </React.Fragment>
-  )
-}
+    <Grid container item xs={12} columnSpacing={3} sx={{ margin: "0px 3px" }}>
+      <Box sx={{ width: "100%" }}>
+        <Card>
+          <CardHeader
+            sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }}
+            title="Filter ROS Rosbags"
+            titleTypographyProps={{ variant: "title" }}
+          />
+          <CardContent>
+            <ROS2ROSBagFilterForm
+              eventInfoList={props.eventInfoList}
+              onSearchROS2Rosbags={SearchROS2RosbagsHandler}
+              uploadStatusList={props.uploadStatusList}
+              processingStatusList={props.processingStatusList}
+              onRefresh = {()=>{ props.onFresh()}}
+              filterROS2RosbagList ={()=>props.filterROS2RosbagList()}
+            />
+          </CardContent>
+        </Card>
+      </Box>
+    </Grid>
+  );
+};
 
-export default ROS2ROSBagFilter
+export default ROS2ROSBagFilter;
