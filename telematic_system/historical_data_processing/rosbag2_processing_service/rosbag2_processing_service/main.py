@@ -17,24 +17,15 @@
 import asyncio
 from .service_manager import ServiceManager
 
-from dotenv import load_dotenv
-
-load_dotenv('/home/carma/cda-telematics/telematic_system/historical_data_processing/rosbag2_processing_service/.env')
-
 
 def main(args=None):
 
-    loop = asyncio.get_event_loop()
+    async def tasks():
+        service_manager = ServiceManager()
+        await asyncio.gather(service_manager.nats_connect(), service_manager.process_rosbag())
 
-    service_manager = ServiceManager()
+    asyncio.run(tasks())
 
-    tasks = [
-        loop.create_task(service_manager.nats_connect()),
-        loop.create_task(service_manager.process_rosbag())
-    ]
-
-    loop.run_until_complete(asyncio.wait(tasks))
-    loop.close()
 
 if __name__ == '__main__':
     main()

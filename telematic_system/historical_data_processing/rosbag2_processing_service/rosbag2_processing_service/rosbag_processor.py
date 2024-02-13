@@ -26,17 +26,33 @@ import os
 
 
 class Rosbag2Parser:
-    # Class that defines the rosbag parser
-    # Stores the global definitions that don't change on each iteration of rosbag processing
-    # influx authentication
-    def __init__(self, influx_bucket, influx_org, influx_token, influx_url, topic_exclusion_list, log_dir, to_str_fields, ignore_fields, logger):
+    """
+    @class Rosbag2Parser
+    @brief Handles parsing of ROS2 bag files and uploading data to InfluxDB.
+
+    @details Initializes the Rosbag2Parser with all necessary configurations for processing and uploading ROS2 mcap bag data to
+            InfluxDB. This class is responsible for parsing ROS bag files, extracting relevant data based on configuration, and uploading
+            the data to an InfluxDB instance.
+
+    Parameters:
+        influx_bucket (str): Name of the InfluxDB bucket for data storage.
+        influx_org (str): Name of the organization for InfluxDB.
+        influx_token (str): Authentication token for InfluxDB.
+        influx_url (str): URL to the InfluxDB instance.
+        topic_exclusion_list (str): List of topics to be excluded from the parsing.
+        log_dir (str): Directory to read rosbags from.
+        to_str_fields (str): Fields in the ROS2 message to force to string type.
+        ignore_fields (str): Fields in the ROS2 message to ignore during parsing.
+        logger (logging.Logger): Logger object for recording processing activities.
+    """
+    def __init__(self, influx_bucket, influx_org, influx_token, influx_url, topic_exclusion_list, rosbag_dir, to_str_fields, ignore_fields, logger):
 
         # Set influxdb parameters
         self.influx_bucket = influx_bucket
         self.influx_org = influx_org
         self.influx_client = InfluxDBClient(url=influx_url, token=influx_token, org=influx_org)
         self.topic_exclusion_list = topic_exclusion_list
-        self.log_dir = log_dir
+        self.rosbag_dir = rosbag_dir
         self.logger = logger
 
         #Fields in the ros message to force to string type.
@@ -54,8 +70,7 @@ class Rosbag2Parser:
     async def process_rosbag(self,rosbag2_name):
         measurement_name = rosbag2_name.split('.mcap')[0] # Measurement name is rosbag name without mcap extension
 
-        rosbag_path = os.path.join(self.log_dir, rosbag2_name)
-
+        rosbag_path = os.path.join(self.rosbag_dir, rosbag2_name)
 
         # Load the rosbag from the config directory
         for msg in read_ros2_messages(rosbag_path):

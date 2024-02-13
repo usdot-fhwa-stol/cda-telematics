@@ -31,12 +31,41 @@ class LogType(Enum):
 
 class ServiceManager:
 
-    rosbag_queue = []
+    """
+    @class ServiceManager
+    @brief Manages service operations including NATS communication, rosbag processing, and logging.
+
+    @details Initializes the service manager with configurations for NATS server communication, logging, and rosbag processing.
+             It sets up a connection to the NATS server, configures logging based on environment variables, and prepares
+             a queue for managing rosbag processing tasks.It also handles connections to external services such as InfluxDB for data storage.
+
+    Attributes:
+        nc (NATS): NATS client for receiving requests.
+        queue (asyncio.Queue): Queue of rosbags to be processed.
+        rosbag_dir (str): Directory from which to read rosbags.
+        topic_exclusion_list (list): Topics to be excluded from processing.
+        nats_ip_port (str): IP and port for the NATS server.
+        log_level (str): Logging level (debug, info, error).
+        log_name (str): Base name for log files.
+        log_path (str): Path to store log files.
+        log_rotation (int): Log file rotation size in bytes.
+        log_handler_type (str): Type of log handler (file, console, all).
+        influx_bucket (str): InfluxDB bucket name.
+        influx_org (str): InfluxDB organization name.
+        influx_token (str): InfluxDB authentication token.
+        influx_url (str): URL of the InfluxDB server.
+        to_str_fields (list): ROS message fields to convert to strings.
+        ignore_fields (list): ROS message fields to ignore.
+        is_nats_connected (bool): Flag indicating NATS connection status.
+        nats_request_topic (str): NATS topic for receiving rosbag processing requests.
+        rosbag_parser (Rosbag2Parser): Object for parsing rosbags.
+    """
+
     def __init__(self):
         #NATS client to receive requests from the web ui
         self.nc = NATS()
-        # List of rosbags to be processeds
-        self.rosbag_queue = ['rosbag2_2024_01_26-15_00_24_0.mcap']
+        # List of rosbags to be processed
+        self.queue = asyncio.Queue()
 
         # Load config parameters
         # Configured directory to read rosbags from
@@ -80,18 +109,21 @@ class ServiceManager:
         #nats connection status
         self.is_nats_connected = False
 
+        # Nats request topic
+        self.nats_request_topic = os.getenv("NATS_REQUEST_TOPIC")
+
         #TODO: Add Mysql database connection
         #self.db = _mysql.connect(host="", user="", password="", database="")
 
     def createLogger(self, log_type):
-        """Creates log file for the ROS2NatsBridge with configuration items based on the settings input in the params.yaml file"""
+        """Creates log file for the ServiceManager with configuration items based on the settings input in the params.yaml file"""
         # create log file and set log levels
         self.logger = logging.getLogger(self.log_name)
         now = datetime.now()
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")
         log_name = self.log_name + dt_string + ".log"
         formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
 
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
         # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size
@@ -119,6 +151,22 @@ class ServiceManager:
             connect to nats server on EC2
         """
 
+        async def process_nats_request(msg):
+            self.logger.info("Entering process nats request")
+
+            data = msg.data.decode()
+            msg_json_object = json.loads(data)
+            rosbag_name = msg_json_object["filepath"].split("/")[-1]
+
+            # Add rosbag name to queue
+            try:
+                self.logger.info(f"Adding {rosbag_name} to queue")
+                self.queue.put_nowait(rosbag_name)
+            except asyncio.QueueFull:
+                self.logger.error(f"Rosbag queue full, item {rosbag_name} cannot be added")
+
+            # No response sent for the nats request
+
         async def disconnected_cb():
             self.registered = False
             self.logger.warn("Got disconnected...")
@@ -129,7 +177,6 @@ class ServiceManager:
         async def error_cb(err):
             self.logger.error("{0}".format(err))
 
-        # while self.running:
         if not self.is_nats_connected:
             try:
                 await self.nc.connect(self.nats_ip_port,
@@ -144,33 +191,21 @@ class ServiceManager:
 
             # Create subscriber for nats
             try:
-                await self.nc.subscribe("ui.file.procressing", cb = self.process_rosbag)
+                await self.nc.subscribe(self.nats_request_topic, cb = process_nats_request)
             except:
-                self.logger.warn("Failed to update rosbag queue")
-            pass
+                self.logger.warn("Failed to create nats request subscription")
 
 
     async def process_rosbag(self):
-        # This task is responsible for processing the rosbag in the queue - As long as the queue is not empty - keep processin
+        # This task is responsible for processing the rosbag in the queue - As long as the queue is not empty - keep processing
         # This is async because we should be able to keep adding items to the rosbag and keep this task active at the same time
-
-        if self.rosbag_queue and not self.rosbag_parser.is_processing:
-            self.logger.info("Entering queue processing")
-            # TODO: Update mysql entry for rosbag
-            self.rosbag_parser.is_processing = True
-            await self.rosbag_parser.process_rosbag(self.rosbag_queue.pop())
-            # TODO: Update mysql entry for rosbag based on whether processing was successful
-
-
-    async def process_nats_request(self,msg):
-
-        # subject = msg.subject
-        data = msg.data.decode()
-        msg_json_object = json.loads(data)
-        rosbag_name = msg_json_object["filepath"].split("/")[-1]
-        # Add rosbag name to queue
-        if rosbag_name not in self.rosbag_queue:
-            self.rosbag_queue.append(rosbag_name)
-        else:
-            self.logger.warn(f"{rosbag_name} already queued to be processed")
-        #await msg.respond(f'Received processing request for {rosbag_name}'.encode("utf-8"))
+        while True:
+            if not self.rosbag_parser.is_processing:
+                self.logger.info("Entering queue processing")
+                rosbag_to_process = await self.queue.get()
+                # TODO: Check mysql if rosbag already processed/ Create new entry for rosbag
+                self.rosbag_parser.is_processing = True
+                await self.rosbag_parser.process_rosbag(rosbag_to_process)
+                self.queue.task_done()
+                # TODO: Update mysql entry for rosbag based on whether processing was successful
+            await asyncio.sleep(1.0)

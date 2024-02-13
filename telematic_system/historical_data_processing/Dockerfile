@@ -26,15 +26,15 @@ RUN set -xe \
 
 WORKDIR /ws
 
-COPY rosbag2_processing_service/ src/
-RUN chmod +x /ws/src/docker/*
-RUN sudo bash /ws/src/docker/checkout.sh
-RUN sudo bash /ws/src/docker/install.sh
+COPY rosbag2_processing_service src/rosbag2_processing_service
+RUN chmod +x /ws/src/rosbag2_processing_service/docker/*
+RUN sudo bash /ws/src/rosbag2_processing_service/docker/checkout.sh
+RUN sudo bash /ws/src/rosbag2_processing_service/docker/install.sh
 
 COPY rosbag2_processing_service/docker/entrypoint.sh entrypoint.sh
 RUN chmod +x entrypoint.sh
 
-RUN sudo rm -rf src /var/lib/apt/lists/*
+# RUN sudo rm -rf src /var/lib/apt/lists/*
 
 RUN echo "source /ws/install/setup.bash" >> ~/.bashrc
 

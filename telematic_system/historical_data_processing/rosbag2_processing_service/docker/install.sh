@@ -15,6 +15,7 @@
 #  the License
 
 #Install processing service required libraries
+cd /ws/
 sudo pip3 install pip nats-py \
     influxdb \
     influxdb_client \
@@ -24,8 +25,8 @@ sudo pip3 install pip nats-py \
 source /opt/ros/foxy/setup.bash
 sudo apt update && apt install -y apt-utils \
                                   python3-pybind11 \
-                                  ros-foxy-test-msgs
+                                  ros-foxy-test-msgs \
+                                  python3-colcon-common-extensions
 
 # Build rosbag2
-cd /ws/
-colcon build --packages-up-to rosbag2_py
+colcon build --packages-up-to rosbag2_processing_service

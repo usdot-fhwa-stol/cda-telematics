@@ -15,4 +15,4 @@
 #  the License
 
 source /ws/install/setup.bash
-# Startup service
+ros2 run rosbag2_processing_service main
