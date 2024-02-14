@@ -12,6 +12,9 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
+ * 
+ * Revision:
+ *  Fix the eager loading of file info table to include user info: Add user_id foreign key referenced to user table. It indicates who upload this file.
  */
 module.exports = (seq, Sequelize) => {
     const file_info = seq.define("file_info", {

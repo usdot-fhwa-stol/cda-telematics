@@ -165,7 +165,7 @@ export default function ROS2RosbagTable(props) {
         component="div"
         count={
           props.ROS2RosbagList !== undefined &&
-          Array.isArray(props.ROS2RosbagList)
+            Array.isArray(props.ROS2RosbagList)
             ? props.ROS2RosbagList.length
             : 0
         }

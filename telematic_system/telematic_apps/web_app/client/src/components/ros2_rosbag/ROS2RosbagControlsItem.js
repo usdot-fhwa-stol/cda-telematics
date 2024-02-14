@@ -22,7 +22,6 @@ import { CustomizedOutlinedButton } from "../ui/CustomizedOutlinedButton";
 import { USER_ROLES } from "../users/UserMetadata";
 import ROS2RosbagDescriptionDialog from "./ROS2RosbagDescriptionDialog";
 import { PROCESSING_STATUS, UPLOAD_STATUS } from "./ROS2RosbagMetadata";
-import InfoPopover from "../ui/InfoPopover";
 
 const ROS2RosbagControlsItem = (props) => {
   const authCtx = React.useContext(AuthContext);
@@ -68,7 +67,7 @@ const ROS2RosbagControlsItem = (props) => {
             {props.ROS2RosbagRow !== undefined &&
               props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.COMPLETED &&
               props.ROS2RosbagRow.process_status !==
-                PROCESSING_STATUS.COMPLETED && (
+              PROCESSING_STATUS.COMPLETED && (
                 <CustomizedOutlinedButton
                   title={"Process ROS2 Rosbag"}
                   key={`process-ROS2Rosbag-${props.ROS2RosbagRow.id}`}

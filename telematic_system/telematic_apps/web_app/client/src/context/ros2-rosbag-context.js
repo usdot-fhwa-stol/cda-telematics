@@ -4,10 +4,10 @@ const ROS2RosbagContext = createContext({
   filterText: "",
   uploadStatus: "",
   processingStatus: "",
-  updateUploadStatusFilter: (uploadStatus) => {},
-  updateProcessStatusFilter: (processingStatus) => {},
-  updateInputTextFilter: (filterText) => {},
-  clear: () => {},
+  updateUploadStatusFilter: (uploadStatus) => { },
+  updateProcessStatusFilter: (processingStatus) => { },
+  updateInputTextFilter: (filterText) => { },
+  clear: () => { },
 });
 
 export const ROS2RosbagContextProvider = (props) => {
@@ -26,6 +26,7 @@ export const ROS2RosbagContextProvider = (props) => {
   const updateInputTextFilter = (filterText) => {
     setFilterText(filterText);
   };
+  
   const clear = () => {
     setFilterText("");
     setProcessingStatus("");

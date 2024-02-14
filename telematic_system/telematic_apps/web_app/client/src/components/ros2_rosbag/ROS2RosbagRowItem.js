@@ -21,21 +21,21 @@ const ROS2RosbagRowItem = (props) => {
           let isBlue =
             (column.id === "process_status" &&
               props.ROS2RosbagRow.process_status ===
-                PROCESSING_STATUS.IN_PROGRESS) ||
+              PROCESSING_STATUS.IN_PROGRESS) ||
             (column.id === "upload_status" &&
               props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.IN_PROGRESS);
 
           let isGreen =
             (column.id === "process_status" &&
               props.ROS2RosbagRow.process_status ===
-                PROCESSING_STATUS.COMPLETED) ||
+              PROCESSING_STATUS.COMPLETED) ||
             (column.id === "upload_status" &&
               props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.COMPLETED);
 
           let createdBy =
             column.id === "created_by" &&
-            props.ROS2RosbagRow.user !== null &&
-            props.ROS2RosbagRow.user.email !== null
+              props.ROS2RosbagRow.user !== null &&
+              props.ROS2RosbagRow.user.email !== null
               ? props.ROS2RosbagRow.user.email
               : "NA";
           value = column.id === "size" ? calFilesizes(value) : value;
@@ -60,7 +60,7 @@ const ROS2RosbagRowItem = (props) => {
               {column.id === "process_status" &&
                 props.ROS2RosbagRow !== undefined &&
                 props.ROS2RosbagRow.process_status ===
-                  PROCESSING_STATUS.ERROR && (
+                PROCESSING_STATUS.ERROR && (
                   <InfoPopover
                     sx={{ color: "red" }}
                     info={props.ROS2RosbagRow.process_error_msg}

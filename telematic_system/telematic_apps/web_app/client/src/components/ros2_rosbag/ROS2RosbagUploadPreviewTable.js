@@ -40,13 +40,13 @@ const ROS2RosbagUploadPreviewTable = (props) => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {props.previewFiles !== undefined && props.previewFiles["fields"] !== undefined  &&
+        {props.previewFiles !== undefined && props.previewFiles["fields"] !== undefined &&
           props.previewFiles["fields"].map((previewFileFields) => (
             <ROS2RosbagUploadPreviewTableRow
               key={`user-org-role-table-row-${previewFileFields.filename}`}
               previewFileFields={previewFileFields}
-              onConfirm={(filename=>props.onConfirm(filename))}
-              onUpdateDescription = {(updatedROS2RosbagInfo=>props.onUpdateDescription(updatedROS2RosbagInfo))}
+              onConfirm={(filename => props.onConfirm(filename))}
+              onUpdateDescription={(updatedROS2RosbagInfo => props.onUpdateDescription(updatedROS2RosbagInfo))}
             />
           ))}
       </TableBody>

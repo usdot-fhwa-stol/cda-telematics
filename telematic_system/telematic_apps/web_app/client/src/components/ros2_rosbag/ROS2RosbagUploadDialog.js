@@ -65,7 +65,7 @@ const ROS2RosbagUploadDialog = (props) => {
     setSelectedFilesForm(newForm);
   };
 
-  const uploadAndProcessROS2RosbagsHandler = ()=>{
+  const uploadAndProcessROS2RosbagsHandler = () => {
     props.onUpload(selectedfilesForm);
     closeHandler();
   }

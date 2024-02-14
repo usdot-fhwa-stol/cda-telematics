@@ -15,7 +15,7 @@
  */
 import WorkHistorySharpIcon from "@mui/icons-material/WorkHistorySharp";
 import { Grid } from "@mui/material";
-import React, { memo, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   listROS2Rosbags,
   sendROS2RosbagProcessRequest,
@@ -32,10 +32,10 @@ import Notification, {
   NOTIFICATION_STATUS,
 } from "../components/ui/Notification";
 import { PageAvatar } from "../components/ui/PageAvatar";
-import ROS2RosbagContext from "../context/ROS2-rosbag-context";
 import AuthContext from "../context/auth-context";
+import ROS2RosbagContext from "../context/ros2-rosbag-context";
 
-const ROS2RosbagPage = memo(() => {
+const ROS2RosbagPage = React.memo(() => {
   const ROS2RosbagCtx = React.useContext(ROS2RosbagContext);
   const authCtx = React.useContext(AuthContext);
   //Add Alert notification
@@ -181,7 +181,7 @@ const ROS2RosbagPage = memo(() => {
             (item) =>
               (item.upload_status !== null &&
                 item.upload_status.toUpperCase().trim() ===
-                  ROS2RosbagCtx.uploadStatus) ||
+                ROS2RosbagCtx.uploadStatus) ||
               (ROS2RosbagCtx.uploadStatus === UPLOAD_STATUS.NA &&
                 (item.upload_status === null ||
                   item.upload_status.length === 0))
@@ -193,7 +193,7 @@ const ROS2RosbagPage = memo(() => {
             (item) =>
               (item.process_status !== null &&
                 item.process_status.toUpperCase().trim() ===
-                  ROS2RosbagCtx.processingStatus) ||
+                ROS2RosbagCtx.processingStatus) ||
               (ROS2RosbagCtx.processingStatus === PROCESSING_STATUS.NA &&
                 (item.process_status === null ||
                   item.process_status.length === 0))

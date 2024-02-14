@@ -15,12 +15,12 @@
  */
 import { CircularProgress, Grid } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { memo, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Iframe from 'react-iframe';
 import { useSearchParams } from 'react-router-dom';
 import AuthContext from '../context/auth-context';
-import {env} from '../env'
-const Grafana = memo(() => {
+import { env } from '../env';
+const Grafana = React.memo(() => {
   const [embedURL, setEmbedURL] = useState(env.REACT_APP_GRAFANA_URI + "/dashboards?theme=light")
   const [loading, setLoading] = useState(true);
   const authContext = useContext(AuthContext);

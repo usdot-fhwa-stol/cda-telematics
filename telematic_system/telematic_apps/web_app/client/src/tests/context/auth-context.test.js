@@ -1,7 +1,7 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import AuthContext, { AuthContextProvider } from "../../context/auth-context";
 import { expect, test } from '@jest/globals';
-import React, { useContext, useEffect } from 'react';
+import { fireEvent, render, screen } from '@testing-library/react';
+import React, { useContext } from 'react';
+import AuthContext, { AuthContextProvider } from "../../context/auth-context";
 
 test("Auth context login", () => {
     const TestContextComponent = () => {

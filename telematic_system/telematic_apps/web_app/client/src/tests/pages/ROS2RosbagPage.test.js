@@ -5,7 +5,7 @@ import { act } from "react-dom/test-utils";
 import * as ROS2RosbagApi from "../../api/api-ros2-rosbag";
 import ROS2RosbagUploadDialog from "../../components/ros2_rosbag/ROS2RosbagUploadDialog";
 import ROS2RosbagUploadPreviewTableRow from "../../components/ros2_rosbag/ROS2RosbagUploadPreviewTableRow";
-import ROS2RosbagContext from "../../context/ROS2-rosbag-context";
+import ROS2RosbagContext from "../../context/ros2-rosbag-context";
 import AuthContext from "../../context/auth-context";
 import ROS2RosbagPage from "../../pages/ROS2RosbagPage";
 

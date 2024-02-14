@@ -89,7 +89,7 @@ services:
         - WAIT_HOST_CONNECT_TIMEOUT=30
         - NODE_ENV=dev.comelopment
         - CHOKIDAR_USEPOLLING=true
-        - ALLOW_CLIENT_URL=http://localhost:4200
+        - ALLOW_CLIENT_URL=http://local.cav-telematics.com:8888
         - GRAFANA_HTPASSWORD=/opt/apache2/grafana_htpasswd
         - SESSION_TIMEOUT=3600
         - SECRET=my_secret_telematic_ui
