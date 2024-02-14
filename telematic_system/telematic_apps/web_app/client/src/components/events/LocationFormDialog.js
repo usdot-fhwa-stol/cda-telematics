@@ -18,6 +18,8 @@ import { Button, Dialog, DialogActions, DialogContent, DialogContentText, Dialog
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
+import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
+import { CustomizedButton } from '../ui/CustomizedButton';
 
 const LocationFormDialog = (props) => {
     const [facilityName, setFacilityName] = useState('');
@@ -153,8 +155,8 @@ const LocationFormDialog = (props) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant='outlined' onClick={onCloseHandler}>Cancel</Button>
-                    <Button variant='contained' onClick={handleSubmit(onSaveLocationHandler)}>Save</Button>
+                    <CustomizedOutlinedButton onClick={onCloseHandler}>Cancel</CustomizedOutlinedButton>
+                    <CustomizedButton onClick={handleSubmit(onSaveLocationHandler)}>Save</CustomizedButton>
                 </DialogActions>
             </Dialog>
         </React.Fragment >

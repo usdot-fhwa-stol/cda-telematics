@@ -45,7 +45,7 @@ const SnackBarNotification = (props) => {
                         sx={{ mb: 2 }}>
                         <AlertTitle>{props.title}</AlertTitle>
                         {props.message !== undefined && props.message}
-                        {props.messageList !== undefined && props.messageList.length > 0 &&
+                        {props.messageList !== undefined && Array.isArray(props.messageList) && props.messageList.length > 0 &&
                             props.messageList.map(message => (<li key={message}>{message}</li>))}
                     </Alert>
                 </Collapse>

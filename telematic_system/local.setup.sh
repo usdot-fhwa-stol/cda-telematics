@@ -4,7 +4,7 @@
 #   local.cav-telematics.com: It is used for the UI front end.
 #   local.topic-service.cav-telematics.com: It is used for the messaging services.
 #   local.ui-service.cav-telematics.com: It is used for the UI backend services.
-domain_name_arr=("127.0.0.1 grafana.local.cav-telematics.com"  "127.0.0.1 local.cav-telematics.com"  "127.0.0.1 topic-service.local.cav-telematics.com" "127.0.0.1 ui-service.local.cav-telematics.com")
+domain_name_arr=("127.0.0.1 grafana.local.cav-telematics.com"  "127.0.0.1 local.cav-telematics.com"  "127.0.0.1 topic-service.local.cav-telematics.com" "127.0.0.1 ui-service.local.cav-telematics.com" "127.0.0.1 ui-service-upload.local.cav-telematics.com")
 
 for domain_name in "${domain_name_arr[@]}";
 do

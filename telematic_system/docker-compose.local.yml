@@ -89,7 +89,7 @@ services:
         - WAIT_HOST_CONNECT_TIMEOUT=30
         - NODE_ENV=dev.comelopment
         - CHOKIDAR_USEPOLLING=true
-        - ALLOW_CLIENT_URL=http://local.cav-telematics.com:8888
+        - ALLOW_CLIENT_URL=http://localhost:4200
         - GRAFANA_HTPASSWORD=/opt/apache2/grafana_htpasswd
         - SESSION_TIMEOUT=3600
         - SECRET=my_secret_telematic_ui
@@ -102,7 +102,7 @@ services:
         - DB_PASSWORD=telematic
         - GRAFANA_DB=wfd_grafana
         # File upload service settings
-        - UPLOAD_DESTINATION=s3
+        - UPLOAD_DESTINATION=host
         - UPLOAD_DESTINATION_PATH=/opt/telematics/upload
         - AWS_ACCESS_KEY_ID=
         - AWS_SECRET_KEY=
@@ -146,6 +146,7 @@ services:
       - GRAFANA_LOCAL_URL=http://127.0.0.1:3000/
       - TOPICSERVICE_LOCAL_URL=http://127.0.0.1:8080/
       - UISERVICE_LOCAL_URL=http://127.0.0.1:9010/
+      - UISERVICE_LOCAL_UPLOAD_URL=http://127.0.0.1:9011/
     depends_on:
       - grafana
       - telematic_web_client

@@ -6,10 +6,12 @@ import {
   DialogTitle,
   FormControl,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { CustomizedButton } from "../ui/CustomizedButton";
 import { CustomizedOutlinedButton } from "../ui/CustomizedOutlinedButton";
 import ROS2RosbagUploadPreviewTable from "./ROS2RosbagUploadPreviewTable";
+import { calFilesizes } from "./ROS2RosBagUtils";
+import { ACCEPT_FILE_EXTENSIONS } from "./ROS2RosbagMetadata";
 
 const ROS2RosbagUploadDialog = (props) => {
   const [selectedfilesForm, setSelectedFilesForm] = useState(new FormData());
@@ -18,16 +20,8 @@ const ROS2RosbagUploadDialog = (props) => {
     setSelectedFilesForm(new FormData());
     props.onClose();
   };
-  const filesizes = (bytes, decimals = 2) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ["Bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + " " + sizes[i];
-  };
 
-  const BrowseFileChange = (event) => {
+  const BrowseFilesChange = (event) => {
     let files = [];
     let filesInfo = [];
     for (let file of event.target.files) {
@@ -36,20 +30,53 @@ const ROS2RosbagUploadDialog = (props) => {
         filename: file.name,
         filetype: file.type,
         datetime: file.lastModifiedDate.toLocaleString(),
-        filesize: filesizes(file.size),
+        filesize: calFilesizes(file.size),
+        description: "",
       });
     }
     let formData = new FormData();
     formData["files"] = files;
+    filesInfo.sort((a, b) => a.filename.localeCompare(b.filename));
     formData["fields"] = filesInfo;
     setSelectedFilesForm(formData);
   };
+
+  const confirmRemovalHandler = (filename) => {
+    let newForm = new FormData();
+    newForm["files"] = selectedfilesForm["files"].filter(
+      (item) => item.name !== filename
+    );
+    newForm["fields"] = selectedfilesForm["fields"].filter(
+      (item) => item.filename !== filename
+    );
+    setSelectedFilesForm(newForm);
+  };
+
+  const updateDescriptionHandler = (updatedROS2RosbagInfo) => {
+    let newForm = new FormData();
+    newForm["files"] = selectedfilesForm["files"];
+    newForm["fields"] = [
+      ...selectedfilesForm["fields"].filter(
+        (item) => item.filename !== updatedROS2RosbagInfo.filename
+      ),
+      updatedROS2RosbagInfo,
+    ];
+    newForm["fields"].sort((a, b) => a.filename.localeCompare(b.filename));
+    setSelectedFilesForm(newForm);
+  };
+
+  const uploadAndProcessROS2RosbagsHandler = ()=>{
+    props.onUpload(selectedfilesForm);
+    closeHandler();
+  }
+
   return (
-    <Dialog open={props.open} onClose={closeHandler}>
+    <Dialog open={props.open} onClose={closeHandler} maxWidth="md">
       <DialogTitle sx={{ fontWeight: "bolder" }}>{props.title}</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Upload ROS2 Rosbag files and send process file requests.
+          Upload ROS2 Rosbag files and send processing file requests. Accepted
+          file extensions: <b> {ACCEPT_FILE_EXTENSIONS}</b>
         </DialogContentText>
 
         <FormControl fullWidth>
@@ -71,8 +98,10 @@ const ROS2RosbagUploadDialog = (props) => {
               type="file"
               id="ROS2-Rosbag-upload"
               className="ROS2-Rosbag-upload-input"
-              onChange={BrowseFileChange}
+              onChange={BrowseFilesChange}
+              title="ROS2-Rosbag-upload-title"
               multiple
+              accept={ACCEPT_FILE_EXTENSIONS}
               style={{
                 position: "absolute",
                 left: 0,
@@ -92,6 +121,8 @@ const ROS2RosbagUploadDialog = (props) => {
         <FormControl fullWidth>
           <ROS2RosbagUploadPreviewTable
             previewFiles={selectedfilesForm}
+            onConfirm={confirmRemovalHandler}
+            onUpdateDescription={updateDescriptionHandler}
           ></ROS2RosbagUploadPreviewTable>
         </FormControl>
       </DialogContent>
@@ -99,7 +130,7 @@ const ROS2RosbagUploadDialog = (props) => {
         <CustomizedOutlinedButton onClick={closeHandler}>
           Cancel
         </CustomizedOutlinedButton>
-        <CustomizedButton onClick={() => {}}>Process</CustomizedButton>
+        <CustomizedButton onClick={uploadAndProcessROS2RosbagsHandler}>Process</CustomizedButton>
       </DialogActions>
     </Dialog>
   );

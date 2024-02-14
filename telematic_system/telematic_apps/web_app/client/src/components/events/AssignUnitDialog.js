@@ -21,6 +21,8 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
+import { CustomizedButton } from '../ui/CustomizedButton';
+import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
 
 export const AssignUnitDialog = (props) => {
     const onCloseHandler = () => {
@@ -155,8 +157,8 @@ export const AssignUnitDialog = (props) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant='outlined' onClick={onCloseHandler}>Cancel</Button>
-                    <Button variant='contained' onClick={handleSubmit(onAssignUnitHandler)}>Assign</Button>
+                    <CustomizedOutlinedButton variant='outlined' onClick={onCloseHandler}>Cancel</CustomizedOutlinedButton>
+                    <CustomizedButton onClick={handleSubmit(onAssignUnitHandler)}>Assign</CustomizedButton>
                 </DialogActions>
             </Dialog>
         </React.Fragment >

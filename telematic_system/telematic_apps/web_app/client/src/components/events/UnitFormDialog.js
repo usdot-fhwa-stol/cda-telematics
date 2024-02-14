@@ -19,6 +19,8 @@ import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { VALID_UNIT_TYPES } from './EventMetadata';
+import { CustomizedButton } from '../ui/CustomizedButton';
+import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
 
 export const UnitFormDialog = (props) => {
     const [unitId, setUnitId] = useState('');
@@ -131,8 +133,8 @@ export const UnitFormDialog = (props) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant='outlined' onClick={onCloseHandler}>Cancel</Button>
-                    <Button variant='contained' onClick={handleSubmit(onSaveHandler)}>Save</Button>
+                    <CustomizedOutlinedButton onClick={onCloseHandler}>Cancel</CustomizedOutlinedButton>
+                    <CustomizedButton onClick={handleSubmit(onSaveHandler)}>Save</CustomizedButton>
                 </DialogActions>
             </Dialog>
         </React.Fragment>

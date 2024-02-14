@@ -32,8 +32,11 @@ import ROS2RosbagContext from "../../context/ROS2-rosbag-context";
 import { CustomizedButton } from "../ui/CustomizedButton";
 import { CustomizedRefreshButton } from "../ui/CustomizedRefreshButton";
 import ROS2RosbagUploadDialog from "./ROS2RosbagUploadDialog";
+import AuthContext from "../../context/auth-context";
+import { USER_ROLES } from "../users/UserMetadata";
 
 const ROS2ROSBagFilterForm = memo((props) => {
+  const authCtx = React.useContext(AuthContext);
   const ROS2RosbagCtx = useContext(ROS2RosbagContext);
   const uploadStatusRef = React.useRef();
   const [uploadStatusStr, setUploadStatusStr] = useState("");
@@ -173,18 +176,28 @@ const ROS2ROSBagFilterForm = memo((props) => {
           ></CustomizedRefreshButton>
         </FormControl>
       </Grid>
-      <Grid item xs={2} sx={{ textAlign: "end" }}>
-        <ROS2RosbagUploadDialog open={open} onClose={closeHandler} title="Browse ROS2 Rosbag"/>
-        <FormControl sx={{ minWidth: 200, margin: 1 }}>
-          <CustomizedButton
-            title="Upload ROS2 Rosbag"
-            data-testid="uploadROS2RosbagBtn"
-            onClick={openHandler}
-          >
-            Browse ROS2 Rosbag
-          </CustomizedButton>
-        </FormControl>
-      </Grid>
+      {authCtx.role !== USER_ROLES.VIEWER &&
+        authCtx.role !== undefined &&
+        authCtx.role !== null &&
+        authCtx.role !== "" && (
+          <Grid item xs={2} sx={{ textAlign: "end" }}>
+            <ROS2RosbagUploadDialog
+              open={open}
+              onClose={closeHandler}
+              onUpload={(formdata) => props.onUpload(formdata)}
+              title="Browse ROS2 Rosbag"
+            />
+            <FormControl sx={{ minWidth: 200, margin: 1 }}>
+              <CustomizedButton
+                title="Upload ROS2 Rosbag"
+                data-testid="uploadROS2RosbagBtn"
+                onClick={openHandler}
+              >
+                Browse ROS2 Rosbag
+              </CustomizedButton>
+            </FormControl>
+          </Grid>
+        )}
     </Grid>
   );
 });

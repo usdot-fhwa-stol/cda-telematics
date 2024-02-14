@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useMemo, useState } from "react";
 
 const ROS2RosbagContext = createContext({
   filterText: "",
@@ -32,7 +32,7 @@ export const ROS2RosbagContextProvider = (props) => {
     setUploadStatus("");
   };
 
-  const context = {
+  const context = useMemo(() => ({
     filterText: filterText,
     uploadStatus: uploadStatus,
     processingStatus: processingStatus,
@@ -40,7 +40,7 @@ export const ROS2RosbagContextProvider = (props) => {
     updateProcessStatusFilter: updateProcessStatusFilter,
     updateUploadStatusFilter: updateUploadStatusFilter,
     clear: clear,
-  };
+  }), [filterText, uploadStatus, processingStatus]);
   return (
     <ROS2RosbagContext.Provider value={context}>
       {props.children}

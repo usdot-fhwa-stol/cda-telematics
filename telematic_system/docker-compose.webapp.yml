@@ -69,6 +69,7 @@ services:
       - GRAFANA_LOCAL_URL=http://127.0.0.1:3000/
       - TOPICSERVICE_LOCAL_URL=<http://telematic-cloud-messaging-server-private-url:8080/>
       - UISERVICE_LOCAL_URL=http://127.0.0.1:9010/
+      - UISERVICE_LOCAL_UPLOAD_URL=http://127.0.0.1:9011/
     depends_on:
       - grafana
       - telematic_web_client

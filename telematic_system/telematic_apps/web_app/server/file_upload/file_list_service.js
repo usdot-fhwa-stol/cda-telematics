@@ -26,6 +26,7 @@
 const fileInfoController = require("../controllers/file_info.controller");
 const listObjectsModule = require("../file_upload/s3_list_objects");
 const { UPLOADSTATUS } = require("./file_upload_status_emitter");
+require("dotenv").config();
 const uploadDest = process.env.UPLOAD_DESTINATION;
 
 const filterFiles = async (req_fields) => {

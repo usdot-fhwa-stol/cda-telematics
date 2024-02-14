@@ -328,7 +328,7 @@ const TopicList = React.memo((props) => {
             </Grid>
             <Grid item xs={5}>
                 <Card sx={{ height: '500px', overflowY: 'scroll' }}>
-                    <CardHeader sx={{ color: "#fff", backgroundColor: "#748c93", padding: 1 }} title="Selected Topics" titleTypographyProps={{ variant: 'title' }} />
+                    <CardHeader sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }} title="Selected Topics" titleTypographyProps={{ variant: 'title' }} />
                     <CardContent>
                         {
                             TopicCtx.selected_unit_topics_list !== undefined && TopicCtx.selected_unit_topics_list.length > 0

@@ -11,3 +11,5 @@ export const PROCESSING_STATUS = {
   ERROR: "ERROR",
   COMPLETED: "COMPLETED",
 };
+
+export const ACCEPT_FILE_EXTENSIONS = ".mcap,.zip,.tar.gz,.gz";

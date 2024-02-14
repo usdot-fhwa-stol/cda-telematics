@@ -8,14 +8,16 @@ import {
   FormControl,
   TextField
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as Yup from "yup";
 import { CustomizedButton } from "../ui/CustomizedButton";
 import { CustomizedOutlinedButton } from "../ui/CustomizedOutlinedButton";
+import AuthContext from "../../context/auth-context";
 
 function ROS2RosbagDescriptionDialog(props) {
   const [description, setDescription] = useState();
+  const authCtx = useContext(AuthContext);
   const validationSchema = Yup.object().shape({
     description: Yup.string().required("Description is required"),
   });
@@ -61,7 +63,9 @@ function ROS2RosbagDescriptionDialog(props) {
       upload_error_msg: props.ROS2RosbagRow.upload_error_msg,
       size: props.ROS2RosbagRow.size,
       created_by: props.ROS2RosbagRow.created_by,
-      updated_by: props.ROS2RosbagRow.updated_by,
+      updated_by: parseInt(authCtx.user_id),
+      user_id: props.ROS2RosbagRow.user_id,
+      user: props.ROS2RosbagRow.user,
       description: description,
     };
     props.OnDescriptionSave(localUpdatedFile);
@@ -79,7 +83,7 @@ function ROS2RosbagDescriptionDialog(props) {
       <DialogTitle sx={{ fontWeight: "bolder" }}>{props.title}</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Update description for file ({props.ROS2RosbagRow.original_filename})
+          Update description for file (<b>{props.ROS2RosbagRow.original_filename}</b>)
           and click "SAVE".
         </DialogContentText>
 

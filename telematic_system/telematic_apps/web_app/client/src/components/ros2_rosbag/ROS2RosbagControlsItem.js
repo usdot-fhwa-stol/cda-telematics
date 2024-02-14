@@ -67,7 +67,7 @@ const ROS2RosbagControlsItem = (props) => {
 
             {props.ROS2RosbagRow !== undefined &&
               props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.COMPLETED &&
-              props.ROS2RosbagRow.processing_status !==
+              props.ROS2RosbagRow.process_status !==
                 PROCESSING_STATUS.COMPLETED && (
                 <CustomizedOutlinedButton
                   title={"Process ROS2 Rosbag"}

@@ -16,7 +16,7 @@
 module.exports = (seq, Sequelize) => {
     const file_info = seq.define("file_info", {
         id: {
-            type: Sequelize.INTEGER,
+            type: Sequelize.BIGINT(20),
             autoIncrement: true,
             primaryKey: true,
             allowNull: false,
@@ -62,8 +62,12 @@ module.exports = (seq, Sequelize) => {
             allowNull: false
         },
         created_by: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0,
+            type: Sequelize.BIGINT(20),
+            allowNull: false,
+        },
+        //Has to defined user_id in file_info table to enable eager loading
+        user_id: {
+            type: Sequelize.BIGINT(20),
             allowNull: false,
         },
         updated_at: {
@@ -72,8 +76,7 @@ module.exports = (seq, Sequelize) => {
             allowNull: false
         },
         updated_by: {
-            type: Sequelize.INTEGER,
-            defaultValue: 0,
+            type: Sequelize.BIGINT(20),
             allowNull: false,
         }
     }, {

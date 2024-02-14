@@ -258,13 +258,13 @@ const UnitTopicList = React.memo((props) => {
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={1} >
-                                    <FormControl sx={{ m: 1, width: 30, display: "inline-flex" }}>
+                                    <FormControl sx={{ marginLeft: 1, width: 30, display: "inline-flex" }}>
                                     <CustomizedRefreshButton title={`Send request to get latest topic list for the selected ${props.unitSectionTitle}s.`} 
-                                        key={`refresh-${props.unitSectionTitle}-topics`}  handler ={refreshAvailableLiveTopics4SelectedUnit} />
+                                        key={`refresh-${props.unitSectionTitle}-topics`}  onClick ={refreshAvailableLiveTopics4SelectedUnit} />
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={2}>
-                                    <FormControl sx={{ m: 1, width: '100%', display: "inline-flex" }}>
+                                    <FormControl sx={{ marginLeft: 3, width: '100%', display: "inline-flex" }}>
                                         {isRefreshed && refreshMsg.length > 0 && <Typography sx={{ color: 'green' }} style={{ flex: 1 }}>{refreshMsg}</Typography>}
                                         {!isRefreshed && refreshMsg.length > 0 && <Typography sx={{ color: 'red' }} style={{ flex: 1 }}>{refreshMsg}</Typography>}
                                     </FormControl>
