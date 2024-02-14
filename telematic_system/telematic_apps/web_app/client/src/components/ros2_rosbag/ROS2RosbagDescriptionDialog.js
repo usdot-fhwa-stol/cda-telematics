@@ -95,34 +95,14 @@ function ROS2RosbagDescriptionDialog(props) {
     <Dialog open={props.open} onClose={props.onCloseHandler}>
       <DialogTitle sx={{ fontWeight: "bolder" }}>{props.title}</DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          Update description for file (<b>{props.ROS2RosbagRow.original_filename}</b>)
-          and click "SAVE".
-        </DialogContentText>
-
+        <DialogContentText>  Update description for file (<b>{props.ROS2RosbagRow.original_filename}</b>)  and click "SAVE". </DialogContentText>
         <FormControl fullWidth>
-          <TextField
-            {...register("description")}
-            error={errors.description ? true : false}
-            margin="dense"
-            id="description"
-            label="Description*"
-            variant="standard"
-            value={description}
-            onChange={handleDescriptionChange}
-            sx={{ marginBottom: 5 }}
-          />
+          <TextField {...register("description")} error={errors.description ? true : false} margin="dense" id="description" label="Description*" variant="standard" value={description} onChange={handleDescriptionChange} sx={{ marginBottom: 5 }} />
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <CustomizedOutlinedButton onClick={onCloseHandler}>
-          Cancel
-        </CustomizedOutlinedButton>
-        <CustomizedButton
-          onClick={handleSubmit(saveRos2RosbagDescriptionHandler)}
-        >
-          Save
-        </CustomizedButton>
+        <CustomizedOutlinedButton onClick={onCloseHandler}>  Cancel   </CustomizedOutlinedButton>
+        <CustomizedButton onClick={handleSubmit(saveRos2RosbagDescriptionHandler)}>Save </CustomizedButton>
       </DialogActions>
     </Dialog>
   );

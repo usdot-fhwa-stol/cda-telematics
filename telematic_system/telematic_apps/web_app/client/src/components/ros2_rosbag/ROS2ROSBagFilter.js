@@ -30,21 +30,9 @@ const ROS2ROSBagFilter = (props) => {
     <Grid container item xs={12} columnSpacing={3} sx={{ margin: "0px 3px" }}>
       <Box sx={{ width: "100%" }}>
         <Card>
-          <CardHeader
-            sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }}
-            title="Filter ROS2 Rosbags"
-            titleTypographyProps={{ variant: "title" }}
-          />
+          <CardHeader sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }} title="Filter ROS2 Rosbags" titleTypographyProps={{ variant: "title" }} />
           <CardContent>
-            <ROS2ROSBagFilterForm
-              eventInfoList={props.eventInfoList}
-              onSearchROS2Rosbags={SearchROS2RosbagsHandler}
-              uploadStatusList={props.uploadStatusList}
-              processingStatusList={props.processingStatusList}
-              onRefresh = {()=>{ props.onFresh()}}
-              filterROS2RosbagList ={()=>props.filterROS2RosbagList()}
-              onUpload = {formdata => props.onUpload(formdata)}
-            />
+            <ROS2ROSBagFilterForm eventInfoList={props.eventInfoList} onSearchROS2Rosbags={SearchROS2RosbagsHandler} uploadStatusList={props.uploadStatusList} processingStatusList={props.processingStatusList} onRefresh={() => props.onFresh()} filterROS2RosbagList={() => props.filterROS2RosbagList()} onUpload={formdata => props.onUpload(formdata)} />
           </CardContent>
         </Card>
       </Box>

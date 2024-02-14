@@ -60,24 +60,15 @@ const ROS2RosbagUploadDialog = (props) => {
 
   const confirmRemovalHandler = (filename) => {
     let newForm = new FormData();
-    newForm["files"] = selectedfilesForm["files"].filter(
-      (item) => item.name !== filename
-    );
-    newForm["fields"] = selectedfilesForm["fields"].filter(
-      (item) => item.filename !== filename
-    );
+    newForm["files"] = selectedfilesForm["files"].filter((item) => item.name !== filename);
+    newForm["fields"] = selectedfilesForm["fields"].filter((item) => item.filename !== filename);
     setSelectedFilesForm(newForm);
   };
 
   const updateDescriptionHandler = (updatedROS2RosbagInfo) => {
     let newForm = new FormData();
     newForm["files"] = selectedfilesForm["files"];
-    newForm["fields"] = [
-      ...selectedfilesForm["fields"].filter(
-        (item) => item.filename !== updatedROS2RosbagInfo.filename
-      ),
-      updatedROS2RosbagInfo,
-    ];
+    newForm["fields"] = [...selectedfilesForm["fields"].filter((item) => item.filename !== updatedROS2RosbagInfo.filename), updatedROS2RosbagInfo];
     newForm["fields"].sort((a, b) => a.filename.localeCompare(b.filename));
     setSelectedFilesForm(newForm);
   };
@@ -95,58 +86,21 @@ const ROS2RosbagUploadDialog = (props) => {
           Upload ROS2 Rosbag files and send processing file requests. Accepted
           file extensions: <b> {ACCEPT_FILE_EXTENSIONS}</b>
         </DialogContentText>
-
         <FormControl fullWidth>
-          <div
-            style={{
-              border: "1px dashed #b6bed1",
-              backgroundColor: "#f0f2f7",
-              borderRadius: "4px",
-              minHeight: "100px",
-              position: "relative",
-              overflow: "hidden",
-              padding: "15px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <input
-              type="file"
-              id="ROS2-Rosbag-upload"
-              className="ROS2-Rosbag-upload-input"
-              onChange={BrowseFilesChange}
-              title="ROS2-Rosbag-upload-title"
-              multiple
-              accept={ACCEPT_FILE_EXTENSIONS}
-              style={{
-                position: "absolute",
-                left: 0,
-                bottom: 0,
-                opacity: 0,
-                width: "100%",
-                height: "100%",
-                cursor: "pointer",
-              }}
-            />
-            <span style={{ textDecoration: "underline", color: "#8194aa" }}>
-              Choose Files
-            </span>
+          <div style={{
+            border: "1px dashed #b6bed1", backgroundColor: "#f0f2f7", borderRadius: "4px", minHeight: "100px", position: "relative", overflow: "hidden", padding: "15px", display: "flex", alignItems: "center", justifyContent: "center"
+          }}>
+            <input type="file" id="ROS2-Rosbag-upload" onChange={BrowseFilesChange} title="ROS2-Rosbag-upload-title" multiple accept={ACCEPT_FILE_EXTENSIONS}
+              style={{ position: "absolute", left: 0, bottom: 0, opacity: 0, width: "100%", height: "100%", cursor: "pointer" }} />
+            <span style={{ textDecoration: "underline", color: "#8194aa" }}>Choose Files</span>
           </div>
         </FormControl>
-
         <FormControl fullWidth>
-          <ROS2RosbagUploadPreviewTable
-            previewFiles={selectedfilesForm}
-            onConfirm={confirmRemovalHandler}
-            onUpdateDescription={updateDescriptionHandler}
-          ></ROS2RosbagUploadPreviewTable>
+          <ROS2RosbagUploadPreviewTable previewFiles={selectedfilesForm} onConfirm={confirmRemovalHandler} onUpdateDescription={updateDescriptionHandler} />
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <CustomizedOutlinedButton onClick={closeHandler}>
-          Cancel
-        </CustomizedOutlinedButton>
+        <CustomizedOutlinedButton onClick={closeHandler}> Cancel </CustomizedOutlinedButton>
         <CustomizedButton onClick={uploadAndProcessROS2RosbagsHandler}>Process</CustomizedButton>
       </DialogActions>
     </Dialog>

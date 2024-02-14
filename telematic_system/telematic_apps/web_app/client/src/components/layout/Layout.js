@@ -38,13 +38,11 @@ const Layout = React.memo((props) => {
 
     useEffect(() => {
         //Check token expiration
-        if(authContext.sessionToken === undefined || ( authContext.sessionToken !== null && authContext.sessionExpiredAt < Math.round(new Date().getTime()/1000)))
-        {
+        if (authContext.sessionToken === undefined || (authContext.sessionToken !== null && authContext.sessionExpiredAt < Math.round(new Date().getTime() / 1000))) {
             //expired
             setOpen(true);
         }
-       else if (authContext.sessionToken !== null) 
-       {
+        else if (authContext.sessionToken !== null) {
             //valid tokened, update headers with auth token
             const response = checkServerSession(authContext.sessionToken);
             response.then((data) => {
@@ -84,26 +82,26 @@ const Layout = React.memo((props) => {
                         <Toolbar>
                             <Box
                                 component="img"
-                                sx={{width: '150px', height: '70px', marginRight: '10px'}}
+                                sx={{ width: '150px', height: '70px', marginRight: '10px' }}
                                 alt="Logo"
                                 src={logo} />
                             <List component="nav" sx={{ display: 'flex', fontWeight: "bolder", paddingBottom: 0 }}>
                                 <StyledListItemButton
-                                    component={Link} to="/telematic/events"
-                                    selected={location.pathname.includes("/telematic")}
+                                    component={Link} to="/dashboard"
+                                    selected={"/dashboard" === location.pathname}
                                     divider={true}>
-                                    <ListItemText primary="Telematic" primaryTypographyProps={{
+                                    <ListItemText primary="Dashboard" primaryTypographyProps={{
                                         fontSize: '150%',
-                                        color: location.pathname.includes("/telematic") ? "#ffffff" : '#2c7474'
+                                        color: "/dashboard" === location.pathname ? "#ffffff" : '#2c7474'
                                     }} />
                                 </StyledListItemButton>
                                 <StyledListItemButton
-                                    component={Link} to="/grafana"
-                                    selected={"/grafana" === location.pathname}
+                                    component={Link} to="/telematic/events"
+                                    selected={location.pathname.includes("/telematic")}
                                     divider={true}>
-                                    <ListItemText primary="Grafana" primaryTypographyProps={{
+                                    <ListItemText primary="Live Data" primaryTypographyProps={{
                                         fontSize: '150%',
-                                        color: "/grafana" === location.pathname ? "#ffffff" : '#2c7474'
+                                        color: location.pathname.includes("/telematic") ? "#ffffff" : '#2c7474'
                                     }} />
                                 </StyledListItemButton>
                                 <StyledListItemButton
@@ -118,8 +116,8 @@ const Layout = React.memo((props) => {
                             </List>
                         </Toolbar>
                     </AppBar>
-                    {"/grafana" !== location.pathname && <NavMenu />}
-                    <Box component="main" sx={{ flexGrow: 1, p: 3  }}>
+                    {"/dashboard" !== location.pathname && <NavMenu />}
+                    <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
                         <Toolbar />
                         {props.children}
                     </Box>

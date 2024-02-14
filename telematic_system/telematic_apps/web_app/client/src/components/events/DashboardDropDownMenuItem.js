@@ -78,7 +78,7 @@ const DashboardDropDownMenuItem = (props) => {
             anchorEl={props.anchorEl}
             open={props.open}
             onClose={props.handleClose}>
-            <MenuItem component={Link} key="dashboard" to="/grafana" disableRipple>
+            <MenuItem component={Link} key="dashboard" to="/dashboard" disableRipple>
                 Default dashboard
             </MenuItem>
             {
@@ -86,7 +86,7 @@ const DashboardDropDownMenuItem = (props) => {
                 eventDashboards.map(item => <MenuItem
                     component={Link}
                     key={`dashboard-${item.id}`}
-                    to={`/grafana?uid=${item.uid}&slug=${item.slug}&orgId=${authCtx.org_id}`}
+                    to={`/dashboard?uid=${item.uid}&slug=${item.slug}&orgId=${authCtx.org_id}`}
                     disableRipple>
                     {item.title}
                 </MenuItem>)}

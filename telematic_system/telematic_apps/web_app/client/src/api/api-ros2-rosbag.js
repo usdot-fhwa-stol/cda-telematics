@@ -26,9 +26,6 @@ const updateROS2RosbagDescription = async (UpdatedFileInfo) => {
   const URL = `${env.REACT_APP_FILE_UPLOAD_WEB_SERVER_URI}/api/upload/description`;
   try {
     let formData = new FormData();
-    const config = {
-      headers: { "content-type": "multipart/form-data" }
-    };
     formData.append("fields", JSON.stringify(UpdatedFileInfo));
     const { data } = await axios.post(URL, formData);
     return data;
@@ -43,22 +40,23 @@ const updateROS2RosbagDescription = async (UpdatedFileInfo) => {
  * @returns server response with uploaded ROS2 rosbag file info
  */
 const uploadROS2Rosbags = async (ROS2RosbagsFormData) => {
-  let formData = new FormData();
-  for (let key in ROS2RosbagsFormData["fields"]) {
-    let field = ROS2RosbagsFormData["fields"][key];
-    formData.append("fields", JSON.stringify(field));
-  }
-
-  for (let key in ROS2RosbagsFormData["files"]) {
-    let file = ROS2RosbagsFormData["files"][key];
-    formData.append("files", file);
-  }
-
-  const config = {
-    headers: { "content-type": "multipart/form-data" }
-  };
-  const URL = `${env.REACT_APP_FILE_UPLOAD_WEB_SERVER_URI}/api/upload`;
   try {
+    let formData = new FormData();
+    let fields = ROS2RosbagsFormData["fields"];
+    for (let key in fields) {
+      formData.append("fields", JSON.stringify(fields[key]));
+    }
+
+    let files = ROS2RosbagsFormData["files"];
+    for (let key in files) {
+      formData.append("files", files[key]);
+    }
+
+    const config = {
+      headers: { "content-type": "multipart/form-data" }
+    };
+
+    const URL = `${env.REACT_APP_FILE_UPLOAD_WEB_SERVER_URI}/api/upload`;
     const { data } = await axios.post(URL, formData, config);
     return data;
   } catch (err) {

@@ -94,83 +94,30 @@ export default function ROS2RosbagTable(props) {
 
   return (
     <Paper sx={{ width: "100%" }}>
-      <TableContainer
-        sx={{
-          minHeight: 0,
-          overflowY: "scroll",
-          overflowX: "hidden",
-          maxHeight: "600px",
-        }}
-      >
+      <TableContainer sx={{ minHeight: 0, overflowY: "scroll", overflowX: "hidden", maxHeight: "600px" }}>
         <Table stickyHeader aria-label="sticky table">
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{
-                    top: 0,
-                    minWidth: column.minWidth,
-                    fontWeight: "bolder",
-                    backgroundColor: "#eee",
-                  }}
-                >
-                  {column.label}
-                </TableCell>
+                <TableCell key={column.id} align={column.align} style={{ top: 0, minWidth: column.minWidth, fontWeight: "bolder", backgroundColor: "#eee" }}> {column.label}  </TableCell>
               ))}
-              {authCtx.role !== USER_ROLES.VIEWER &&
-                authCtx.role !== undefined &&
-                authCtx.role !== null &&
-                authCtx.role !== "" && (
-                  <TableCell
-                    tabIndex={-1}
-                    key={`controls`}
-                    style={{
-                      top: 0,
-                      fontWeight: "bolder",
-                      backgroundColor: "#eee",
-                    }}
-                  >
-                    Controls
-                  </TableCell>
-                )}
+              {authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" && (
+                <TableCell tabIndex={-1} key={`controls`} style={{ top: 0, fontWeight: "bolder", backgroundColor: "#eee" }}>Controls</TableCell>
+              )}
             </TableRow>
           </TableHead>
           <TableBody>
-            {props.ROS2RosbagList !== undefined &&
-              Array.isArray(props.ROS2RosbagList) &&
-              props.ROS2RosbagList.slice(
-                page * rowsPerPage,
-                page * rowsPerPage + rowsPerPage
-              ).map((row) => {
-                return (
-                  <ROS2RosbagRowItem
-                    key={row.id}
-                    ROS2RosbagRow={row}
-                    columns={columns}
-                    ROS2RosbagList={props.ROS2RosbagList}
-                    onSaveRos2RosbagDescription={
-                      saveRos2RosbagDescriptionHandler
-                    }
-                    onProcessROS2RosbagReq={(ROS2RosBagInfo) =>
-                      props.onProcessROS2RosbagReq(ROS2RosBagInfo)
-                    }
-                  />
-                );
-              })}
+            {props.ROS2RosbagList !== undefined && Array.isArray(props.ROS2RosbagList) && props.ROS2RosbagList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+              return (
+                <ROS2RosbagRowItem key={row.id} ROS2RosbagRow={row} columns={columns} ROS2RosbagList={props.ROS2RosbagList}
+                  onSaveRos2RosbagDescription={saveRos2RosbagDescriptionHandler}
+                  onProcessROS2RosbagReq={(ROS2RosBagInfo) => props.onProcessROS2RosbagReq(ROS2RosBagInfo)} />
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={
-          props.ROS2RosbagList !== undefined &&
-            Array.isArray(props.ROS2RosbagList)
-            ? props.ROS2RosbagList.length
-            : 0
-        }
+      <TablePagination rowsPerPageOptions={[10, 25, 100]} component="div" count={props.ROS2RosbagList !== undefined && Array.isArray(props.ROS2RosbagList) ? props.ROS2RosbagList.length : 0}
         rowsPerPage={rowsPerPage}
         page={page}
         onPageChange={handleChangePage}

@@ -19,7 +19,7 @@ import AuthContext from '../../context/auth-context';
 import AdminPage from '../../pages/AdminPage';
 import EventPage from '../../pages/EventPage';
 import ForgetPasswordPage from '../../pages/ForgetPasswordPage';
-import Grafana from '../../pages/Grafana';
+import Dashboard from '../../pages/Dashboard';
 import Login from '../../pages/Login';
 import RegisterUserPage from '../../pages/RegisterUserPage';
 import TopicPage from '../../pages/TopicPage';
@@ -37,7 +37,7 @@ const MainRouter = React.memo(() => {
         {authContext.sessionToken !== null && <Route path="/historical/data/ros2/rosbag" element={<ROS2RosbagPage />} />}
         {authContext.sessionToken !== null && <Route path="/historical/data"  element={<Navigate to="/historical/data/ros2/rosbag" replace></Navigate>}/>}
         {authContext.sessionToken !== null && (parseInt(authContext.is_admin) === 1 || authContext.role === USER_ROLES.ADMIN) && <Route path="/telematic/admin" element={<AdminPage />} />}
-        {authContext.sessionToken !== null && <Route path="/grafana" element={<Grafana />} />}
+        {authContext.sessionToken !== null && <Route path="/dashboard" element={<Dashboard />} />}
         {authContext.sessionToken === null && <Route path="/telematic/login" element={<Login />} />}
         {authContext.sessionToken !== null && <Route path="/telematic/login" element={<Navigate to="/telematic/events" replace></Navigate>}></Route>}
         {authContext.sessionToken === null && <Route path="/telematic/forget/password" element={<ForgetPasswordPage />} />}

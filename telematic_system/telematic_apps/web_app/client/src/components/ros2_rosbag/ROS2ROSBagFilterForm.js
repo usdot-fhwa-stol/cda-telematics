@@ -87,114 +87,40 @@ const ROS2ROSBagFilterForm = memo((props) => {
     <Grid container>
       <Grid xs={10} item>
         <FormControl sx={{ minWidth: 450, margin: 1 }}>
-          <TextField
-            fullWidth
-            value={inputText}
-            label="Search by ROS2 Rosbag name, description, updated or created by"
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-            onChange={handleInputTextChange}
-            id="searchROS2rRosbagLabelId"
-          ></TextField>
+          <TextField fullWidth value={inputText} label="Search by ROS2 Rosbag name, description, updated or created by" InputProps={{ startAdornment: (<InputAdornment position="start"> <SearchIcon /></InputAdornment>) }} onChange={handleInputTextChange} id="searchROS2rRosbagLabelId"  ></TextField>
         </FormControl>
+
         <FormControl sx={{ minWidth: 200, margin: 1 }}>
-          <InputLabel id="uploadStatusLabelId" sx={{ paddingLeft: "20px" }}>
-            Upload Status
-          </InputLabel>
-          <Select
-            labelId="uploadStatusLabelId"
-            id="uploadStatusStr"
-            value={uploadStatusStr}
-            label="Upload Status"
-            inputProps={{
-              name: uploadStatusRef.current,
-              id: uploadStatusRef.current,
-            }}
-            IconComponent={FilterAltIcon}
-            sx={{
-              paddingLeft: "20px",
-              "& .MuiSvgIcon-root": {
-                left: "5px",
-              },
-            }}
-            onChange={handleUploadStatusChange}
-          >
-            {props.uploadStatusList !== undefined &&
-              props.uploadStatusList.map((uploadStatus) => (
-                <MenuItem key={uploadStatus} value={uploadStatus}>
-                  {uploadStatus}
-                </MenuItem>
+          <InputLabel id="uploadStatusLabelId" sx={{ paddingLeft: "20px" }}>Upload Status</InputLabel>
+          <Select labelId="uploadStatusLabelId" id="uploadStatusStr" value={uploadStatusStr} label="Upload Status" inputProps={{ name: uploadStatusRef.current, id: uploadStatusRef.current }} IconComponent={FilterAltIcon} sx={{ paddingLeft: "20px", "& .MuiSvgIcon-root": { left: "5px" } }} onChange={handleUploadStatusChange}>
+            {
+              props.uploadStatusList !== undefined && props.uploadStatusList.map((uploadStatus) => (
+                <MenuItem key={uploadStatus} value={uploadStatus}>  {uploadStatus}  </MenuItem>
               ))}
           </Select>
         </FormControl>
 
         <FormControl sx={{ minWidth: 200, margin: 1 }}>
-          <InputLabel
-            id="processingStatusStrLabelId"
-            sx={{ paddingLeft: "20px" }}
-          >
-            Processing Status
-          </InputLabel>
-          <Select
-            labelId="processingStatusStrLabelId"
-            value={processingStatusStr}
-            inputProps={{
-              name: processingStatusStrRef.current,
-              id: processingStatusStrRef.current,
-            }}
-            IconComponent={FilterAltIcon}
-            sx={{
-              paddingLeft: "20px",
-              "& .MuiSvgIcon-root": {
-                left: "5px",
-              },
-            }}
-            label="processingStatus"
-            onChange={handleProcessingStatusChange}
-          >
-            {props.processingStatusList !== undefined &&
-              props.processingStatusList.map((processingStatus) => (
-                <MenuItem key={processingStatus} value={processingStatus}>
-                  {processingStatus}
-                </MenuItem>
+          <InputLabel id="processingStatusStrLabelId" sx={{ paddingLeft: "20px" }}>Processing Status</InputLabel>
+          <Select labelId="processingStatusStrLabelId" value={processingStatusStr} inputProps={{ name: processingStatusStrRef.current, id: processingStatusStrRef.current }} IconComponent={FilterAltIcon} sx={{ paddingLeft: "20px", "& .MuiSvgIcon-root": { left: "5px" } }} label="processingStatus"
+            onChange={handleProcessingStatusChange} >
+            {
+              props.processingStatusList !== undefined && props.processingStatusList.map((processingStatus) => (
+                <MenuItem key={processingStatus} value={processingStatus}> {processingStatus}   </MenuItem>
               ))}
           </Select>
         </FormControl>
-        <FormControl
-          sx={{
-            paddingTop: "10px",
-          }}
-        >
-          <CustomizedRefreshButton
-            title="Reset filters and refresh ROS2 Rosbags table"
-            onClick={refreshHandler}
-          ></CustomizedRefreshButton>
+        
+        <FormControl sx={{ paddingTop: "10px" }}>
+          <CustomizedRefreshButton title="Reset filters and refresh ROS2 Rosbags table" onClick={refreshHandler} ></CustomizedRefreshButton>
         </FormControl>
       </Grid>
-      {authCtx.role !== USER_ROLES.VIEWER &&
-        authCtx.role !== undefined &&
-        authCtx.role !== null &&
-        authCtx.role !== "" && (
+      {
+        authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" && (
           <Grid item xs={2} sx={{ textAlign: "end" }}>
-            <ROS2RosbagUploadDialog
-              open={open}
-              onClose={closeHandler}
-              onUpload={(formdata) => props.onUpload(formdata)}
-              title="Browse ROS2 Rosbag"
-            />
+            <ROS2RosbagUploadDialog open={open} onClose={closeHandler} onUpload={(formdata) => props.onUpload(formdata)} title="Browse ROS2 Rosbag" />
             <FormControl sx={{ minWidth: 200, margin: 1 }}>
-              <CustomizedButton
-                title="Upload ROS2 Rosbag"
-                data-testid="uploadROS2RosbagBtn"
-                onClick={openHandler}
-              >
-                Browse ROS2 Rosbag
-              </CustomizedButton>
+              <CustomizedButton title="Upload ROS2 Rosbag" data-testid="uploadROS2RosbagBtn" onClick={openHandler} > Browse ROS2 Rosbag </CustomizedButton>
             </FormControl>
           </Grid>
         )}
