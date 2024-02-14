@@ -2,6 +2,6 @@
 window.env = {
   "REACT_APP_MESSAGING_SERVER_URI": "http://topic-service.local.cav-telematics.com:8888",
   "REACT_APP_WEB_SERVER_URI": "http://ui-service.local.cav-telematics.com:8888",
-  "REACT_APP_FILE_UPLOAD_WEB_SERVER_URI": "http://ui-service-upload.local.cav-telematics.com:8888",
+  "REACT_APP_FILE_UPLOAD_WEB_SERVER_URI": "http://ui-upload-service.local.cav-telematics.com:8888",
   "REACT_APP_GRAFANA_URI": "http://grafana.local.cav-telematics.com:8888/grafana"
 }
