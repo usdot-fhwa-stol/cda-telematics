@@ -34,7 +34,6 @@ const { createNatsConn } = require("./nats_client/nats_connection");
 const {
   pubFileProcessingReq,
 } = require("./nats_client/file_processing_nats_publisher");
-const { env } = require("process");
 const port = process.env.UPLOAD_HTTP_PORT;
 const allowedOrigin = process.env.ALLOW_CLIENT_URL;
 const uploadTimeout = parseInt(process.env.UPLOAD_TIME_OUT, 3600000);
@@ -42,8 +41,6 @@ const HTTP_METHODS = {
   POST: "POST",
   GET: "GET",
 };
-const HttpDispatcher = require("httpdispatcher");
-const dispatcher = new HttpDispatcher();
 
 const HTTP_URLS = {
   API_FILE_UPLOAD: "/api/upload",
@@ -63,96 +60,91 @@ const setResponseHeaders = (res) => {
 };
 
 const requestListener = function (req, res) {
-  dispatcher.dispatch(req, res);
+  setResponseHeaders(res);
+
+  if (req.method === HTTP_METHODS.POST) {
+    if (!verifyToken(req)) {
+      unAuthenticatedError(res);
+      return;
+    }
+    postListener(req, res);
+  } else {
+    health_check(req, res);
+  }
 };
 
-dispatcher.onError((req, res) => {
-  health_check(req, res);
-});
 
-const health_check = async function (req, res) {
+const health_check = (req, res) => {
   let data = { health_status: "OK" };
   sendResponse(res, JSON.stringify(data));
 };
 
-dispatcher.onPost(HTTP_URLS.API_FILE_UPLOADED_LIST, (req, res) => {
-  if (!verifyToken(req)) {
-    unAuthenticatedError(res);
-    return;
-  }
-  listAllFiles(req, res)
-    .then((data) => {
-      sendResponse(res, JSON.stringify(data));
-    })
-    .catch((err) => {
-      serverError(err);
-    });
-});
-
-dispatcher.onPost(HTTP_URLS.API_FILE_UPLOAD, async (req, res) => {
-  if (!verifyToken(req)) {
-    unAuthenticatedError(res);
-    return;
-  }
-  await uploadFile(req)
-    .then((data) => {
-      sendResponse(res, JSON.stringify(data));
-    })
-    .catch((err) => {
-      serverError(err);
-    });
-});
-
-dispatcher.onPost(HTTP_URLS.API_FILE_DESCRIPTION_UPDATE, (req, res) => {
-  if (!verifyToken(req)) {
-    unAuthenticatedError(res);
-    return;
-  }
-  formidable().parse(req, async (err, fields, files) => {
-    let fileInfo = JSON.parse(fields["fields"]);
-    await updateDescription(fileInfo)
-      .then((data) => {
-        sendResponse(res, JSON.stringify(data));
-      })
-      .catch((err) => {
-        serverError(err);
+const postListener = async (req, res) => {
+  switch (req.url.split("?")[0]) {
+    case HTTP_URLS.API_FILE_UPLOADED_LIST:
+      formidable().parse(req, async (err, fields, files) => {
+        await listAllFiles(req, res)
+          .then((data) => {
+            sendResponse(res, data);
+          })
+          .catch((err) => {
+            serverError(res, err);
+          });
       });
-  });
-});
+      break;
+    case HTTP_URLS.API_FILE_UPLOAD:
+      await uploadFile(req)
+        .then((data) => {
+          sendResponse(res, data);
+        })
+        .catch((err) => {
+          serverError(res, err);
+        });
+      break;
+    case HTTP_URLS.API_FILE_DESCRIPTION_UPDATE:
+      formidable().parse(req, async (err, fields, files) => {
+        let fileInfo = JSON.parse(fields["fields"]);
+        await updateDescription(fileInfo)
+          .then((data) => {
+            sendResponse(res, data);
+          })
+          .catch((err) => {
+            serverError(res, err);
+          });
+      });
+      break;
+    case HTTP_URLS.API_FILE_PROCESS_REQUEST:
+      formidable().parse(req, async (err, fields, files) => {
+        try {
+          let fileInfo = JSON.parse(fields["fields"]);
+          //Send file process request to NATS
+          let processingReq = {
+            uploaded_path: uploadDestPath,
+            filename: fileInfo.original_filename,
+          };
 
-dispatcher.onPost(HTTP_URLS.API_FILE_PROCESS_REQUEST, (req, res) => {
-  if (!verifyToken(req)) {
-    unAuthenticatedError(res);
-    return;
+          let natsConn = await createNatsConn();
+          await pubFileProcessingReq(natsConn, processingReq);
+          await natsConn.close();
+          sendResponse(res, "Process request sent: " + processingReq.filename);
+        } catch (err) {
+          serverError(res, err);
+        }
+      });
+      break;
+    default:
+      health_check(req, res);
+      break;
   }
-  formidable().parse(req, async (err, fields, files) => {
-    try {
-      let fileInfo = JSON.parse(fields["fields"]);
-      //Send file process request to NATS
-      let processingReq = {
-        uploaded_path: uploadDestPath,
-        filename: fileInfo.original_filename,
-      };
-
-      let natsConn = await createNatsConn();
-      await pubFileProcessingReq(natsConn, processingReq);
-      await natsConn.close();
-      sendResponse(res, "Process request sent: " + processingReq.filename);
-    } catch (err) {
-      serverError(err);
-    }
-  });
-});
+};
 
 const sendResponse = (res, data) => {
-  setResponseHeaders(res);
   res.writeHead(200);
-  res.write(data);
+  res.write(JSON.stringify(data));
   res.end();
 };
 
 const unAuthenticatedError = (res) => {
-  setResponseHeaders(res);
   res.writeHead(401);
   res.write(
     JSON.stringify({ error: "User unauthenticated or session expired!" })
@@ -160,11 +152,10 @@ const unAuthenticatedError = (res) => {
   res.end();
 };
 
-const serverError = (res) => {
-  setResponseHeaders(res);
+const serverError = (res, err) => {
   console.log(err);
   res.writeHead(500);
-  res.write(JSON.stringify({ error: err.message || "Unknown server error!" }));
+  res.write(JSON.stringify({ error: err && err.message || "Unknown server error!" }));
   res.end();
 };
 
