@@ -105,22 +105,16 @@ const EventTableControlsItem = (props) => {
         authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
         <TableCell tabIndex={-1} key={`controls-${props.eventRow.id}`}>
           <EditEventDialog title="Edit Event" locationList={props.locationList} testingTypeList={props.testingTypeList} eventInfo={props.eventRow} onEventSaveHandler={onEventSaveHandler} onCloseEventDialog={onCloseEventDialog} close={!openEditEventDialog} open={openEditEventDialog} />
-          <CustomizedOutlinedButton title="Edit Event" key={`edit-event-${props.eventRow.id}`} onClick={handleOpenEditEventDialog}>
-            <EditIcon />
-          </CustomizedOutlinedButton>
+          <CustomizedOutlinedButton title="Edit Event" key={`edit-event-${props.eventRow.id}`} onClick={handleOpenEditEventDialog}><EditIcon /></CustomizedOutlinedButton>
           {
             openWarningDialog &&
             <WarningDialog open={openWarningDialog} onConfirm={event => onConfirmDeleteEventHandler(event, props.eventRow.id)} onCloseWarning={handleCloseWarningDialog} title="Delete Event Alert" description={`Are you sure to delete event ${props.eventRow.name}?`} />
           }
-          <CustomizedOutlinedButton title="Delete Event"  key={`delete-event-${props.eventRow.id}`} onClick={handleOpenWarningDialog}>
-            <DeleteIcon/>
-          </CustomizedOutlinedButton>
+          <CustomizedOutlinedButton title="Delete Event"  key={`delete-event-${props.eventRow.id}`} onClick={handleOpenWarningDialog}> <DeleteIcon/> </CustomizedOutlinedButton>
           {
             openAssignUnitDialog && <AssignUnitDialog eventInfo={props.eventRow} unitList={props.unitList} onAssignUnitHandler={onAssignUnitHandler} close={!openAssignUnitDialog} open={openAssignUnitDialog} onCloseAssignUnitDialog={handleCloseAssignUnitDialog} />
           }
-          <CustomizedOutlinedButton title="Assign Unit " key={`assign-Units-for-event-${props.eventRow.eventId}`} onClick={handleOpenAssignUnitDialog}>
-              <ElectricCarIcon/>
-          </CustomizedOutlinedButton>
+          <CustomizedOutlinedButton title="Assign Unit " key={`assign-Units-for-event-${props.eventRow.eventId}`} onClick={handleOpenAssignUnitDialog}><ElectricCarIcon/> </CustomizedOutlinedButton>
         </TableCell>
       }
     </React.Fragment>

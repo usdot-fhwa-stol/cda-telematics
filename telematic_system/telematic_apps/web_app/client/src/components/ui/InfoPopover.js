@@ -31,25 +31,8 @@ const InfoPopover = (props) => {
     const openInfoPopover = Boolean(InfoAnchorEl);
     return (
         <React.Fragment>
-            <InfoIcon
-                onMouseEnter={handleInfoPopoverOpen}
-                onMouseLeave={handleInfoPopoverClose} />
-
-            <Popover
-                id="mouse-over-popover"
-                sx={{ pointerEvents: 'none'}}
-                open={openInfoPopover}
-                anchorEl={InfoAnchorEl}
-                anchorOrigin={{
-                    vertical: 'bottom',
-                    horizontal: 'left',
-                }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'left',
-                }}
-                onClose={handleInfoPopoverClose}
-                disableRestoreFocus >
+            <InfoIcon onMouseEnter={handleInfoPopoverOpen} onMouseLeave={handleInfoPopoverClose} />
+            <Popover id="mouse-over-popover" sx={{ pointerEvents: 'none' }} open={openInfoPopover} anchorEl={InfoAnchorEl} anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} transformOrigin={{ vertical: 'top', horizontal: 'left' }} onClose={handleInfoPopoverClose} disableRestoreFocus >
                 <Typography sx={{ p: 1 }}>{props.info}</Typography>
             </Popover>
         </React.Fragment>

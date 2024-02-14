@@ -26,9 +26,7 @@ const EventTableRowCollapseDialog = (props) => {
             {
                 openWarningDialog && <WarningDialog open={openWarningDialog} onConfirm={event => onConfirmUnassignUnitHandler(event, props.eventRow, props.unit)} onCloseWarning={handleCloseWarningDialog} title={`Unassign Unit Alert`} description={`Are you sure to unassign ${props.unit.unit_identifier} from event ${props.eventRow.name}?`} />
             }
-                <CustomizedOutlinedButton  title="Unassign Unit" key={`${props.eventRow.id}-Unit-${props.unit.unit_identifier}-unassign`} onClick={handleOpenWarningDialog}>
-                    <DeleteIcon/>
-                </CustomizedOutlinedButton>
+                <CustomizedOutlinedButton  title="Unassign Unit" key={`${props.eventRow.id}-Unit-${props.unit.unit_identifier}-unassign`} onClick={handleOpenWarningDialog}><DeleteIcon/></CustomizedOutlinedButton>
         </TableCell>
     )
 }

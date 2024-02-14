@@ -63,11 +63,7 @@ export const AssignUnitDialog = (props) => {
         const event_end_at = new Date(props.eventInfo.end_at).getTime();
 
         //Assigned unit time has to be between event start and end time
-        if (assignedUnitTime - event_start_at > 0 && event_end_at - assignedUnitTime > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return (assignedUnitTime - event_start_at > 0) && (event_end_at - assignedUnitTime > 0) ;
     }
 
     const onAssignUnitHandler = () => {
@@ -110,7 +106,6 @@ export const AssignUnitDialog = (props) => {
         resolver: yupResolver(validationSchema)
     });
     return (
-        <React.Fragment>
             <Dialog open={props.open} onClose={onCloseHandler}>
                 <DialogTitle sx={{ fontWeight: "bolder" }}>Assign Unit</DialogTitle>
                 <DialogContent>
@@ -157,10 +152,9 @@ export const AssignUnitDialog = (props) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <CustomizedOutlinedButton variant='outlined' onClick={onCloseHandler}>Cancel</CustomizedOutlinedButton>
+                    <CustomizedOutlinedButton onClick={onCloseHandler}>Cancel</CustomizedOutlinedButton>
                     <CustomizedButton onClick={handleSubmit(onAssignUnitHandler)}>Assign</CustomizedButton>
                 </DialogActions>
             </Dialog>
-        </React.Fragment >
     )
 }

@@ -226,9 +226,7 @@ const ROS2RosbagPage = React.memo(() => {
         <Grid container columnSpacing={2} rowSpacing={1}>
           <PageAvatar icon={<WorkHistorySharpIcon />} title="ROS2 Rosbag" />
           <Grid item xs={4}></Grid>
-
           <ROS2ROSBagFilter uploadStatusList={uploadStatusList} processingStatusList={processingStatusList} onFresh={RefreshHandler} filterROS2RosbagList={filterROS2RosbagListHandler} onUpload={uploadAndProcessReqHandler} />
-
           <Grid container item xs={12}>
             <ROS2RosbagTable ROS2RosbagList={ROS2RosbagList} onSaveRos2RosbagDescription={saveRos2RosbagDescriptionHandler} onProcessROS2RosbagReq={(ROS2RosBagInfo) => processROS2RosbagReqHandler(ROS2RosBagInfo)} />
           </Grid>

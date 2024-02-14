@@ -10,22 +10,12 @@ export const CustomizedIcon = memo(
       onClick: disabled ? undefined : onClick,
     };
     const StyledButton = withStyles({
-      root: {
-        backgroundColor: "#fff",
-        margin: "1px",
-        color: "#748c93",
-        "&:hover": {
-          backgroundColor: "#fff",
-          color: "#748c93",
-        },
-      },
+      root: { backgroundColor: "#fff", margin: "1px", color: "#748c93", "&:hover": { backgroundColor: "#fff", color: "#748c93" } }
     })(Button);
 
     return (
       <Tooltip title={title}>
-        <StyledButton {...other} {...adjustedButtonProps}>
-          {children}
-        </StyledButton>
+        <StyledButton {...other} {...adjustedButtonProps}>{children}</StyledButton>
       </Tooltip>
     );
   }

@@ -149,10 +149,8 @@ const DefaultTopicSettings = (props) => {
     return (
         <React.Fragment>
             <Stack spacing={1} direction="row" sx={{ float: 'right' }}>
-                <CustomizedButton title="Default topic setting: Given an event and units, updating the list of selected topics to default selected topics for the units." 
-                onClick={saveDefaultSeletedTopicsHandler} >Save</CustomizedButton>
-                 <CustomizedButton title="Default topic setting: Given an event and units, loading the default list of selected topics for the units."
-                onClick={loadDefaultSelectedTopicsHandler} >Save</CustomizedButton>
+                <CustomizedButton title="Default topic setting: Given an event and units, updating the list of selected topics to default selected topics for the units."  onClick={saveDefaultSeletedTopicsHandler} >Save</CustomizedButton>
+                <CustomizedButton title="Default topic setting: Given an event and units, loading the default list of selected topics for the units." onClick={loadDefaultSelectedTopicsHandler} >Save</CustomizedButton>
             </Stack>
             {isSaved || isLoaded ? <Typography sx={{ color: 'green', float: 'right', display: 'inline-flex' }}>{msg}</Typography> : <Typography sx={{ color: 'red', float: 'right' }}>{msg}</Typography>}
         </React.Fragment>
