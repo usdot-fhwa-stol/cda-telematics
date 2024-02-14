@@ -2,13 +2,12 @@ import { expect, jest, test } from "@jest/globals";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { act } from "react-dom/test-utils";
-import * as ROS2RosbagApi from "../../api/api-ROS2-Rosbag";
-import AuthContext from "../../context/auth-context";
-import AdminPage from "../../pages/AdminPage";
-import ROS2RosbagContext from "../../context/ROS2-rosbag-context";
-import ROS2RosbagPage from "../../pages/ROS2RosbagPage";
+import * as ROS2RosbagApi from "../../api/api-ros2-rosbag";
 import ROS2RosbagUploadDialog from "../../components/ros2_rosbag/ROS2RosbagUploadDialog";
 import ROS2RosbagUploadPreviewTableRow from "../../components/ros2_rosbag/ROS2RosbagUploadPreviewTableRow";
+import ROS2RosbagContext from "../../context/ROS2-rosbag-context";
+import AuthContext from "../../context/auth-context";
+import ROS2RosbagPage from "../../pages/ROS2RosbagPage";
 
 test("ROS2 Rosbag page", async () => {
   const ROS2RosbagList = [
@@ -57,7 +56,7 @@ test("ROS2 Rosbag page", async () => {
   ];
 
   jest
-    .spyOn(ROS2RosbagApi, "listRos2Rosbags")
+    .spyOn(ROS2RosbagApi, "listROS2Rosbags")
     .mockResolvedValue(ROS2RosbagList);
 
   await act(async () => {

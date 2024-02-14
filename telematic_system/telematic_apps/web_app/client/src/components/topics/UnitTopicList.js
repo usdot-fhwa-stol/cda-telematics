@@ -232,7 +232,6 @@ const UnitTopicList = React.memo((props) => {
     }, [props]);
 
     return (
-        <React.Fragment>
             <Grid container item xs={6} >
                 <Box sx={{ width: '100%' }}>
                     <Card>
@@ -281,7 +280,6 @@ const UnitTopicList = React.memo((props) => {
                     </Card>
                 </Box>
             </Grid>
-        </React.Fragment>
     )
 });
 

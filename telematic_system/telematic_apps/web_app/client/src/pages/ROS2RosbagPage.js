@@ -21,7 +21,7 @@ import {
   sendROS2RosbagProcessRequest,
   updateROS2RosbagDescription,
   uploadROS2Rosbags,
-} from "../api/api-ROS2-Rosbag";
+} from "../api/api-ros2-rosbag";
 import ROS2ROSBagFilter from "../components/ros2_rosbag/ROS2ROSBagFilter";
 import {
   PROCESSING_STATUS,

@@ -154,7 +154,7 @@ const UserTableRow = (props) => {
                     })
                 }
                 <TableCell key={`user-table-row-actions-${props.userRow.id}`}>
-                    <CustomizedButton  key={`user-table-row-control-${props.userRow.id}`} title="Update user organizations and roles" onClick={handleOpen}>
+                    <CustomizedButton data-testid = {`user-table-open-btn-${props.userRow.id}`} key={`user-table-row-control-${props.userRow.id}`} title="Update user organizations and roles" onClick={handleOpen}>
                         <AssignmentIndIcon />
                     </CustomizedButton>
                 </TableCell>

@@ -69,7 +69,7 @@ test('Admin page', async () => {
     })
 
     fireEvent.click(screen.getByTestId('confirm-change-to-admin-toggle-btn'));
-    fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+    fireEvent.click(screen.getByTestId('close-assign-user-to-org', { name: 'Close' }));
 });
 
 afterEach(() => {

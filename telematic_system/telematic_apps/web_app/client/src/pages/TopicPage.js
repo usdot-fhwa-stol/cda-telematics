@@ -20,7 +20,7 @@ import { findAllEvents } from '../api/api-events';
 import { findAllLocations } from '../api/api-locations';
 import { findAllTestingTypes } from '../api/api-testing-types';
 import { requestSelectedLiveUnitsTopics } from '../api/api-topics';
-import { findUsersTopicRequestByEventUnits, upsertUserTopicRequestForEventUnits } from '../api/user_topic_request';
+import { findUsersTopicRequestByEventUnits, upsertUserTopicRequestForEventUnits } from '../api/user-topic-request';
 import { VALID_UNIT_TYPES } from '../components/events/EventMetadata';
 import InfrastructureTopicList from '../components/topics/InfrastructureTopicList';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';

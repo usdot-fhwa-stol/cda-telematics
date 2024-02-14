@@ -7,7 +7,7 @@ import {env} from "../env"
  * @Return Response status and save a bulk of topics for each event and unit combination
  */
 const upsertUserTopicRequestForEventUnits = async (seletedUnitsTopics, user_id) => {
-  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/user_topic_request/upsert`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/user-topic-request/upsert`
   let event_id = 0;
   let unit_identifiers = [];
   seletedUnitsTopics.forEach(element => {
@@ -24,7 +24,7 @@ const upsertUserTopicRequestForEventUnits = async (seletedUnitsTopics, user_id) 
     return data;
   } catch (err) {
     
-      return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+      return constructError(err)
   
   }
 }
@@ -37,7 +37,7 @@ const upsertUserTopicRequestForEventUnits = async (seletedUnitsTopics, user_id) 
  * @Return Response status and load a bulk of topics for each event and list of units for the event
  */
 const findUsersTopicRequestByEventUnits = async (event_id, selectedUnitIdentifiers, exclude_user_id) => {
-  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/user_topic_request/all`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/user-topic-request/all`
   if (selectedUnitIdentifiers.length === 0 || event_id === 0 || event_id === undefined) {
     return { errCode: CanceledError.ERR_BAD_REQUEST, errMsg: "Event id or units cannot be empty" };
   }
@@ -54,7 +54,7 @@ const findUsersTopicRequestByEventUnits = async (event_id, selectedUnitIdentifie
     return data;
   } catch (err) {
     
-      return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+      return constructError(err)
   
   }
 }
@@ -67,7 +67,7 @@ const findUsersTopicRequestByEventUnits = async (event_id, selectedUnitIdentifie
  * @Return Response status and load a bulk of topics for each event and list of units for the event
  */
  const findUserTopicRequestByUserEventUnits = async (event_id, selectedUnitIdentifiers, user_id) => {
-  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/user_topic_request/user/list`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/user-topic-request/user/list`
   if (selectedUnitIdentifiers.length === 0 || event_id === 0 || event_id === undefined) {
     return { errCode: CanceledError.ERR_BAD_REQUEST, errMsg: "Event id or units cannot be empty" };
   }
@@ -84,7 +84,7 @@ const findUsersTopicRequestByEventUnits = async (event_id, selectedUnitIdentifie
     return data;
   } catch (err) {
     
-      return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+      return constructError(err)
   
   }
 }

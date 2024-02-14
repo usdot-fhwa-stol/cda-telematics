@@ -222,7 +222,7 @@ const UserOrgRoleEditDialog = (props) => {
                                                 <ToggleButton value="y" aria-label="Change aligned" data-testid='confirm-change-to-admin-toggle-btn'>
                                                     Change
                                                 </ToggleButton>
-                                                <ToggleButton value="n" aria-label="Cancel aligned">
+                                                <ToggleButton value="n"  data-testid='cancel-admin-toggle-btn'  aria-label="Cancel aligned">
                                                     Cancel
                                                 </ToggleButton>
                                             </ToggleButtonGroup>

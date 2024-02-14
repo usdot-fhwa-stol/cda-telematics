@@ -16,11 +16,12 @@
  */
 import { Card, CardContent, CardHeader, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
-import { findUserTopicRequestByUserEventUnits } from '../../api/user_topic_request';
+import { findUserTopicRequestByUserEventUnits } from '../../api/user-topic-request';
 import AuthContext from '../../context/auth-context';
 import TopicContext from '../../context/topic-context';
 import { CustomizedButton } from '../ui/CustomizedButton';
 import TopicListPerUnit from './TopicListPerUnit';
+import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
 
 const TopicList = React.memo((props) => {
     const [selectedUnits, setSelectedUnits] = useState([]);
@@ -308,22 +309,22 @@ const TopicList = React.memo((props) => {
             </Grid>
             <Grid item xs={2} sx={{ textAlign: 'center', margin: 'auto' }}>
                 
-                <CustomizedButton title="Move all available topics" key="selectedTopics" onClick={addSelectedTopicsHandler}>
+                <CustomizedOutlinedButton title="Move all available topics" key="selectedTopics" onClick={addSelectedTopicsHandler}>
                     &gt;&gt;
-                </CustomizedButton>
+                </CustomizedOutlinedButton>
                 <br />
-                <CustomizedButton title="Move all available topics" key="selectedAllTopics" onClick={selectAllTopicsHandler}>
+                <CustomizedOutlinedButton title="Move all available topics" key="selectedAllTopics" onClick={selectAllTopicsHandler}>
                     &gt;&gt;&gt;
-                </CustomizedButton>
+                </CustomizedOutlinedButton>
                 <br />
                 <br />
-                <CustomizedButton title="remove move checked selected topics"  key="removeSelectedTopics" onClick={removeSelectedTopicsHandler}>
+                <CustomizedOutlinedButton title="remove move checked selected topics"  key="removeSelectedTopics" onClick={removeSelectedTopicsHandler}>
                     &lt;&lt;
-                </CustomizedButton>
+                </CustomizedOutlinedButton>
                 <br />
-                <CustomizedButton title="Move checked selected topics" key="MoveSelectedTopics" onClick={unSelectAllTopicsHandler}>
+                <CustomizedOutlinedButton title="Move checked selected topics" key="MoveSelectedTopics" onClick={unSelectAllTopicsHandler}>
                     &lt;&lt;&lt;
-                </CustomizedButton>
+                </CustomizedOutlinedButton>
                 <br />
             </Grid>
             <Grid item xs={5}>

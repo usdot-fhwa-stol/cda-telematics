@@ -32,6 +32,6 @@ test("Test NavMenu checkServerSession", async () => {
   });
 
   await waitFor(() => {
-    expect(screen.getByText("Events")).toBeInTheDocument();
+    expect(screen.getByTitle('Logout')).toBeInTheDocument();
 });
 });

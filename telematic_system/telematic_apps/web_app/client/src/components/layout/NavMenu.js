@@ -159,7 +159,7 @@ const NavMenu = React.memo(() => {
                     </ListItem>
                     }
                 </List>
-                <StyledListItemButton onClick={logoutHandler} sx={{
+                <StyledListItemButton title="Logout" onClick={logoutHandler} sx={{
                     position: "absolute",
                     bottom: 20,
                     right: 0,

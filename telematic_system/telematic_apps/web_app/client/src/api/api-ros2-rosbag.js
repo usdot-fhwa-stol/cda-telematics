@@ -1,5 +1,6 @@
 import axios from "axios";
 import { env } from "../env";
+import { constructError } from "./api-utils";
 const listROS2Rosbags = async () => {
   const URL = `${env.REACT_APP_FILE_UPLOAD_WEB_SERVER_URI}/api/upload/list/all`;
   try {
@@ -19,7 +20,6 @@ const updateROS2RosbagDescription = async (UpdatedFileInfo) => {
     const { data } = await axios.post(URL, formData);
     return data;
   } catch (err) {
-    console.log(err);
     return constructError(err);
   }
 };
@@ -42,7 +42,6 @@ const uploadROS2Rosbags = async (ROS2RosbagsFormData) => {
   const URL = `${env.REACT_APP_FILE_UPLOAD_WEB_SERVER_URI}/api/upload`;
   try {
     const { data } = await axios.post(URL, formData, config);
-    console.log(data);
     return data;
   } catch (err) {
     return constructError(err);
@@ -62,35 +61,6 @@ const sendROS2RosbagProcessRequest = async (fileInfo) => {
   }
 };
 
-const constructError = (err) => {
-  let error = {};
-  error["errCode"] = err.response !== undefined ? err.response.status : "";
-  let errMsg = "";
-
-  errMsg =
-    err.response !== undefined && err.response.statusText !== undefined
-      ? err.response.statusText
-      : errMsg;
-
-  errMsg = err.message !== undefined ? err.message : errMsg;
-
-  errMsg =
-    err.response !== undefined &&
-    err.response.data !== undefined &&
-    err.response.data.message !== undefined
-      ? err.response.data.message
-      : errMsg;
-
-  errMsg =
-    err.response !== undefined &&
-    err.response.data !== undefined &&
-    err.response.data.error !== undefined
-      ? err.response.data.error
-      : errMsg;
-
-  error["errMsg"] = errMsg;
-  return error;
-};
 
 export {
   listROS2Rosbags,
