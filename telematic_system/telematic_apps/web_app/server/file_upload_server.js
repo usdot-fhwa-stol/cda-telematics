@@ -42,138 +42,138 @@ const HTTP_METHODS = {
   POST: "POST",
   GET: "GET",
 };
+const HttpDispatcher = require("httpdispatcher");
+const dispatcher = new HttpDispatcher();
+
 const HTTP_URLS = {
   API_FILE_UPLOAD: "/api/upload",
   API_FILE_UPLOADED_LIST: "/api/upload/list/all",
   API_FILE_DESCRIPTION_UPDATE: "/api/upload/description",
-  API_PROCESS_REQUEST: "/api/upload/process/request",
+  API_FILE_PROCESS_REQUEST: "/api/upload/process/request",
 };
 
 const uploadDestPath = process.env.UPLOAD_DESTINATION_PATH;
 
-const requestListener = function (req, res) {
+const setResponseHeaders = (res) => {
   res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
   res.setHeader("Access-Control-Request-Headers", "*");
   res.setHeader("Access-Control-Request-Method", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
   res.setHeader("Access-Control-Allow-Credentials", true);
-  if (req.method === HTTP_METHODS.POST) {
-    let userInfo = verifyToken(req);
-    if (!userInfo) {
-      res.writeHead(401);
-      res.write("User is unauthenticated or user session expired!");
-      res.end();
-      return;
-    }
-    postListener(req, res);
-  } else {
-    health_check(req, res);
-  }
 };
+
+const requestListener = function (req, res) {
+  dispatcher.dispatch(req, res);
+};
+
+dispatcher.onError((req, res) => {
+  health_check(req, res);
+});
 
 const health_check = async function (req, res) {
   let data = { health_status: "OK" };
+  sendResponse(res, JSON.stringify(data));
+};
+
+dispatcher.onPost(HTTP_URLS.API_FILE_UPLOADED_LIST, (req, res) => {
+  if (!verifyToken(req)) {
+    unAuthenticatedError(res);
+    return;
+  }
+  listAllFiles(req, res)
+    .then((data) => {
+      sendResponse(res, JSON.stringify(data));
+    })
+    .catch((err) => {
+      serverError(err);
+    });
+});
+
+dispatcher.onPost(HTTP_URLS.API_FILE_UPLOAD, async (req, res) => {
+  if (!verifyToken(req)) {
+    unAuthenticatedError(res);
+    return;
+  }
+  await uploadFile(req)
+    .then((data) => {
+      sendResponse(res, JSON.stringify(data));
+    })
+    .catch((err) => {
+      serverError(err);
+    });
+});
+
+dispatcher.onPost(HTTP_URLS.API_FILE_DESCRIPTION_UPDATE, (req, res) => {
+  if (!verifyToken(req)) {
+    unAuthenticatedError(res);
+    return;
+  }
+  formidable().parse(req, async (err, fields, files) => {
+    let fileInfo = JSON.parse(fields["fields"]);
+    await updateDescription(fileInfo)
+      .then((data) => {
+        sendResponse(res, JSON.stringify(data));
+      })
+      .catch((err) => {
+        serverError(err);
+      });
+  });
+});
+
+dispatcher.onPost(HTTP_URLS.API_FILE_PROCESS_REQUEST, (req, res) => {
+  if (!verifyToken(req)) {
+    unAuthenticatedError(res);
+    return;
+  }
+  formidable().parse(req, async (err, fields, files) => {
+    try {
+      let fileInfo = JSON.parse(fields["fields"]);
+      //Send file process request to NATS
+      let processingReq = {
+        uploaded_path: uploadDestPath,
+        filename: fileInfo.original_filename,
+      };
+
+      let natsConn = await createNatsConn();
+      await pubFileProcessingReq(natsConn, processingReq);
+      await natsConn.close();
+      sendResponse(res, "Process request sent: " + processingReq.filename);
+    } catch (err) {
+      serverError(err);
+    }
+  });
+});
+
+const sendResponse = (res, data) => {
+  setResponseHeaders(res);
   res.writeHead(200);
-  res.write(JSON.stringify(data));
+  res.write(data);
   res.end();
 };
 
-const postListener = async (req, res) => {
-  switch (req.url.split("?")[0]) {
-    case HTTP_URLS.API_FILE_UPLOADED_LIST:
-      formidable().parse(req, async (err, fields, files) => {
-        await listAllFiles(req, res)
-          .then((data) => {
-            res.writeHead(200);
-            res.write(JSON.stringify(data));
-            res.end();
-          })
-          .catch((err) => {
-            res.writeHead(500);
-            res.write(
-              JSON.stringify({ error: err.message || "Unknown server error!" })
-            );
-            res.end();
-          });
-      });
-      break;
-    case HTTP_URLS.API_FILE_UPLOAD:
-      await uploadFile(req)
-        .then((data) => {
-          res.writeHead(200);
-          res.write(JSON.stringify(data));
-          res.end();
-        })
-        .catch((err) => {
-          res.writeHead(500);
-          res.write(
-            JSON.stringify({ error: err.message || "Unknown server error!" })
-          );
-          res.end();
-        });
-      break;
-    case HTTP_URLS.API_FILE_DESCRIPTION_UPDATE:
-      formidable().parse(req, async (err, fields, files) => {
-        let fileInfo = JSON.parse(fields["fields"]);
-        await updateDescription(fileInfo)
-          .then((data) => {
-            res.writeHead(200);
-            res.write(JSON.stringify(data));
-            res.end();
-          })
-          .catch((err) => {
-            res.writeHead(500);
-            res.write(
-              JSON.stringify({ error: err.message || "Unknown server error!" })
-            );
-            res.end();
-          });
-      });
-      break;
-    case HTTP_URLS.API_PROCESS_REQUEST:
-      formidable().parse(req, async (err, fields, files) => {
-        try {
-          let fileInfo = JSON.parse(fields["fields"]);
-          //Send file process request to NATS
-          let processingReq = {
-            uploaded_path: uploadDestPath,
-            filename: fileInfo.original_filename,
-          };
-
-          let natsConn = await createNatsConn();
-          await pubFileProcessingReq(natsConn, processingReq);
-          await natsConn.close();
-          res.writeHead(200);
-          res.write("Process request sent: " + processingReq.filename);
-          res.end();
-        } catch (err) {
-          console.log(err);
-          res.writeHead(500);
-          res.write(
-            JSON.stringify({ error: err.message || "Unknown server error!" })
-          );
-          res.end();
-        }
-      });
-      break;
-    default:
-      health_check(req, res);
-      break;
-  }
+const unAuthenticatedError = (res) => {
+  setResponseHeaders(res);
+  res.writeHead(401);
+  res.write(
+    JSON.stringify({ error: "User unauthenticated or session expired!" })
+  );
+  res.end();
 };
 
-const httpServer = http
-  .createServer(requestListener)
-  .on("connection", function (socket) {
-    socket.on("timeout", function () {
-      console.log("socket timeout");
-    });
-  })
-  .listen(port, () => {
-    console.log(
-      `Server is running on http://${port}. Allowed client url ${allowedOrigin}`
-    );
-  });
+const serverError = (res) => {
+  setResponseHeaders(res);
+  console.log(err);
+  res.writeHead(500);
+  res.write(JSON.stringify({ error: err.message || "Unknown server error!" }));
+  res.end();
+};
+
+const httpServer = http.createServer(requestListener).listen(port, () => {
+  console.log(
+    `Server is running on http://${port}. Allowed client url ${allowedOrigin}`
+  );
+});
+
 httpServer.headersTimeout = uploadTimeout;
 httpServer.keepAliveTimeout = uploadTimeout;
 httpServer.timeout = uploadTimeout;

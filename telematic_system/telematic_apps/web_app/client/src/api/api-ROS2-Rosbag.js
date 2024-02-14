@@ -7,19 +7,7 @@ const listROS2Rosbags = async () => {
     return data;
   } catch (err) {
     console.log(err);
-    return {
-      errCode: err.response !== undefined ? err.response.status : "",
-      errMsg:
-        err.response !== undefined &&
-        err.response.data !== undefined &&
-        err.response.data.message !== undefined
-          ? err.response.data.message
-          : err.response.data !== undefined
-          ? err.response.data
-          : err.response.statusText !== undefined
-          ? err.response.statusText
-          : "",
-    };
+    return constructError(err);
   }
 };
 
@@ -32,21 +20,7 @@ const updateROS2RosbagDescription = async (UpdatedFileInfo) => {
     return data;
   } catch (err) {
     console.log(err);
-    return {
-      errCode: err.response !== undefined ? err.response.status : "",
-      errMsg:
-        err.response !== undefined &&
-        err.response.data !== undefined &&
-        err.response.data.message !== undefined
-          ? err.response.data.message
-          : err.response.data.error !== undefined
-          ? err.response.data.error
-          : err.response.data !== undefined
-          ? err.response.data
-          : err.response.statusText !== undefined
-          ? err.response.statusText
-          : "",
-    };
+    return constructError(err);
   }
 };
 
@@ -71,24 +45,9 @@ const uploadROS2Rosbags = async (ROS2RosbagsFormData) => {
     console.log(data);
     return data;
   } catch (err) {
-    return {
-      errCode: err.response !== undefined ? err.response.status : "",
-      errMsg:
-        err.response !== undefined &&
-        err.response.data !== undefined &&
-        err.response.data.message !== undefined
-          ? err.response.data.message
-          : err.response.data.error !== undefined
-          ? err.response.data.error
-          : err.response.data !== undefined
-          ? err.response.data
-          : err.response.statusText !== undefined
-          ? err.response.statusText
-          : "",
-    };
+    return constructError(err);
   }
 };
-
 
 const sendROS2RosbagProcessRequest = async (fileInfo) => {
   let formData = new FormData();
@@ -98,25 +57,44 @@ const sendROS2RosbagProcessRequest = async (fileInfo) => {
     const { data } = await axios.post(URL, formData);
     return data;
   } catch (err) {
-    console.log(err)
-    return {
-      errCode: err.response !== undefined ? err.response.status : "",
-      errMsg:
-        err.response !== undefined &&
-        err.response.data !== undefined &&
-        err.response.data.message !== undefined
-          ? err.response.data.message
-          : err.response.data.error !== undefined
-          ? err.response.data.error
-          : err.response.data !== undefined
-          ? err.response.data
-          : err.response.statusText !== undefined
-          ? err.response.statusText
-          : "",
-    };
+    console.log(err);
+    return constructError(err);
   }
 };
 
+const constructError = (err) => {
+  let error = {};
+  error["errCode"] = err.response !== undefined ? err.response.status : "";
+  let errMsg = "";
 
+  errMsg =
+    err.response !== undefined && err.response.statusText !== undefined
+      ? err.response.statusText
+      : errMsg;
 
-export { listROS2Rosbags, uploadROS2Rosbags, updateROS2RosbagDescription, sendROS2RosbagProcessRequest };
+  errMsg = err.message !== undefined ? err.message : errMsg;
+
+  errMsg =
+    err.response !== undefined &&
+    err.response.data !== undefined &&
+    err.response.data.message !== undefined
+      ? err.response.data.message
+      : errMsg;
+
+  errMsg =
+    err.response !== undefined &&
+    err.response.data !== undefined &&
+    err.response.data.error !== undefined
+      ? err.response.data.error
+      : errMsg;
+
+  error["errMsg"] = errMsg;
+  return error;
+};
+
+export {
+  listROS2Rosbags,
+  uploadROS2Rosbags,
+  updateROS2RosbagDescription,
+  sendROS2RosbagProcessRequest,
+};
