@@ -1,3 +1,7 @@
+/***
+ * @brief Read server error message and convert it into a common format for UI to display.
+ * @param err Server error object
+ */
 const constructError = (err) => {
   let error = {};
   error["errCode"] = err.response !== undefined ? err.response.status : "";

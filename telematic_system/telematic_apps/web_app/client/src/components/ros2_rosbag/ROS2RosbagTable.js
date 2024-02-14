@@ -12,6 +12,8 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
+ * 
+ * Description: A table to display the list of ROS2 rosbag files and their control options: edit description and send processing request for an uploaded file.
  */
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";

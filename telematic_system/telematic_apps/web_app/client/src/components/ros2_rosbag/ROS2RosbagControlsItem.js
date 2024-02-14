@@ -12,6 +12,8 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
+ * 
+ * Description: A table cell that includes control items for each ROS2 rosbag file. The current control options include: Edit an existing file description and send processing request.
  */
 import EditIcon from "@mui/icons-material/Edit";
 import RunningWithErrorsIcon from "@mui/icons-material/RunningWithErrors";
@@ -25,7 +27,6 @@ import { PROCESSING_STATUS, UPLOAD_STATUS } from "./ROS2RosbagMetadata";
 
 const ROS2RosbagControlsItem = (props) => {
   const authCtx = React.useContext(AuthContext);
-  //Edit ROS2Rosbag Dialog
   const [open, setOpen] = React.useState(false);
   const openHandler = () => {
     setOpen(true);
