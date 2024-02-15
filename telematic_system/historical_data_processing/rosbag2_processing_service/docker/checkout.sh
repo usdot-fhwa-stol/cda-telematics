@@ -18,5 +18,3 @@
 mkdir -p /ws/src
 cd /ws/src/
 git clone https://github.com/ros2/rosbag2.git --branch foxy-future
-cd rosbag2
-git checkout 67564a42d850d0bad4bb076e359faa6b27a07d98

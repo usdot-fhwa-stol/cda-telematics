@@ -115,7 +115,8 @@ class Rosbag2Parser:
                 record += f" timestamp={msg_timestamp}"
                 #Write record to influx
                 self.write_api.write(bucket=self.influx_bucket, org=self.influx_org, record=record)
-
+            except InfluxDBClientError as e:
+                self.logger.error("Error from Influx Client: " + str(e))
             except Exception as e:
                 self.logger.warn(f"Failed to process ros message with exception: " + str(e))
         self.logger.info(f"Completed rosbag processing for {rosbag2_name}")
