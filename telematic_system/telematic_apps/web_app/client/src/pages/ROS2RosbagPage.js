@@ -18,8 +18,8 @@ import { Grid } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import {
   listROS2Rosbags,
-  sendROS2RosbagProcessRequest as sendProcessRequest,
-  updateROS2RosbagDescription as updateDescription,
+  sendProcessRequest,
+  updateDescription,
   uploadROS2Rosbags,
 } from "../api/api-ros2-rosbag";
 import ROS2ROSBagFilter from "../components/ros2_rosbag/ROS2ROSBagFilter";

@@ -22,7 +22,7 @@ const listROS2Rosbags = async () => {
  * @brief Send POST request to update description for a particular ROS2 rosbag file info
  * @returns server response with updated ROS2 rosbag file info
  */
-const updateROS2RosbagDescription = async (UpdatedFileInfo) => {
+const updateDescription = async (UpdatedFileInfo) => {
   const URL = `${env.REACT_APP_FILE_UPLOAD_WEB_SERVER_URI}/api/upload/description`;
   try {
     let formData = new FormData();
@@ -68,7 +68,7 @@ const uploadROS2Rosbags = async (ROS2RosbagsFormData) => {
  * @brief Send POST request to process an existing rROS2 rosbag in the server.
  * @returns server response with acknowledgement
  */
-const sendROS2RosbagProcessRequest = async (fileInfo) => {
+const sendProcessRequest = async (fileInfo) => {
   let formData = new FormData();
   formData.append("fields", JSON.stringify(fileInfo));
   const URL = `${env.REACT_APP_FILE_UPLOAD_WEB_SERVER_URI}/api/upload/process/request`;
@@ -85,6 +85,6 @@ const sendROS2RosbagProcessRequest = async (fileInfo) => {
 export {
   listROS2Rosbags,
   uploadROS2Rosbags,
-  updateROS2RosbagDescription,
-  sendROS2RosbagProcessRequest,
+  updateDescription,
+  sendProcessRequest,
 };
