@@ -20,6 +20,7 @@ import time
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import ASYNCHRONOUS
 from .config import Config
+from mcap import exceptions
 
 import asyncio
 from pathlib import Path
@@ -73,19 +74,24 @@ class Rosbag2Parser:
         rosbag_path = Path(self.config.upload_destination_path) / Path(rosbag2_name).name
 
         # Load the rosbag from the config directory
-        for msg in read_ros2_messages(rosbag_path):
-            if msg.channel.topic in self.config.topic_exclusion_list:
-                continue
+        try:
+            for msg in read_ros2_messages(rosbag_path):
+                if msg.channel.topic in self.config.topic_exclusion_list:
+                    continue
 
-            try:
-                record = self.create_record_from_msg(msg, measurement_name)
-                #Write record to influx
-                self.write_api.write(bucket=self.config.influx_bucket, org=self.config.influx_org, record=record)
+                try:
+                    record = self.create_record_from_msg(msg, measurement_name)
+                    #Write record to influx
+                    self.write_api.write(bucket=self.config.influx_bucket, org=self.config.influx_org, record=record)
 
-            except InfluxDBClientError as e:
-                self.logger.error("Error from Influx Client: " + str(e))
-            except Exception as e:
-                self.logger.warn(f"Failed to process ros message with exception: " + str(e))
+                except InfluxDBClientError as e:
+                    self.logger.error(f"Error from Influx Client: {str(e)}")
+                except Exception as e:
+                    self.logger.warn(f"Failed to process ros message with exception: {str(e)}")
+
+        except exceptions.McapError as e:
+            self.logger.warn(f"Failed to read from rosbag with exception {str(e)} ")
+
         self.logger.info(f"Completed rosbag processing for {rosbag2_name}")
 
         self.is_processing = False
