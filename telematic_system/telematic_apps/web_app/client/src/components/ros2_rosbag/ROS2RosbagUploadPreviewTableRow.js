@@ -47,7 +47,7 @@ const ROS2RosbagUploadPreviewTableRow = (props) => {
       <TableCell scope="row" key={`preview-filesize-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}>{props.previewFileFields.filesize}</TableCell>
       <TableCell scope="row" key={`preview-control-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}>
         <CustomizedIcon title={`Remove file`} onClick={openHandler}> <DeleteIcon /> </CustomizedIcon>
-        <WarningDialog title={`Are you sure to remove file: ${props.previewFileFields.filename}`} onConfirm={() => { props.onConfirm(props.previewFileFields.filename); }} onCloseWarning={closeHandler} ></WarningDialog>
+        <WarningDialog title={`Are you sure to remove file: ${props.previewFileFields.filename}`} open={open} onConfirm={() => { props.onConfirm(props.previewFileFields.filename); }} onCloseWarning={closeHandler} ></WarningDialog>
       </TableCell>
     </TableRow>
   );
