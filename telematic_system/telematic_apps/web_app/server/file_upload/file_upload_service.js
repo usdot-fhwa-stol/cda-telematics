@@ -92,7 +92,7 @@ exports.uploadFile = async (req) => {
 const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
   let userInfo = verifyToken(req);
   form.parse(req, async (err, fields, files) => {
-    if (!(fields && files)  || Object.keys(fields).length === 0 || Object.keys(files).length === 0) {
+    if (!(fields && files) || Object.keys(fields).length === 0 || Object.keys(files).length === 0) {
       console.error("Files or fields cannot be empty!");
       return;
     }
@@ -156,10 +156,10 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
   let formFields = [];
   let userInfo = verifyToken(req);
   form.parse(req, async (err, fields, files) => {
-      if (!(fields && files)  || Object.keys(fields).length === 0 || Object.keys(files).length === 0) {
-        console.error("Files or fields cannot be empty!");
-        return;
-      }
+    if (!(fields && files) || Object.keys(fields).length === 0 || Object.keys(files).length === 0) {
+      console.error("Files or fields cannot be empty!");
+      return;
+    }
     totalFiles = files["files"];
     totalFiles = Array.isArray(totalFiles) ? totalFiles : [totalFiles];
     formFields = fields["fields"];
@@ -168,11 +168,9 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
 
   form.on("fileBegin", async (formName, file) => {
     //Update upload status
-    file.created_by = userInfo.id;
-    file.updated_by = userInfo.id;
     updateFileUploadStatusEmitter(listener).emit(
       UPLOADSTATUS.IN_PROGRESS,
-      file.toJSON()
+      { ...file.toJSON(), created_by: userInfo.id, updated_by: userInfo.id }
     );
     //Write stream into S3 bucket
     await uploadToS3(file)
@@ -180,6 +178,7 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
         //Populate file info description
         updateFileInfoWithDescription(formFields, data);
         //Update file upload status
+        data = { ...data, created_by: userInfo.id, updated_by: userInfo.id };
         updateFileUploadStatusEmitter(listener).emit(
           UPLOADSTATUS.COMPLETED,
           data
@@ -201,6 +200,7 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
         }
       })
       .catch((err) => {
+        err = { ...err, created_by: userInfo.id, updated_by: userInfo.id };
         updateFileUploadStatusEmitter(listener).emit(UPLOADSTATUS.ERROR, err);
         //Close NATS connection when all files are uploaded or failed
         fileCount += 1;
