@@ -66,7 +66,7 @@ class ServiceManager:
         #NATS client to receive requests from the web ui
         self.nc = NATS()
         # List of rosbags to be processed
-        self.queue = asyncio.Queue()
+        self.rosbag_queue = []
 
         # Load config parameters
         # Configured directory to read rosbags from
@@ -162,13 +162,9 @@ class ServiceManager:
             uploaded_path = msg_json_object["uploaded_path"]
             rosbag_name = msg_json_object["filename"]
 
-            rosbag_path = Path(uploaded_path) / rosbag2_name
+            rosbag_path = Path(uploaded_path) / rosbag_name
             # Add rosbag name to queue
-            try:
-                self.logger.info(f"Adding {rosbag_name} to queue")
-                self.queue.put_nowait(rosbag_path)
-            except asyncio.QueueFull:
-                self.logger.error(f"Rosbag queue full, item {rosbag_name} cannot be added")
+            self.rosbag_queue.append(rosbag_path)
 
             # No response sent for the nats request
 
@@ -205,12 +201,14 @@ class ServiceManager:
         # This task is responsible for processing the rosbag in the queue - As long as the queue is not empty - keep processing
         # This is async because we should be able to keep adding items to the rosbag and keep this task active at the same time
         while True:
-            if not self.rosbag_parser.is_processing:
-                self.logger.info("Entering queue processing")
-                rosbag_to_process = await self.queue.get()
+            if not self.rosbag_parser.is_processing and self.rosbag_queue:
+                rosbag_name = Path(self.rosbag_queue[0]).name
+                self.logger.info(f"Entering processing for rosbag: {rosbag_name}")
+
+                rosbag_to_process = self.rosbag_queue.pop(0)
                 # TODO: Check mysql if rosbag already processed/ Create new entry for rosbag
                 self.rosbag_parser.is_processing = True
                 await self.rosbag_parser.process_rosbag(rosbag_to_process)
-                self.queue.task_done()
+
                 # TODO: Update mysql entry for rosbag based on whether processing was successful
             await asyncio.sleep(1.0)

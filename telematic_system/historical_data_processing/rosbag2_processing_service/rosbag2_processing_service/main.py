@@ -16,17 +16,29 @@
 
 import asyncio
 from .service_manager import ServiceManager
+from threading import Thread
 
 
 def main():
 
-    async def tasks():
-        service_manager = ServiceManager()
-        nats_connect_task = asyncio.to_thread(service_manager.nats_connect())
-        process_rosbag_task = service_manager.process_rosbag()
-        await asyncio.gather(nats_connect_task, process_rosbag_task)
+    def start_background_loop(loop: asyncio.AbstractEventLoop) -> None:
+        asyncio.set_event_loop(loop)
+        loop.run_forever()
 
-    asyncio.run(tasks())
+    service_manager = ServiceManager()
+    loop = asyncio.new_event_loop()
+    t = Thread(target=start_background_loop, args=(loop,))
+    t.start()
+
+    # Schedule nats_connect to run in the background loop
+    asyncio.run_coroutine_threadsafe(service_manager.nats_connect(), loop)
+
+
+    main_loop = asyncio.get_event_loop()
+    try:
+        main_loop.run_until_complete(service_manager.process_rosbag())
+    finally:
+        main_loop.close()
 
 
 if __name__ == '__main__':

@@ -17,7 +17,7 @@ services:
            - /home/carma/wfd_ws/test_rosbags:/home/carma/wfd_ws/test_rosbags
     environment:
     - TOPIC_EXCLUSION_LIST=["/rosout","/parameter_events","/robot_description","/tf_static","/tf","/environment/fused_external_objects","/environment/base_map","/environment/external_objects_viz","/environment/motion_computation_visualize","/environment/external_object_predictions","/localization/current_pose","/localization/map_param_loader/georeference","/environment/semantic_map","/hardware_interface/comms/outbound_binary_msg","/environment/lanelet2_map_viz","/localization/points_map"]
-    - NATS_SERVER_IP_PORT=<>
+    - NATS_SERVER_IP_PORT=3.219.226.1:4222
     - LOG_LEVEL=debug
     - LOG_NAME=rosbag2_processing_service
     - LOG_PATH=/opt/telematics/logs

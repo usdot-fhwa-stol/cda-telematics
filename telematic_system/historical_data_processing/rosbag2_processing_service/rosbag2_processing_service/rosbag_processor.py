@@ -68,11 +68,11 @@ class Rosbag2Parser:
         self.is_processing = False
 
 
-    async def process_rosbag(self,rosbag2_path):
+    async def process_rosbag(self,rosbag_path):
 
         rosbag2_name = Path(rosbag_path).name
 
-        if Path(rosbag_name).suffix not in self.accepted_file_extensions:
+        if Path(rosbag2_name).suffix not in self.accepted_file_extensions:
             raise Exception(f"File type not acceptable for {rosbag2_name}")
 
         measurement_name = Path(rosbag2_name).stem # Measurement name is rosbag name without mcap extension
