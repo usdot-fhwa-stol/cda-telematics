@@ -15,11 +15,11 @@
 #
 
 from mcap_ros2.reader import read_ros2_messages
-import json
 import re
 import time
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import ASYNCHRONOUS
+from .config import Config
 
 import asyncio
 from pathlib import Path
@@ -44,83 +44,83 @@ class Rosbag2Parser:
         ignore_fields (str): Fields in the ROS2 message to ignore during parsing.
         logger (logging.Logger): Logger object for recording processing activities.
     """
-    def __init__(self, influx_bucket, influx_org, influx_token, influx_url, topic_exclusion_list, s3_mounted_dir, to_str_fields, ignore_fields, logger, accepted_file_extensions):
+    def __init__(self, config = Config()):
 
+        self.config = config
         # Set influxdb parameters
-        self.influx_bucket = influx_bucket
-        self.influx_org = influx_org
-        self.influx_client = InfluxDBClient(url=influx_url, token=influx_token, org=influx_org)
-        self.topic_exclusion_list = topic_exclusion_list
-        self.s3_mounted_dir = s3_mounted_dir
-        self.logger = logger
+        self.influx_client = InfluxDBClient(url=self.config.influx_url, token=self.config.influx_token, org=self.config.influx_org)
 
-        #Fields in the ros message to force to string type.
-        self.to_str_fields= to_str_fields
-        # Fields in the ros message to ignore
-        self.ignore_fields= ignore_fields
-
-        # Create write API
+        # Create Asynchronous write API for influxdb
         self.write_api = self.influx_client.write_api(write_options=ASYNCHRONOUS)
 
-        self.accepted_file_extensions = accepted_file_extensions
+        self.logger = config.logger
 
         # Processing status
         self.is_processing = False
 
+    # TODO: Test to see if this works without async
+    async def process_rosbag(self,rosbag2_name):
+        self.is_processing = True
 
-    async def process_rosbag(self,rosbag_path):
 
-        rosbag2_name = Path(rosbag_path).name
-
-        if Path(rosbag2_name).suffix not in self.accepted_file_extensions:
+        if Path(rosbag2_name).suffix not in self.config.accepted_file_extensions:
             raise Exception(f"File type not acceptable for {rosbag2_name}")
 
         measurement_name = Path(rosbag2_name).stem # Measurement name is rosbag name without mcap extension
 
-        if self.s3_mounted_dir:
-            rosbag_path = Path(self.s3_mounted_dir) / Path(rosbag_path)
+        self.logger.info(f"upload_destination_path: {self.config.upload_destination_path}")
+        self.logger.info(f"rosbag name: {rosbag2_name}")
+        rosbag_path = Path(self.config.upload_destination_path) / Path(rosbag2_name).name
 
         # Load the rosbag from the config directory
         for msg in read_ros2_messages(rosbag_path):
-            if msg.channel.topic in self.topic_exclusion_list:
+            if msg.channel.topic in self.config.topic_exclusion_list:
                 continue
 
             try:
-                topic = msg.channel.topic
-                ros_msg = msg.ros_msg
-                msg_attributes = self.extract_attributes(ros_msg)
-                msg_timestamp = msg.publish_time_ns
-
-                record = f"{measurement_name},topic_name={topic},"
-
-                for attr_name, attr_value in msg_attributes:
-                    if attr_name in self.ignore_fields:
-                        continue
-
-                    elif attr_name in self.to_str_fields:
-                        attr_value = f'"{attr_value}"'
-                        record += f"{attr_name}={attr_value},"
-
-                    elif isinstance(attr_value, list):  # Handle arrays
-                        record += f'{attr_name}="{str(attr_value)}",'
-                    else:
-                        if isinstance(attr_value, str):
-                            attr_value = f'"{attr_value}"'  # Correctly format string values
-                        record += f"{attr_name}={attr_value},"
-
-
-                # Remove last comma
-                record = record[:-1]
-                # Add timestamp at the end
-                record += f" timestamp={msg_timestamp}"
+                record = self.create_record_from_msg(msg, measurement_name)
                 #Write record to influx
-                self.write_api.write(bucket=self.influx_bucket, org=self.influx_org, record=record)
+                self.write_api.write(bucket=self.config.influx_bucket, org=self.config.influx_org, record=record)
+
             except InfluxDBClientError as e:
                 self.logger.error("Error from Influx Client: " + str(e))
             except Exception as e:
                 self.logger.warn(f"Failed to process ros message with exception: " + str(e))
         self.logger.info(f"Completed rosbag processing for {rosbag2_name}")
+
         self.is_processing = False
+
+    def create_record_from_msg(self, msg, measurement_name):
+
+        topic = msg.channel.topic
+        ros_msg = msg.ros_msg
+        msg_attributes = self.extract_attributes(ros_msg)
+        msg_timestamp = msg.publish_time_ns
+
+        record = f"{measurement_name},topic_name={topic},"
+
+        for attr_name, attr_value in msg_attributes:
+            if attr_name in self.config.ignore_fields:
+                continue
+
+            elif attr_name in self.config.to_str_fields:
+                attr_value = f'"{attr_value}"'
+                record += f"{attr_name}={attr_value},"
+
+            elif isinstance(attr_value, list):  # Handle arrays
+                record += f'{attr_name}="{str(attr_value)}",'
+            else:
+                if isinstance(attr_value, str):
+                    attr_value = f'"{attr_value}"'  # Correctly format string values
+                record += f"{attr_name}={attr_value},"
+
+
+        # Remove last comma
+        record = record[:-1]
+        # Add timestamp at the end
+        record += f" timestamp={msg_timestamp}"
+
+        return record
 
 
     def extract_attributes(self, obj, parent_attr=None):
@@ -141,6 +141,6 @@ class Rosbag2Parser:
                 else:
                     attributes.append((attr_name, attr_value))
             except Exception as e:
-                self.logger.error("Unable to get attributes for ros message with exception: " + str(e))
+                self.logger.error(f"Unable to get attributes for ros message with exception: {str(e)}")
 
         return attributes

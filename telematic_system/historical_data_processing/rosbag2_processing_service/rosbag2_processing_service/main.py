@@ -15,6 +15,7 @@
 #
 
 import asyncio
+from .config import Config
 from .service_manager import ServiceManager
 from threading import Thread
 
@@ -25,7 +26,9 @@ def main():
         asyncio.set_event_loop(loop)
         loop.run_forever()
 
-    service_manager = ServiceManager()
+    config = Config()
+
+    service_manager = ServiceManager(config)
     loop = asyncio.new_event_loop()
     t = Thread(target=start_background_loop, args=(loop,))
     t.start()

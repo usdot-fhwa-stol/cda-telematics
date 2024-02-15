@@ -19,7 +19,6 @@ SHELL ["/bin/bash", "-c"]
 RUN sudo apt-get update -y \
     && sudo apt-get install -y \
     git \
-    vim \
     nano \
     python3-pip
 
@@ -33,7 +32,7 @@ RUN sudo bash /ws/src/rosbag2_processing_service/docker/install.sh
 COPY rosbag2_processing_service/docker/entrypoint.sh entrypoint.sh
 RUN chmod +x entrypoint.sh
 
-# RUN sudo rm -rf src /var/lib/apt/lists/*
+RUN sudo rm -rf src /var/lib/apt/lists/*
 
 RUN echo "source /ws/install/setup.bash" >> ~/.bashrc
 

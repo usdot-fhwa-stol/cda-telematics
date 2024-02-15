@@ -13,22 +13,22 @@ services:
     container_name: rosbag2_processing_service
     entrypoint: /ws/entrypoint.sh
     volumes:
-           - ./logs:/var/logs
-           - /home/carma/wfd_ws/test_rosbags:/home/carma/wfd_ws/test_rosbags
+           - /opt/telematics/logs:/opt/telematics/logs
+           - /opt/telematics/upload:/opt/telematics/upload
     environment:
     - TOPIC_EXCLUSION_LIST=["/rosout","/parameter_events","/robot_description","/tf_static","/tf","/environment/fused_external_objects","/environment/base_map","/environment/external_objects_viz","/environment/motion_computation_visualize","/environment/external_object_predictions","/localization/current_pose","/localization/map_param_loader/georeference","/environment/semantic_map","/hardware_interface/comms/outbound_binary_msg","/environment/lanelet2_map_viz","/localization/points_map"]
-    - NATS_SERVER_IP_PORT=3.219.226.1:4222
+    - NATS_SERVER_IP_PORT=<>
     - LOG_LEVEL=debug
     - LOG_NAME=rosbag2_processing_service
     - LOG_PATH=/opt/telematics/logs
     - LOG_ROTATION_SIZE_BYTES=2147483648
     - LOG_HANDLER_TYPE=console
-    - INFLUX_BUCKET=test-bucket
+    - INFLUX_BUCKET=<>
     - INFLUX_ORG=my-org
-    - INFLUX_TOKEN=my-super-secret-auth-token
-    - INFLUX_URL=<>
-    - S3_MOUNTED_DIR=  #Leave empty for local deployment
+    - INFLUX_TOKEN=<>
+    - INFLUX_URL=http://ec2-44-207-200-164.compute-1.amazonaws.com:8086
+    - UPLOAD_DESTINATION_PATH=/home/carma/wfd_ws/test_rosbags # For cloud deployment:This is the directory S3 bucket is mounted
     - TO_STR_FIELDS=[]
     - IGNORE_FIELDS=[]
-    - NATS_REQUEST_TOPIC=ui.file.*
+    - FILE_PROCESSING_SUBJECT=ui.file.processing
     - ACCEPTED_FILE_EXTENSIONS=[".mcap"]
