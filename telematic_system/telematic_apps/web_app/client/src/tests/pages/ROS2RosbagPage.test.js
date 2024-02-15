@@ -97,7 +97,7 @@ test("ROS2 Rosbag upload dialog", async () => {
     expect(screen.getByText(/Choose Files/i)).toBeInTheDocument();
   });
 
-  fireEvent.click(screen.getByTitle("ROS2-Rosbag-upload-title"));
+  fireEvent.click(screen.getByTitle("upload-title"));
 });
 
 afterEach(() => {

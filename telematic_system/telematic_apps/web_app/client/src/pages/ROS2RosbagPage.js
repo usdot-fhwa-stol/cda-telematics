@@ -71,7 +71,7 @@ const ROS2RosbagPage = React.memo(() => {
     return (ROS2RosbagInfo.user !== null && ROS2RosbagInfo.user.org_id === parseInt(authCtx.org_id));
   };
 
-  const RefreshHandler = () => {
+  const refreshHandler = () => {
     listROS2Rosbags().then((data) => {
       if (data.errCode !== undefined && data.errMsg !== undefined) {
         setAlertStatus({
@@ -226,7 +226,7 @@ const ROS2RosbagPage = React.memo(() => {
         <Grid container columnSpacing={2} rowSpacing={1}>
           <PageAvatar icon={<WorkHistorySharpIcon />} title="ROS2 Rosbag" />
           <Grid item xs={4}></Grid>
-          <ROS2ROSBagFilter uploadStatusList={uploadStatusList} processingStatusList={processingStatusList} onRefresh={RefreshHandler} filter={filterHandler} onUpload={uploadHandler} />
+          <ROS2ROSBagFilter uploadStatusList={uploadStatusList} processingStatusList={processingStatusList} onRefresh={refreshHandler} filter={filterHandler} onUpload={uploadHandler} />
           <Grid container item xs={12}>
             <ROS2RosbagTable ROS2RosbagList={ROS2RosbagList} onSaveDescription={saveDescriptionHandler} onProcessReq={(ROS2RosBagInfo) => processReqHandler(ROS2RosBagInfo)} />
           </Grid>

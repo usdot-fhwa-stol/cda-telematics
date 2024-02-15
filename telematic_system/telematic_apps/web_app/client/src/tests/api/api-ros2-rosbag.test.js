@@ -3,8 +3,8 @@ import { expect, test } from '@jest/globals';
 import {
     listROS2Rosbags,
     uploadROS2Rosbags,
-    updateROS2RosbagDescription,
-    sendROS2RosbagProcessRequest,
+    updateDescription,
+    sendProcessRequest,
 } from '../../api/api-ros2-rosbag';
 
 jest.mock('axios');
@@ -16,14 +16,14 @@ beforeEach(() => {
     axios.delete.mockResolvedValue(response);
 })
 
-test('List all organizations not throw', async () => {
+test('List all files', async () => {
     await listROS2Rosbags()
         .then(data => expect(data).toEqual({ status: 'success' }));
     jest.resetAllMocks();
     expect(() => listROS2Rosbags()).not.toThrow();
 });
 
-test('List all organization users not throw', async () => {
+test('upload file', async () => {
     let ROS2RosbagsFormData = new FormData();
     let fileInfo = {
         id: 1,
@@ -48,16 +48,16 @@ test('List all organization users not throw', async () => {
     expect(() => uploadROS2Rosbags(ROS2RosbagsFormData)).not.toThrow();
 });
 
-test('Add a user to an organization not throw', async () => {
-    await updateROS2RosbagDescription({})
+test('Update upload file description', async () => {
+    await updateDescription({})
         .then(data => expect(data).toEqual({ status: 'success' }));
     jest.resetAllMocks();
-    expect(() => updateROS2RosbagDescription({})).not.toThrow();
+    expect(() => updateDescription({})).not.toThrow();
 });
 
-test('Update an organization user', async () => {
-    await sendROS2RosbagProcessRequest({})
+test('send process request', async () => {
+    await sendProcessRequest({})
         .then(data => expect(data).toEqual({ status: 'success' }));
     jest.resetAllMocks();
-    expect(() => sendROS2RosbagProcessRequest({})).not.toThrowError();
+    expect(() => sendProcessRequest({})).not.toThrowError();
 })
