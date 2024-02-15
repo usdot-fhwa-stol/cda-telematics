@@ -87,7 +87,7 @@ const ROS2ROSBagFilterForm = memo((props) => {
     <Grid container>
       <Grid xs={10} item>
         <FormControl sx={{ minWidth: 450, margin: 1 }}>
-          <TextField fullWidth value={inputText} label="Search by ROS2 Rosbag name, description, updated or created by" InputProps={{ startAdornment: (<InputAdornment position="start"> <SearchIcon /></InputAdornment>) }} onChange={handleInputTextChange} id="searchROS2rRosbagLabelId"  ></TextField>
+          <TextField fullWidth value={inputText} label="Search by ROS2 Rosbag name or description" InputProps={{ startAdornment: (<InputAdornment position="start"> <SearchIcon /></InputAdornment>) }} onChange={handleInputTextChange} id="searchROS2rRosbagLabelId"  ></TextField>
         </FormControl>
 
         <FormControl sx={{ minWidth: 200, margin: 1 }}>
