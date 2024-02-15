@@ -1,5 +1,5 @@
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TableCell, TableRow, Tooltip } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TableCell, TableRow } from '@mui/material';
 import React, { useState } from 'react';
 import { CustomizedButton } from '../../ui/CustomizedButton';
 import { CustomizedIcon } from '../../ui/CustomizedIcon';

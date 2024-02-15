@@ -155,7 +155,7 @@ const unAuthenticatedError = (res) => {
 const serverError = (res, err) => {
   console.log(err);
   res.writeHead(500);
-  res.write(JSON.stringify({ error: err && err.message || "Unknown server error!" }));
+  res.write(JSON.stringify({ error: err?.message || "Unknown server error!" }));
   res.end();
 };
 

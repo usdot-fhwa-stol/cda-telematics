@@ -13,15 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, List, ListItem, ListItemText, Snackbar, TextField, Typography } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Alert, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, List, ListItem, ListItemText, Snackbar, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
 import { searchDashboards } from '../../api/api-dashboards';
 import AuthContext from '../../context/auth-context';
-import DashboardCheckboxList from './DashboardCheckboxList';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { CustomizedButton } from '../ui/CustomizedButton';
 import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
+import DashboardCheckboxList from './DashboardCheckboxList';
 
 export const AssignDashboardDialog = (props) => {
     const [errorMsg, setErrorMsg] = useState('');

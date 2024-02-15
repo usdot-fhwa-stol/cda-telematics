@@ -14,13 +14,13 @@
  * the License.
  */
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField } from '@mui/material';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import * as Yup from 'yup';
-import { VALID_UNIT_TYPES } from './EventMetadata';
 import { CustomizedButton } from '../ui/CustomizedButton';
 import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
+import { VALID_UNIT_TYPES } from './EventMetadata';
 
 export const UnitFormDialog = (props) => {
     const [unitId, setUnitId] = useState('');

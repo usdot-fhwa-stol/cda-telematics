@@ -29,4 +29,5 @@ export const PROCESSING_STATUS = {
   COMPLETED: "COMPLETED",
 };
 
-export const ACCEPT_FILE_EXTENSIONS = ".mcap,.zip,.tar.gz,.gz";
+//File extensions separated by comma.
+export const ACCEPT_FILE_EXTENSIONS = ".mcap";

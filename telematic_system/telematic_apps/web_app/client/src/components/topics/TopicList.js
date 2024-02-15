@@ -19,9 +19,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { findUserTopicRequestByUserEventUnits } from '../../api/user-topic-request';
 import AuthContext from '../../context/auth-context';
 import TopicContext from '../../context/topic-context';
-import { CustomizedButton } from '../ui/CustomizedButton';
-import TopicListPerUnit from './TopicListPerUnit';
 import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
+import TopicListPerUnit from './TopicListPerUnit';
 
 const TopicList = React.memo((props) => {
     const [selectedUnits, setSelectedUnits] = useState([]);
