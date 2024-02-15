@@ -99,10 +99,10 @@ export default function ROS2RosbagTable(props) {
           <TableHead>
             <TableRow>
               {columns.map((column) => (
-                <TableCell key={column.id} align={column.align} style={{ top: 0, minWidth: column.minWidth, fontWeight: "bolder", backgroundColor: "#eee" }}> {column.label}  </TableCell>
+                <TableCell key={column.id} align={column.align} style={{ top: 0, minWidth: column.minWidth, fontWeight: "bolder", backgroundColor: "#eee" }}>{column.label}</TableCell>
               ))}
               {authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" && (
-                <TableCell tabIndex={-1} key={`controls`} style={{ top: 0, fontWeight: "bolder", backgroundColor: "#eee" }}>Controls</TableCell>
+                <TableCell key={`controls`} style={{ top: 0, fontWeight: "bolder", backgroundColor: "#eee" }}>Controls</TableCell>
               )}
             </TableRow>
           </TableHead>

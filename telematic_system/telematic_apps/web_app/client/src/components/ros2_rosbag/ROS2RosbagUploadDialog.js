@@ -90,7 +90,7 @@ const ROS2RosbagUploadDialog = (props) => {
           <div style={{
             border: "1px dashed #b6bed1", backgroundColor: "#f0f2f7", borderRadius: "4px", minHeight: "100px", position: "relative", overflow: "hidden", padding: "15px", display: "flex", alignItems: "center", justifyContent: "center"
           }}>
-            <input type="file" id="ROS2-Rosbag-upload" onChange={BrowseFilesChange} title="ROS2-Rosbag-upload-title" multiple accept={ACCEPT_FILE_EXTENSIONS}
+            <input type="file" id="upload" onChange={BrowseFilesChange} title="upload-title" multiple accept={ACCEPT_FILE_EXTENSIONS}
               style={{ position: "absolute", left: 0, bottom: 0, opacity: 0, width: "100%", height: "100%", cursor: "pointer" }} />
             <span style={{ textDecoration: "underline", color: "#8194aa" }}>Choose Files</span>
           </div>

@@ -32,7 +32,7 @@ const ROS2ROSBagFilter = (props) => {
         <Card>
           <CardHeader sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }} title="Filter ROS2 Rosbags" titleTypographyProps={{ variant: "title" }} />
           <CardContent>
-            <ROS2ROSBagFilterForm eventInfoList={props.eventInfoList} onSearch={SearchHandler} uploadStatusList={props.uploadStatusList} processingStatusList={props.processingStatusList} onRefresh={() => props.onFresh()} filter={() => props.filter()} onUpload={formdata => props.onUpload(formdata)} />
+            <ROS2ROSBagFilterForm eventInfoList={props.eventInfoList} onSearch={SearchHandler} uploadStatusList={props.uploadStatusList} processingStatusList={props.processingStatusList} onRefresh={() => props.onRefresh()} filter={() => props.filter()} onUpload={formdata => props.onUpload(formdata)} />
           </CardContent>
         </Card>
       </Box>

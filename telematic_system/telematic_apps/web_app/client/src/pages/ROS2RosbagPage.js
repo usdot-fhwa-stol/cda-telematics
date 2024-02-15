@@ -18,8 +18,8 @@ import { Grid } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import {
   listROS2Rosbags,
-  sendROS2RosbagProcessRequest,
-  updateROS2RosbagDescription,
+  sendROS2RosbagProcessRequest as sendProcessRequest,
+  updateROS2RosbagDescription as updateDescription,
   uploadROS2Rosbags,
 } from "../api/api-ros2-rosbag";
 import ROS2ROSBagFilter from "../components/ros2_rosbag/ROS2ROSBagFilter";
@@ -53,7 +53,7 @@ const ROS2RosbagPage = React.memo(() => {
   };
 
   const saveDescriptionHandler = (UpdatedFileInfo) => {
-    updateROS2RosbagDescription(UpdatedFileInfo).then((data) => {
+    updateDescription(UpdatedFileInfo).then((data) => {
       if (data.errCode !== undefined && data.errMsg !== undefined) {
         setAlertStatus({
           open: true,
@@ -67,7 +67,7 @@ const ROS2RosbagPage = React.memo(() => {
     });
   };
 
-  const isROS2RosbagInCurrentOrg = (ROS2RosbagInfo, authCtx) => {
+  const isInCurrentOrg = (ROS2RosbagInfo, authCtx) => {
     return (ROS2RosbagInfo.user !== null && ROS2RosbagInfo.user.org_id === parseInt(authCtx.org_id));
   };
 
@@ -81,13 +81,13 @@ const ROS2RosbagPage = React.memo(() => {
           message: data.errMsg,
         });
       } else {
-        setROS2RosbagList(data.filter((item) => isROS2RosbagInCurrentOrg(item, authCtx)));
+        setROS2RosbagList(data.filter((item) => isInCurrentOrg(item, authCtx)));
       }
     });
   };
 
-  const processROS2RosbagReqHandler = (ROS2RosBagInfo) => {
-    sendROS2RosbagProcessRequest(ROS2RosBagInfo).then((data) => {
+  const processReqHandler = (ROS2RosBagInfo) => {
+    sendProcessRequest(ROS2RosBagInfo).then((data) => {
       if (data.errCode !== undefined && data.errMsg !== undefined) {
         setAlertStatus({
           open: true,
@@ -106,11 +106,11 @@ const ROS2RosbagPage = React.memo(() => {
     });
   };
 
-  const validateNewFilesInfo = (fileInfoList, newFileInfoList) => {
+  const validateUpload = (fileInfoList, uploadFileInfoList) => {
     let isValid = true;
-    if (Array.isArray(newFileInfoList) && newFileInfoList.length > 0) {
+    if (Array.isArray(uploadFileInfoList) && uploadFileInfoList.length > 0) {
       let messageList = [];
-      newFileInfoList.forEach(newFileInfo => {
+      uploadFileInfoList.forEach(newFileInfo => {
         for (let existingFile of fileInfoList) {
           if (existingFile.original_filename === newFileInfo.filename) {
             messageList.push(newFileInfo.filename);
@@ -140,10 +140,10 @@ const ROS2RosbagPage = React.memo(() => {
     return isValid;
   }
 
-  const uploadAndProcessReqHandler = (ROS2RosBagsFormData) => {
+  const uploadHandler = (ROS2RosBagsFormData) => {
     let fields = ROS2RosBagsFormData["fields"] || [];
     console.log(ROS2RosBagsFormData);
-    if (validateNewFilesInfo(ROS2RosbagList, fields)) {
+    if (validateUpload(ROS2RosbagList, fields)) {
       uploadROS2Rosbags(ROS2RosBagsFormData).then((data) => {
         setAlertStatus({
           open: true,
@@ -163,7 +163,7 @@ const ROS2RosbagPage = React.memo(() => {
     }
   };
 
-  const filterROS2RosbagListHandler = () => {
+  const filterHandler = () => {
     listROS2Rosbags().then((data) => {
       if (data.errCode !== undefined && data.errMsg !== undefined) {
         setAlertStatus({
@@ -174,7 +174,7 @@ const ROS2RosbagPage = React.memo(() => {
         });
       } else {
         let filterredROS2RosbagList = data.filter((item) =>
-          isROS2RosbagInCurrentOrg(item, authCtx)
+          isInCurrentOrg(item, authCtx)
         );
         if (ROS2RosbagCtx.uploadStatus.length > 0) {
           filterredROS2RosbagList = filterredROS2RosbagList.filter(
@@ -208,7 +208,7 @@ const ROS2RosbagPage = React.memo(() => {
           message: data.errMsg,
         });
       } else {
-        setROS2RosbagList((data) => data.filter((item) => isROS2RosbagInCurrentOrg(item, authCtx)));
+        setROS2RosbagList((data) => data.filter((item) => isInCurrentOrg(item, authCtx)));
       }
     });
   }, [authCtx]);
@@ -226,9 +226,9 @@ const ROS2RosbagPage = React.memo(() => {
         <Grid container columnSpacing={2} rowSpacing={1}>
           <PageAvatar icon={<WorkHistorySharpIcon />} title="ROS2 Rosbag" />
           <Grid item xs={4}></Grid>
-          <ROS2ROSBagFilter uploadStatusList={uploadStatusList} processingStatusList={processingStatusList} onFresh={RefreshHandler} filter={filterROS2RosbagListHandler} onUpload={uploadAndProcessReqHandler} />
+          <ROS2ROSBagFilter uploadStatusList={uploadStatusList} processingStatusList={processingStatusList} onRefresh={RefreshHandler} filter={filterHandler} onUpload={uploadHandler} />
           <Grid container item xs={12}>
-            <ROS2RosbagTable ROS2RosbagList={ROS2RosbagList} onSaveDescription={saveDescriptionHandler} onProcessReq={(ROS2RosBagInfo) => processROS2RosbagReqHandler(ROS2RosBagInfo)} />
+            <ROS2RosbagTable ROS2RosbagList={ROS2RosbagList} onSaveDescription={saveDescriptionHandler} onProcessReq={(ROS2RosBagInfo) => processReqHandler(ROS2RosBagInfo)} />
           </Grid>
         </Grid>
       )}
