@@ -155,7 +155,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          export PYTHONPATH=$PYTHONPATH:/usr/lib/python3/dist-packages
+          export PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE/telematic_system/historical_data_processing
           cd $GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service/test/
           python3 -m coverage run -m pytest
           python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
