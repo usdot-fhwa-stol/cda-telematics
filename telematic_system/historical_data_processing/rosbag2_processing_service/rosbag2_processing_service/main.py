@@ -18,7 +18,7 @@ import asyncio
 from .service_manager import ServiceManager
 
 
-def main(args=None):
+def main():
 
     async def tasks():
         service_manager = ServiceManager()

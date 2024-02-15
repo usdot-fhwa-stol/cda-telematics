@@ -16,8 +16,7 @@ FROM ros:foxy as base
 
 SHELL ["/bin/bash", "-c"]
 
-RUN set -xe \
-    && sudo apt-get update -y \
+RUN sudo apt-get update -y \
     && sudo apt-get install -y \
     git \
     vim \

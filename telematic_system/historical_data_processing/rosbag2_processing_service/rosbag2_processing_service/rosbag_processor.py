@@ -22,8 +22,7 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import ASYNCHRONOUS
 
 import asyncio
-import os
-
+from pathlib import Path
 
 class Rosbag2Parser:
     """
@@ -45,14 +44,14 @@ class Rosbag2Parser:
         ignore_fields (str): Fields in the ROS2 message to ignore during parsing.
         logger (logging.Logger): Logger object for recording processing activities.
     """
-    def __init__(self, influx_bucket, influx_org, influx_token, influx_url, topic_exclusion_list, rosbag_dir, to_str_fields, ignore_fields, logger):
+    def __init__(self, influx_bucket, influx_org, influx_token, influx_url, topic_exclusion_list, s3_mounted_dir, to_str_fields, ignore_fields, logger, accepted_file_extensions):
 
         # Set influxdb parameters
         self.influx_bucket = influx_bucket
         self.influx_org = influx_org
         self.influx_client = InfluxDBClient(url=influx_url, token=influx_token, org=influx_org)
         self.topic_exclusion_list = topic_exclusion_list
-        self.rosbag_dir = rosbag_dir
+        self.s3_mounted_dir = s3_mounted_dir
         self.logger = logger
 
         #Fields in the ros message to force to string type.
@@ -63,48 +62,59 @@ class Rosbag2Parser:
         # Create write API
         self.write_api = self.influx_client.write_api(write_options=ASYNCHRONOUS)
 
+        self.accepted_file_extensions = accepted_file_extensions
+
         # Processing status
         self.is_processing = False
 
 
-    async def process_rosbag(self,rosbag2_name):
-        measurement_name = rosbag2_name.split('.mcap')[0] # Measurement name is rosbag name without mcap extension
+    async def process_rosbag(self,rosbag2_path):
 
-        rosbag_path = os.path.join(self.rosbag_dir, rosbag2_name)
+        rosbag2_name = Path(rosbag_path).name
+
+        if Path(rosbag_name).suffix not in self.accepted_file_extensions:
+            raise Exception(f"File type not acceptable for {rosbag2_name}")
+
+        measurement_name = Path(rosbag2_name).stem # Measurement name is rosbag name without mcap extension
+
+        if self.s3_mounted_dir:
+            rosbag_path = Path(self.s3_mounted_dir) / Path(rosbag_path)
 
         # Load the rosbag from the config directory
         for msg in read_ros2_messages(rosbag_path):
+            if msg.channel.topic in self.topic_exclusion_list:
+                continue
+
             try:
-                if msg.channel.topic not in self.topic_exclusion_list:
-                    topic = msg.channel.topic
-                    ros_msg = msg.ros_msg
-                    msg_attributes = self.extract_attributes(ros_msg)
-                    msg_timestamp = msg.publish_time_ns
+                topic = msg.channel.topic
+                ros_msg = msg.ros_msg
+                msg_attributes = self.extract_attributes(ros_msg)
+                msg_timestamp = msg.publish_time_ns
 
-                    record = f"{measurement_name},topic_name={topic},"
+                record = f"{measurement_name},topic_name={topic},"
 
-                    for attr_name, attr_value in msg_attributes:
-                        if attr_name in self.ignore_fields:
-                            continue
+                for attr_name, attr_value in msg_attributes:
+                    if attr_name in self.ignore_fields:
+                        continue
 
-                        elif attr_name in self.to_str_fields:
-                            attr_value = f'"{attr_value}"'
-                            record += f"{attr_name}={attr_value},"
+                    elif attr_name in self.to_str_fields:
+                        attr_value = f'"{attr_value}"'
+                        record += f"{attr_name}={attr_value},"
 
-                        elif isinstance(attr_value, list):  # Handle arrays
-                            record += f'{attr_name}="{str(attr_value)}",'
-                        else:
-                            if isinstance(attr_value, str):
-                                attr_value = f'"{attr_value}"'  # Correctly format string values
-                            record += f"{attr_name}={attr_value},"
+                    elif isinstance(attr_value, list):  # Handle arrays
+                        record += f'{attr_name}="{str(attr_value)}",'
+                    else:
+                        if isinstance(attr_value, str):
+                            attr_value = f'"{attr_value}"'  # Correctly format string values
+                        record += f"{attr_name}={attr_value},"
 
 
-                    # Remove last comma
-                    record = record[:-1]
-                    # Add timestamp at the end
-                    record += f" timestamp={msg_timestamp}"
-                    #Write record to influx
-                    self.write_api.write(bucket=self.influx_bucket, org=self.influx_org, record=record)
+                # Remove last comma
+                record = record[:-1]
+                # Add timestamp at the end
+                record += f" timestamp={msg_timestamp}"
+                #Write record to influx
+                self.write_api.write(bucket=self.influx_bucket, org=self.influx_org, record=record)
 
             except Exception as e:
                 self.logger.warn(f"Failed to process ros message with exception: " + str(e))
@@ -115,17 +125,21 @@ class Rosbag2Parser:
     def extract_attributes(self, obj, parent_attr=None):
         attributes = []
         for attr_name in dir(obj):
+
+            if callable(getattr(obj, attr_name)) or attr_name.startswith("_"):
+                continue
+
             try:
-                if not callable(getattr(obj, attr_name)) and not attr_name.startswith("__") and not attr_name.startswith("_"):
-                    attr_value = getattr(obj, attr_name)
-                    if parent_attr:
-                        attr_name = f"{parent_attr}.{attr_name}"
-                    if hasattr(attr_value, '__dict__'):
-                        # Recursively extract attributes for nested objects
-                        nested_attributes = self.extract_attributes(attr_value, attr_name)
-                        attributes.extend(nested_attributes)
-                    else:
-                        attributes.append((attr_name, attr_value))
+                attr_value = getattr(obj, attr_name)
+                if parent_attr:
+                    attr_name = f"{parent_attr}.{attr_name}"
+                if hasattr(attr_value, '__dict__'):
+                    # Recursively extract attributes for nested objects
+                    nested_attributes = self.extract_attributes(attr_value, attr_name)
+                    attributes.extend(nested_attributes)
+                else:
+                    attributes.append((attr_name, attr_value))
             except Exception as e:
                 self.logger.error("Unable to get attributes for ros message with exception: " + str(e))
+
         return attributes

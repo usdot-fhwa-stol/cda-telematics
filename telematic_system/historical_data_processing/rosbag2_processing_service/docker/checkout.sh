@@ -15,6 +15,7 @@
 #  the License
 
 # Checkout rosbag2
+mkdir -p /ws/src
 cd /ws/src/
 git clone https://github.com/ros2/rosbag2.git --branch foxy-future
 cd rosbag2

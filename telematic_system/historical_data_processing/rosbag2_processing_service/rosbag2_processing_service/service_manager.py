@@ -22,6 +22,7 @@ from datetime import datetime
 from enum import Enum
 from .rosbag_processor import Rosbag2Parser
 import json
+from pathlib import Path
 #from MySQLdb  import _mysql
 
 class LogType(Enum):
@@ -42,7 +43,7 @@ class ServiceManager:
     Attributes:
         nc (NATS): NATS client for receiving requests.
         queue (asyncio.Queue): Queue of rosbags to be processed.
-        rosbag_dir (str): Directory from which to read rosbags.
+        s3_mounted_dir (str): Directory at which S3 bucket is mounted (if running on cloud).
         topic_exclusion_list (list): Topics to be excluded from processing.
         nats_ip_port (str): IP and port for the NATS server.
         log_level (str): Logging level (debug, info, error).
@@ -69,7 +70,7 @@ class ServiceManager:
 
         # Load config parameters
         # Configured directory to read rosbags from
-        self.rosbag_dir = os.getenv("ROSBAG_STORAGE_DIR")
+        self.s3_mounted_dir = os.getenv("S3_MOUNTED_DIR")
         # List of topics to be excluded from reading
         self.topic_exclusion_list = os.getenv("TOPIC_EXCLUSION_LIST")
         #NATS params
@@ -99,12 +100,14 @@ class ServiceManager:
         self.influx_url = os.getenv("INFLUX_URL")
 
         #Fields in the ros message to force to string type.
-        self.to_str_fields= os.getenv("TO_STR_FIELDS")
+        self.to_str_fields = os.getenv("TO_STR_FIELDS")
         # Fields in the ros message to ignore
-        self.ignore_fields= os.getenv("IGNORE_FIELDS")
+        self.ignore_fields = os.getenv("IGNORE_FIELDS")
+
+        self.accepted_file_extensions = os.getenv("ACCEPTED_FILE_EXTENSIONS")
 
         # Create rosbag parser object
-        self.rosbag_parser = Rosbag2Parser(self.influx_bucket, self.influx_org, self.influx_token, self.influx_url, self.topic_exclusion_list, self.rosbag_dir, self.to_str_fields, self.ignore_fields, self.logger)
+        self.rosbag_parser = Rosbag2Parser(self.influx_bucket, self.influx_org, self.influx_token, self.influx_url, self.topic_exclusion_list, self.s3_mounted_dir, self.to_str_fields, self.ignore_fields, self.logger, self.accepted_file_extensions)
 
         #nats connection status
         self.is_nats_connected = False
@@ -156,12 +159,14 @@ class ServiceManager:
 
             data = msg.data.decode()
             msg_json_object = json.loads(data)
-            rosbag_name = msg_json_object["filepath"].split("/")[-1]
+            uploaded_path = msg_json_object["uploaded_path"]
+            rosbag_name = msg_json_object["filename"]
 
+            rosbag_path = Path(uploaded_path) / rosbag2_name
             # Add rosbag name to queue
             try:
                 self.logger.info(f"Adding {rosbag_name} to queue")
-                self.queue.put_nowait(rosbag_name)
+                self.queue.put_nowait(rosbag_path)
             except asyncio.QueueFull:
                 self.logger.error(f"Rosbag queue full, item {rosbag_name} cannot be added")
 

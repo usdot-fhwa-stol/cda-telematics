@@ -16,17 +16,18 @@
 
 #Install processing service required libraries
 cd /ws/
-sudo pip3 install pip nats-py \
+sudo python3 -m pip install nats-py \
     influxdb \
     influxdb_client \
     mcap-ros2-support \
-    python-dotenv
+    pathlib
 
 source /opt/ros/foxy/setup.bash
-sudo apt update && apt install -y apt-utils \
-                                  python3-pybind11 \
-                                  ros-foxy-test-msgs \
-                                  python3-colcon-common-extensions
+sudo apt update
+sudo apt install -y apt-utils \
+                python3-pybind11 \
+                ros-foxy-test-msgs \
+                python3-colcon-common-extensions
 
 # Build rosbag2
 colcon build --packages-up-to rosbag2_processing_service
