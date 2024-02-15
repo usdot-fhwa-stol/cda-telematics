@@ -61,7 +61,7 @@ const ROS2ROSBagFilterForm = memo((props) => {
   };
 
   const filterROS2RosbagListHandler = () => {
-    props.filterROS2RosbagList();
+    props.filter();
   };
 
   const refreshHandler = () => {
@@ -87,12 +87,12 @@ const ROS2ROSBagFilterForm = memo((props) => {
     <Grid container>
       <Grid xs={10} item>
         <FormControl sx={{ minWidth: 450, margin: 1 }}>
-          <TextField fullWidth value={inputText} label="Search by ROS2 Rosbag name or description" InputProps={{ startAdornment: (<InputAdornment position="start"> <SearchIcon /></InputAdornment>) }} onChange={handleInputTextChange} id="searchROS2rRosbagLabelId"  ></TextField>
+          <TextField fullWidth value={inputText} label="Search by name or description" InputProps={{ startAdornment: (<InputAdornment position="start"> <SearchIcon /></InputAdornment>) }} onChange={handleInputTextChange} id="searchROS2rRosbagLabelId"  ></TextField>
         </FormControl>
 
         <FormControl sx={{ minWidth: 200, margin: 1 }}>
           <InputLabel id="uploadStatusLabelId" sx={{ paddingLeft: "20px" }}>Upload Status</InputLabel>
-          <Select labelId="uploadStatusLabelId" id="uploadStatusStr" value={uploadStatusStr} label="Upload Status" inputProps={{ name: uploadStatusRef.current, id: uploadStatusRef.current }} IconComponent={FilterAltIcon} sx={{ paddingLeft: "20px", "& .MuiSvgIcon-root": { left: "5px" } }} onChange={handleUploadStatusChange}>
+          <Select labelId="uploadStatusId" id="uploadStatusStr" value={uploadStatusStr} label="Upload Status" inputProps={{ name: uploadStatusRef.current, id: uploadStatusRef.current }} IconComponent={FilterAltIcon} sx={{ paddingLeft: "20px", "& .MuiSvgIcon-root": { left: "5px" } }} onChange={handleUploadStatusChange}>
             {
               props.uploadStatusList !== undefined && props.uploadStatusList.map((uploadStatus) => (
                 <MenuItem key={uploadStatus} value={uploadStatus}>  {uploadStatus}  </MenuItem>
@@ -101,8 +101,8 @@ const ROS2ROSBagFilterForm = memo((props) => {
         </FormControl>
 
         <FormControl sx={{ minWidth: 200, margin: 1 }}>
-          <InputLabel id="processingStatusStrLabelId" sx={{ paddingLeft: "20px" }}>Processing Status</InputLabel>
-          <Select labelId="processingStatusStrLabelId" value={processingStatusStr} inputProps={{ name: processingStatusStrRef.current, id: processingStatusStrRef.current }} IconComponent={FilterAltIcon} sx={{ paddingLeft: "20px", "& .MuiSvgIcon-root": { left: "5px" } }} label="processingStatus"
+          <InputLabel id="processingStatusLabelId" sx={{ paddingLeft: "20px" }}>Processing Status</InputLabel>
+          <Select labelId="processingStatusId" value={processingStatusStr} inputProps={{ name: processingStatusStrRef.current, id: processingStatusStrRef.current }} IconComponent={FilterAltIcon} sx={{ paddingLeft: "20px", "& .MuiSvgIcon-root": { left: "5px" } }} label="processingStatus"
             onChange={handleProcessingStatusChange} >
             {
               props.processingStatusList !== undefined && props.processingStatusList.map((processingStatus) => (
@@ -112,7 +112,7 @@ const ROS2ROSBagFilterForm = memo((props) => {
         </FormControl>
         
         <FormControl sx={{ paddingTop: "10px" }}>
-          <CustomizedRefreshButton title="Reset filters and refresh ROS2 Rosbags table" onClick={refreshHandler} ></CustomizedRefreshButton>
+          <CustomizedRefreshButton title="Reset filters and refresh table" onClick={refreshHandler} ></CustomizedRefreshButton>
         </FormControl>
       </Grid>
       {

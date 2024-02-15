@@ -22,8 +22,8 @@ import React from "react";
 import ROS2ROSBagFilterForm from "./ROS2ROSBagFilterForm";
 
 const ROS2ROSBagFilter = (props) => {
-  const SearchROS2RosbagsHandler = (filteredEventList) => {
-    props.onSearchROS2Rosbags(filteredEventList);
+  const SearchHandler = (filteredEventList) => {
+    props.onSearch(filteredEventList);
   };
 
   return (
@@ -32,7 +32,7 @@ const ROS2ROSBagFilter = (props) => {
         <Card>
           <CardHeader sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }} title="Filter ROS2 Rosbags" titleTypographyProps={{ variant: "title" }} />
           <CardContent>
-            <ROS2ROSBagFilterForm eventInfoList={props.eventInfoList} onSearchROS2Rosbags={SearchROS2RosbagsHandler} uploadStatusList={props.uploadStatusList} processingStatusList={props.processingStatusList} onRefresh={() => props.onFresh()} filterROS2RosbagList={() => props.filterROS2RosbagList()} onUpload={formdata => props.onUpload(formdata)} />
+            <ROS2ROSBagFilterForm eventInfoList={props.eventInfoList} onSearch={SearchHandler} uploadStatusList={props.uploadStatusList} processingStatusList={props.processingStatusList} onRefresh={() => props.onFresh()} filter={() => props.filter()} onUpload={formdata => props.onUpload(formdata)} />
           </CardContent>
         </Card>
       </Box>

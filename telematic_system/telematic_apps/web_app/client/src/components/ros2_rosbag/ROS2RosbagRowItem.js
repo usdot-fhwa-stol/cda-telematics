@@ -26,8 +26,8 @@ import AuthContext from "../../context/auth-context";
 
 const ROS2RosbagRowItem = (props) => {
   const authCtx = React.useContext(AuthContext);
-  const saveRos2RosbagDescriptionHandler = (UpdatedFileInfo) => {
-    props.onSaveRos2RosbagDescription(UpdatedFileInfo);
+  const saveDescHandler = (UpdatedFileInfo) => {
+    props.onSaveDescription(UpdatedFileInfo);
   };
 
   return (
@@ -66,8 +66,8 @@ const ROS2RosbagRowItem = (props) => {
       {
         authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" && (
           <ROS2RosbagControlsItem ROS2RosbagRow={props.ROS2RosbagRow}
-            onSaveRos2RosbagDescription={saveRos2RosbagDescriptionHandler}
-            onProcessROS2RosbagReq={(ROS2RosBagInfo) => props.onProcessROS2RosbagReq(ROS2RosBagInfo)} />
+          onSaveDescription={saveDescHandler}
+          onProcessReq={(ROS2RosBagInfo) => props.onProcessReq(ROS2RosBagInfo)} />
         )}
     </TableRow>
   )

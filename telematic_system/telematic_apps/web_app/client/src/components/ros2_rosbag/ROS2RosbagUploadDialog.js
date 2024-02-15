@@ -58,14 +58,14 @@ const ROS2RosbagUploadDialog = (props) => {
     setSelectedFilesForm(formData);
   };
 
-  const confirmRemovalHandler = (filename) => {
+  const confirmHandler = (filename) => {
     let newForm = new FormData();
     newForm["files"] = selectedfilesForm["files"].filter((item) => item.name !== filename);
     newForm["fields"] = selectedfilesForm["fields"].filter((item) => item.filename !== filename);
     setSelectedFilesForm(newForm);
   };
 
-  const updateDescriptionHandler = (updatedROS2RosbagInfo) => {
+  const updateDescHandler = (updatedROS2RosbagInfo) => {
     let newForm = new FormData();
     newForm["files"] = selectedfilesForm["files"];
     newForm["fields"] = [...selectedfilesForm["fields"].filter((item) => item.filename !== updatedROS2RosbagInfo.filename), updatedROS2RosbagInfo];
@@ -73,7 +73,7 @@ const ROS2RosbagUploadDialog = (props) => {
     setSelectedFilesForm(newForm);
   };
 
-  const uploadAndProcessROS2RosbagsHandler = () => {
+  const uploadAndProcessHandler = () => {
     props.onUpload(selectedfilesForm);
     closeHandler();
   }
@@ -96,12 +96,12 @@ const ROS2RosbagUploadDialog = (props) => {
           </div>
         </FormControl>
         <FormControl fullWidth>
-          <ROS2RosbagUploadPreviewTable previewFiles={selectedfilesForm} onConfirm={confirmRemovalHandler} onUpdateDescription={updateDescriptionHandler} />
+          <ROS2RosbagUploadPreviewTable previewFiles={selectedfilesForm} onConfirm={confirmHandler} onUpdateDescription={updateDescHandler} />
         </FormControl>
       </DialogContent>
       <DialogActions>
         <CustomizedOutlinedButton onClick={closeHandler}> Cancel </CustomizedOutlinedButton>
-        <CustomizedButton onClick={uploadAndProcessROS2RosbagsHandler}>Process</CustomizedButton>
+        <CustomizedButton onClick={uploadAndProcessHandler}>Process</CustomizedButton>
       </DialogActions>
     </Dialog>
   );

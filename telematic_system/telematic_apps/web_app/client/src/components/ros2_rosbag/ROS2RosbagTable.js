@@ -88,8 +88,8 @@ export default function ROS2RosbagTable(props) {
     setPage(0);
   };
 
-  const saveRos2RosbagDescriptionHandler = (UpdatedFileInfo) => {
-    props.onSaveRos2RosbagDescription(UpdatedFileInfo);
+  const saveDescHandler = (UpdatedFileInfo) => {
+    props.onSaveDescription(UpdatedFileInfo);
   };
 
   return (
@@ -110,8 +110,8 @@ export default function ROS2RosbagTable(props) {
             {props.ROS2RosbagList !== undefined && Array.isArray(props.ROS2RosbagList) && props.ROS2RosbagList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
               return (
                 <ROS2RosbagRowItem key={row.id} ROS2RosbagRow={row} columns={columns} ROS2RosbagList={props.ROS2RosbagList}
-                  onSaveRos2RosbagDescription={saveRos2RosbagDescriptionHandler}
-                  onProcessROS2RosbagReq={(ROS2RosBagInfo) => props.onProcessROS2RosbagReq(ROS2RosBagInfo)} />
+                  onSaveDescription={saveDescHandler}
+                  onProcessReq={(ROS2RosBagInfo) => props.onProcessReq(ROS2RosBagInfo)} />
               );
             })}
           </TableBody>

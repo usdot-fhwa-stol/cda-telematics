@@ -39,13 +39,13 @@ const ROS2RosbagUploadPreviewTableRow = (props) => {
 
   return (
     <TableRow>
-      <TableCell scope="row" key={`preview-file-fields-filename-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}>{props.previewFileFields.filename}</TableCell>
-      <TableCell scope="row" key={`preview-file-fields-description-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}>
-        <TextField key={`preview-file-fields-description-input-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}
+      <TableCell scope="row" key={`preview-filename-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}>{props.previewFileFields.filename}</TableCell>
+      <TableCell scope="row" key={`preview-description-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}>
+        <TextField key={`preview-description-input-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}
           inputProps={{ maxLength: 255 }} fullWidth value={description} onChange={descriptionChangeHandler}></TextField>
       </TableCell>
-      <TableCell scope="row" key={`preview-file-fields-filesize-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}>{props.previewFileFields.filesize}</TableCell>
-      <TableCell scope="row" key={`preview-file-fields-control-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}>
+      <TableCell scope="row" key={`preview-filesize-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}>{props.previewFileFields.filesize}</TableCell>
+      <TableCell scope="row" key={`preview-control-${props.previewFileFields.filesize}-${props.previewFileFields.filename}`}>
         <CustomizedIcon title={`Remove file`} onClick={openHandler}> <DeleteIcon /> </CustomizedIcon>
         <WarningDialog title={`Are you sure to remove file: ${props.previewFileFields.filename}`} onConfirm={() => { props.onConfirm(props.previewFileFields.filename); }} onCloseWarning={closeHandler} ></WarningDialog>
       </TableCell>

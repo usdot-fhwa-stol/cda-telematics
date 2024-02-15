@@ -52,7 +52,7 @@ function ROS2RosbagDescriptionDialog(props) {
     clearErrors();
     resetField("description");
   };
-  const handleDescriptionChange = (event) => {
+  const handleDescChange = (event) => {
     setDescription(event.target.value);
   };
 
@@ -67,7 +67,7 @@ function ROS2RosbagDescriptionDialog(props) {
     );
   }, [props]);
 
-  const saveRos2RosbagDescriptionHandler = (event) => {
+  const saveDescHandler = (event) => {
     let localUpdatedFile = {
       content_location: props.ROS2RosbagRow.content_location,
       created_at: props.ROS2RosbagRow.created_at,
@@ -97,12 +97,12 @@ function ROS2RosbagDescriptionDialog(props) {
       <DialogContent>
         <DialogContentText>  Update description for file (<b>{props.ROS2RosbagRow.original_filename}</b>)  and click "SAVE". </DialogContentText>
         <FormControl fullWidth>
-          <TextField {...register("description")} error={errors.description ? true : false} margin="dense" id="description" label="Description*" variant="standard" value={description} onChange={handleDescriptionChange} sx={{ marginBottom: 5 }} />
+          <TextField {...register("description")} error={errors.description ? true : false} margin="dense" id="description" label="Description*" variant="standard" value={description} onChange={handleDescChange} sx={{ marginBottom: 5 }} />
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <CustomizedOutlinedButton onClick={onCloseHandler}>  Cancel   </CustomizedOutlinedButton>
-        <CustomizedButton onClick={handleSubmit(saveRos2RosbagDescriptionHandler)}>Save </CustomizedButton>
+        <CustomizedOutlinedButton onClick={onCloseHandler}>Cancel</CustomizedOutlinedButton>
+        <CustomizedButton onClick={handleSubmit(saveDescHandler)}>Save </CustomizedButton>
       </DialogActions>
     </Dialog>
   );

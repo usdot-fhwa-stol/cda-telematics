@@ -32,16 +32,16 @@ const ROS2RosbagControlsItem = (props) => {
     setOpen(true);
   };
 
-  const handleProcessROS2RosbagReq = () => {
-    props.onProcessROS2RosbagReq(props.ROS2RosbagRow);
+  const handleProcessReq = () => {
+    props.onProcessReq(props.ROS2RosbagRow);
   };
   
   const closeHandler = () => {
     setOpen(false);
   };
 
-  const saveRos2RosbagDescriptionHandler = (UpdatedFileInfo) => {
-    props.onSaveRos2RosbagDescription(UpdatedFileInfo);
+  const saveDescHandler = (UpdatedFileInfo) => {
+    props.onSaveDescription(UpdatedFileInfo);
   };
 
   return (
@@ -49,12 +49,12 @@ const ROS2RosbagControlsItem = (props) => {
       {
         authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" && (
           <TableCell key={`controls-${props.ROS2RosbagRow.id}`}>
-            <ROS2RosbagDescriptionDialog open={open} onClose={closeHandler} title={`Edit ROS2 Rosbag (${props.ROS2RosbagRow.original_filename}) Description`} ROS2RosbagRow={props.ROS2RosbagRow} OnDescriptionSave={saveRos2RosbagDescriptionHandler}></ROS2RosbagDescriptionDialog>
-            <CustomizedOutlinedButton title={"Edit ROS2 Rosbag description"} key={`edit-ROS2Rosbag-${props.ROS2RosbagRow.id}`} onClick={openHandler}><EditIcon /></CustomizedOutlinedButton>
+            <ROS2RosbagDescriptionDialog open={open} onClose={closeHandler} title={`Edit (${props.ROS2RosbagRow.original_filename}) Description`} ROS2RosbagRow={props.ROS2RosbagRow} OnDescriptionSave={saveDescHandler}></ROS2RosbagDescriptionDialog>
+            <CustomizedOutlinedButton title={"Edit description"} key={`edit-Rosbag-${props.ROS2RosbagRow.id}`} onClick={openHandler}><EditIcon /></CustomizedOutlinedButton>
 
             {
               props.ROS2RosbagRow !== undefined && props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.COMPLETED && props.ROS2RosbagRow.process_status !== PROCESSING_STATUS.COMPLETED && (
-                <CustomizedOutlinedButton title={"Process ROS2 Rosbag"} key={`process-ROS2Rosbag-${props.ROS2RosbagRow.id}`} onClick={handleProcessROS2RosbagReq}><RunningWithErrorsIcon /></CustomizedOutlinedButton>
+                <CustomizedOutlinedButton title={"Process ROS2 Rosbag"} key={`process-Rosbag-${props.ROS2RosbagRow.id}`} onClick={handleProcessReq}><RunningWithErrorsIcon /></CustomizedOutlinedButton>
               )}
           </TableCell>
         )}
