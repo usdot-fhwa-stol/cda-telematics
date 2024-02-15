@@ -3,7 +3,6 @@ import React from 'react';
 import UserOrgRoleTableRow from './UserOrgRoleTableRow';
 const UserOrgRoleTable = (props) => {
     return (
-        <React.Fragment>
             <Table size="small" aria-label="user-role-table" >
                 <TableHead >
                     <TableRow >
@@ -21,7 +20,6 @@ const UserOrgRoleTable = (props) => {
                     ))}
                 </TableBody>
             </Table>
-        </React.Fragment>
     )
 }
 

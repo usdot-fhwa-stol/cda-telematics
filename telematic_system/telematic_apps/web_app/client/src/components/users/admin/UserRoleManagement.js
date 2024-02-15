@@ -4,7 +4,6 @@ import UserTable from './UserTable';
 
 const UserRoleManagement = (props) => {
   return (
-    <React.Fragment>
       <UserTable key={`user-table`}
         users={props.users}
         orgs={props.orgs}
@@ -13,7 +12,6 @@ const UserRoleManagement = (props) => {
         onUserOrgRoleChange={props.onUserOrgRoleChange}
         onUserOrgRoleDelete={props.onUserOrgRoleDelete}
         onChangeServerAdmin ={props.onChangeServerAdmin} />
-    </React.Fragment>
   )
 }
 
