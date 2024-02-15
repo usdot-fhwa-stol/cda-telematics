@@ -22,7 +22,9 @@ def main():
 
     async def tasks():
         service_manager = ServiceManager()
-        await asyncio.gather(service_manager.nats_connect(), service_manager.process_rosbag())
+        nats_connect_task = asyncio.to_thread(service_manager.nats_connect())
+        process_rosbag_task = service_manager.process_rosbag()
+        await asyncio.gather(nats_connect_task, process_rosbag_task)
 
     asyncio.run(tasks())
 
