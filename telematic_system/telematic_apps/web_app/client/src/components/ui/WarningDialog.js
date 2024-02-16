@@ -13,8 +13,10 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material'
-import React from 'react'
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
+import React from 'react';
+import { CustomizedButton } from './CustomizedButton';
+import { CustomizedOutlinedButton } from './CustomizedOutlinedButton';
 
 const WarningDialog = (props) => {
     const onWarningCloseHandler = () => {
@@ -24,21 +26,18 @@ const WarningDialog = (props) => {
         props.onConfirm();
     }
     return (
-        <React.Fragment>
-            <Dialog open={props.open} onClose={onWarningCloseHandler}>
-                <DialogTitle sx={{ fontWeight: "bolder"}}>{props.title}</DialogTitle>
-                <DialogContent>
-                    <DialogContentText>
-                        {props.description}
-                    </DialogContentText>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={onWarningCloseHandler} variant="outlined">Cancel</Button>
-                    <Button onClick={onEventConfirmHandler} variant="contained">Confirm</Button>
-                </DialogActions>
-            </Dialog>
-        </React.Fragment>
-
+        <Dialog open={props.open} onClose={onWarningCloseHandler}>
+            <DialogTitle sx={{ fontWeight: "bolder"}}>{props.title}</DialogTitle>
+            <DialogContent>
+                <DialogContentText>
+                    {props.description}
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <CustomizedOutlinedButton onClick={onWarningCloseHandler} variant="outlined">Cancel</CustomizedOutlinedButton>
+                <CustomizedButton onClick={onEventConfirmHandler} variant="contained">Confirm</CustomizedButton>
+            </DialogActions>
+        </Dialog>
     )
 }
 

@@ -26,7 +26,9 @@
 const fileInfoController = require("../controllers/file_info.controller");
 const listObjectsModule = require("../file_upload/s3_list_objects");
 const { UPLOADSTATUS } = require("./file_upload_status_emitter");
+require("dotenv").config();
 const uploadDest = process.env.UPLOAD_DESTINATION;
+const S3_USER = 1; //ToDo: User ID = 1 is admin user. S3 objects are temporarily assigned to admin user. 
 
 const filterFiles = async (req_fields) => {
   try {
@@ -38,12 +40,12 @@ const filterFiles = async (req_fields) => {
   }
 };
 
-const listAllFiles = async () => {
+const listAllFiles = async (req, res) => {
   try {
     if (uploadDest && uploadDest.trim().toLowerCase() === "s3") {
-      return await listAllDBFilesAndS3Objects();
+      return await listAllDBFilesAndS3Objects(req, res);
     } else {
-      return await listAllDBFiles();
+      return await listAllDBFiles(req, res);
     }
   } catch (err) {
     console.error(err);
@@ -51,7 +53,7 @@ const listAllFiles = async () => {
   }
 };
 
-const listAllDBFiles = async () => {
+const listAllDBFiles = async (req, res) => {
   try {
     return await fileInfoController.list({});
   } catch (err) {
@@ -61,7 +63,7 @@ const listAllDBFiles = async () => {
   }
 };
 
-const listAllDBFilesAndS3Objects = async () => {
+const listAllDBFilesAndS3Objects = async (req, res) => {
   try {
     let contents = [];
     let existingFileNames = [];
@@ -83,6 +85,8 @@ const listAllDBFilesAndS3Objects = async () => {
           console.log(
             "Below S3 object not found in MYSQL DB. Insert object into DB:"
           );
+          newFileFromS3.created_by = S3_USER;
+          newFileFromS3.updated_by = S3_USER;
           console.log(newFileFromS3);
           let newFile = await fileInfoController
             .upsertFileInfo(newFileFromS3)

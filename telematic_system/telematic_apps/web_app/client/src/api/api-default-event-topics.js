@@ -1,6 +1,7 @@
 
 import axios, { CanceledError } from 'axios';
 import {env} from "../env"
+import { constructError } from './api-utils';
 /**
  *@brief Save the default topics setting for the given list of event and unit combinations
  * @Param The list of events and units combinations
@@ -24,7 +25,7 @@ const createDefaultTopicsByEventUnits = async (seletedUnitsTopics, user_id) => {
     return data;
   } catch (err) {
     
-    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+    return constructError(err)
   }
 }
 
@@ -52,7 +53,7 @@ const findAllDefaultTopicsByEventUnits = async (event_id, selectedUnitIdentifier
     return data;
   } catch (err) {
     
-    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+    return constructError(err)
   }
 }
 

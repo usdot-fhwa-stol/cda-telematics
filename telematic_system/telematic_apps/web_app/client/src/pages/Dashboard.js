@@ -19,8 +19,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import Iframe from 'react-iframe';
 import { useSearchParams } from 'react-router-dom';
 import AuthContext from '../context/auth-context';
-import {env} from '../env'
-const Grafana = () => {
+import { env } from '../env';
+const Dashboard = React.memo(() => {
   const [embedURL, setEmbedURL] = useState(env.REACT_APP_GRAFANA_URI + "/dashboards?theme=light")
   const [loading, setLoading] = useState(true);
   const authContext = useContext(AuthContext);
@@ -43,7 +43,7 @@ const Grafana = () => {
       <Grid container rowSpacing={1} columnSpacing={{ xs: 1, sm: 2, md: 3 }} sx={{ height: '100vh' }}>
         <Iframe url={embedURL}
           onLoad={loadedHanlder}
-          id="grafana_iframe"
+          id="dashboard_iframe"
           position="absolute"
           width="100%"
           height="100%"
@@ -53,6 +53,6 @@ const Grafana = () => {
 
     </React.Fragment>
   )
-}
+});
 
-export default Grafana
+export default Dashboard

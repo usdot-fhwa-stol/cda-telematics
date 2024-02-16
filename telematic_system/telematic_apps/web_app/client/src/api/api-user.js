@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {env} from "../env"
+import { constructError } from './api-utils';
 
 const registerNewUser = async (username, email, password, org_id) => {
     const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/users/register`
@@ -14,7 +15,7 @@ const registerNewUser = async (username, email, password, org_id) => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }
@@ -30,7 +31,7 @@ const updatePassword = async (username, email, new_password) => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }
@@ -63,7 +64,7 @@ const deleteUser = async (username) => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }
@@ -77,7 +78,7 @@ const listUsers = async () => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }
@@ -88,7 +89,7 @@ const updateUserServerAdmin = async (req) => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }

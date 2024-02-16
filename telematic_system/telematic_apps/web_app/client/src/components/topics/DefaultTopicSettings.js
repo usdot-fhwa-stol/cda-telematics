@@ -13,11 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import { Button, Stack, Tooltip, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { createDefaultTopicsByEventUnits, findAllDefaultTopicsByEventUnits } from '../../api/api-default-event-topics';
 import AuthContext from '../../context/auth-context';
 import TopicContext from '../../context/topic-context';
+import { CustomizedButton } from '../ui/CustomizedButton';
 
 const DefaultTopicSettings = (props) => {
     const TopicCtx = useContext(TopicContext);
@@ -148,12 +149,8 @@ const DefaultTopicSettings = (props) => {
     return (
         <React.Fragment>
             <Stack spacing={1} direction="row" sx={{ float: 'right' }}>
-                <Tooltip title="Default topic setting: Given an event and units, updating the list of selected topics to default selected topics for the units." placement="top" arrow>
-                    <Button variant='outlined' size='small' onClick={saveDefaultSeletedTopicsHandler}>Save</Button>
-                </Tooltip>
-                <Tooltip title="Default topic setting: Given an event and units, loading the default list of selected topics for the units." placement="top" arrow >
-                    <Button variant='outlined' size='small' onClick={loadDefaultSelectedTopicsHandler}>Load</Button>
-                </Tooltip>
+                <CustomizedButton title="Default topic setting: Given an event and units, updating the list of selected topics to default selected topics for the units."  onClick={saveDefaultSeletedTopicsHandler} >Save</CustomizedButton>
+                <CustomizedButton title="Default topic setting: Given an event and units, loading the default list of selected topics for the units." onClick={loadDefaultSelectedTopicsHandler} >Save</CustomizedButton>
             </Stack>
             {isSaved || isLoaded ? <Typography sx={{ color: 'green', float: 'right', display: 'inline-flex' }}>{msg}</Typography> : <Typography sx={{ color: 'red', float: 'right' }}>{msg}</Typography>}
         </React.Fragment>

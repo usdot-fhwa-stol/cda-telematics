@@ -37,6 +37,7 @@ import { CookiesProvider } from "react-cookie";
 import { BrowserRouter } from 'react-router-dom';
 import { AuthContextProvider } from './context/auth-context';
 import { TopicContextProvider } from './context/topic-context';
+import {ROS2RosbagContextProvider} from './context/ros2-rosbag-context';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
@@ -44,7 +45,9 @@ root.render(
       <CookiesProvider>
         <AuthContextProvider>
           <TopicContextProvider>
-            <App />
+            <ROS2RosbagContextProvider>
+              <App />
+            </ROS2RosbagContextProvider>
           </TopicContextProvider>
         </AuthContextProvider>
       </CookiesProvider>

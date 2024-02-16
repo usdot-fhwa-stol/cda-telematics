@@ -12,15 +12,15 @@
  * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
  * License for the specific language governing permissions and limitations under
  * the License.
- * 
- * Description: 
+ *
+ * Description:
  * Provide functions to query and update to file_info database table.
- * 
+ *
  * - list: Query file info by input fields, and return a list of filtered file_info result.
  * - upsertFileInfo: Update the file_info table based on the unique filename if file_info exist in the database table, and return the number
- * of records updated. Otherwise, insert a new file_info record into the database table and return the new record. 
+ * of records updated. Otherwise, insert a new file_info record into the database table and return the new record.
  */
-const { file_info } = require("../models");
+const { file_info, user } = require("../models");
 
 /**
  * Query a list of file info from DB based on filters.
@@ -43,6 +43,12 @@ exports.list = (filterFields) => {
     .findAll({
       where: condition,
       order: [["updated_at", "DESC"]],
+      include: [
+        {
+          model: user,
+          attributes: ["id", "name", "org_id", "email"],
+        },
+      ],
     })
     .then((data) => {
       return data;
@@ -51,6 +57,31 @@ exports.list = (filterFields) => {
       console.error("Error findAll file info from MYSQL DB!");
       throw err;
     });
+};
+
+exports.updateDescription = async (updatedFileInfo) => {
+  let originalFilename =
+    updatedFileInfo.originalFilename ||
+    updatedFileInfo.original_filename ||
+    undefined;
+
+  if (!originalFilename) {
+    throw new Error("originalFilename cannot be undefined");
+  }
+  if (!(updatedFileInfo.updated_by && updatedFileInfo.created_by)) {
+    throw new Error("user cannot be undefined");
+  }
+
+  let condition = { original_filename: originalFilename };
+  let fileInfoArray = await file_info.findAll({
+    where: condition,
+  });
+
+  if (Array.isArray(fileInfoArray) && fileInfoArray.length > 0) {
+    let fileInfo = fileInfoArray[0];
+    fileInfo.description = updatedFileInfo.description;
+    return await fileInfo.save();
+  }
 };
 
 /**
@@ -75,6 +106,7 @@ exports.upsertFileInfo = async (fileInfo) => {
     upload_error_msg: fileInfo.error ? JSON.stringify(fileInfo.error) : null,
     size: fileInfo.size || null,
     created_by: fileInfo.created_by,
+    user_id: fileInfo.created_by,
     updated_by: fileInfo.updated_by,
   };
   if (fileInfo.description) {

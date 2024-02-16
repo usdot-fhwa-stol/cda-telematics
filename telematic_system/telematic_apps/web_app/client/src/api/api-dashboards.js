@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {env } from "../env"
+import { constructError } from './api-utils';
 /**
  *@brief List all dashboards urls belong to the current user organization
  */
@@ -13,9 +14,8 @@ const searchDashboards = async (org_id, search_text) => {
         data: { org_id: org_id, search_text: search_text }
       }, { withCredentials: true });
     return data;
-  } catch (err) {
-    
-    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  } catch (err) {    
+    return constructError(err)
   }
 }
 
@@ -32,9 +32,8 @@ const getDashboardsByOrg = async (org_id) => {
         data: { org_id: org_id }
       }, { withCredentials: true });
     return data;
-  } catch (err) {
-    
-    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  } catch (err) {    
+    return constructError(err)
  }
 }
 
@@ -51,9 +50,8 @@ const listEventDashboards = async (event_id) => {
         data: { event_id: event_id }
       }, { withCredentials: true });
     return data;
-  } catch (err) {
-    
-    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  } catch (err) {    
+    return constructError(err)
   }
 }
 
@@ -71,9 +69,8 @@ const updateEventDashboards = async (event_id, dashboard_id) => {
         data: { event_id: event_id, dashboard_id: dashboard_id }
       }, { withCredentials: true });
     return data;
-  } catch (err) {
-    
-    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  } catch (err) {    
+    return constructError(err)
   }
 }
 
@@ -88,9 +85,8 @@ const deleteEventDashboards = async (event_id, dashboard_id) => {
   try {
     const { data } = await axios.delete(URL+"?event_id="+event_id+"&dashboard_id="+dashboard_id, { withCredentials: true });
     return data;
-  } catch (err) {
-    
-    return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+  } catch (err) {    
+    return constructError(err)
   }
 }
 

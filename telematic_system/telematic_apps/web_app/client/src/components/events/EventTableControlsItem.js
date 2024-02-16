@@ -26,6 +26,7 @@ import { USER_ROLES } from '../users/UserMetadata';
 import { AssignUnitDialog } from './AssignUnitDialog';
 import DashboardDropDownMenu from './DashboardDropDownMenu';
 import { EditEventDialog } from './EditEventDialog';
+import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
 
 const EventTableControlsItem = (props) => {
   const authCtx = React.useContext(AuthContext)
@@ -88,6 +89,11 @@ const EventTableControlsItem = (props) => {
             aria-expanded={open ? 'true' : undefined}
             variant="outlined"
             disableElevation
+            sx={{
+              backgroundColor: "#fff",
+              borderColor: '#748c93',
+              margin: "1px",
+              color: "#748c93",}}
             onClick={handleClick}
             endIcon={<KeyboardArrowDownIcon />}>
             Dashboards
@@ -99,28 +105,16 @@ const EventTableControlsItem = (props) => {
         authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
         <TableCell tabIndex={-1} key={`controls-${props.eventRow.id}`}>
           <EditEventDialog title="Edit Event" locationList={props.locationList} testingTypeList={props.testingTypeList} eventInfo={props.eventRow} onEventSaveHandler={onEventSaveHandler} onCloseEventDialog={onCloseEventDialog} close={!openEditEventDialog} open={openEditEventDialog} />
-          <Tooltip title="Edit Event" placement="top" arrow>
-            <Button variant='outlined' size="small" key={`edit-event-${props.eventRow.id}`} onClick={handleOpenEditEventDialog}>
-              <EditIcon sx={{ color: "primary.main" }} />
-            </Button>
-          </Tooltip>
+          <CustomizedOutlinedButton title="Edit Event" key={`edit-event-${props.eventRow.id}`} onClick={handleOpenEditEventDialog}><EditIcon /></CustomizedOutlinedButton>
           {
             openWarningDialog &&
             <WarningDialog open={openWarningDialog} onConfirm={event => onConfirmDeleteEventHandler(event, props.eventRow.id)} onCloseWarning={handleCloseWarningDialog} title="Delete Event Alert" description={`Are you sure to delete event ${props.eventRow.name}?`} />
           }
-          <Tooltip title="Delete Event" placement="top" arrow>
-            <Button variant='outlined' size="small" key={`delete-event-${props.eventRow.id}`} onClick={handleOpenWarningDialog}>
-              <DeleteIcon sx={{ color: "primary.main" }} />
-            </Button>
-          </Tooltip>
+          <CustomizedOutlinedButton title="Delete Event"  key={`delete-event-${props.eventRow.id}`} onClick={handleOpenWarningDialog}> <DeleteIcon/> </CustomizedOutlinedButton>
           {
             openAssignUnitDialog && <AssignUnitDialog eventInfo={props.eventRow} unitList={props.unitList} onAssignUnitHandler={onAssignUnitHandler} close={!openAssignUnitDialog} open={openAssignUnitDialog} onCloseAssignUnitDialog={handleCloseAssignUnitDialog} />
           }
-          <Tooltip title="Assign Unit " placement="top" arrow>
-            <Button variant='outlined' size="small" key={`assign-Units-for-event-${props.eventRow.eventId}`} onClick={handleOpenAssignUnitDialog}>
-              <ElectricCarIcon sx={{ color: "primary.main" }} />
-            </Button>
-          </Tooltip>
+          <CustomizedOutlinedButton title="Assign Unit " key={`assign-Units-for-event-${props.eventRow.eventId}`} onClick={handleOpenAssignUnitDialog}><ElectricCarIcon/> </CustomizedOutlinedButton>
         </TableCell>
       }
     </React.Fragment>

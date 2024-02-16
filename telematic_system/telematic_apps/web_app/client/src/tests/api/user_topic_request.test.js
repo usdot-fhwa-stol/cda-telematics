@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { expect, test } from '@jest/globals';
-import { upsertUserTopicRequestForEventUnits, findUserTopicRequestByUserEventUnits, findUsersTopicRequestByEventUnits } from '../../api/user_topic_request';
+import { upsertUserTopicRequestForEventUnits, findUserTopicRequestByUserEventUnits, findUsersTopicRequestByEventUnits } from '../../api/user-topic-request';
 
 jest.mock('axios');
 

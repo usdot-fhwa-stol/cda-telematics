@@ -1,7 +1,8 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React from 'react';
 import AuthContext from '../../../context/auth-context';
+import { CustomizedButton } from '../../ui/CustomizedButton';
 import RolesDropDown from './RolesDropDown';
 import UserOrgRoleTable from './UserOrgRoleTable';
 
@@ -158,9 +159,10 @@ const UserOrgRoleEditDialog = (props) => {
                                 </Select>
                             </FormControl>
                             <RolesDropDown role={selectedOrgRole} onUserOrgRoleChange={handleUserRoleChange} />
-                            <Tooltip title="Click assign button to add user to the selected organizations." placement="top-start">
-                                <Button onClick={handleAddUserToOrg} data-testid='assign-user-to-org' variant="contained" sx={{ marginTop: 1 }}>Assign</Button>
-                            </Tooltip>
+                            <CustomizedButton title="Click assign button to add user to the selected organizations." 
+                                onClick={handleAddUserToOrg} data-testid='assign-user-to-org'>
+                                Assign
+                            </CustomizedButton>
                             {
                                 orgAssignErr.color !== undefined && orgAssignErr.message !== undefined &&
                                 <FormHelperText sx={{
@@ -220,7 +222,7 @@ const UserOrgRoleEditDialog = (props) => {
                                                 <ToggleButton value="y" aria-label="Change aligned" data-testid='confirm-change-to-admin-toggle-btn'>
                                                     Change
                                                 </ToggleButton>
-                                                <ToggleButton value="n" aria-label="Cancel aligned">
+                                                <ToggleButton value="n"  data-testid='cancel-admin-toggle-btn'  aria-label="Cancel aligned">
                                                     Cancel
                                                 </ToggleButton>
                                             </ToggleButtonGroup>
@@ -247,7 +249,7 @@ const UserOrgRoleEditDialog = (props) => {
                         onUserOrgRoleDelete={props.onUserOrgRoleDelete} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose} variant="outlined">Close</Button>
+                    <CustomizedButton title="Close user org role dialog" data-testid='close-assign-user-to-org' onClick={handleClose}>Close</CustomizedButton>
                 </DialogActions>
             </Dialog>
         </React.Fragment >

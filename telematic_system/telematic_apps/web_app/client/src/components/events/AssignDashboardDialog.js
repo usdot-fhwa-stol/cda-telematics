@@ -13,13 +13,15 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import { Alert, Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, List, ListItem, ListItemText, Snackbar, TextField, Typography } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Alert, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, List, ListItem, ListItemText, Snackbar, TextField, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useState } from 'react';
 import { searchDashboards } from '../../api/api-dashboards';
 import AuthContext from '../../context/auth-context';
+import { CustomizedButton } from '../ui/CustomizedButton';
+import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
 import DashboardCheckboxList from './DashboardCheckboxList';
-import DeleteIcon from '@mui/icons-material/Delete';
 
 export const AssignDashboardDialog = (props) => {
     const [errorMsg, setErrorMsg] = useState('');
@@ -123,7 +125,7 @@ export const AssignDashboardDialog = (props) => {
                             onChange={searchTextChangeHandler} />
                     </FormControl>
                     <FormControl sx={{ width: '20%', top: 10, marginRight: 0, float: 'right' }}>
-                        <Button variant="outlined" size='large' onClick={searchHandler}>Search</Button>
+                        <CustomizedButton  key ="search_event" onClick={searchHandler}>Search</CustomizedButton>
                     </FormControl>
                     {
                         searchedDashboards.length > 0 &&
@@ -135,7 +137,7 @@ export const AssignDashboardDialog = (props) => {
                     }
                 </DialogContent>
                 <DialogActions>
-                    <Button variant='contained' sx={{ marginRight: '20px' }} onClick={onAssignDashboardHandler}>Assign</Button>
+                    <CustomizedButton onClick={onAssignDashboardHandler}>Assign</CustomizedButton>
                 </DialogActions>
                 <Divider sx={{ marginTop: '20px' }} />
                 <DialogTitle>
@@ -173,7 +175,7 @@ export const AssignDashboardDialog = (props) => {
                         }
                     </Box>
                     <DialogActions>
-                        <Button variant='outlined' onClick={onCloseHandler}>Close</Button>
+                        <CustomizedOutlinedButton onClick={onCloseHandler}>Close</CustomizedOutlinedButton>
                     </DialogActions>
                 </DialogContent>
             </Dialog>
@@ -200,8 +202,8 @@ export const AssignDashboardDialog = (props) => {
                             textAlign: 'center',
                             justifyContent: 'right'
                         }}>
-                            <Button variant='outlined' onClick={handleCloseConfirm}>Cancel</Button>
-                            <Button variant='contained' sx={{ marginLeft: '20px' }} onClick={handleConfirmRemoval}>Confirm</Button>
+                            <CustomizedOutlinedButton onClick={handleCloseConfirm}>Cancel</CustomizedOutlinedButton>
+                            <CustomizedButton onClick={handleConfirmRemoval}>Confirm</CustomizedButton>
                         </Box>
                     </DialogActions>
                 </Dialog>}

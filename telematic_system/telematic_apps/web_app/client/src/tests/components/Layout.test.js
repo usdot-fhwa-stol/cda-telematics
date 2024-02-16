@@ -32,7 +32,7 @@ test("Test Layout", async () => {
   });
 
   await waitFor(() => {
-    expect(screen.getByText("Events")).toBeInTheDocument();
+    expect(screen.getByText("Dashboard")).toBeInTheDocument();
   });
 
   await act(async() => {

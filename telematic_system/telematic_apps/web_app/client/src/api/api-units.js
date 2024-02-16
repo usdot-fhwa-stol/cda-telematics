@@ -1,6 +1,7 @@
 
 import axios from 'axios';
 import {env} from "../env"
+import { constructError } from './api-utils';
 /**
  *@brief Create a unit
  * @Return Response status and message
@@ -12,7 +13,7 @@ const createUnit = async (unit) => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 };
@@ -28,7 +29,7 @@ const findAllUnits = async () => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 };

@@ -1,12 +1,10 @@
 import React from 'react'
 import RegisterUser from '../components/users/RegisterUser'
 
-const RegisterUserPage = () => {
+const RegisterUserPage = React.memo(() => {
     return (
-        <React.Fragment>
-            <RegisterUser/>
-        </React.Fragment>
+        <RegisterUser/>
     )
-}
+})
 
 export default RegisterUserPage

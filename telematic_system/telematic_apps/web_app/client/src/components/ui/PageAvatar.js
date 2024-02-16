@@ -22,7 +22,7 @@ export const PageAvatar = (props) => {
         <Grid item xs={8}>
             <CardHeader
                 avatar={
-                    <Avatar sx={{bgcolor: 'info.main' }}>
+                    <Avatar sx={{bgcolor: '#748c93' }}>
                         {icon}
                     </Avatar>
                 }

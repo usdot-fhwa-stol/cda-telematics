@@ -102,7 +102,7 @@ services:
         - DB_PASSWORD=telematic
         - GRAFANA_DB=wfd_grafana
         # File upload service settings
-        - UPLOAD_DESTINATION=s3
+        - UPLOAD_DESTINATION=host
         - UPLOAD_DESTINATION_PATH=/opt/telematics/upload
         - AWS_ACCESS_KEY_ID=
         - AWS_SECRET_KEY=
@@ -114,7 +114,7 @@ services:
         - CONCURRENT_QUEUE_SIZE=5 
         - PART_SIZE=10485760 
         - NATS_SERVERS=localhost:4222
-        - FILE_PROCESSING_SUBJECT=ui.file.procressing
+        - FILE_PROCESSING_SUBJECT=ui.file.processing
       volumes:
         - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
         - /opt/telematics/upload:/opt/telematics/upload
@@ -146,6 +146,7 @@ services:
       - GRAFANA_LOCAL_URL=http://127.0.0.1:3000/
       - TOPICSERVICE_LOCAL_URL=http://127.0.0.1:8080/
       - UISERVICE_LOCAL_URL=http://127.0.0.1:9010/
+      - UISERVICE_LOCAL_UPLOAD_URL=http://127.0.0.1:9011/
     depends_on:
       - grafana
       - telematic_web_client

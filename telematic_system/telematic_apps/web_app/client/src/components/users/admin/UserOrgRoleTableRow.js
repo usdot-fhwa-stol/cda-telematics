@@ -1,6 +1,9 @@
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TableCell, TableRow, Tooltip } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TableCell, TableRow } from '@mui/material';
 import React, { useState } from 'react';
+import { CustomizedButton } from '../../ui/CustomizedButton';
+import { CustomizedIcon } from '../../ui/CustomizedIcon';
+import { CustomizedOutlinedButton } from '../../ui/CustomizedOutlinedButton';
 import RolesDropDown from './RolesDropDown';
 const UserOrgROleTableRow = (props) => {
     const [open, setOpen] = useState(false);
@@ -40,8 +43,8 @@ const UserOrgROleTableRow = (props) => {
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant='outlined' sx={{ marginRight: '10px' }} onClick={handleClose}>No</Button>
-                    <Button variant='contained' onClick={handleConfirmDelete}>Yes</Button>
+                    <CustomizedOutlinedButton onClick={handleClose}>No</CustomizedOutlinedButton>
+                    <CustomizedButton onClick={handleConfirmDelete}>Yes</CustomizedButton>
                 </DialogActions>
             </Dialog>
             <TableRow
@@ -54,10 +57,7 @@ const UserOrgROleTableRow = (props) => {
                     <RolesDropDown role={props.userOrgRole.role} onUserOrgRoleChange={handleOrgUserRoleChange} />
                 </TableCell>
                 <TableCell scope='row' key={`edit-user-role-control-${props.userOrgRole.login}-${props.userOrgRole.org_name}`}>
-                    <Tooltip title={`Remove user from ${props.userOrgRole.org_name} organization`}
-                        placement="top-start">
-                        <Button onClick={handleOrgUserRoleDelete}><DeleteIcon /></Button>
-                    </Tooltip>
+                    <CustomizedIcon onClick={handleOrgUserRoleDelete} title={`Remove user from ${props.userOrgRole.org_name} organization`}><DeleteIcon /></CustomizedIcon>
                 </TableCell>
             </TableRow>
         </React.Fragment>

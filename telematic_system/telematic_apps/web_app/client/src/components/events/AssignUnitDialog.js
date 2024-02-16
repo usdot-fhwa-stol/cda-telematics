@@ -14,13 +14,15 @@
  * the License.
  */
 import { yupResolver } from '@hookform/resolvers/yup';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, FormControl, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
+import { CustomizedButton } from '../ui/CustomizedButton';
+import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
 
 export const AssignUnitDialog = (props) => {
     const onCloseHandler = () => {
@@ -61,11 +63,7 @@ export const AssignUnitDialog = (props) => {
         const event_end_at = new Date(props.eventInfo.end_at).getTime();
 
         //Assigned unit time has to be between event start and end time
-        if (assignedUnitTime - event_start_at > 0 && event_end_at - assignedUnitTime > 0) {
-            return true;
-        } else {
-            return false;
-        }
+        return (assignedUnitTime - event_start_at > 0) && (event_end_at - assignedUnitTime > 0) ;
     }
 
     const onAssignUnitHandler = () => {
@@ -108,7 +106,6 @@ export const AssignUnitDialog = (props) => {
         resolver: yupResolver(validationSchema)
     });
     return (
-        <React.Fragment>
             <Dialog open={props.open} onClose={onCloseHandler}>
                 <DialogTitle sx={{ fontWeight: "bolder" }}>Assign Unit</DialogTitle>
                 <DialogContent>
@@ -155,10 +152,9 @@ export const AssignUnitDialog = (props) => {
                     </FormControl>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant='outlined' onClick={onCloseHandler}>Cancel</Button>
-                    <Button variant='contained' onClick={handleSubmit(onAssignUnitHandler)}>Assign</Button>
+                    <CustomizedOutlinedButton onClick={onCloseHandler}>Cancel</CustomizedOutlinedButton>
+                    <CustomizedButton onClick={handleSubmit(onAssignUnitHandler)}>Assign</CustomizedButton>
                 </DialogActions>
             </Dialog>
-        </React.Fragment >
     )
 }

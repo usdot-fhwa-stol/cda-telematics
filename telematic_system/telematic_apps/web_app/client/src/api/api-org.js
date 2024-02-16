@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {env} from "../env"
+import { constructError } from './api-utils';
 const listOrgs = async () => {
     const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/org/all`
     try {
@@ -7,7 +8,7 @@ const listOrgs = async () => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }
@@ -19,7 +20,7 @@ const listOrgUsers = async () => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }
@@ -34,7 +35,7 @@ const addOrgUser = async (reqData) => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }
@@ -48,7 +49,7 @@ const getUserRole = async (reqData) => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }
@@ -64,7 +65,7 @@ const getOrgsByUser = async (userId) => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }
@@ -79,7 +80,7 @@ const updateOrgUser = async (reqData) => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }
@@ -94,7 +95,7 @@ const deleteOrgUser = async (req) => {
         const { data } = await axios.delete(URL + "?org_id=" + req.org_id + "&user_id=" + req.user_id, { withCredentials: true });
         return data;
     } catch (err) {        
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }

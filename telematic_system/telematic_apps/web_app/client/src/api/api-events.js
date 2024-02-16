@@ -1,5 +1,6 @@
 import axios from 'axios';
 import {env} from "../env"
+import { constructError } from './api-utils';
 
 /**
  *@brief Create an event in database (DB)
@@ -13,7 +14,7 @@ const createEvent = async (event) => {
         return data;
     } catch (err) {
         
-        return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+        return constructError(err)
     }
 }
 
@@ -38,7 +39,7 @@ const findAllEvents = async (criteria) => {
         return data;
     } catch (err) {
         
-        return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+        return constructError(err)
     }
 }
 
@@ -55,7 +56,7 @@ const editEvent = async (event) => {
         return data;
     } catch (err) {
         
-        return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+        return constructError(err)
     }
 }
 
@@ -71,7 +72,7 @@ const assignUnit2Event = async (assign_event_unit) => {
         return data;
     } catch (err) {
         
-        return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+        return constructError(err)
     }
 }
 
@@ -87,7 +88,7 @@ const unAssignUnit2Event = async (event_unit) => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }
@@ -104,7 +105,7 @@ const deleteEvent = async (id) => {
         return data;
     } catch (err) {
         
-          return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+          return constructError(err)
   
     }
 }

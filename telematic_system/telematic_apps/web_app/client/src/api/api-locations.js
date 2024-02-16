@@ -1,6 +1,7 @@
 
 import axios from 'axios';
 import {env} from "../env"
+import { constructError } from './api-utils';
 
 /**
  *@brief Create a location
@@ -14,7 +15,7 @@ const createLocation = async (location) => {
     return data;
   } catch (err) {
     
-      return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+      return constructError(err)
   
   }
 }
@@ -30,7 +31,7 @@ const findAllLocations = async () => {
     return data;
   } catch (err) {
     
-      return { errCode: err.response!== undefined ? err.response.status: "", errMsg:  err.response !== undefined  && err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : (err.response !== undefined ? err.response.statusText : "")}
+      return constructError(err)
   
   }
 }
