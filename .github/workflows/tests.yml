@@ -159,8 +159,11 @@ jobs:
         shell: bash
         run: |
           source $GITHUB_WORKSPACE/install/setup.bash
-          cd $GITHUB_WORKSPACE/
-          colcon test --packages-select rosbag2_processing_service --event-handlers console_cohesion+
+          #cd $GITHUB_WORKSPACE/
+          #colcon test --packages-select rosbag2_processing_service --event-handlers console_cohesion+
+          cd $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/historical_data_processing/rosbag2_processing_service/
+          python3 -m coverage run -m pytest
+          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
       - name: Find coverage.xml
         shell: bash
         run: |
