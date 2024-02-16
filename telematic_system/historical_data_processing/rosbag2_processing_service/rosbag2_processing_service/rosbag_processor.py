@@ -146,6 +146,8 @@ class Rosbag2Parser:
                     attributes.extend(nested_attributes)
                 else:
                     attributes.append((attr_name, attr_value))
+
+            # This should be updated with specific exceptions caught during use of tool. Currently set to generic, to avoid crashing the service.
             except Exception as e:
                 self.logger.error(f"Unable to get attributes for ros message with exception: {str(e)}")
 
