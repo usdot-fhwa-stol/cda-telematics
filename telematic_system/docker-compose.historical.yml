@@ -25,9 +25,9 @@ services:
     - LOG_HANDLER_TYPE=console
     - INFLUX_BUCKET=<>
     - INFLUX_ORG=my-org
-    - INFLUX_TOKEN=<>
-    - INFLUX_URL=http://ec2-44-207-200-164.compute-1.amazonaws.com:8086
-    - UPLOAD_DESTINATION_PATH=/home/carma/wfd_ws/test_rosbags # For cloud deployment:This is the directory S3 bucket is mounted
+    - INFLUX_TOKEN=my-super-secret-token
+    - INFLUX_URL=<>
+    - UPLOAD_DESTINATION_PATH=/opt/telematics/upload # For cloud deployment:This is the directory S3 bucket is mounted
     - TO_STR_FIELDS=[]
     - IGNORE_FIELDS=[]
     - FILE_PROCESSING_SUBJECT=ui.file.processing

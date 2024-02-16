@@ -32,7 +32,6 @@ RUN sudo bash /ws/src/rosbag2_processing_service/docker/install.sh
 COPY rosbag2_processing_service/docker/entrypoint.sh entrypoint.sh
 RUN chmod +x entrypoint.sh
 
-RUN sudo rm -rf src /var/lib/apt/lists/*
 
 RUN echo "source /ws/install/setup.bash" >> ~/.bashrc
 

@@ -65,6 +65,7 @@ class Rosbag2Parser:
 
 
         if Path(rosbag2_name).suffix not in self.config.accepted_file_extensions:
+            #TODO update mysql entry for rosbag
             raise Exception(f"File type not acceptable for {rosbag2_name}")
 
         measurement_name = Path(rosbag2_name).stem # Measurement name is rosbag name without mcap extension

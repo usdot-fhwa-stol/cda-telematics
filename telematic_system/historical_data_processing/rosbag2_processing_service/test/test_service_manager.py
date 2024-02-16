@@ -27,6 +27,7 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from nats.aio.client import Client as NATS
 from influxdb_client import InfluxDBClient
 
+from rosbag2_processing_service.rosbag_processor import Config
 from rosbag2_processing_service.service_manager import ServiceManager
 from rosbag2_processing_service.rosbag_processor import Rosbag2Parser
 
@@ -58,8 +59,8 @@ class ServiceManagerTestClass(TestCase):
     async def test_service_manager_declare(self):
 
         assert os.getenv("INFLUX_ORG") == "my-org"
-
-        service_manager = ServiceManager()
+        config = Config()
+        service_manager = ServiceManager(config)
         await service_manager.nats_connect()
         # Assertions to ensure connect was called.
         mock_nats_client.return_value.connect.assert_awaited_once()
