@@ -158,7 +158,7 @@ const ROS2RosbagPage = React.memo(() => {
         severity: NOTIFICATION_STATUS.WARNING,
         title: "ROS2 Rosbag files upload",
         message:
-          "ROS2 Rosbag files upload request sent! Please DOT NOT close this page until the ROS2 Rosbag files upload completed! Click the refresh button to get the latest upload status.",
+          "ROS2 Rosbag files upload request sent! Please DOT NOT close this browser window tab until the ROS2 Rosbag files upload completed! Click the refresh button to get the latest upload status.",
       });
     }
   };

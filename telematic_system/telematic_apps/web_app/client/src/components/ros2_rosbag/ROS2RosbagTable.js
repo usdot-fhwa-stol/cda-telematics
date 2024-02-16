@@ -31,7 +31,7 @@ import ROS2RosbagRowItem from "./ROS2RosbagRowItem";
 const columns = [
   {
     id: "original_filename",
-    label: "AWS S3 File Name",
+    label: "File Name",
     minWidth: 100,
     info: "",
   },

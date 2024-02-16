@@ -38,6 +38,7 @@ const ROS2RosbagRowItem = (props) => {
           let value = props.ROS2RosbagRow[column.id] || "NA";
           let isBlue = (column.id === "process_status" && props.ROS2RosbagRow.process_status === PROCESSING_STATUS.IN_PROGRESS) || (column.id === "upload_status" && props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.IN_PROGRESS);
           let isGreen = (column.id === "process_status" && props.ROS2RosbagRow.process_status === PROCESSING_STATUS.COMPLETED) || (column.id === "upload_status" && props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.COMPLETED);
+          let isRed = (column.id === "process_status" && props.ROS2RosbagRow.process_status === PROCESSING_STATUS.ERROR) || (column.id === "upload_status" && props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.ERROR);
           let createdBy = column.id === "created_by" && props.ROS2RosbagRow.user !== null && props.ROS2RosbagRow.user.email !== null ? props.ROS2RosbagRow.user.email : "NA";
           value = column.id === "size" ? calFilesizes(value) : value;
           value = column.id === "created_by" ? createdBy : value;
@@ -45,18 +46,18 @@ const ROS2RosbagRowItem = (props) => {
 
           return (
             <TableCell key={`ros2-rosbag-cell-${props.ROS2RosbagRow.id}-${column.id}`} align={column.align}
-              style={{ top: 0, minWidth: column.minWidth, color: isGreen ? "green" : isBlue ? "blue" : "black" }}>
+              style={{ top: 0, minWidth: column.minWidth, color: isGreen ? "green" : isBlue ? "blue" : isRed? "red": "black" }}>
 
               {value}
 
-              {column.id === "process_status" && props.ROS2RosbagRow !== undefined && props.ROS2RosbagRow.process_status === PROCESSING_STATUS.ERROR &&
+              {column.id === "process_status" && isRed &&
                 (
                   <InfoPopover sx={{ color: "red" }} info={props.ROS2RosbagRow.process_error_msg} />
                 )}
 
-              {column.id === "upload_status" && props.ROS2RosbagRow !== undefined && props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.ERROR &&
+              {column.id === "upload_status" && isRed &&
                 (
-                  <InfoPopover info={props.ROS2RosbagRow.upload_error_msg} />
+                  <InfoPopover  sx={{ color: "red" }} info={props.ROS2RosbagRow.upload_error_msg} />
                 )}
             </TableCell>
           );
