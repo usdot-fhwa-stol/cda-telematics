@@ -3,7 +3,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   push:
-    branches: [develop, master]
+    branches: [develop, master,feature_gha_rosbag2_service]
 
 jobs:
   carma_cloud_bridge_coverage:
