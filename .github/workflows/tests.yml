@@ -1,9 +1,8 @@
-name: "CI: Run tests"
+name: "Tests"
+
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
   push:
-    branches: [develop, master,feature_gha_rosbag2_service]
 
 jobs:
   carma_cloud_bridge_coverage:
@@ -160,14 +159,20 @@ jobs:
           source /opt/ros/foxy/setup.bash
           export PYTHONPATH=$PYTHONPATH:/usr/lib/python3/dist-packages
           cd $GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service
+          # Ensure your PYTHONPATH includes the directory of your package so it can be imported by tests
           export PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE/telematic_system/historical_data_processing
           # Run pytest with coverage on your package
           python3 -m coverage run --source=./ -m pytest
-          python3 -m coverage xml -o coverage.xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"          
+          python3 -m coverage xml -o coverage.xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"     
+
+      - name: Find coverage.xml
+        shell: bash
+        run: |
+          find "$GITHUB_WORKSPACE" -name "coverage.xml"          
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
-          name: rosbag2-processing-service-coverage
+          name: rosbag2-processing-service
           path: telematic_system/historical_data_processing/rosbag2_processing_service/coverage.xml
           if-no-files-found: error         
   sonar:
@@ -205,7 +210,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: rosbag2-processing-service
-          path: rosbag2_processing_service         
+          path: telematic_system/historical_data_processing/rosbag2_processing_service/       
       - name: Download web app server code coverage results
         uses: actions/download-artifact@v3
         with:
