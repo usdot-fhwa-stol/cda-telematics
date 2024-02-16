@@ -86,12 +86,12 @@ class Rosbag2Parser:
                     self.write_api.write(bucket=self.config.influx_bucket, org=self.config.influx_org, record=record)
 
                 except InfluxDBClientError as e:
-                    self.logger.error(f"Error from Influx Client: {str(e)}")
+                    self.logger.error(f"Error from Influx Client: {(e)}")
                 except Exception as e:
-                    self.logger.warn(f"Failed to process ros message with exception: {str(e)}")
+                    self.logger.error(f"Failed to process ros message with exception: {(e)}")
 
         except exceptions.McapError as e:
-            self.logger.warn(f"Failed to read from rosbag with exception {str(e)} ")
+            self.logger.error(f"Failed to read from rosbag with exception {(e)} ")
 
         self.logger.info(f"Completed rosbag processing for {rosbag2_name}")
 
@@ -104,30 +104,25 @@ class Rosbag2Parser:
         msg_attributes = self.extract_attributes(ros_msg)
         msg_timestamp = msg.publish_time_ns
 
-        record = f"{measurement_name},topic_name={topic},"
+        records = []
 
         for attr_name, attr_value in msg_attributes:
             if attr_name in self.config.ignore_fields:
                 continue
 
-            elif attr_name in self.config.to_str_fields:
+            if attr_name in self.config.to_str_fields:
                 attr_value = f'"{attr_value}"'
-                record += f"{attr_name}={attr_value},"
+                records.append(f"{attr_name}={attr_value}")
 
             elif isinstance(attr_value, list):  # Handle arrays
-                record += f'{attr_name}="{str(attr_value)}",'
+                records.append(f'{attr_name}="{str(attr_value)}"')
             else:
                 if isinstance(attr_value, str):
                     attr_value = f'"{attr_value}"'  # Correctly format string values
-                record += f"{attr_name}={attr_value},"
+                records.append(f"{attr_name}={attr_value}")
 
 
-        # Remove last comma
-        record = record[:-1]
-        # Add timestamp at the end
-        record += f" timestamp={msg_timestamp}"
-
-        return record
+        return f"{measurement_name},topic_name={topic}," + ",".join(records) + f" timestamp={msg_timestamp}"
 
 
     def extract_attributes(self, obj, parent_attr=None):

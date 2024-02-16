@@ -92,26 +92,31 @@ class ServiceManager:
 
             # No response sent for the nats request
 
-        async def disconnected_cb():
+        async def nats_disconnected_cb():
             self.config.logger.warn("Got disconnected...")
 
-        async def reconnected_cb():
+        async def nats_reconnected_cb():
             self.config.logger.warn("Got reconnected...")
 
-        async def error_cb(err):
+        async def nats_error_cb(err):
             self.config.logger.error("{0}".format(err))
 
         if not self.is_nats_connected:
             try:
                 await self.nc.connect(self.config.nats_ip_port,
-                                    reconnected_cb=reconnected_cb,
-                                    disconnected_cb=disconnected_cb,
-                                    error_cb=error_cb,
+                                    reconnected_cb=nats_reconnected_cb,
+                                    disconnected_cb=nats_disconnected_cb,
+                                    error_cb=nats_error_cb,
                                     max_reconnect_attempts=-1)
                 self.config.logger.info("Connected to NATS Server!")
                 self.is_nats_connected = True
-            finally:
-                self.config.logger.info("Client is trying to connect to NATS Server Done.")
+            except asyncio.TimeoutError:
+                self.config.logger.error("Timeout trying to await nats connect")
+            except ConnectionRefusedError:
+                self.config.logger.error("Connect refused trying to connect to nats")
+            except Exception as e:
+                 self.logger.error("Unable to connect to NATS")
+
 
             # Create subscriber for nats
             try:
