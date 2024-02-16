@@ -27,14 +27,9 @@ from unittest.mock import patch, MagicMock, AsyncMock
 from nats.aio.client import Client as NATS
 from influxdb_client import InfluxDBClient
 
-from rosbag2_processing_service.config import Config
-from rosbag2_processing_service.service_manager import ServiceManager
-from rosbag2_processing_service.rosbag_processor import Rosbag2Parser
-
 
 class ServiceManagerTestClass(TestCase):
 
-    @pytest.mark.asyncio
     def test_service_manager_declare(self):
 
         self.assertTrue(True)
