@@ -1,8 +1,9 @@
-name: "Tests"
-
+name: "CI: Run tests"
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
   push:
+    branches: [develop, master,feature_gha_rosbag2_service]
 
 jobs:
   carma_cloud_bridge_coverage:
@@ -138,10 +139,13 @@ jobs:
     steps:
       - name: Checkout ${{ github.event.repository.name }}
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          path: src/${{ github.event.repository.name }}
       - name: Load Environment Variables
         shell: bash
         run: |
-          while read -r line; do export "$line"; done < $GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service/.env
+          while read -r line; do export "$line"; done < $GITHUB_WORKSPACE/src/telematic_system/historical_data_processing/rosbag2_processing_service/.env
       - name: Install dependencies and build
         shell: bash
         run: |
@@ -149,16 +153,18 @@ jobs:
           apt-get -y install python3-coverage python3-pip python3-pytest python3-pytest-asyncio ros-foxy-rclpy unzip 
           python3 -m pip install nats-py influxdb influxdb_client mcap-ros2-support pathlib pytest-env
           apt install -y apt-utils python3-pybind11 ros-foxy-test-msgs python3-colcon-common-extensions
-          cd $GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service
+          cd $GITHUB_WORKSPACE/src/
+          git clone https://github.com/ros2/rosbag2.git --branch foxy-future
+          cd $GITHUB_WORKSPACE/src/telematic_system/historical_data_processing/rosbag2_processing_service
           source /opt/ros/foxy/setup.bash
           colcon build --packages-up-to rosbag2_processing_service
       - name: Run tests
         shell: bash
         run: |
-          source $GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service/install/setup.bash
+          source $GITHUB_WORKSPACE/src/telematic_system/historical_data_processing/rosbag2_processing_service/install/setup.bash
           export PYTHONPATH=$PYTHONPATH:/usr/lib/python3/dist-packages
-          cd $GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service
-          export PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE/telematic_system/historical_data_processing
+          cd $GITHUB_WORKSPACE/src/telematic_system/historical_data_processing/rosbag2_processing_service
+          export PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE/src/telematic_system/historical_data_processing
           colcon test --packages-select rosbag2_processing_service --event-handlers console_cohesion+
       - name: Find coverage.xml
         shell: bash
