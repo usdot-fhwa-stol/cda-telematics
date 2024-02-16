@@ -147,7 +147,7 @@ jobs:
         run: |
           apt-get update
           apt-get -y install python3-coverage python3-pip python3-pytest python3-pytest-asyncio ros-foxy-rclpy unzip 
-          python3 -m pip install nats-py influxdb influxdb_client mcap-ros2-support pathlib
+          python3 -m pip install nats-py influxdb influxdb_client mcap-ros2-support pathlib pytest-env
           apt install -y apt-utils python3-pybind11 ros-foxy-test-msgs python3-colcon-common-extensions
           cd $GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service
           source /opt/ros/foxy/setup.bash
