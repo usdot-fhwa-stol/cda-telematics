@@ -1,11 +1,13 @@
 require("dotenv").config();
+const {StringCodec} = require('nats')
 const fileProcessingSubject = process.env.FILE_PROCESSING_SUBJECT;
 
 exports.pubFileProcessingReq = async (natsConn, payload) => {
   if (natsConn) {
-    natsConn.publish(fileProcessingSubject, String(payload));
+    let payloadStr = JSON.stringify(payload);
+    natsConn.publish(fileProcessingSubject,  StringCodec().encode(String(payloadStr)));
     console.log(
-      `Send file processing request: ${JSON.stringify(payload)} to subject: ${fileProcessingSubject}`
+      `Send file processing request: ${payloadStr} to subject: ${fileProcessingSubject}`
     );
   } else {
     throw new Error(

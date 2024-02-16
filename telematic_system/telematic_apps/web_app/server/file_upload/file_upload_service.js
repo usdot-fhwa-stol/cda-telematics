@@ -119,7 +119,7 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
           filename: localFile.originalFilename,
         };
         if (NATSConn) {
-          await pubFileProcessingReq(NATSConn, JSON.stringify(processingReq));
+          await pubFileProcessingReq(NATSConn, processingReq);
         }
       } catch (err) {
         console.error(err);
@@ -190,7 +190,7 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
           filename: data.originalFilename,
         };
         if (NATSConn) {
-          pubFileProcessingReq(NATSConn, JSON.stringify(processingReq));
+          pubFileProcessingReq(NATSConn, processingReq);
         }
 
         //Close NATS connection when all files are uploaded

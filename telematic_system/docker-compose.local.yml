@@ -114,7 +114,7 @@ services:
         - CONCURRENT_QUEUE_SIZE=5 
         - PART_SIZE=10485760 
         - NATS_SERVERS=localhost:4222
-        - FILE_PROCESSING_SUBJECT=ui.file.procressing
+        - FILE_PROCESSING_SUBJECT=ui.file.processing
       volumes:
         - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
         - /opt/telematics/upload:/opt/telematics/upload
