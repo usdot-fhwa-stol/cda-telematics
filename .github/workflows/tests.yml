@@ -1,8 +1,9 @@
-name: "Tests"
-
+name: "CI: Run tests"
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
   push:
+    branches: [develop, master]
 
 jobs:
   carma_cloud_bridge_coverage:
@@ -152,23 +153,23 @@ jobs:
           cd $GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service
           source /opt/ros/foxy/setup.bash
           colcon build --packages-up-to rosbag2_processing_service
+          source $GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service/install/setup.bash
       - name: Run tests
         shell: bash
         run: |
+          source /opt/ros/foxy/setup.bash
+          export PYTHONPATH=$PYTHONPATH:/usr/lib/python3/dist-packages
+          cd $GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service
           export PYTHONPATH=$PYTHONPATH:$GITHUB_WORKSPACE/telematic_system/historical_data_processing
-          cd $GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service/test/
-          python3 -m coverage run -m pytest
-          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
-      - name: Find coverage.xml
-        shell: bash
-        run: |
-          find "$GITHUB_WORKSPACE" -name "coverage.xml"          
+          # Run pytest with coverage on your package
+          python3 -m coverage run --source=./ -m pytest
+          python3 -m coverage xml -o coverage.xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"          
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
           name: rosbag2-processing-service-coverage
-          path: telematic_system/thistorical_data_processing/rosbag2_processing_service/test/coverage.xml
-          if-no-files-found: error             
+          path: telematic_system/historical_data_processing/rosbag2_processing_service/coverage.xml
+          if-no-files-found: error         
   sonar:
     # Remove cloud bridge and vehicle bridge coverage temporarily as test build failed
     needs: [telematic_cloud_messaging_coverage, web_app_client_coverage, web_app_server_coverage, rosbag2_processing_service_coverage]
@@ -200,6 +201,11 @@ jobs:
         with:
           name: web-app-client
           path: telematic_system/telematic_apps/web_app/client/coverage
+      - name: Download rosbag2-processing-service code coverage results
+        uses: actions/download-artifact@v3
+        with:
+          name: rosbag2-processing-service
+          path: rosbag2_processing_service         
       - name: Download web app server code coverage results
         uses: actions/download-artifact@v3
         with:
@@ -262,8 +268,8 @@ jobs:
           ros2_nats_bridge.sonar.sources=.
           ros2_nats_bridge.sonar.tests=test
           ros2_nats_bridge.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service
-          ros2_nats_bridge.sonar.sources=.
-          ros2_nats_bridge.sonar.tests=test
+          rosbag2_processing_service.sonar.sources=.
+          rosbag2_processing_service.sonar.tests=test
           streets_nats_bridge.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_street_bridge/streets_nats_bridge
           streets_nats_bridge.sonar.sources=src
           telematic_cloud_messaging.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/telematic_cloud_messaging
