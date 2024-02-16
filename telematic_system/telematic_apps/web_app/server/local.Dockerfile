@@ -1,4 +1,4 @@
-FROM node:16.16.0
+FROM node:20.11.1
 
 # Create app directory
 WORKDIR /app
@@ -17,9 +17,6 @@ COPY . .
 ENV WAIT_VERSION 2.12.1
 ADD https://github.com/ufoscout/docker-compose-wait/releases/download/$WAIT_VERSION/wait /wait
 RUN chmod +x /wait
-RUN useradd -ms /bin/bash nonroot
-RUN chown -R nonroot /app
-USER nonroot
-RUN chmod +x service.sh
+RUN chmod +x ./service.sh
 
 CMD /wait && ./service.sh
