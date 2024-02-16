@@ -142,9 +142,11 @@ jobs:
         with:
           fetch-depth: 0
           path: src/${{ github.event.repository.name }}
+      - run: ls -la && pwd   
       - name: Load Environment Variables
         shell: bash
         run: |
+          ls -la && pwd  
           while read -r line; do export "$line"; done < $GITHUB_WORKSPACE/src/telematic_system/historical_data_processing/rosbag2_processing_service/.env
       - name: Install dependencies and build
         shell: bash
