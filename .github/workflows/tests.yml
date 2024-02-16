@@ -159,7 +159,6 @@ jobs:
         shell: bash
         run: |
           source $GITHUB_WORKSPACE/install/setup.bash
-          export PYTHONPATH=$PYTHONPATH:/usr/lib/python3/dist-packages
           cd $GITHUB_WORKSPACE/
           colcon test --packages-select rosbag2_processing_service --event-handlers console_cohesion+
       - name: Find coverage.xml
