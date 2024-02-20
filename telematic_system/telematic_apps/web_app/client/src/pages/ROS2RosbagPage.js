@@ -68,7 +68,7 @@ const ROS2RosbagPage = React.memo(() => {
   };
 
   const isInCurrentOrg = (ROS2RosbagInfo, authCtx) => {
-    return (ROS2RosbagInfo.user !== null && ROS2RosbagInfo.user.org_id === parseInt(authCtx.org_id));
+    return (ROS2RosbagInfo.user !== undefined && ROS2RosbagInfo.user !== null && ROS2RosbagInfo.user.org_id !== undefined && authCtx !== undefined && ROS2RosbagInfo.user.org_id === parseInt(authCtx.org_id));
   };
 
   const refreshHandler = () => {
@@ -112,7 +112,8 @@ const ROS2RosbagPage = React.memo(() => {
       let messageList = [];
       uploadFileInfoList.forEach(newFileInfo => {
         for (let existingFile of fileInfoList) {
-          if (existingFile.original_filename === newFileInfo.filename) {
+          //Existing original file name in DB includes the organization name as the uploaded folder
+          if (existingFile.original_filename.split("/")[existingFile.original_filename.split("/").length -1] === newFileInfo.filename) {
             messageList.push(newFileInfo.filename);
             isValid = false;
           }

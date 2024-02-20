@@ -25,6 +25,7 @@
  */
 const fileInfoController = require("../controllers/file_info.controller");
 const listObjectsModule = require("../file_upload/s3_list_objects");
+const { verifyToken } = require("../utils/verifyToken");
 const { UPLOADSTATUS } = require("./file_upload_status_emitter");
 require("dotenv").config();
 const uploadDest = process.env.UPLOAD_DESTINATION;
@@ -72,8 +73,10 @@ const listAllDBFilesAndS3Objects = async (req, res) => {
     for (const d of data) {
       existingFileNames.push(d.original_filename);
     }
-
-    let objects = await listObjectsModule.listObjects();
+    //Get user organization name
+    let folderName = verifyToken(req).org_name.replaceAll(' ', '_');
+    //Get a list of objects from organization folder in S3 bucket
+    let objects = await listObjectsModule.listObjects(folderName);
     console.log("Your bucket contains the following objects:");
     console.log(objects);
 

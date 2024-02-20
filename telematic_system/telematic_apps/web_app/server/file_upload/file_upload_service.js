@@ -131,6 +131,8 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
   });
 
   form.on("fileBegin", (formName, file) => {
+    //Get user org name and file is uploaded to organization folder in S3 bucket
+    file.originalFilename = userInfo.org_name.replaceAll(' ', '_') + "/"+ file.originalFilename;
     file.updated_by = userInfo.id;
     file.created_by = userInfo.id;
     //Update file info status
@@ -167,6 +169,8 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
   });
 
   form.on("fileBegin", async (formName, file) => {
+    //Get user org name and file is uploaded to organization folder in S3 bucket
+    file.originalFilename = userInfo.org_name.replaceAll(' ', '_') + "/"+ file.originalFilename;
     //Update upload status
     updateFileUploadStatusEmitter(listener).emit(
       UPLOADSTATUS.IN_PROGRESS,

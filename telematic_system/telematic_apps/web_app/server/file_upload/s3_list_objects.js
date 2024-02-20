@@ -27,7 +27,7 @@ const secretAccessKey = process.env.AWS_SECRET_KEY;
 const region = process.env.S3_REGION;
 const bucket = process.env.S3_BUCKET;
 
-exports.listObjects = async () => {
+exports.listObjects = async (s3Folder) => {
   const client = new S3Client({
     credentials: {
       accessKeyId,
@@ -35,23 +35,29 @@ exports.listObjects = async () => {
     },
     region,
   });
-  const command = new ListObjectsV2Command({
-    Bucket: bucket,
-  });
   let contents = [];
-  let isTruncated = true;
-  while (isTruncated) {
-    const { Contents, IsTruncated, NextContinuationToken } = await client.send(
-      command
-    );
-    const contentsList = Contents.map((c) => ({
-      original_filename: c.Key,
-      size: c.Size,
-      filepath: bucket,
-    }));
-    isTruncated = IsTruncated;
-    contents.push(...contentsList);
-    command.input.ContinuationToken = NextContinuationToken;
+  try {
+    const command = new ListObjectsV2Command({
+      Bucket: bucket,
+      Prefix: s3Folder + '/',
+      Delimiter: '/',
+    });
+    let isTruncated = true;
+    while (isTruncated) {
+      const { Contents, IsTruncated, NextContinuationToken } = await client.send(
+        command
+      );
+      const contentsList = Contents.map((c) => ({
+        original_filename: c.Key,
+        size: c.Size,
+        filepath: bucket,
+      }));
+      isTruncated = IsTruncated;
+      contents.push(...contentsList);
+      command.input.ContinuationToken = NextContinuationToken;
+    }
+    return contents;
+  } catch (err) {
+    console.error("Cannot find files in S3 bucket: " + bucket + ", folder:  "+ s3Folder)
   }
-  return contents;
 };

@@ -15,7 +15,7 @@
  */
 var manager = require('htpasswd-mgr');
 const saltHash = require('password-salt-and-hash')
-const { org_user, user, Sequelize } = require("../models");
+const { org_user, org, user, Sequelize } = require("../models");
 const { Op } = require("sequelize");
 const { addOrgUser } = require('./org.controller');
 const getUuid = require('uuid-by-string');
@@ -196,24 +196,30 @@ exports.loginUser = (req, res) => {
             if (is_pwd_match) {
                 //Update user credential file
                 htpasswordManager.upsertUser(req.body.username, req.body.password).then((status) => {
-                    let result = {
-                        id: data[0].id,
-                        last_seen_at: data[0].last_seen_at,
-                        is_admin: data[0].is_admin,
-                        email: data[0].email,
-                        name: data[0].name,
-                        org_id: data[0].org_id,
-                        login: data[0].login,
-                        username: data[0].login,
-                    }
-                    //Creating jwt token, and the token expire in an hour
-                    let token = jwt.sign(
-                        result,
-                        process.env.SECRET,
-                        { expiresIn: "1h" });
-                    result.token = token;
-                    result.tokenExpiredAt = Math.round(new Date().getTime()/1000) + 3600;
-                    res.status(200).send(result);
+                    //get org name
+                    org.findAll({ where: { id: data[0].org_id } }).then(org_data => {
+                        if (org_data.length > 0) {
+                            let result = {
+                                id: data[0].id,
+                                last_seen_at: data[0].last_seen_at,
+                                is_admin: data[0].is_admin,
+                                email: data[0].email,
+                                name: data[0].name,
+                                org_id: data[0].org_id,
+                                login: data[0].login,
+                                username: data[0].login,
+                                org_name: org_data[0].name
+                            }
+                            //Creating jwt token, and the token expire in an hour
+                            let token = jwt.sign(
+                                result,
+                                process.env.SECRET,
+                                { expiresIn: "1h" });
+                            result.token = token;
+                            result.tokenExpiredAt = Math.round(new Date().getTime() / 1000) + 3600;
+                            res.status(200).send(result);
+                        }
+                    });
                 }).catch((err) => {
                     console.error(err)
                     res.status(500).send({ message: "Server error while user login." });
