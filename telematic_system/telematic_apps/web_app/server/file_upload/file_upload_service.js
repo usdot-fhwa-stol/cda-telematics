@@ -23,6 +23,7 @@
 const formidable = require("formidable");
 const { uploadToS3 } = require("./s3_uploader");
 require("dotenv").config();
+var fs = require('fs');
 const uploadDest = process.env.UPLOAD_DESTINATION;
 const uploadDestPath = process.env.UPLOAD_DESTINATION_PATH;
 const uploadMaxFileSize = parseInt(process.env.UPLOAD_MAX_FILE_SIZE);
@@ -131,8 +132,14 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
   });
 
   form.on("fileBegin", (formName, file) => {
-    //Get user org name and file is uploaded to organization folder in S3 bucket
-    file.originalFilename = userInfo.org_name.replaceAll(' ', '_') + "/"+ file.originalFilename;
+    let folderName = userInfo.org_name.replaceAll(' ', '_');
+    //Update file name prefix with folder name (= organization name) to be consistent with s3 originalFilename
+    file.originalFilename = folderName + "/"+ file.originalFilename;
+    //create folder with org name if does not already exist
+    let uploadFolder = uploadDestPath + "/"+folderName;
+    if (!fs.existsSync(uploadFolder)){
+      fs.mkdirSync(uploadFolder);
+  }
     file.updated_by = userInfo.id;
     file.created_by = userInfo.id;
     //Update file info status
