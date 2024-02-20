@@ -21,7 +21,9 @@ sudo python3 -m pip install nats-py \
     influxdb_client \
     mcap-ros2-support \
     pathlib \
-    pytest-env
+    pytest-env \
+    pytest-asyncio \
+    aiounittest
 
 source /opt/ros/foxy/setup.bash
 sudo apt update

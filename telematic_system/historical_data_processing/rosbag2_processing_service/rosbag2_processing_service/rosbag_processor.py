@@ -59,8 +59,7 @@ class Rosbag2Parser:
         # Processing status
         self.is_processing = False
 
-    # TODO: Test to see if this works without async
-    async def process_rosbag(self,rosbag2_name):
+    def process_rosbag(self,rosbag2_name):
         self.is_processing = True
 
 

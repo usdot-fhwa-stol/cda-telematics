@@ -141,34 +141,35 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          path: src/${{ github.event.repository.name }}      
+          path: src/${{ github.event.repository.name }}
       - name: Install dependencies and build
         shell: bash
         run: |
           apt-get update
-          apt-get -y install python3-coverage python3-pip python3-pytest python3-pytest-asyncio ros-foxy-rclpy unzip 
-          python3 -m pip install nats-py influxdb influxdb_client mcap-ros2-support pathlib pytest-env
+          apt-get -y install python3-coverage python3-pip python3-pytest python3-pytest-asyncio ros-foxy-rclpy unzip
+          python3 -m pip install nats-py influxdb influxdb_client mcap-ros2-support pathlib pytest-env pytest-asyncio aiounittest
           apt install -y apt-utils python3-pybind11 ros-foxy-test-msgs python3-colcon-common-extensions
-          cd $GITHUB_WORKSPACE/src/ && git clone https://github.com/ros2/rosbag2.git --branch foxy-future
-          cd .. && source /opt/ros/foxy/setup.bash
+          git clone https://github.com/ros2/rosbag2.git --branch foxy-future src/rosbag2
+          ls -la
+          source /opt/ros/foxy/setup.bash
           colcon build --packages-up-to rosbag2_processing_service
       - name: Run tests
         shell: bash
         run: |
-          source $GITHUB_WORKSPACE/install/setup.bash
-          cd $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/historical_data_processing/rosbag2_processing_service/
+          source install/setup.bash
+          cd src/cda-telematics/telematic_system/historical_data_processing/rosbag2_processing_service/
           python3 -m coverage run -m pytest
-          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
+          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py""
       - name: Find coverage.xml
         shell: bash
         run: |
-          find "$GITHUB_WORKSPACE" -name "coverage.xml"          
+          find "$GITHUB_WORKSPACE" -name "coverage.xml"
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
           name: rosbag2-processing-service
-          path: /__w/cda-telematics/cda-telematics/src/cda-telematics/telematic_system/historical_data_processing/rosbag2_processing_service/coverage.xml
-          if-no-files-found: error         
+          path: src/cda-telematics/telematic_system/historical_data_processing/rosbag2_processing_service/coverage.xml
+          if-no-files-found: error
   sonar:
     # Remove cloud bridge and vehicle bridge coverage temporarily as test build failed
     needs: [telematic_cloud_messaging_coverage, web_app_client_coverage, web_app_server_coverage, rosbag2_processing_service_coverage]
@@ -204,7 +205,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: rosbag2-processing-service
-          path: ${GITHUB_WORKSPACE}/telematic_system/historical_data_processing/rosbag2_processing_service/       
+          path: telematic_system/historical_data_processing/rosbag2_processing_service/
       - name: Download web app server code coverage results
         uses: actions/download-artifact@v3
         with:
@@ -221,9 +222,9 @@ jobs:
       #     for coverage_file in ["/home/runner/work/cda-telematics/cda-telematics/carma_cloud_bridge/coverage.xml", "/home/runner/work/cda-telematics/cda-telematics/carma_vehicle_bridge/coverage.xml"] :
       #       with open(coverage_file, 'r') as coverage :
       #         coverage_content = coverage.read()
-            
+
       #       coverage_content = coverage_content.replace('/__w/', '/home/runner/work/')
-            
+
       #       with open(coverage_file, 'w') as coverage:
       #         coverage.write(coverage_content)
       - name: Move web app client and server code coverage files into one
@@ -232,7 +233,7 @@ jobs:
             mkdir coverage
             mv server/coverage/lcov.info coverage/lcov_server.info
             mv client/coverage/lcov.info coverage/lcov_client.info
-            npm install -g lcov-result-merger 
+            npm install -g lcov-result-merger
             npx lcov-result-merger 'coverage/lcov_*.info' 'coverage/lcov.info'
             cat coverage/lcov.info
       - name: Find lcov*.info
@@ -246,11 +247,11 @@ jobs:
           cat <<EOF > /tmp/sonar-scanner.properties
           sonar.host.url=https://sonarcloud.io
           sonar.coverage.jacoco.xmlReportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_cloud_messaging/target/site/jacoco/jacoco.xml
-          sonar.exclusions=**/__init__.py,**/*test*.py,**/test/**
+          sonar.exclusions=**/__init__.py,**/*test*.py,**/test/**,setup.py
           sonar.coverage.exclusions=**/__init__.py,**/*test*.py,**/test/**
           sonar.java.binaries=$GITHUB_WORKSPACE/telematic_system/telematic_cloud_messaging/target/
           sonar.javascript.lcov.reportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage/lcov.info
-          sonar.modules=cloud_nats_bridge,ros2_nats_bridge,streets_nats_bridge,telematic_cloud_messaging,web_app_client,web_app_server
+          sonar.modules=cloud_nats_bridge,ros2_nats_bridge,streets_nats_bridge,telematic_cloud_messaging,web_app_client,web_app_server,rosbag2_processing_service
           sonar.organization=usdot-fhwa-stol
           sonar.projectBaseDir=$GITHUB_WORKSPACE
           sonar.projectKey=usdot-fhwa-stol_cda-telematics
@@ -258,7 +259,7 @@ jobs:
           sonar.scm.exclusions.disabled=true
           extraProperties: |
             sonar.verbose=true
-          sonar.python.coverage.reportPaths=$GITHUB_WORKSPACE/carma_cloud_bridge/coverage.xml,$GITHUB_WORKSPACE/carma_vehicle_bridge/coverage.xml,/__w/cda-telematics/cda-telematics/src/cda-telematics/telematic_system/historical_data_processing/rosbag2_processing_service/coverage.xml
+          sonar.python.coverage.reportPaths=$GITHUB_WORKSPACE/carma_cloud_bridge/coverage.xml,$GITHUB_WORKSPACE/carma_vehicle_bridge/coverage.xml,$GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service/coverage.xml
           sonar.python.version=3.9
           cloud_nats_bridge.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge
           cloud_nats_bridge.sonar.sources=src
@@ -266,7 +267,7 @@ jobs:
           ros2_nats_bridge.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_vehicle_bridge/ros2_nats_bridge
           ros2_nats_bridge.sonar.sources=.
           ros2_nats_bridge.sonar.tests=test
-          ros2_nats_bridge.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service
+          rosbag2_processing_service.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/historical_data_processing/rosbag2_processing_service
           rosbag2_processing_service.sonar.sources=.
           rosbag2_processing_service.sonar.tests=test
           streets_nats_bridge.sonar.projectBaseDir=$GITHUB_WORKSPACE/telematic_system/telematic_units/carma_street_bridge/streets_nats_bridge
