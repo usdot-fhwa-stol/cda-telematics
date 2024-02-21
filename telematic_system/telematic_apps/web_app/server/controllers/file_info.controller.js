@@ -46,7 +46,7 @@ exports.list = (filterFields) => {
       include: [
         {
           model: user,
-          attributes: ["id", "name", "org_id", "email"],
+          attributes: ["id", "name", "org_id", "email", "login"],
         },
       ],
     })

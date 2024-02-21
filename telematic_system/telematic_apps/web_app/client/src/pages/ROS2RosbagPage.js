@@ -67,10 +67,6 @@ const ROS2RosbagPage = React.memo(() => {
     });
   };
 
-  const isInCurrentOrg = (ROS2RosbagInfo, authCtx) => {
-    return (ROS2RosbagInfo.user !== undefined && ROS2RosbagInfo.user !== null && ROS2RosbagInfo.user.org_id !== undefined && authCtx !== undefined && ROS2RosbagInfo.user.org_id === parseInt(authCtx.org_id));
-  };
-
   const refreshHandler = () => {
     listROS2Rosbags().then((data) => {
       if (data.errCode !== undefined && data.errMsg !== undefined) {
@@ -81,7 +77,7 @@ const ROS2RosbagPage = React.memo(() => {
           message: data.errMsg,
         });
       } else {
-        setROS2RosbagList(data.filter((item) => isInCurrentOrg(item, authCtx)));
+        setROS2RosbagList(data);
       }
     });
   };
@@ -174,9 +170,7 @@ const ROS2RosbagPage = React.memo(() => {
           message: data.errMsg,
         });
       } else {
-        let filterredROS2RosbagList = data.filter((item) =>
-          isInCurrentOrg(item, authCtx)
-        );
+        let filterredROS2RosbagList = data;
         if (ROS2RosbagCtx.uploadStatus.length > 0) {
           filterredROS2RosbagList = filterredROS2RosbagList.filter(
             (item) => (item.upload_status !== null && item.upload_status.toUpperCase().trim() === ROS2RosbagCtx.uploadStatus) || (ROS2RosbagCtx.uploadStatus === UPLOAD_STATUS.NA && (item.upload_status === null || item.upload_status.length === 0))
@@ -209,7 +203,7 @@ const ROS2RosbagPage = React.memo(() => {
           message: data.errMsg,
         });
       } else {
-        setROS2RosbagList((data) => data.filter((item) => isInCurrentOrg(item, authCtx)));
+        setROS2RosbagList(data);
       }
     });
   }, [authCtx]);

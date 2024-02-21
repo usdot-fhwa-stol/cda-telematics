@@ -56,7 +56,17 @@ const listAllFiles = async (req, res) => {
 
 const listAllDBFiles = async (req, res) => {
   try {
-    return await fileInfoController.list({});
+    let contents = [];
+    //Get user organization name
+    let folderName = verifyToken(req).org_name.replaceAll(' ', '_');
+    let data = await fileInfoController.list({});
+    for (const d of data) {
+      //Only push files of current folder (=user organization name)
+      if (d.original_filename.includes(folderName)) {
+        contents.push(d);
+      }
+    }
+    return contents;
   } catch (err) {
     console.error("Cannot get a list of All DB files!");
     console.trace();
@@ -68,13 +78,16 @@ const listAllDBFilesAndS3Objects = async (req, res) => {
   try {
     let contents = [];
     let existingFileNames = [];
-    let data = await fileInfoController.list({});
-    contents.push(...data);
-    for (const d of data) {
-      existingFileNames.push(d.original_filename);
-    }
     //Get user organization name
     let folderName = verifyToken(req).org_name.replaceAll(' ', '_');
+    let data = await fileInfoController.list({});
+    for (const d of data) {
+      //Only push files of current folder (=user organization name)
+      if (d.original_filename.includes(folderName)) {
+        existingFileNames.push(d.original_filename);
+        contents.push(d);
+      }
+    }
     //Get a list of objects from organization folder in S3 bucket
     let objects = await listObjectsModule.listObjects(folderName);
     console.log("Your bucket contains the following objects:");
