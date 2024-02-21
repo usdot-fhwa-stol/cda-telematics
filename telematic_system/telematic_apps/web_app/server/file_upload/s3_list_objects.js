@@ -56,8 +56,8 @@ exports.listObjects = async (s3Folder) => {
       contents.push(...contentsList);
       command.input.ContinuationToken = NextContinuationToken;
     }
-    return contents;
   } catch (err) {
     console.error("Cannot find files in S3 bucket: " + bucket + ", folder:  "+ s3Folder)
   }
+  return contents;
 };
