@@ -105,7 +105,7 @@ class ServiceManagerTestClass(AsyncTestCase):
             def __init__(self, data):
                 self.data = data.encode()
 
-        mock_message = MockMessage(json.dumps({"filename": "rosbag2.mcap"}))
+        mock_message = MockMessage(json.dumps({"filename": "test/rosbag2.mcap"}))
 
         await service_manager.get_file_path_from_nats(mock_message)
 
