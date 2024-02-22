@@ -73,6 +73,10 @@ class Rosbag2Parser:
         self.logger.info(f"rosbag name: {rosbag2_name}")
         rosbag_path = Path(self.config.upload_destination_path) / Path(rosbag2_name).name
 
+        if not Path(rosbag_path).exists():
+            self.logger.error(f"File not found {rosbag_path}")
+            return
+
         # Load the rosbag from the config directory
         try:
             for msg in read_ros2_messages(rosbag_path):
