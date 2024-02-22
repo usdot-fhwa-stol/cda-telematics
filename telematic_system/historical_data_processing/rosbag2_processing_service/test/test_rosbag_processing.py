@@ -46,13 +46,13 @@ class Rosbag2ParserTestClass(AsyncTestCase):
         config.topic_exclusion_list = ["/topic_2"]
 
         rosbag_parser = Rosbag2Parser(config)
-        rosbag_parser.process_rosbag("resources/test_rosbag.mcap")
+        rosbag_parser.process_rosbag("test_rosbag.mcap")
 
         config.to_str_fields = ["stamp"]
         config.ignore_fields = ["position"]
 
         rosbag_parser2 = Rosbag2Parser(config)
-        rosbag_parser2.process_rosbag("resources/test_rosbag.mcap")
+        rosbag_parser2.process_rosbag("test_rosbag.mcap")
 
         with pytest.raises(Exception):
-            rosbag_parser.process_rosbag("resources/mock_rosbag.mcap")
+            rosbag_parser.process_rosbag("mock_rosbag.mcap")
