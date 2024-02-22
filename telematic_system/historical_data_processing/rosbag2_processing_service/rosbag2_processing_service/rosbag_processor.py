@@ -59,28 +59,27 @@ class Rosbag2Parser:
         # Processing status
         self.is_processing = False
 
-    def process_rosbag(self,rosbag2_name):
+    def process_rosbag(self,rosbag2_path):
         self.is_processing = True
 
 
-        if Path(rosbag2_name).suffix not in self.config.accepted_file_extensions:
+        if Path(rosbag2_path).suffix not in self.config.accepted_file_extensions:
             #TODO update mysql entry for rosbag
-            raise Exception(f"File type not acceptable for {rosbag2_name}")
+            raise Exception(f"File type not acceptable for {rosbag2_path}")
 
-        measurement_name = Path(rosbag2_name).stem # Measurement name is rosbag name without mcap extension
+        measurement_name = Path(rosbag2_path).stem # Measurement name is rosbag name without mcap extension
+        rosbag2_name = Path(rosbag2_path).name
 
-        self.logger.info(f"upload_destination_path: {self.config.upload_destination_path}")
         self.logger.info(f"rosbag name: {rosbag2_name}")
-        rosbag_path = Path(self.config.upload_destination_path) / Path(rosbag2_name).name
 
-        if not Path(rosbag_path).exists():
-            self.logger.error(f"File not found {rosbag_path}")
+        if not Path(rosbag2_path).exists():
+            self.logger.error(f"File not found {rosbag2_path}")
             self.is_processing = False
             return
 
         # Load the rosbag from the config directory
         try:
-            for msg in read_ros2_messages(rosbag_path):
+            for msg in read_ros2_messages(rosbag2_path):
                 if msg.channel.topic in self.config.topic_exclusion_list:
                     continue
 
@@ -93,10 +92,11 @@ class Rosbag2Parser:
                     self.logger.error(f"Error from Influx Client: {(e)}")
                 except Exception as e:
                     self.logger.error(f"Failed to process ros message with exception: {(e)}")
-                    return
+
 
         except exceptions.McapError as e:
             self.logger.error(f"Failed to read from rosbag with exception {(e)} ")
+            self.is_processing = False
             return
 
         self.logger.info(f"Completed rosbag processing for {rosbag2_name}")
