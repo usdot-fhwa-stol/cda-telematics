@@ -1,13 +1,13 @@
 #!/bin/bash
 
 #  Copyright (C) 2018-2022 LEIDOS.
-# 
+#
 #  Licensed under the Apache License, Version 2.0 (the "License"); you may not
 #  use this file except in compliance with the License. You may obtain a copy of
 #  the License at
-# 
+#
 #  http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
 #  WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
@@ -46,9 +46,9 @@ if [[ "$BRANCH" = "develop" ]]; then
 else
       git clone --depth=1 https://github.com/usdot-fhwa-stol/carma-msgs.git --branch develop
       git clone --depth=1 https://github.com/usdot-fhwa-stol/novatel_gps_driver.git --branch develop
-fi 
+fi
 
-sudo git clone https://github.com/NewEagleRaptor/raptor-dbw-ros2.git raptor-dbw-ros2 --branch foxy 
+sudo git clone https://github.com/NewEagleRaptor/raptor-dbw-ros2.git raptor-dbw-ros2 --branch foxy
 cd raptor-dbw-ros2
 sudo git reset --hard 4ad958dd07bb9c7128dc75bc7397bc8f5be30a3c
 cd ..
@@ -57,7 +57,7 @@ rm -rf can_dbc_parser raptor_dbw_can raptor_dbw_joystick raptor_pdu
 
 # Install automotive_autonomy_msgs
 sudo git clone https://github.com/astuff/automotive_autonomy_msgs.git automotive_autonomy_msgs --branch master
-cd automotive_autonomy_msgs 
+cd automotive_autonomy_msgs
 sudo git reset --hard 191dce1827023bef6d69b31e8c2514cf82bf10c5
 cd ..
 
@@ -67,8 +67,8 @@ cd pacmod3_msgs
 sudo git reset --hard f16e787d5e3d32d0958c0346363501f0be449b2f
 cd ..
 
-# Install novatel msgs 
-sudo git clone https://github.com/novatel/novatel_oem7_driver.git novatel_oem7_driver --branch ros2-dev 
+# Install novatel msgs
+sudo git clone https://github.com/novatel/novatel_oem7_driver.git novatel_oem7_driver --branch ros2-dev
 cd novatel_oem7_driver
 sudo git checkout 3055e220bb9715b59c3ef53ab0aba05a495d9d5
 sudo mv src/novatel_oem7_msgs ../novatel_oem7_msgs
@@ -84,14 +84,13 @@ sudo apt-get install -y ros-foxy-lgsvl-msgs \
                    ros-foxy-rosbridge-msgs \
                    ros-foxy-automotive-platform-msgs \
                    ros-foxy-gps-msgs \
-                   ros-foxy-pacmod-msgs \
                    ros-foxy-nmea-msgs \
                    ros-foxy-gps-tools \
                    ros-foxy-osqp-vendor \
                    ros-foxy-osrf-testing-tools-cpp \
                    ros-foxy-std-msgs \
                    ros-foxy-velodyne-msgs \
-                   apt-transport-https 
+                   apt-transport-https
 
 sudo sh -c 'echo "deb [trusted=yes] https://s3.amazonaws.com/autonomoustuff-repo/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/autonomoustuff-public.list'
 sudo apt update
