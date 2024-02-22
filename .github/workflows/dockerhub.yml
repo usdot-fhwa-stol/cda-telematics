@@ -87,7 +87,7 @@ jobs:
           push: true
           tags: usdotfhwastoldev/carma_cloud_nats_bridge:${{ github.ref_name }}
 
-  dockerhub-historical_data_processing:
+  dockerhub-telematic_historical_data_processing:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -102,7 +102,7 @@ jobs:
       - name: Build
         uses: docker/build-push-action@v3
         with:
-          context: ./telematic_system/historical_data_processing/
-          file: ./telematic_system/historical_data_processing/Dockerfile
+          context: ./telematic_system/telematic_historical_data_processing/
+          file: ./telematic_system/telematic_historical_data_processing/Dockerfile
           push: true
-          tags: usdotfhwastoldev/historical_data_processing:${{ github.ref_name }}
+          tags: usdotfhwastoldev/telematic_historical_data_processing:${{ github.ref_name }}

@@ -53,7 +53,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_units/carma_vehicle_bridge/
           file: ./telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile
-  historical_data_processing:
+  telematic_historical_data_processing:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -63,8 +63,8 @@ jobs:
       - name: Build
         uses: docker/build-push-action@v3
         with:
-          context: ./telematic_system/historical_data_processing/
-          file: ./telematic_system/historical_data_processing/Dockerfile
+          context: ./telematic_system/telematic_historical_data_processing/
+          file: ./telematic_system/telematic_historical_data_processing/Dockerfile
   grafana:
     runs-on: ubuntu-latest
     steps:

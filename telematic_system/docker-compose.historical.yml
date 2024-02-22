@@ -2,7 +2,7 @@ version: "3.4"
 services:
   rosbag2-processing-service:
     build:
-          context: ./historical_data_processing
+          context: ./telematic_historical_data_processing
           dockerfile: Dockerfile
           network: host
     image: usdotfhwastoldev/rosbag2_processing_service:develop
