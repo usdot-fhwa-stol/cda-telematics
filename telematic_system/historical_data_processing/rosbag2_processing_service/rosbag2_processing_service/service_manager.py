@@ -77,20 +77,8 @@ class ServiceManager:
         """
             connect to nats server on EC2
         """
-        # Nats request callback
-        async def get_file_path_from_nats(msg):
-            self.config.logger.info("Entering process nats request")
 
-            data = msg.data.decode()
-            msg_json_object = json.loads(data)
-
-            rosbag_name = msg_json_object["filename"]
-
-            rosbag_path = Path(self.config.upload_destination_path) / rosbag_name
-            # Add rosbag name to queue
-            self.rosbag_queue.append(rosbag_path)
-
-            # No response sent for the nats request
+        # No response sent for the nats request
 
         async def nats_disconnected_cb():
             self.config.logger.warn("Got disconnected...")
@@ -103,9 +91,9 @@ class ServiceManager:
 
         if not self.is_nats_connected:
             try:
+
                 await self.nc.connect(self.config.nats_ip_port, reconnected_cb=nats_reconnected_cb, disconnected_cb=nats_disconnected_cb,
                                     error_cb=nats_error_cb, connect_timeout=3, max_reconnect_attempts=-1)
-
                 self.config.logger.info("Connected to NATS Server!")
                 self.is_nats_connected = True
             except asyncio.TimeoutError:
@@ -115,13 +103,11 @@ class ServiceManager:
             except Exception as e:
                  self.logger.error("Unable to connect to NATS")
 
-
             # Create subscriber for nats
             try:
-               await self.nc.subscribe(self.config.nats_request_topic, cb = self.get_file_path_from_nats)
+                await self.nc.subscribe(self.config.nats_request_topic, cb = self.get_file_path_from_nats)
             except Exception as e:
                 self.config.logger.warn(f"Failed to create nats request subscription with exception {e}")
-
 
     # Nats request callback
     async def get_file_path_from_nats(self, msg):
@@ -136,7 +122,6 @@ class ServiceManager:
         # Add rosbag name to queue
         self.rosbag_queue.append(rosbag_path)
 
-
     async def process_rosbag(self):
         # This task is responsible for processing the rosbag in the queue - As long as the queue is not empty - keep processing
         while True:
@@ -145,7 +130,6 @@ class ServiceManager:
 
                 # TODO: Update mysql entry for rosbag based on whether processing was successful
             await asyncio.sleep(1.0)
-
 
     def update_first_rosbag_status(self):
         rosbag_name = Path(self.rosbag_queue[0]).name

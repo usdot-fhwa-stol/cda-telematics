@@ -25,7 +25,7 @@ jobs:
           export PYTHONPATH=$PYTHONPATH:/usr/lib/python3/dist-packages
           cd $GITHUB_WORKSPACE/telematic_system/telematic_units/carma_cloud_bridge/cloud_nats_bridge/test/
           python3 -m coverage run -m pytest
-          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
+          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py,setup.py"
       - name: Archive code coverage results
         uses: actions/upload-artifact@v3
         with:
@@ -247,7 +247,7 @@ jobs:
           cat <<EOF > /tmp/sonar-scanner.properties
           sonar.host.url=https://sonarcloud.io
           sonar.coverage.jacoco.xmlReportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_cloud_messaging/target/site/jacoco/jacoco.xml
-          sonar.exclusions=**/__init__.py,**/*test*.py,**/test/**,setup.py
+          sonar.exclusions=**/__init__.py,**/*test*.py,**/test/**
           sonar.coverage.exclusions=**/__init__.py,**/*test*.py,**/test/**,setup.py
           sonar.java.binaries=$GITHUB_WORKSPACE/telematic_system/telematic_cloud_messaging/target/
           sonar.javascript.lcov.reportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage/lcov.info
