@@ -75,6 +75,7 @@ class Rosbag2Parser:
 
         if not Path(rosbag_path).exists():
             self.logger.error(f"File not found {rosbag_path}")
+            self.is_processing = False
             return
 
         # Load the rosbag from the config directory
@@ -92,9 +93,11 @@ class Rosbag2Parser:
                     self.logger.error(f"Error from Influx Client: {(e)}")
                 except Exception as e:
                     self.logger.error(f"Failed to process ros message with exception: {(e)}")
+                    return
 
         except exceptions.McapError as e:
             self.logger.error(f"Failed to read from rosbag with exception {(e)} ")
+            return
 
         self.logger.info(f"Completed rosbag processing for {rosbag2_name}")
 

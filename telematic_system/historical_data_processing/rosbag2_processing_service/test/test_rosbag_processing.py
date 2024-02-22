@@ -54,5 +54,7 @@ class Rosbag2ParserTestClass(AsyncTestCase):
         rosbag_parser2 = Rosbag2Parser(config)
         rosbag_parser2.process_rosbag("test_rosbag.mcap")
 
-        with pytest.raises(Exception):
-            rosbag_parser.process_rosbag("mock_mcap.mcap")
+        try:
+            rosbag_parser.process_rosbag("mock_rosbag.mcap")
+        except:
+            assert False
