@@ -1,6 +1,7 @@
 name: Docker build
 on:
   pull_request:
+  push:
     types: [opened, synchronize, reopened]
 
 jobs:
@@ -63,7 +64,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: ./telematic_system/historical_data_processing/
-          file: ./telematic_system/historical_data_processing/Dockerfile  
+          file: ./telematic_system/historical_data_processing/Dockerfile
   grafana:
     runs-on: ubuntu-latest
     steps:
@@ -112,4 +113,3 @@ jobs:
         with:
           context: ./telematic_system/telematic_apps/web_app/server/
           file: ./telematic_system/telematic_apps/web_app/server/Dockerfile
-

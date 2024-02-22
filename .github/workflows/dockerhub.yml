@@ -66,7 +66,7 @@ jobs:
           file: ./telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile
           push: true
           tags: usdotfhwastoldev/carma_vehicle_nats_bridge:${{ github.ref_name }}
-          
+
   dockerhub-carma-cloud-bridge:
     runs-on: ubuntu-latest
     steps:
@@ -85,7 +85,7 @@ jobs:
           context: ./telematic_system/telematic_units/carma_cloud_bridge/
           file: ./telematic_system/telematic_units/carma_cloud_bridge/Dockerfile
           push: true
-          tags: usdotfhwastoldev/carma_cloud_nats_bridge:${{ github.ref_name }}         
+          tags: usdotfhwastoldev/carma_cloud_nats_bridge:${{ github.ref_name }}
 
   dockerhub-historical_data_processing:
     runs-on: ubuntu-latest

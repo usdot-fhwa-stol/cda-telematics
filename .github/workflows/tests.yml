@@ -159,7 +159,7 @@ jobs:
           source install/setup.bash
           cd src/cda-telematics/telematic_system/historical_data_processing/rosbag2_processing_service/
           python3 -m coverage run -m pytest
-          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py""
+          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
       - name: Find coverage.xml
         shell: bash
         run: |
@@ -248,7 +248,7 @@ jobs:
           sonar.host.url=https://sonarcloud.io
           sonar.coverage.jacoco.xmlReportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_cloud_messaging/target/site/jacoco/jacoco.xml
           sonar.exclusions=**/__init__.py,**/*test*.py,**/test/**,setup.py
-          sonar.coverage.exclusions=**/__init__.py,**/*test*.py,**/test/**
+          sonar.coverage.exclusions=**/__init__.py,**/*test*.py,**/test/**,setup.py
           sonar.java.binaries=$GITHUB_WORKSPACE/telematic_system/telematic_cloud_messaging/target/
           sonar.javascript.lcov.reportPaths=$GITHUB_WORKSPACE/telematic_system/telematic_apps/web_app/coverage/lcov.info
           sonar.modules=cloud_nats_bridge,ros2_nats_bridge,streets_nats_bridge,telematic_cloud_messaging,web_app_client,web_app_server,rosbag2_processing_service
