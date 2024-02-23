@@ -17,6 +17,9 @@
  * Get a list of S3 object from pre-configured S3 bucket using NODE.js S3 client.
  * 
  * - listObjects: Return a list of objects from pre-configured S3 bucket.
+ * 
+ * Revision:
+ * - listObjects: Only return a list of .mcap files from  pre-configured S3 bucket.
  */
 
 const { ListObjectsV2Command, S3Client } = require("@aws-sdk/client-s3");
@@ -26,6 +29,7 @@ const accessKeyId = process.env.AWS_ACCESS_KEY_ID;
 const secretAccessKey = process.env.AWS_SECRET_KEY;
 const region = process.env.S3_REGION;
 const bucket = process.env.S3_BUCKET;
+const fileExt = process.env.FILE_EXTENSIONS;
 
 exports.listObjects = async (s3Folder) => {
   const client = new S3Client({
@@ -47,7 +51,7 @@ exports.listObjects = async (s3Folder) => {
       const { Contents, IsTruncated, NextContinuationToken } = await client.send(
         command
       );
-      const contentsList = Contents.map((c) => ({
+      const contentsList = Contents.filter(c=>fileExt.toLowerCase().includes(c.Key.toLowerCase().split('.')[c.Key.toLowerCase().split('.').length -1])).map((c) => ({
         original_filename: c.Key,
         size: c.Size,
         filepath: bucket,
@@ -58,6 +62,7 @@ exports.listObjects = async (s3Folder) => {
     }
   } catch (err) {
     console.error("Cannot find files in S3 bucket: " + bucket + ", folder:  "+ s3Folder)
+    console.log(err)
   }
   return contents;
 };

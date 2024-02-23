@@ -39,7 +39,7 @@ const ROS2RosbagRowItem = (props) => {
           let isBlue = (column.id === "process_status" && props.ROS2RosbagRow.process_status === PROCESSING_STATUS.IN_PROGRESS) || (column.id === "upload_status" && props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.IN_PROGRESS);
           let isGreen = (column.id === "process_status" && props.ROS2RosbagRow.process_status === PROCESSING_STATUS.COMPLETED) || (column.id === "upload_status" && props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.COMPLETED);
           let isRed = (column.id === "process_status" && props.ROS2RosbagRow.process_status === PROCESSING_STATUS.ERROR) || (column.id === "upload_status" && props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.ERROR);
-          let createdBy = column.id === "created_by" && props.ROS2RosbagRow.user !== null && props.ROS2RosbagRow.user.login !== null ? props.ROS2RosbagRow.user.login : "NA";
+          let createdBy = column.id === "created_by" && props.ROS2RosbagRow?.user?.login !== undefined ? props.ROS2RosbagRow?.user?.login : "NA";
           value = column.id === "size" ? calFilesizes(value) : value;
           value = column.id === "created_by" ? createdBy : value;
           value = column.id === "created_at" ? new Date(value).toLocaleString() : value;

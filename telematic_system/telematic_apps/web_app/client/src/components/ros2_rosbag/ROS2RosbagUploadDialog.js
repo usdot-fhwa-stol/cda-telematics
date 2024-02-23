@@ -26,12 +26,13 @@ import {
 import React, { useState } from "react";
 import { CustomizedButton } from "../ui/CustomizedButton";
 import { CustomizedOutlinedButton } from "../ui/CustomizedOutlinedButton";
-import ROS2RosbagUploadPreviewTable from "./ROS2RosbagUploadPreviewTable";
 import { calFilesizes } from "./ROS2RosBagUtils";
 import { ACCEPT_FILE_EXTENSIONS } from "./ROS2RosbagMetadata";
+import ROS2RosbagUploadPreviewTable from "./ROS2RosbagUploadPreviewTable";
 
 const ROS2RosbagUploadDialog = (props) => {
   const [selectedfilesForm, setSelectedFilesForm] = useState(new FormData());
+  
 
   const closeHandler = (event) => {
     setSelectedFilesForm(new FormData());
@@ -56,6 +57,7 @@ const ROS2RosbagUploadDialog = (props) => {
     filesInfo.sort((a, b) => a.filename.localeCompare(b.filename));
     formData["fields"] = filesInfo;
     setSelectedFilesForm(formData);
+    event.target.value = '';
   };
 
   const confirmHandler = (filename) => {
@@ -101,7 +103,7 @@ const ROS2RosbagUploadDialog = (props) => {
       </DialogContent>
       <DialogActions>
         <CustomizedOutlinedButton onClick={closeHandler}> Cancel </CustomizedOutlinedButton>
-        <CustomizedButton onClick={uploadAndProcessHandler}>Process</CustomizedButton>
+        <CustomizedButton onClick={uploadAndProcessHandler} data-testid="Process">Process</CustomizedButton>
       </DialogActions>
     </Dialog>
   );

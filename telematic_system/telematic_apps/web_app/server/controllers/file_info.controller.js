@@ -68,9 +68,6 @@ exports.updateDescription = async (updatedFileInfo) => {
   if (!originalFilename) {
     throw new Error("originalFilename cannot be undefined");
   }
-  if (!(updatedFileInfo.updated_by && updatedFileInfo.created_by)) {
-    throw new Error("user cannot be undefined");
-  }
 
   let condition = { original_filename: originalFilename };
   let fileInfoArray = await file_info.findAll({
@@ -101,14 +98,22 @@ exports.upsertFileInfo = async (fileInfo) => {
   }
   let fileInfoLocal = {
     original_filename: originalFilename,
-    content_location: fileInfo.filepath,
-    upload_status: fileInfo.status || null,
-    upload_error_msg: fileInfo.error ? JSON.stringify(fileInfo.error) : null,
-    size: fileInfo.size || null,
     created_by: fileInfo.created_by,
     user_id: fileInfo.created_by,
     updated_by: fileInfo.updated_by,
   };
+  if (fileInfo.error) {
+    fileInfoLocal.upload_error_msg = JSON.stringify(fileInfo.error);
+  }
+  if (fileInfo.size) {
+    fileInfoLocal.size = fileInfo.size;
+  }
+  if (fileInfo.status) {
+    fileInfoLocal.upload_status = fileInfo.status;
+  }
+  if (fileInfo.filepath) {
+    fileInfoLocal.filepath = fileInfo.filepath;
+  }
   if (fileInfo.description) {
     fileInfoLocal.description = fileInfo.description;
   }
