@@ -98,7 +98,7 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
   let userInfo = verifyToken(req);
   let trackingInProgressFiles = [];
   form.parse(req, async (err, fields, files) => {
-    //If error occur for file upload, save error messages.
+    //If error occurs, save error messages.
     if (err) {
       handleFormError(err, trackingInProgressFiles, userInfo, listener);
       return;
@@ -113,12 +113,12 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
     totalFiles = Array.isArray(totalFiles) ? totalFiles : [totalFiles];
     let formFields = fields["fields"];
     formFields = Array.isArray(formFields) ? formFields : [formFields];
+    //Populate file info with description field
+    await updateFileInfoWithDescription(formFields, userInfo);
 
     for (let localFile of totalFiles) {
       localFile.updated_by = userInfo.id;
       localFile.created_by = userInfo.id;
-      //Populate file info with description field
-      await updateFileInfoWithDescription(formFields, userInfo);
 
       //Update file info status
       updateFileUploadStatusEmitter(listener).emit(
@@ -177,7 +177,7 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
   let userInfo = verifyToken(req);
   let trackingInProgressFiles = [];
   form.parse(req, async (err, fields, files) => {
-    //If error occur for file upload, save error messages.
+    //If error occurs, save error messages.
     if (err) {
       handleFormError(err, trackingInProgressFiles, userInfo, listener);
       return;
