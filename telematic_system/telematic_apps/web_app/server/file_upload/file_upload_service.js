@@ -262,8 +262,6 @@ const updateFileInfoWithDescription = (fields, userInfo) => {
         localField.description
       ) {
         localField.originalFilename = getUpdatedOrgFileName(localField.filename, userInfo);
-        localField.updated_by = userInfo.id;
-        localField.created_by = userInfo.id;
         updateDescription(localField)
       }
     }

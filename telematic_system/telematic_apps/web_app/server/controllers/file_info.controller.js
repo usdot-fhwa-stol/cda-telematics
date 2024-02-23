@@ -68,9 +68,6 @@ exports.updateDescription = async (updatedFileInfo) => {
   if (!originalFilename) {
     throw new Error("originalFilename cannot be undefined");
   }
-  if (!(updatedFileInfo.updated_by && updatedFileInfo.created_by)) {
-    throw new Error("user cannot be undefined");
-  }
 
   let condition = { original_filename: originalFilename };
   let fileInfoArray = await file_info.findAll({
