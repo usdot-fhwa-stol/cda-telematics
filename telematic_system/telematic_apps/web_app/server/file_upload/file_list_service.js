@@ -22,6 +22,9 @@
  * - listAllDBFilesAndS3Objects: Query all file_info from both database and S3 bucket. 
  *   If the file exist in S3 bucket but not in database, insert the file metadata into file_info database table.
  *   If the file exist in both S3 bucket and database, ignore files in S3 bucket.
+ * 
+ * Revision:
+ * Update file upload status to COMPLETE if files exist in S3 bucket but file metadata either does not exist in MYSQL DB or upload status is ERROR or IN_PROGRESS.
  */
 const fileInfoController = require("../controllers/file_info.controller");
 const listObjectsModule = require("../file_upload/s3_list_objects");
@@ -87,7 +90,7 @@ const listAllDBFilesAndS3Objects = async (req, res) => {
     console.log("Your bucket contains the following objects:");
     console.log(objects);
 
-    //Update database with the list of S3 Objects
+    //Update database with the list of S3 Objects. By default, S3 objects upload status is COMPLETE.
     if (Array.isArray(objects)) {
       for (const object of objects) {
         if (!completedFileNames.includes(object.original_filename)) {
