@@ -266,8 +266,8 @@ const updateFileInfoWithDescription = (fields, userInfo) => {
       }
     }
   } catch (error) {
-    console.log("Cannot update file info with description from fields: " + fields);
-    console.log(error)
+    console.error("Cannot update file info with description from fields: " + fields);
+    console.error(error)
     console.trace();
   }
 };

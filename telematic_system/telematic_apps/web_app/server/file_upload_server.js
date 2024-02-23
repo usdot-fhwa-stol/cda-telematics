@@ -119,14 +119,13 @@ const postListener = async (req, res) => {
           let fileInfo = JSON.parse(fields["fields"]);
           //Send file process request to NATS
           let processingReq = {
-            uploaded_path: uploadDestPath,
-            filename: fileInfo.original_filename,
+            filepath: uploadDestPath + '/' + fileInfo.original_filename,
           };
 
           let natsConn = await createNatsConn();
           await pubFileProcessingReq(natsConn, processingReq);
           await natsConn.close();
-          sendResponse(res, "Process request sent: " + processingReq.filename);
+          sendResponse(res, "Process request sent: " + fileInfo.original_filename);
         } catch (err) {
           serverError(res, err);
         }
