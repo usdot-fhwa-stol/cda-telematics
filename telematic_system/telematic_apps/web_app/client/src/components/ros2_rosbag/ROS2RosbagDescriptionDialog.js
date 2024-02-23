@@ -62,7 +62,7 @@ function ROS2RosbagDescriptionDialog(props) {
   };
 
   useEffect(() => {
-    setDescription(props.ROS2RosbagRow.description = props.ROS2RosbagRow.description || "");
+    setDescription(props.ROS2RosbagRow.description);
   }, [props.ROS2RosbagRow.description]);
 
   const saveDescHandler = (event) => {
