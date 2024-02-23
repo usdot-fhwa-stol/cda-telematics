@@ -23,7 +23,7 @@ import {
   DialogTitle,
   FormControl,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CustomizedButton } from "../ui/CustomizedButton";
 import { CustomizedOutlinedButton } from "../ui/CustomizedOutlinedButton";
 import ROS2RosbagUploadPreviewTable from "./ROS2RosbagUploadPreviewTable";
@@ -32,6 +32,7 @@ import { ACCEPT_FILE_EXTENSIONS } from "./ROS2RosbagMetadata";
 
 const ROS2RosbagUploadDialog = (props) => {
   const [selectedfilesForm, setSelectedFilesForm] = useState(new FormData());
+  
 
   const closeHandler = (event) => {
     setSelectedFilesForm(new FormData());
@@ -56,6 +57,7 @@ const ROS2RosbagUploadDialog = (props) => {
     filesInfo.sort((a, b) => a.filename.localeCompare(b.filename));
     formData["fields"] = filesInfo;
     setSelectedFilesForm(formData);
+    event.target.value = '';
   };
 
   const confirmHandler = (filename) => {

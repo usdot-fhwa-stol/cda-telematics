@@ -58,11 +58,11 @@ const listAllDBFiles = async (req, res) => {
   try {
     let contents = [];
     //Get user organization name
-    let folderName = verifyToken(req).org_name.replaceAll(' ', '_');
+    let currentFolder = verifyToken(req).org_name.replaceAll(' ', '_');
     let data = await fileInfoController.list({});
     for (const d of data) {
       //Only push files of current folder (=user organization name)
-      if (d.original_filename.includes(folderName)) {
+      if (d.original_filename.includes(currentFolder)) {
         contents.push(d);
       }
     }
@@ -76,30 +76,24 @@ const listAllDBFiles = async (req, res) => {
 
 const listAllDBFilesAndS3Objects = async (req, res) => {
   try {
-    let contents = [];
-    let existingFileNames = [];
     //Get user organization name
-    let folderName = verifyToken(req).org_name.replaceAll(' ', '_');
-    let data = await fileInfoController.list({});
-    for (const d of data) {
-      //Only push files of current folder (=user organization name)
-      if (d.original_filename.includes(folderName)) {
-        existingFileNames.push(d.original_filename);
-        contents.push(d);
-      }
-    }
+    let currentFolder = verifyToken(req).org_name.replaceAll(' ', '_');
+    let files = await fileInfoController.list({});
     //Get a list of objects from organization folder in S3 bucket
-    let objects = await listObjectsModule.listObjects(folderName);
+    let contents = files.filter(file => file.original_filename.includes(currentFolder));
+    //Get file names from current folder (= Current user organization name) and file upload status is completed
+    let completedFileNames = files.filter(file => file.original_filename.includes(currentFolder) && file.upload_status === UPLOADSTATUS.COMPLETED).map(file => file.original_filename);
+    let objects = await listObjectsModule.listObjects(currentFolder);
     console.log("Your bucket contains the following objects:");
     console.log(objects);
 
     //Update database with the list of S3 Objects
     if (Array.isArray(objects)) {
       for (const object of objects) {
-        if (!existingFileNames.includes(object.original_filename)) {
-          let newFileFromS3 = { ...object, status: UPLOADSTATUS.COMPLETED };
+        if (!completedFileNames.includes(object.original_filename)) {
+          let newFileFromS3 = { ...object, status: UPLOADSTATUS.COMPLETED, error: "" };
           console.log(
-            "Below S3 object not found in MYSQL DB. Insert object into DB:"
+            "Below S3 object not found or shown error in MYSQL DB. Insert object into DB:"
           );
           newFileFromS3.created_by = S3_USER;
           newFileFromS3.updated_by = S3_USER;
@@ -107,7 +101,8 @@ const listAllDBFilesAndS3Objects = async (req, res) => {
           let newFile = await fileInfoController
             .upsertFileInfo(newFileFromS3)
             .catch((error) => console.log(error));
-          contents.push(newFile);
+          let isUpdate = Array.isArray(newFile);
+          isUpdate ? contents.filter(file => file.original_filename.includes(newFileFromS3.original_filename))[0].upload_status = UPLOADSTATUS.COMPLETED : contents.push(newFile);
         }
       }
     }
