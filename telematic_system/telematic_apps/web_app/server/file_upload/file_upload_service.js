@@ -114,7 +114,7 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
     let formFields = fields["fields"];
     formFields = Array.isArray(formFields) ? formFields : [formFields];
     //Populate file info with description field
-    await updateFileInfoWithDescription(formFields, userInfo);
+    updateFileInfoWithDescription(formFields, userInfo);
 
     for (let localFile of totalFiles) {
       localFile.updated_by = userInfo.id;

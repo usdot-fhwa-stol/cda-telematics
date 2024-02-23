@@ -5,7 +5,7 @@ const fileProcessingSubject = process.env.FILE_PROCESSING_SUBJECT;
 exports.pubFileProcessingReq = async (natsConn, payload) => {
   if (natsConn) {
     let payloadStr = JSON.stringify(payload);
-    natsConn.publish(fileProcessingSubject,  StringCodec().encode(String(payloadStr)));
+    await natsConn.publish(fileProcessingSubject,  StringCodec().encode(String(payloadStr)));
     console.log(
       `Send file processing request: ${payloadStr} to subject: ${fileProcessingSubject}`
     );
