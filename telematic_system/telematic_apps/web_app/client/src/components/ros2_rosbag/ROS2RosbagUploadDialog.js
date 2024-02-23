@@ -103,7 +103,7 @@ const ROS2RosbagUploadDialog = (props) => {
       </DialogContent>
       <DialogActions>
         <CustomizedOutlinedButton onClick={closeHandler}> Cancel </CustomizedOutlinedButton>
-        <CustomizedButton onClick={uploadAndProcessHandler}>Process</CustomizedButton>
+        <CustomizedButton onClick={uploadAndProcessHandler} data-testid="Process">Process</CustomizedButton>
       </DialogActions>
     </Dialog>
   );
