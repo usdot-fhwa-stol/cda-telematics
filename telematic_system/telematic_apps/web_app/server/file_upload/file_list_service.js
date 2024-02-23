@@ -28,7 +28,7 @@
  */
 const fileInfoController = require("../controllers/file_info.controller");
 const listObjectsModule = require("../file_upload/s3_list_objects");
-const { verifyToken } = require("../utils/verifyToken");
+const {verifyToken} = require("../utils/verifyToken");
 const { UPLOADSTATUS } = require("./file_upload_status_emitter");
 require("dotenv").config();
 const uploadDest = process.env.UPLOAD_DESTINATION;
@@ -61,7 +61,7 @@ const listAllDBFiles = async (req, res) => {
   try {
     let contents = [];
     //Get user organization name
-    let currentFolder = verifyToken(req).org_name.replaceAll(' ', '_');
+    let currentFolder = verifyToken(req)?.org_name?.replaceAll(' ', '_');
     let data = await fileInfoController.list({});
     for (const d of data) {
       //Only push files of current folder (=user organization name)
@@ -80,17 +80,19 @@ const listAllDBFiles = async (req, res) => {
 const listAllDBFilesAndS3Objects = async (req, res) => {
   try {
     //Get user organization name
-    let currentFolder = verifyToken(req).org_name.replaceAll(' ', '_');
+    let currentFolder = verifyToken(req)?.org_name?.replaceAll(' ', '_');
     let files = await fileInfoController.list({});
-    //Get a list of objects from organization folder in S3 bucket
+    console.log(files)
+    //Get a list of objects from organization folder in MYSQL DB
     let contents = files.filter(file => file.original_filename.includes(currentFolder));
     //Get file names from current folder (= Current user organization name) and file upload status is completed
-    let completedFileNames = files.filter(file => file.original_filename.includes(currentFolder) && file.upload_status === UPLOADSTATUS.COMPLETED).map(file => file.original_filename);
+    let completedFileNames = files.filter(file => file.original_filename.includes(currentFolder) && file.upload_status === UPLOADSTATUS.COMPLETED).map(file => file.original_filename);    
+    //Get a list of objects from organization folder in S3 bucket
     let objects = await listObjectsModule.listObjects(currentFolder);
     console.log("Your bucket contains the following objects:");
     console.log(objects);
 
-    //Update database with the list of S3 Objects. By default, S3 objects upload status is COMPLETE.
+    //Update database with the list of S3 Objects. By default, S3 objects upload status is COMPLETED.
     if (Array.isArray(objects)) {
       for (const object of objects) {
         if (!completedFileNames.includes(object.original_filename)) {
@@ -104,7 +106,8 @@ const listAllDBFilesAndS3Objects = async (req, res) => {
           let newFile = await fileInfoController
             .upsertFileInfo(newFileFromS3)
             .catch((error) => console.log(error));
-          let isUpdate = Array.isArray(newFile);
+          let isUpdate = Array.isArray(newFile) && newFile.length > 0 && Number.isInteger(newFile[0]);
+          console.log(newFile)
           isUpdate ? contents.filter(file => file.original_filename.includes(newFileFromS3.original_filename))[0].upload_status = UPLOADSTATUS.COMPLETED : contents.push(newFile);
         }
       }

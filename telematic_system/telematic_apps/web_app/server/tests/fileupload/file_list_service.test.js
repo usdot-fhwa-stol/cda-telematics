@@ -96,7 +96,7 @@ describe("List file service", () => {
       expect(data).not.toBeNull();
     });
   });
-  it("List all files successful", async () => {
+  it("List all files successful case one", async () => {
     jest.spyOn(fileInfoController, "list").mockResolvedValueOnce(fileInfos);
     jest.spyOn(fileInfoController, "upsertFileInfo").mockResolvedValueOnce([]);
     jest.spyOn(listS3, "listObjects").mockResolvedValueOnce(objectsCaseOne);
