@@ -29,7 +29,7 @@ const AuthContext = React.createContext({
   user_id: null,
   role: null,
   view_count: null,
-  login: (id, username, sessionToken, sessionExpiredAt, email, last_seen_at, org_id, name, is_admin) => { },
+  login: (id, username, sessionToken, sessionExpiredAt, email, last_seen_at, org_id,org_name, name, is_admin) => { },
   logout: () => { },
   updateRole: (role) => { },
   updateOrg: (org_id, org_name) => { },
@@ -51,7 +51,7 @@ export const AuthContextProvider = (props) => {
   const clearSessionStorage = useClearSessionStorage();
   const [sessionExpiredAt, setSessionExpiredAt] = useSessionStorageNumber("sessionExpiredAt",0);
 
-  const loginHandler = (user_id, username, sessionToken, sessionExpiredAt, email, last_seen_at, org_id, name, is_admin) => {
+  const loginHandler = (user_id, username, sessionToken, sessionExpiredAt, email, last_seen_at, org_id,org_name, name, is_admin) => {
     if (username !== undefined && username !== ""
       && sessionToken !== undefined && sessionToken !== "") {
       setUserId(user_id);
@@ -62,6 +62,7 @@ export const AuthContextProvider = (props) => {
       setSessionExpiredAt(sessionExpiredAt);
       setLastSeenAt(last_seen_at);
       setOrgId(org_id);
+      setOrgName(org_name)
       setName(name);
       setIsAdmin(is_admin);
       return true;

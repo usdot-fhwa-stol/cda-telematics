@@ -112,7 +112,7 @@ const ROS2ROSBagFilterForm = memo((props) => {
         </FormControl>
         
         <FormControl sx={{ paddingTop: "10px" }}>
-          <CustomizedRefreshButton title="Reset filters and refresh table" onClick={refreshHandler} ></CustomizedRefreshButton>
+          <CustomizedRefreshButton title="Reset filters and refresh table" data-testid="refreshBtn" onClick={refreshHandler} ></CustomizedRefreshButton>
         </FormControl>
       </Grid>
       {

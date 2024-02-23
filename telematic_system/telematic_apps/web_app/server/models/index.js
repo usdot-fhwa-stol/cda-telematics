@@ -66,7 +66,8 @@ grafana_db.event_units.belongsTo(grafana_db.units);
 grafana_db.user.hasMany(grafana_db.file_info, {
     foreignKey: {
         name: 'userId',
-        field: 'user_id'
+        field: 'user_id',
+        type: Sequelize.BIGINT(20)
     }
 });
 grafana_db.file_info.belongsTo(grafana_db.user);

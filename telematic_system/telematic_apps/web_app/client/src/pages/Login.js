@@ -82,6 +82,7 @@ const Login = React.memo(() => {
                 resData.email,
                 resData.last_seen_at,
                 resData.org_id,
+                resData.org_name,
                 resData.name,
                 resData.is_admin);
             setLoginState(true);

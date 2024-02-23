@@ -49,7 +49,7 @@ const ROS2RosbagControlsItem = (props) => {
       {
         authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" && (
           <TableCell key={`controls-${props.ROS2RosbagRow.id}`}>
-            <ROS2RosbagDescriptionDialog open={open} onClose={closeHandler} title={`Edit (${props.ROS2RosbagRow.original_filename}) Description`} ROS2RosbagRow={props.ROS2RosbagRow} OnDescriptionSave={saveDescHandler}></ROS2RosbagDescriptionDialog>
+            <ROS2RosbagDescriptionDialog open={open} onClose={closeHandler} title={`Edit Description`} ROS2RosbagRow={props.ROS2RosbagRow} OnDescriptionSave={saveDescHandler}></ROS2RosbagDescriptionDialog>
             <CustomizedOutlinedButton title={"Edit description"} key={`edit-Rosbag-${props.ROS2RosbagRow.id}`} onClick={openHandler}><EditIcon /></CustomizedOutlinedButton>
 
             {

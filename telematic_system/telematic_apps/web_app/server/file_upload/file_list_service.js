@@ -22,9 +22,13 @@
  * - listAllDBFilesAndS3Objects: Query all file_info from both database and S3 bucket. 
  *   If the file exist in S3 bucket but not in database, insert the file metadata into file_info database table.
  *   If the file exist in both S3 bucket and database, ignore files in S3 bucket.
+ * 
+ * Revision:
+ * Update file upload status to COMPLETE if files exist in S3 bucket but file metadata either does not exist in MYSQL DB or upload status is ERROR or IN_PROGRESS.
  */
 const fileInfoController = require("../controllers/file_info.controller");
 const listObjectsModule = require("../file_upload/s3_list_objects");
+const {verifyToken} = require("../utils/verifyToken");
 const { UPLOADSTATUS } = require("./file_upload_status_emitter");
 require("dotenv").config();
 const uploadDest = process.env.UPLOAD_DESTINATION;
@@ -55,7 +59,17 @@ const listAllFiles = async (req, res) => {
 
 const listAllDBFiles = async (req, res) => {
   try {
-    return await fileInfoController.list({});
+    let contents = [];
+    //Get user organization name
+    let currentFolder = verifyToken(req)?.org_name?.replaceAll(' ', '_');
+    let data = await fileInfoController.list({});
+    for (const d of data) {
+      //Only push files of current folder (=user organization name)
+      if (d.original_filename.includes(currentFolder)) {
+        contents.push(d);
+      }
+    }
+    return contents;
   } catch (err) {
     console.error("Cannot get a list of All DB files!");
     console.trace();
@@ -65,25 +79,26 @@ const listAllDBFiles = async (req, res) => {
 
 const listAllDBFilesAndS3Objects = async (req, res) => {
   try {
-    let contents = [];
-    let existingFileNames = [];
-    let data = await fileInfoController.list({});
-    contents.push(...data);
-    for (const d of data) {
-      existingFileNames.push(d.original_filename);
-    }
-
-    let objects = await listObjectsModule.listObjects();
+    //Get user organization name
+    let currentFolder = verifyToken(req)?.org_name?.replaceAll(' ', '_');
+    let files = await fileInfoController.list({});
+    console.log(files)
+    //Get a list of objects from organization folder in MYSQL DB
+    let contents = files.filter(file => file.original_filename.includes(currentFolder));
+    //Get file names from current folder (= Current user organization name) and file upload status is completed
+    let completedFileNames = files.filter(file => file.original_filename.includes(currentFolder) && file.upload_status === UPLOADSTATUS.COMPLETED).map(file => file.original_filename);    
+    //Get a list of objects from organization folder in S3 bucket
+    let objects = await listObjectsModule.listObjects(currentFolder);
     console.log("Your bucket contains the following objects:");
     console.log(objects);
 
-    //Update database with the list of S3 Objects
+    //Update database with the list of S3 Objects. By default, S3 objects upload status is COMPLETED.
     if (Array.isArray(objects)) {
       for (const object of objects) {
-        if (!existingFileNames.includes(object.original_filename)) {
-          let newFileFromS3 = { ...object, status: UPLOADSTATUS.COMPLETED };
+        if (!completedFileNames.includes(object.original_filename)) {
+          let newFileFromS3 = { ...object, status: UPLOADSTATUS.COMPLETED, error: "" };
           console.log(
-            "Below S3 object not found in MYSQL DB. Insert object into DB:"
+            "Below S3 object not found or shown error in MYSQL DB. Insert object into DB:"
           );
           newFileFromS3.created_by = S3_USER;
           newFileFromS3.updated_by = S3_USER;
@@ -91,7 +106,9 @@ const listAllDBFilesAndS3Objects = async (req, res) => {
           let newFile = await fileInfoController
             .upsertFileInfo(newFileFromS3)
             .catch((error) => console.log(error));
-          contents.push(newFile);
+          let isUpdate = Array.isArray(newFile) && newFile.length > 0 && Number.isInteger(newFile[0]);
+          console.log(newFile)
+          isUpdate ? contents.filter(file => file.original_filename.includes(newFileFromS3.original_filename))[0].upload_status = UPLOADSTATUS.COMPLETED : contents.push(newFile);
         }
       }
     }
