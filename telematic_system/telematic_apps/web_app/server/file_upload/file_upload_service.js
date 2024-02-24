@@ -46,11 +46,9 @@ const {
 } = require("./file_upload_status_emitter");
 
 const natsConnModule = require("../nats_client/nats_connection");
-const {
-  pubFileProcessingReq,
-} = require("../nats_client/file_processing_nats_publisher");
-const { verifyToken } = require("../utils/verifyToken");
-const { updateDescription, bulkUpdateDescription } = require("../controllers/file_info.controller");
+const { pubFileProcessingReq } = require("../nats_client/file_processing_nats_publisher");
+const { verifyToken } = require("../utils/verify_token");
+const { updateDescription } = require("../controllers/file_info.controller");
 
 /**
  * Parse files and upload them to defined destination
@@ -85,7 +83,7 @@ exports.uploadFile = async (req) => {
     console.error(error);
     throw error;
   }
-}; //End upload file
+};
 
 /**
  * Parse files before uploading them to a pre-configured local folder
@@ -113,6 +111,7 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
     totalFiles = Array.isArray(totalFiles) ? totalFiles : [totalFiles];
     let formFields = fields["fields"];
     formFields = Array.isArray(formFields) ? formFields : [formFields];
+
     //Populate file info with description field
     updateFileInfoWithDescription(formFields, userInfo);
 
@@ -126,7 +125,7 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
         localFile
       );
       try {
-        //Send processing request for uploaded file to HOST
+        //Send processing request for uploaded file to NATS
         let processingReq = {
           filepath: uploadDestPath + "/" + localFile.originalFilename,
         };
@@ -143,21 +142,24 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
   });
 
   form.on("fileBegin", (formName, file) => {
-    //Update file name prefix with folder name (= organization name) to be consistent with s3 originalFilename
+    //Update file name prefix with folder name (= organization name)
     file.originalFilename = getUpdatedOrgFileName(file.originalFilename, userInfo);
-    //create folder with org name if does not already exist
+
+    //Create folder with org name if does not already exist
     let uploadFolder = uploadDestPath + "/" + userInfo.org_name.replaceAll(' ', '_');
     if (!fs.existsSync(uploadFolder)) {
       fs.mkdirSync(uploadFolder);
     }
     file.updated_by = userInfo.id;
     file.created_by = userInfo.id;
+
     //Update file info status
     updateFileUploadStatusEmitter(listener).emit(
       UPLOADSTATUS.IN_PROGRESS,
       file
     );
     trackingInProgressFiles.push(file);
+
     //Write file to HOST machine
     file.filepath = uploadDestPath + "/" + file.originalFilename;
   });
@@ -196,25 +198,27 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
   });
 
   form.on("fileBegin", async (formName, file) => {
-    //Get user org name and file is uploaded to organization folder in S3 bucket
+    //Modify original filename with user organization name prefix
     file.originalFilename = getUpdatedOrgFileName(file.originalFilename, userInfo);
-    //Update upload status
+
+    //Update upload status to in progress
     updateFileUploadStatusEmitter(listener).emit(
       UPLOADSTATUS.IN_PROGRESS,
       { ...file.toJSON(), created_by: userInfo.id, updated_by: userInfo.id }
     );
     trackingInProgressFiles.push(file);
+
     //Write stream into S3 bucket
     await uploadToS3(file)
       .then(async (data) => {
-        //Update file upload status
+        //Update file upload status to complete
         data = { ...data, created_by: userInfo.id, updated_by: userInfo.id };
         updateFileUploadStatusEmitter(listener).emit(
           UPLOADSTATUS.COMPLETED,
           data
         );
 
-        //Send file process request to NATS
+        //Send file process request to NATS when file is uploaded
         let processingReq = {
           filepath: uploadDestPath + "/" + data.originalFilename,
         };
@@ -240,7 +244,7 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
         console.trace();
         console.log(err);
       });
-  }); //End fileBegin
+  });
 };
 
 const handleFormError = (err, trackingInProgressFiles, userInfo, listener) => {
