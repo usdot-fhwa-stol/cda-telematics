@@ -20,6 +20,7 @@ import time
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import ASYNCHRONOUS
 from .config import Config
+from .config import ProcessingStatus
 from mcap import exceptions
 
 import asyncio
@@ -62,7 +63,6 @@ class Rosbag2Parser:
     def process_rosbag(self,rosbag2_path):
         self.is_processing = True
 
-
         if Path(rosbag2_path).suffix not in self.config.accepted_file_extensions:
             #TODO update mysql entry for rosbag
             raise Exception(f"File type not acceptable for {rosbag2_path}")
@@ -73,9 +73,11 @@ class Rosbag2Parser:
         self.logger.info(f"rosbag name: {rosbag2_name}")
 
         if not Path(rosbag2_path).exists():
-            self.logger.error(f"File not found {rosbag2_path}")
+            processing_error_msg = f"File not found {rosbag2_path}"
+            self.logger.error(processing_error_msg)
             self.is_processing = False
-            return
+
+            return ProcessingStatus.ERROR.value, processing_error_msg
 
         # Load the rosbag from the config directory
         try:
@@ -95,13 +97,17 @@ class Rosbag2Parser:
 
 
         except exceptions.McapError as e:
-            self.logger.error(f"Failed to read from rosbag with exception {(e)} ")
+            processing_error_msg = f"Failed to read from rosbag with exception {(e)} "
+            self.logger.error(processing_error_msg)
             self.is_processing = False
-            return
+
+            return ProcessingStatus.ERROR.value, processing_error_msg
 
         self.logger.info(f"Completed rosbag processing for {rosbag2_name}")
 
         self.is_processing = False
+
+        return ProcessingStatus.COMPLETED.value, "NA"
 
     def create_record_from_msg(self, msg, measurement_name):
 

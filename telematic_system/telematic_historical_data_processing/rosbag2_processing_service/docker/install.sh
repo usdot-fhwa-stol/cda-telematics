@@ -23,7 +23,8 @@ sudo python3 -m pip install nats-py \
     pathlib \
     pytest-env \
     pytest-asyncio \
-    aiounittest
+    aiounittest \
+    mysql-connector-python
 
 source /opt/ros/foxy/setup.bash
 sudo apt update
