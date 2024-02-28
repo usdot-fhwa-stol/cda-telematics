@@ -2,7 +2,7 @@ version: "3"
 services:
 
   influxdb:
-    image:  influxdb:${INFLUXDB_DEV_TAG} 
+    image:  influxdb:${INFLUXDB_DEV_TAG}
     container_name: influxdb-dev
     ports:
       - '8086:8086'
@@ -33,13 +33,13 @@ services:
       - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
       - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
     ports:
-      - '3307:3306'
+      - '3307:3306'  # Mapping required for CAVe-in-a-box deployment where port 3306 is used by v2xhub
     secrets:
       - mysql_password
       - mysql_root_password
     volumes:
       - mysql-datavolume:/var/lib/mysql
-  
+
   nats:
     image: 'nats:2.7.3-alpine3.15'
     restart: always
@@ -80,7 +80,7 @@ services:
           max-file: "1"
       network_mode: host
       depends_on:
-        - mysqldb      
+        - mysqldb
         - grafana
       environment:
         - WAIT_HOSTS=localhost:3307,localhost:3000
@@ -111,8 +111,8 @@ services:
         - UPLOAD_HTTP_PORT=9011
         - UPLOAD_TIME_OUT=3600000 # Milliseconds
         - UPLOAD_MAX_FILE_SIZE=21474836480 #20 GB
-        - CONCURRENT_QUEUE_SIZE=5 
-        - PART_SIZE=10485760 
+        - CONCURRENT_QUEUE_SIZE=5
+        - PART_SIZE=10485760
         - NATS_SERVERS=localhost:4222
         - FILE_PROCESSING_SUBJECT=ui.file.processing
       volumes:
@@ -152,7 +152,7 @@ services:
       - telematic_web_client
       - telematic_web_server
     volumes:
-      - /opt/apache2/grafana_htpasswd:/etc/apache2/grafana_htpasswd  
+      - /opt/apache2/grafana_htpasswd:/etc/apache2/grafana_htpasswd
 
   telematic_messaging_server:
     build:

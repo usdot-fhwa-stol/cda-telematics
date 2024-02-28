@@ -172,10 +172,6 @@ class ServiceManager:
         # Update the update fields with update values
         try:
             cursor = self.mysql_conn.cursor()
-            sql_select_query = """SELECT * FROM file_infos"""
-            cursor.execute(sql_select_query)
-            record = cursor.fetchall()
-            self.config.logger.info(record)
 
             # Update the given tries with processing status and error msg
             cursor.execute("""
@@ -183,10 +179,7 @@ class ServiceManager:
                            """,(process_status, process_error_msg, file_name))
             self.mysql_conn.commit()
 
-            self.config.logger.info("After running entry update:")
-            cursor.execute(sql_select_query)
-            record = cursor.fetchall()
-            self.config.logger.info(record)
+            self.config.logger.info(f"Updated mysql entry for {file_name} to {process_status}")
 
         except mysql.connector.Error as e:
             self.config.logger.error(f"Failed to update mysql table with error: {e}")

@@ -37,8 +37,9 @@ class Config:
         # Load environment variables
         self.load_env_variables()
         # Create logger
-        self.set_logger()
-
+        self.logger = logging.getLogger(self.log_name)
+        if not self.logger.hasHandlers():
+            self.set_logger()
 
 
     def load_env_variables(self):
@@ -97,30 +98,27 @@ class Config:
     def createLogger(self, log_type):
         """Creates log file for the ServiceManager with configuration items based on the settings input in the params.yaml file"""
         # create log file and set log levels
-        self.logger = logging.getLogger(self.log_name)
+
         now = datetime.now()
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")
-        log_name = self.log_name + dt_string + ".log"
+        log_name = "something.log"
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
 
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
         # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size
         if log_type == LogType.FILE.value:
-            self.log_handler = RotatingFileHandler(
+            log_handler = RotatingFileHandler(
                 self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
         else:
-             self.log_handler = logging.StreamHandler()
-        self.log_handler.setFormatter(formatter)
+            log_handler = logging.StreamHandler()
+        log_handler.setFormatter(formatter)
 
         if(self.log_level == "debug"):
             self.logger.setLevel(logging.DEBUG)
-            self.log_handler.setLevel(logging.DEBUG)
         elif(self.log_level == "info"):
             self.logger.setLevel(logging.INFO)
-            self.log_handler.setLevel(logging.INFO)
         elif(self.log_level == "error"):
             self.logger.setLevel(logging.ERROR)
-            self.log_handler.setLevel(logging.ERROR)
 
-        self.logger.addHandler(self.log_handler)
+        self.logger.addHandler(log_handler)
