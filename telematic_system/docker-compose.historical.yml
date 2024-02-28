@@ -27,6 +27,10 @@ services:
     - INFLUX_ORG=my-org
     - INFLUX_TOKEN=my-super-secret-token
     - INFLUX_URL=<>
+    - MYSQL_HOST=<> # Add host IP where mysql database is hosted
+    - MYSQL_DB=<>  # Name of Mysql databse
+    - MYSQL_USER=<> # Login credentials for mysql database, User
+    - MYSQL_PASSWORD=<> # Login credentials for mysql database, Password
     - UPLOAD_DESTINATION_PATH=/opt/telematics/upload # For cloud deployment:This is the directory S3 bucket is mounted
     - TO_STR_FIELDS=[]
     - IGNORE_FIELDS=[]

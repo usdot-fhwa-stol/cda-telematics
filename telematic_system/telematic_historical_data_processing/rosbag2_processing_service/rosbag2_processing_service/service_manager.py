@@ -69,8 +69,7 @@ class ServiceManager:
         #nats connection status
         self.is_nats_connected = False
 
-        #TODO: Add Mysql database connection
-        #self.db = _mysql.connect(host="", user="", password="", database="")
+        self.mysql_conn = self.create_mysql_conn()
 
 
     async def nats_connect(self):
@@ -131,6 +130,23 @@ class ServiceManager:
                 # TODO: Update mysql entry for rosbag based on whether processing was successful
             await asyncio.sleep(1.0)
 
+    def create_mysql_conn(self):
+
+        try:
+            conn = mysql.connector.connect(user= self.config.mysql_host, password= self.config.mysql_password,
+                              host= self.config.mysql_host,
+                              database= self.config.mysql_db)
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                self.config.logger.error("Mysql User name or password not accepted")
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                self.config.logger.error("Mysql Database does not exist")
+            else:
+                self.config.logger.error(err)
+
+        return conn
+
+
     def update_first_rosbag_status(self):
         rosbag_name = Path(self.rosbag_queue[0]).name
         self.config.logger.info(f"Entering processing for rosbag: {rosbag_name}")
@@ -139,3 +155,15 @@ class ServiceManager:
         # TODO: Check mysql if rosbag already processed/ Create new entry for rosbag
 
         return rosbag_to_process
+
+    def update_mysql_entry(self, update_fields, update_values):
+        # This method updates the mysql database entry for the rosbag to process
+        # Update the update fields with update values
+        try:
+            cursor = self.mysql_conn.cursor()
+            sql_select_query = """SELECT * FROM file_infos"""
+            cursor.execute(sql_select_query)
+            record = cursor.fetchnone()
+            self.config.logger.info(record)
+        except mysql.connector.Error as e:
+            self.config.error(f"Failed to update mysql table with error: {e}")

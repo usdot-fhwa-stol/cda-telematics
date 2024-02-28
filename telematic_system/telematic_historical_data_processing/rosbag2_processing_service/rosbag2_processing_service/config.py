@@ -24,6 +24,12 @@ class LogType(Enum):
     CONSOLE = "console"
     ALL = "all"
 
+class ProcessingStatus(Enum):
+    UNKNOWN = "UNKNOWN"
+    IN_PROGRESS =  "IN_PROGRESS"
+    ERROR = "ERROR"
+    COMPLETED = "COMPLETED"
+
 class Config:
     def __init__(self):
 
@@ -64,6 +70,12 @@ class Config:
         self.log_path = os.getenv("LOG_PATH")
         self.log_rotation = int(os.getenv("LOG_ROTATION_SIZE_BYTES"))
         self.log_handler_type = os.getenv("LOG_HANDLER_TYPE")
+
+        # Mysql parameters
+        self.mysql_host = os.getenv("MYSQL_HOST")
+        self.mysql_db = os.getenv("MYSQL_DB")
+        self.mysql_user = os.getenv("MYSQL_USER")
+        self.mysql_password = os.getenv("MYSQL_PASSWORD")
 
 
     def set_logger(self):
