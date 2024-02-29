@@ -175,8 +175,8 @@ class ServiceManager:
 
             # Update the given tries with processing status and error msg
             cursor.execute("""
-            UPDATE file_infos SET process_status=%s, process_error_msg=%s WHERE original_filename=%s
-                           """,(process_status, process_error_msg, file_name))
+            UPDATE %s SET process_status=%s, process_error_msg=%s WHERE original_filename=%s
+                           """,(self.config.mysql_table, process_status, process_error_msg, file_name))
             self.mysql_conn.commit()
 
             self.config.logger.info(f"Updated mysql entry for {file_name} to {process_status}")

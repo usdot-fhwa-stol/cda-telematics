@@ -17,20 +17,22 @@ services:
            - /opt/telematics/upload:/opt/telematics/upload
     environment:
     - TOPIC_EXCLUSION_LIST=["/rosout","/parameter_events","/robot_description","/tf_static","/tf","/environment/fused_external_objects","/environment/base_map","/environment/external_objects_viz","/environment/motion_computation_visualize","/environment/external_object_predictions","/localization/current_pose","/localization/map_param_loader/georeference","/environment/semantic_map","/hardware_interface/comms/outbound_binary_msg","/environment/lanelet2_map_viz","/localization/points_map"]
-    - NATS_SERVER_IP_PORT=<>
+    - NATS_SERVER_IP_PORT=nats://ec2-3-219-226-1.compute-1.amazonaws.com:4222
     - LOG_LEVEL=debug
     - LOG_NAME=rosbag2_processing_service
     - LOG_PATH=/opt/telematics/logs
     - LOG_ROTATION_SIZE_BYTES=2147483648
     - LOG_HANDLER_TYPE=console
-    - INFLUX_BUCKET=<>
+    - INFLUX_BUCKET=test-bucket
     - INFLUX_ORG=my-org
-    - INFLUX_TOKEN=my-super-secret-token
+    - INFLUX_TOKEN=<>
     - INFLUX_URL=<>
-    - MYSQL_HOST=<> # Add host IP where mysql database is hosted
-    - MYSQL_DB=<>  # Name of Mysql databse
-    - MYSQL_USER=<> # Login credentials for mysql database, User
-    - MYSQL_PASSWORD=<> # Login credentials for mysql database, Password
+    - MYSQL_HOST=telematic_system_mysqldb_1 # Add host IP where mysql database is hosted
+    - MYSQL_PORT=3306
+    - MYSQL_DB=wfd_grafana  # Name of Mysql databse
+    - MYSQL_USER=root # Login credentials for mysql database, User
+    - MYSQL_PASSWORD=root # Login credentials for mysql database, Password
+    - MYSQL_TABLE=file_infos
     - UPLOAD_DESTINATION_PATH=/opt/telematics/upload # For cloud deployment:This is the directory S3 bucket is mounted
     - TO_STR_FIELDS=[]
     - IGNORE_FIELDS=[]
