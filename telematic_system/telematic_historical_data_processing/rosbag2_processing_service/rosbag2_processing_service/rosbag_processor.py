@@ -110,7 +110,7 @@ class Rosbag2Parser:
 
     def create_record_from_msg(self, msg, measurement_name):
 
-        topic = msg.channel.topic
+        topic = msg.channel.topic[1:]
         ros_msg = msg.ros_msg
         msg_attributes = self.extract_attributes(ros_msg)
         msg_timestamp = msg.publish_time_ns
@@ -133,7 +133,7 @@ class Rosbag2Parser:
                 records.append(f"{attr_name}={attr_value}")
 
 
-        return f"{measurement_name},topic_name={topic}," + ",".join(records) + f" timestamp={msg_timestamp}"
+        return f"{measurement_name},topic_name={topic} " + ",".join(records) + f",timestamp={msg_timestamp} {msg_timestamp}"
 
 
     def extract_attributes(self, obj, parent_attr=None):
