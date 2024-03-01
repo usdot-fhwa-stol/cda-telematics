@@ -124,7 +124,7 @@ class ServiceManager:
         # Add rosbag name to queue
         self.rosbag_queue.append(rosbag_path)
 
-    async def process_rosbag(self):
+    async def process_rosbag_queue(self):
         # This task is responsible for processing the rosbag in the queue - As long as the queue is not empty - keep processing
         while True:
             if not self.rosbag_parser.is_processing and self.rosbag_queue:

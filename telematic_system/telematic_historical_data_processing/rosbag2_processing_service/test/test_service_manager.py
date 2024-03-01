@@ -29,6 +29,7 @@ from influxdb_client import InfluxDBClient
 from aiounittest import AsyncTestCase
 
 from rosbag2_processing_service.config import Config
+from rosbag2_processing_service.config import ProcessingStatus
 from rosbag2_processing_service.service_manager import ServiceManager
 from rosbag2_processing_service.rosbag_processor import Rosbag2Parser
 import rosbag2_processing_service.main
@@ -111,7 +112,7 @@ class ServiceManagerTestClass(AsyncTestCase):
 
         service_manager.rosbag_queue.append("rosbag_file.txt")
         with pytest.raises(Exception):
-            await service_manager.process_rosbag()
+            await service_manager.process_rosbag_queue()
 
     @pytest.mark.asyncio
     async def test_nats_connect(self):
@@ -134,3 +135,20 @@ class ServiceManagerTestClass(AsyncTestCase):
             service_manager.update_mysql_entry("file.mcap","ERROR","Error in processing")
         except:
             assert False
+
+    @pytest.mark.asyncio
+    async def test_new(self):
+
+        def args_based_return(*args, **kwargs):
+            if args == ("test_rosbag.mcap", str(ProcessingStatus.IN_PROGRESS.value)):
+                return True
+            else:
+                return Exception ("exception occurred")
+
+        config = Config()
+        service_manager = ServiceManager(config)
+        service_manager.update_mysql_entry = MagicMock(side_effect=args_based_return)
+
+        with pytest.raises(Exception):
+            service_manager.rosbag_queue.append("test_rosbag.txt")
+            await service_manager.process_rosbag_queue()
