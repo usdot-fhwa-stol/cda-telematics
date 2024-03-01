@@ -36,6 +36,7 @@ import rosbag2_processing_service.main
 
 from nats.aio.client import Client
 import mock
+import mysql
 
 pytest_plugins = ('pytest_asyncio')
 
@@ -140,13 +141,16 @@ class ServiceManagerTestClass(AsyncTestCase):
     async def test_new(self):
 
         def args_based_return(*args, **kwargs):
+            # In progress returns successfully, the next call to update returns an exception. Required to break out of infinite loop while testing
             if args == ("test_rosbag.mcap", str(ProcessingStatus.IN_PROGRESS.value)):
-                return True
+                return
             else:
                 return Exception ("exception occurred")
 
         config = Config()
+        mysql.connector.connect = MagicMock(return_value=MagicMock())
         service_manager = ServiceManager(config)
+
         service_manager.update_mysql_entry = MagicMock(side_effect=args_based_return)
 
         with pytest.raises(Exception):
