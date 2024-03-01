@@ -132,3 +132,10 @@ class ServiceManagerTestClass(AsyncTestCase):
         # Test establishing nats connection with mock client. Exception expected
         with pytest.raises(Exception):
             await service_manager.nats_connect()
+
+
+    def test_update_mysql_entry(self):
+        config = Config()
+        service_manager = ServiceManager(config)
+        with pytest.raises(Exception):
+            service_manager.update_mysql_entry("file.mcap","ERROR","Error in processing")

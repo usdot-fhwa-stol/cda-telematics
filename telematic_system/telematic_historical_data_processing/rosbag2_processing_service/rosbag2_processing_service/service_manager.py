@@ -136,8 +136,7 @@ class ServiceManager:
                 self.update_mysql_entry(rosbag_mysql_entry, ProcessingStatus.IN_PROGRESS.value)
 
                 processing_status, processing_err_msg = self.rosbag_parser.process_rosbag(self.update_first_rosbag_status())
-                # TODO: Update mysql entry for rosbag based on whether processing was successful
-
+                # Update mysql entry for rosbag based on whether processing was successful or not
                 self.update_mysql_entry(rosbag_mysql_entry, processing_status, processing_err_msg)
 
             await asyncio.sleep(1.0)
