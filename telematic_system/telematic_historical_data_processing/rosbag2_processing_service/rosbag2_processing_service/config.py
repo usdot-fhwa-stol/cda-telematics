@@ -102,7 +102,7 @@ class Config:
 
         now = datetime.now()
         dt_string = now.strftime("_%m_%d_%Y_%H_%M_%S")
-        log_name = "something.log"
+        log_name = self.log_name + dt_string + ".log"
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(funcName)s - %(levelname)s - %(message)s')
 

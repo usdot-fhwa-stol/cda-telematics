@@ -55,7 +55,6 @@ class Rosbag2Parser:
         # Create Asynchronous write API for influxdb
         self.write_api = self.influx_client.write_api(write_options=ASYNCHRONOUS)
 
-        #self.logger = config.logger
 
         # Processing status
         self.is_processing = False
