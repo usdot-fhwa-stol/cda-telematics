@@ -38,14 +38,6 @@ import mock
 
 pytest_plugins = ('pytest_asyncio')
 
-@pytest.fixture
-def mock_influxdb_client():
-    with patch('rosbag2_processing_service.ServiceManager.InfluxDBClient') as MockClient:
-        # Mock the write_api() method
-        mock_write_api = MagicMock()
-        MockClient.return_value.write_api.return_value = mock_write_api
-        yield MockClient
-
 
 class ServiceManagerTestClass(AsyncTestCase):
 
@@ -137,5 +129,8 @@ class ServiceManagerTestClass(AsyncTestCase):
     def test_update_mysql_entry(self):
         config = Config()
         service_manager = ServiceManager(config)
-        with pytest.raises(Exception):
+        service_manager.mysql_conn = MagicMock()
+        try:
             service_manager.update_mysql_entry("file.mcap","ERROR","Error in processing")
+        except:
+            assert False
