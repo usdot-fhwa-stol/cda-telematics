@@ -175,6 +175,45 @@ services:
       - WAIT_SLEEP_INTERVAL=5
       - WAIT_HOST_CONNECT_TIMEOUT=30
 
+  rosbag2-processing-service:
+    build:
+          context: ./telematic_historical_data_processing
+          dockerfile: Dockerfile
+          network: host
+    image: usdotfhwastoldev/rosbag2_processing_service:develop
+    logging:
+      options:
+        max-size: "2g"
+        max-file: "1"
+    container_name: rosbag2_processing_service
+    entrypoint: /ws/entrypoint.sh
+    volumes:
+           - /opt/telematics/logs:/opt/telematics/logs
+           - /opt/telematics/upload:/opt/telematics/upload
+    environment:
+    - TOPIC_EXCLUSION_LIST=["/rosout","/parameter_events","/robot_description","/tf_static","/tf","/environment/fused_external_objects","/environment/base_map","/environment/external_objects_viz","/environment/motion_computation_visualize","/environment/external_object_predictions","/localization/current_pose","/localization/map_param_loader/georeference","/environment/semantic_map","/hardware_interface/comms/outbound_binary_msg","/environment/lanelet2_map_viz","/localization/points_map"]
+    - NATS_SERVER_IP_PORT=${NATS_SERVERS}
+    - LOG_LEVEL=debug
+    - LOG_NAME=rosbag2_processing_service
+    - LOG_PATH=/opt/telematics/logs
+    - LOG_ROTATION_SIZE_BYTES=2147483648
+    - LOG_HANDLER_TYPE=console
+    - INFLUX_BUCKET=<>
+    - INFLUX_ORG=my-org
+    - INFLUX_TOKEN=my-super-secret-token
+    - INFLUX_URL=<>
+    - MYSQL_HOST=${DB_HOST}# Add host IP where mysql database is hosted
+    - MYSQL_PORT=${DB_PORT}
+    - MYSQL_DB=${MYSQL_DATABASE}  # Name of Mysql databse
+    - MYSQL_USER=${DB_USER} # Login credentials for mysql database, User
+    - MYSQL_PASSWORD=${DB_PASSWORD} # Login credentials for mysql database, Password
+    - MYSQL_TABLE=file_infos
+    - UPLOAD_DESTINATION_PATH=/opt/telematics/upload # For cloud deployment:This is the directory S3 bucket is mounted
+    - TO_STR_FIELDS=[]
+    - IGNORE_FIELDS=[]
+    - FILE_PROCESSING_SUBJECT=${FILE_PROCESSING_SUBJECT}
+    - ACCEPTED_FILE_EXTENSIONS=[".mcap"]
+
 secrets:
   mysql_password:
       file: ./secrets/mysql_password.txt

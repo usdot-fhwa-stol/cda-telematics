@@ -54,6 +54,7 @@ class ServiceManagerTestClass(AsyncTestCase):
 
         os.environ["LOG_HANDLER_TYPE"] = "all"
         config2 = Config()
+        config2.set_logger()
         assert config2.log_handler_type == "all"
 
         os.environ["LOG_HANDLER_TYPE"] = "incorrect_type"
@@ -61,7 +62,8 @@ class ServiceManagerTestClass(AsyncTestCase):
         # Should default to console without exception
         try:
             config3 = Config()
-        except Exception:
+            config3.set_logger()
+        except Exception as e:
             pytest.fail(f"Unexpected exception raised: {e}")
 
         # Reset environment var
@@ -132,7 +134,7 @@ class ServiceManagerTestClass(AsyncTestCase):
     async def test_new(self):
 
         def args_based_return(*args, **kwargs):
-            # In progress returns successfully, the next call to update returns an exception. Required to break out of infinite loop while testing
+            # Status IN_PROGRESS returns successfully, the next call to update returns an exception. Required to break out of infinite loop while testing
             if args == ("test_rosbag.mcap", str(ProcessingStatus.IN_PROGRESS.value)):
                 return
             else:
