@@ -128,16 +128,16 @@ class ServiceManager:
         # This task is responsible for processing the rosbag in the queue - As long as the queue is not empty - keep processing
         while True:
             if not self.rosbag_parser.is_processing and self.rosbag_queue:
-                # Get the mysql entry name: org-name/
+                # Get the mysql entry name: org-name/<bag-file.mcap>
                 rosbag_complete_path = Path(self.rosbag_queue[0])
-                rosbag_mysql_entry = str(rosbag_complete_path.relative_to(Path(self.config.upload_destination_path)))
+                rosbag_mysql_filename = str(rosbag_complete_path.relative_to(Path(self.config.upload_destination_path)))
 
                 #Update mysql status to Processing
-                self.update_mysql_entry(rosbag_mysql_entry, ProcessingStatus.IN_PROGRESS.value)
+                self.update_mysql_entry(rosbag_mysql_filename, ProcessingStatus.IN_PROGRESS.value)
 
-                processing_status, processing_err_msg = self.rosbag_parser.process_rosbag(self.update_first_rosbag_status())
+                processing_status, processing_err_msg = self.rosbag_parser.process_rosbag(self.rosbag_queue.pop(0))
                 # Update mysql entry for rosbag based on whether processing was successful or not
-                self.update_mysql_entry(rosbag_mysql_entry, processing_status, processing_err_msg)
+                self.update_mysql_entry(rosbag_mysql_filename, processing_status, processing_err_msg)
 
             await asyncio.sleep(1.0)
 
@@ -151,20 +151,12 @@ class ServiceManager:
             return conn
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                self.config.logger.error("Mysql User name or password not accepted")
+                self.config.logger.error(f"Mysql User name or password not accepted {err}")
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                self.config.logger.error("Mysql Database does not exist")
+                self.config.logger.error(f"Mysql Database does not exist: {err}")
             else:
                 self.config.logger.error(f"Error connecting to mysql database: {err}")
 
-
-    def update_first_rosbag_status(self):
-        rosbag_name = Path(self.rosbag_queue[0]).name
-        self.config.logger.info(f"Entering processing for rosbag: {rosbag_name}")
-
-        rosbag_to_process = self.rosbag_queue.pop(0)
-
-        return rosbag_to_process
 
     def update_mysql_entry(self, file_name, process_status, process_error_msg="NA"):
         # This method updates the mysql database entry for the rosbag to process

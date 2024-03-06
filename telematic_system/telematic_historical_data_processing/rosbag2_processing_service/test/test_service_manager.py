@@ -80,15 +80,6 @@ class ServiceManagerTestClass(AsyncTestCase):
         os.environ["LOG_LEVEL"] = "debug"
 
 
-    def test_rosbag_queue(self):
-        config = Config()
-        service_manager = ServiceManager(config)
-        service_manager.rosbag_queue.append("rosbag_file.txt")
-
-
-        service_manager.update_first_rosbag_status()
-        assert len(service_manager.rosbag_queue) == 0
-
     @pytest.mark.asyncio
     async def test_nats_callback(self):
         config = Config()
