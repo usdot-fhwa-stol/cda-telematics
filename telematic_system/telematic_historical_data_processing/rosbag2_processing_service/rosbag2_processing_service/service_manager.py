@@ -151,9 +151,9 @@ class ServiceManager:
             return conn
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                self.config.logger.error(f"Mysql User name or password not accepted {err}")
+                self.config.logger.error(f"Mysql User name or password not accepted for user: {self.config.mysql_user} and pass: {self.config.mysql_password}")
             elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                self.config.logger.error(f"Mysql Database does not exist: {err}")
+                self.config.logger.error(f"Mysql Database {self.config.mysql_db} does not exist")
             else:
                 self.config.logger.error(f"Error connecting to mysql database: {err}")
 
@@ -165,7 +165,7 @@ class ServiceManager:
             cursor = self.mysql_conn.cursor()
 
             # Update the given tries with processing status and error msg
-            query = """UPDATE {} SET process_status=%s, process_error_msg=%s WHERE original_filename=%s""".format(self.config.mysql_table)
+            query = """UPDATE file_infos SET process_status=%s, process_error_msg=%s WHERE original_filename=%s"""
             cursor.execute(query, (process_status, process_error_msg, file_name))
             self.mysql_conn.commit()
 

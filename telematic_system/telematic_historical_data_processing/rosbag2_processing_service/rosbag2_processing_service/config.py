@@ -77,7 +77,6 @@ class Config:
         self.mysql_host = os.getenv("MYSQL_HOST")
         self.mysql_port = int(os.getenv("MYSQL_PORT"))
         self.mysql_db = os.getenv("MYSQL_DB")
-        self.mysql_table = os.getenv("MYSQL_TABLE")
         self.mysql_user = os.getenv("MYSQL_USER")
         self.mysql_password = os.getenv("MYSQL_PASSWORD")
 

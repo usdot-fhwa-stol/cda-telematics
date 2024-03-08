@@ -198,7 +198,7 @@ services:
     - LOG_PATH=/opt/telematics/logs
     - LOG_ROTATION_SIZE_BYTES=2147483648
     - LOG_HANDLER_TYPE=console
-    - INFLUX_BUCKET=<>
+    - INFLUX_BUCKET=${INFLUXDB_DEV_INIT_BUCKET}
     - INFLUX_ORG=my-org
     - INFLUX_TOKEN=my-super-secret-token
     - INFLUX_URL=<>
