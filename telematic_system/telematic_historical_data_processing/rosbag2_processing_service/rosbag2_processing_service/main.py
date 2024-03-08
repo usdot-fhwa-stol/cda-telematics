@@ -39,7 +39,7 @@ def main():
 
     main_loop = asyncio.get_event_loop()
     try:
-        main_loop.run_until_complete(service_manager.process_rosbag())
+        main_loop.run_until_complete(service_manager.process_rosbag_queue())
     finally:
         main_loop.close()
 

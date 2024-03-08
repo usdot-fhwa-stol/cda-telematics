@@ -19,8 +19,12 @@ from nats.aio.client import Client as NATS
 from datetime import datetime
 from .rosbag_processor import Rosbag2Parser
 from .config import Config
+from .config import ProcessingStatus
 import json
 from pathlib import Path
+
+import mysql.connector
+from mysql.connector import errorcode
 
 
 class ServiceManager:
@@ -69,8 +73,7 @@ class ServiceManager:
         #nats connection status
         self.is_nats_connected = False
 
-        #TODO: Add Mysql database connection
-        #self.db = _mysql.connect(host="", user="", password="", database="")
+        self.mysql_conn = self.create_mysql_conn()
 
 
     async def nats_connect(self):
@@ -116,26 +119,57 @@ class ServiceManager:
         data = msg.data.decode()
         msg_json_object = json.loads(data)
 
-        rosbag_name = msg_json_object["filename"]
+        rosbag_path = msg_json_object["filepath"]
 
-        rosbag_path = Path(self.config.upload_destination_path) / rosbag_name
         # Add rosbag name to queue
         self.rosbag_queue.append(rosbag_path)
 
-    async def process_rosbag(self):
+    async def process_rosbag_queue(self):
         # This task is responsible for processing the rosbag in the queue - As long as the queue is not empty - keep processing
         while True:
             if not self.rosbag_parser.is_processing and self.rosbag_queue:
-                self.rosbag_parser.process_rosbag(self.update_first_rosbag_status())
+                # Get the mysql entry name: org-name/<bag-file.mcap>
+                rosbag_complete_path = Path(self.rosbag_queue[0])
+                rosbag_mysql_filename = str(rosbag_complete_path.relative_to(Path(self.config.upload_destination_path)))
 
-                # TODO: Update mysql entry for rosbag based on whether processing was successful
+                #Update mysql status to Processing
+                self.update_mysql_entry(rosbag_mysql_filename, ProcessingStatus.IN_PROGRESS.value)
+
+                processing_status, processing_err_msg = self.rosbag_parser.process_rosbag(self.rosbag_queue.pop(0))
+                # Update mysql entry for rosbag based on whether processing was successful or not
+                self.update_mysql_entry(rosbag_mysql_filename, processing_status, processing_err_msg)
+
             await asyncio.sleep(1.0)
 
-    def update_first_rosbag_status(self):
-        rosbag_name = Path(self.rosbag_queue[0]).name
-        self.config.logger.info(f"Entering processing for rosbag: {rosbag_name}")
+    def create_mysql_conn(self):
 
-        rosbag_to_process = self.rosbag_queue.pop(0)
-        # TODO: Check mysql if rosbag already processed/ Create new entry for rosbag
+        try:
+            conn = mysql.connector.connect(user= self.config.mysql_user, password= self.config.mysql_password,
+                              host= self.config.mysql_host,
+                              database= self.config.mysql_db, port = self.config.mysql_port)
+            self.config.logger.info("Connected to MySQL database!")
+            return conn
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                self.config.logger.error(f"Mysql User name or password not accepted for user: {self.config.mysql_user} and pass: {self.config.mysql_password}")
+            elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                self.config.logger.error(f"Mysql Database {self.config.mysql_db} does not exist")
+            else:
+                self.config.logger.error(f"Error connecting to mysql database: {err}")
 
-        return rosbag_to_process
+
+    def update_mysql_entry(self, file_name, process_status, process_error_msg="NA"):
+        # This method updates the mysql database entry for the rosbag to process
+        # Update the update fields with update values
+        try:
+            cursor = self.mysql_conn.cursor()
+
+            # Update the given tries with processing status and error msg
+            query = """UPDATE file_infos SET process_status=%s, process_error_msg=%s WHERE original_filename=%s"""
+            cursor.execute(query, (process_status, process_error_msg, file_name))
+            self.mysql_conn.commit()
+
+            self.config.logger.info(f"Updated mysql entry for {file_name} to {process_status}")
+
+        except mysql.connector.Error as e:
+            self.config.logger.error(f"Failed to update mysql table with error: {e}")

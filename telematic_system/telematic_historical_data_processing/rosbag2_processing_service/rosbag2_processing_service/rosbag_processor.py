@@ -20,6 +20,7 @@ import time
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import ASYNCHRONOUS
 from .config import Config
+from .config import ProcessingStatus
 from mcap import exceptions
 
 import asyncio
@@ -54,14 +55,12 @@ class Rosbag2Parser:
         # Create Asynchronous write API for influxdb
         self.write_api = self.influx_client.write_api(write_options=ASYNCHRONOUS)
 
-        self.logger = config.logger
 
         # Processing status
         self.is_processing = False
 
     def process_rosbag(self,rosbag2_path):
         self.is_processing = True
-
 
         if Path(rosbag2_path).suffix not in self.config.accepted_file_extensions:
             #TODO update mysql entry for rosbag
@@ -70,12 +69,14 @@ class Rosbag2Parser:
         measurement_name = Path(rosbag2_path).stem # Measurement name is rosbag name without mcap extension
         rosbag2_name = Path(rosbag2_path).name
 
-        self.logger.info(f"rosbag name: {rosbag2_name}")
+        self.config.logger.info(f"rosbag name: {rosbag2_name}")
 
         if not Path(rosbag2_path).exists():
-            self.logger.error(f"File not found {rosbag2_path}")
+            processing_error_msg = f"File not found {rosbag2_path}"
+            self.config.logger.error(processing_error_msg)
             self.is_processing = False
-            return
+
+            return ProcessingStatus.ERROR.value, processing_error_msg
 
         # Load the rosbag from the config directory
         try:
@@ -89,19 +90,23 @@ class Rosbag2Parser:
                     self.write_api.write(bucket=self.config.influx_bucket, org=self.config.influx_org, record=record)
 
                 except InfluxDBClientError as e:
-                    self.logger.error(f"Error from Influx Client: {(e)}")
+                    self.config.logger.error(f"Error from Influx Client: {(e)}")
                 except Exception as e:
-                    self.logger.error(f"Failed to process ros message with exception: {(e)}")
+                    self.config.logger.error(f"Failed to process ros message with exception: {(e)}")
 
 
         except exceptions.McapError as e:
-            self.logger.error(f"Failed to read from rosbag with exception {(e)} ")
+            processing_error_msg = f"Failed to read from rosbag with exception {(e)} "
+            self.config.logger.error(processing_error_msg)
             self.is_processing = False
-            return
 
-        self.logger.info(f"Completed rosbag processing for {rosbag2_name}")
+            return ProcessingStatus.ERROR.value, processing_error_msg
+
+        self.config.logger.info(f"Completed rosbag processing for {rosbag2_name}")
 
         self.is_processing = False
+
+        return ProcessingStatus.COMPLETED.value, "NA"
 
     def create_record_from_msg(self, msg, measurement_name):
 
@@ -128,7 +133,7 @@ class Rosbag2Parser:
                 records.append(f"{attr_name}={attr_value}")
 
 
-        return f"{measurement_name},topic_name={topic}," + ",".join(records) + f" timestamp={msg_timestamp}"
+        return f"{measurement_name},topic_name={topic} " + ",".join(records) + f",timestamp={msg_timestamp} {msg_timestamp}"
 
 
     def extract_attributes(self, obj, parent_attr=None):
@@ -151,6 +156,6 @@ class Rosbag2Parser:
 
             # This should be updated with specific exceptions caught during use of tool. Currently set to generic, to avoid crashing the service.
             except Exception as e:
-                self.logger.error(f"Unable to get attributes for ros message with exception: {str(e)}")
+                self.config.logger.error(f"Unable to get attributes for ros message with exception: {str(e)}")
 
         return attributes

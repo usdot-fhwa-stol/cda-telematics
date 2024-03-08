@@ -2,7 +2,7 @@ version: "3"
 services:
 
   influxdb:
-    image:  influxdb:${INFLUXDB_DEV_TAG} 
+    image:  influxdb:${INFLUXDB_DEV_TAG}
     container_name: influxdb-dev
     ports:
       - '8086:8086'
@@ -33,13 +33,13 @@ services:
       - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
       - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
     ports:
-      - '3307:3306'
+      - '3307:3306'  # Mapping required for CAVe-in-a-box deployment where port 3306 is used by v2xhub
     secrets:
       - mysql_password
       - mysql_root_password
     volumes:
       - mysql-datavolume:/var/lib/mysql
-  
+
   nats:
     image: 'nats:2.7.3-alpine3.15'
     restart: always
@@ -80,7 +80,7 @@ services:
           max-file: "1"
       network_mode: host
       depends_on:
-        - mysqldb      
+        - mysqldb
         - grafana
       environment:
         - WAIT_HOSTS=localhost:3307,localhost:3000
@@ -111,8 +111,8 @@ services:
         - UPLOAD_HTTP_PORT=9011
         - UPLOAD_TIME_OUT=3600000 # Milliseconds
         - UPLOAD_MAX_FILE_SIZE=21474836480 #20 GB
-        - CONCURRENT_QUEUE_SIZE=5 
-        - PART_SIZE=10485760 
+        - CONCURRENT_QUEUE_SIZE=5
+        - PART_SIZE=10485760
         - NATS_SERVERS=localhost:4222
         - FILE_PROCESSING_SUBJECT=ui.file.processing
       volumes:
@@ -152,7 +152,7 @@ services:
       - telematic_web_client
       - telematic_web_server
     volumes:
-      - /opt/apache2/grafana_htpasswd:/etc/apache2/grafana_htpasswd  
+      - /opt/apache2/grafana_htpasswd:/etc/apache2/grafana_htpasswd
 
   telematic_messaging_server:
     build:
@@ -174,6 +174,45 @@ services:
       - WAIT_TIMEOUT=300
       - WAIT_SLEEP_INTERVAL=5
       - WAIT_HOST_CONNECT_TIMEOUT=30
+
+  rosbag2-processing-service:
+    build:
+          context: ./telematic_historical_data_processing
+          dockerfile: Dockerfile
+          network: host
+    image: usdotfhwastoldev/rosbag2_processing_service:develop
+    logging:
+      options:
+        max-size: "2g"
+        max-file: "1"
+    container_name: rosbag2_processing_service
+    entrypoint: /ws/entrypoint.sh
+    volumes:
+           - /opt/telematics/logs:/opt/telematics/logs
+           - /opt/telematics/upload:/opt/telematics/upload
+    environment:
+    - TOPIC_EXCLUSION_LIST=["/rosout","/parameter_events","/robot_description","/tf_static","/tf","/environment/fused_external_objects","/environment/base_map","/environment/external_objects_viz","/environment/motion_computation_visualize","/environment/external_object_predictions","/localization/current_pose","/localization/map_param_loader/georeference","/environment/semantic_map","/hardware_interface/comms/outbound_binary_msg","/environment/lanelet2_map_viz","/localization/points_map"]
+    - NATS_SERVER_IP_PORT=${NATS_SERVERS}
+    - LOG_LEVEL=debug
+    - LOG_NAME=rosbag2_processing_service
+    - LOG_PATH=/opt/telematics/logs
+    - LOG_ROTATION_SIZE_BYTES=2147483648
+    - LOG_HANDLER_TYPE=console
+    - INFLUX_BUCKET=${INFLUXDB_DEV_INIT_BUCKET}
+    - INFLUX_ORG=my-org
+    - INFLUX_TOKEN=my-super-secret-token
+    - INFLUX_URL=<>
+    - MYSQL_HOST=${DB_HOST}# Add host IP where mysql database is hosted
+    - MYSQL_PORT=${DB_PORT}
+    - MYSQL_DB=${MYSQL_DATABASE}  # Name of Mysql databse
+    - MYSQL_USER=${DB_USER} # Login credentials for mysql database, User
+    - MYSQL_PASSWORD=${DB_PASSWORD} # Login credentials for mysql database, Password
+    - MYSQL_TABLE=file_infos
+    - UPLOAD_DESTINATION_PATH=/opt/telematics/upload # For cloud deployment:This is the directory S3 bucket is mounted
+    - TO_STR_FIELDS=[]
+    - IGNORE_FIELDS=[]
+    - FILE_PROCESSING_SUBJECT=${FILE_PROCESSING_SUBJECT}
+    - ACCEPTED_FILE_EXTENSIONS=[".mcap"]
 
 secrets:
   mysql_password:

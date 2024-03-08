@@ -29,22 +29,16 @@ from influxdb_client import InfluxDBClient
 from aiounittest import AsyncTestCase
 
 from rosbag2_processing_service.config import Config
+from rosbag2_processing_service.config import ProcessingStatus
 from rosbag2_processing_service.service_manager import ServiceManager
 from rosbag2_processing_service.rosbag_processor import Rosbag2Parser
 import rosbag2_processing_service.main
 
 from nats.aio.client import Client
 import mock
+import mysql
 
 pytest_plugins = ('pytest_asyncio')
-
-@pytest.fixture
-def mock_influxdb_client():
-    with patch('rosbag2_processing_service.ServiceManager.InfluxDBClient') as MockClient:
-        # Mock the write_api() method
-        mock_write_api = MagicMock()
-        MockClient.return_value.write_api.return_value = mock_write_api
-        yield MockClient
 
 
 class ServiceManagerTestClass(AsyncTestCase):
@@ -60,6 +54,7 @@ class ServiceManagerTestClass(AsyncTestCase):
 
         os.environ["LOG_HANDLER_TYPE"] = "all"
         config2 = Config()
+        config2.set_logger()
         assert config2.log_handler_type == "all"
 
         os.environ["LOG_HANDLER_TYPE"] = "incorrect_type"
@@ -67,7 +62,8 @@ class ServiceManagerTestClass(AsyncTestCase):
         # Should default to console without exception
         try:
             config3 = Config()
-        except Exception:
+            config3.set_logger()
+        except Exception as e:
             pytest.fail(f"Unexpected exception raised: {e}")
 
         # Reset environment var
@@ -86,15 +82,6 @@ class ServiceManagerTestClass(AsyncTestCase):
         os.environ["LOG_LEVEL"] = "debug"
 
 
-    def test_rosbag_queue(self):
-        config = Config()
-        service_manager = ServiceManager(config)
-        service_manager.rosbag_queue.append("rosbag_file.txt")
-
-
-        service_manager.update_first_rosbag_status()
-        assert len(service_manager.rosbag_queue) == 0
-
     @pytest.mark.asyncio
     async def test_nats_callback(self):
         config = Config()
@@ -105,7 +92,7 @@ class ServiceManagerTestClass(AsyncTestCase):
             def __init__(self, data):
                 self.data = data.encode()
 
-        mock_message = MockMessage(json.dumps({"filename": "test/rosbag2.mcap"}))
+        mock_message = MockMessage(json.dumps({"filepath": "test/rosbag2.mcap"}))
 
         await service_manager.get_file_path_from_nats(mock_message)
 
@@ -119,7 +106,7 @@ class ServiceManagerTestClass(AsyncTestCase):
 
         service_manager.rosbag_queue.append("rosbag_file.txt")
         with pytest.raises(Exception):
-            await service_manager.process_rosbag()
+            await service_manager.process_rosbag_queue()
 
     @pytest.mark.asyncio
     async def test_nats_connect(self):
@@ -132,3 +119,33 @@ class ServiceManagerTestClass(AsyncTestCase):
         # Test establishing nats connection with mock client. Exception expected
         with pytest.raises(Exception):
             await service_manager.nats_connect()
+
+
+    def test_update_mysql_entry(self):
+        config = Config()
+        service_manager = ServiceManager(config)
+        service_manager.mysql_conn = MagicMock()
+        try:
+            service_manager.update_mysql_entry("file.mcap","ERROR","Error in processing")
+        except:
+            assert False
+
+    @pytest.mark.asyncio
+    async def test_new(self):
+
+        def args_based_return(*args, **kwargs):
+            # Status IN_PROGRESS returns successfully, the next call to update returns an exception. Required to break out of infinite loop while testing
+            if args == ("test_rosbag.mcap", str(ProcessingStatus.IN_PROGRESS.value)):
+                return
+            else:
+                return Exception ("exception occurred")
+
+        config = Config()
+        mysql.connector.connect = MagicMock(return_value=MagicMock())
+        service_manager = ServiceManager(config)
+
+        service_manager.update_mysql_entry = MagicMock(side_effect=args_based_return)
+
+        with pytest.raises(Exception):
+            service_manager.rosbag_queue.append("test_rosbag.txt")
+            await service_manager.process_rosbag_queue()
