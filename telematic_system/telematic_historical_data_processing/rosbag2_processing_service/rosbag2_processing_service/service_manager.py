@@ -24,7 +24,8 @@ import json
 from pathlib import Path
 
 import mysql.connector
-from mysql.connector import errorcode
+from mysql.connector import Error
+import time
 
 
 class ServiceManager:
@@ -67,13 +68,27 @@ class ServiceManager:
 
         self.config = config
 
+        # Hardcoded max number of attempts to retry connection to mysql
+        self.mysql_max_reconnect_attempts = 5
+
         # Create rosbag parser object
         self.rosbag_parser = Rosbag2Parser(config)
+
+        # Store name for rosbag currently being processed - in order to update mysql entry while stopping service
+        self.currently_processing_rosbag = ""
 
         #nats connection status
         self.is_nats_connected = False
 
         self.mysql_conn = self.create_mysql_conn()
+
+    def __del__(self):
+        # Update MySQL in-progress status to Error
+        if self.currently_processing_rosbag:
+            self.update_mysql_entry(self, self.currently_processing_rosbag, ProcessingStatus.ERROR, process_error_msg="Service stopped before processing could complete")
+
+        # Close mysql connection
+        self.mysql_conn.close()
 
 
     async def nats_connect(self):
@@ -135,32 +150,41 @@ class ServiceManager:
                 #Update mysql status to Processing
                 self.update_mysql_entry(rosbag_mysql_filename, ProcessingStatus.IN_PROGRESS.value)
 
-                processing_status, processing_err_msg = self.rosbag_parser.process_rosbag(self.rosbag_queue.pop(0))
+                self.currently_processing_rosbag = self.rosbag_queue.pop(0)
+                processing_status, processing_err_msg = self.rosbag_parser.process_rosbag(self.currently_processing_rosbag)
                 # Update mysql entry for rosbag based on whether processing was successful or not
                 self.update_mysql_entry(rosbag_mysql_filename, processing_status, processing_err_msg)
-
+                # Reset currently processing rosbag if mysql already updated
+                self.currently_processing_rosbag = ""
             await asyncio.sleep(1.0)
 
     def create_mysql_conn(self):
 
-        try:
-            conn = mysql.connector.connect(user= self.config.mysql_user, password= self.config.mysql_password,
-                              host= self.config.mysql_host,
-                              database= self.config.mysql_db, port = self.config.mysql_port)
-            self.config.logger.info("Connected to MySQL database!")
-            return conn
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                self.config.logger.error(f"Mysql User name or password not accepted for user: {self.config.mysql_user} and pass: {self.config.mysql_password}")
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                self.config.logger.error(f"Mysql Database {self.config.mysql_db} does not exist")
-            else:
-                self.config.logger.error(f"Error connecting to mysql database: {err}")
+        attempt = 1
+        while attempt < self.mysql_max_reconnect_attempts:
+            try:
+                conn = mysql.connector.connect(user= self.config.mysql_user, password= self.config.mysql_password,
+                                host= self.config.mysql_host,
+                                database= self.config.mysql_db, port = self.config.mysql_port)
+                self.config.logger.info("Connected to MySQL database!")
+                return conn
+            except mysql.connector.Error as err:
+                if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                    self.config.logger.error(f"Mysql User name or password not accepted for user: {self.config.mysql_user} and pass: {self.config.mysql_password}")
+                elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                    self.config.logger.error(f"Mysql Database {self.config.mysql_db} does not exist")
+                else:
+                    self.config.logger.error(f"Error connecting to mysql database: {err}")
+            time.sleep(1)
+            attempt += 1
 
 
     def update_mysql_entry(self, file_name, process_status, process_error_msg="NA"):
         # This method updates the mysql database entry for the rosbag to process
         # Update the update fields with update values
+        if not self.mysql_conn.is_connected():
+            self.mysql_conn = self.create_mysql_conn()
+
         try:
             cursor = self.mysql_conn.cursor()
 
@@ -170,6 +194,7 @@ class ServiceManager:
             self.mysql_conn.commit()
 
             self.config.logger.info(f"Updated mysql entry for {file_name} to {process_status}")
+            cursor.close()
 
         except mysql.connector.Error as e:
             self.config.logger.error(f"Failed to update mysql table with error: {e}")
