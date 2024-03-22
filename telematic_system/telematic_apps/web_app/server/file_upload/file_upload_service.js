@@ -153,6 +153,13 @@ const parseLocalFileUpload = async (req, form, listener, natsConn) => {
     }
     file.updated_by = userInfo.id;
     file.created_by = userInfo.id;
+    
+    //Update file info status
+    updateFileUploadStatusEmitter(listener).emit(
+      UPLOADSTATUS.IN_PROGRESS,
+      file
+    );
+
     trackingInProgressFiles.push(file);
     //Write file to HOST machine
     file.filepath = uploadDestPath + "/" + file.originalFilename;
