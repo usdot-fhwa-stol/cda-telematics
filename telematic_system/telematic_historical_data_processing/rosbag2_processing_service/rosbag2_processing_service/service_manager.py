@@ -82,14 +82,6 @@ class ServiceManager:
 
         self.mysql_conn = self.create_mysql_conn()
 
-    def __del__(self):
-        # Update MySQL in-progress status to Error
-        if self.currently_processing_rosbag:
-            self.update_mysql_entry(self, self.currently_processing_rosbag, ProcessingStatus.ERROR, process_error_msg="Service stopped before processing could complete")
-
-        # Close mysql connection
-        self.mysql_conn.close()
-
 
     async def nats_connect(self):
         """
