@@ -74,9 +74,6 @@ class ServiceManager:
         # Create rosbag parser object
         self.rosbag_parser = Rosbag2Parser(config)
 
-        # Store name for rosbag currently being processed - in order to update mysql entry while stopping service
-        self.currently_processing_rosbag = ""
-
         #nats connection status
         self.is_nats_connected = False
 
@@ -142,12 +139,10 @@ class ServiceManager:
                 #Update mysql status to Processing
                 self.update_mysql_entry(rosbag_mysql_filename, ProcessingStatus.IN_PROGRESS.value)
 
-                self.currently_processing_rosbag = self.rosbag_queue.pop(0)
-                processing_status, processing_err_msg = self.rosbag_parser.process_rosbag(self.currently_processing_rosbag)
+                processing_status, processing_err_msg = self.rosbag_parser.process_rosbag(self.rosbag_queue.pop(0))
                 # Update mysql entry for rosbag based on whether processing was successful or not
                 self.update_mysql_entry(rosbag_mysql_filename, processing_status, processing_err_msg)
-                # Reset currently processing rosbag if mysql already updated
-                self.currently_processing_rosbag = ""
+
             await asyncio.sleep(1.0)
 
     def create_mysql_conn(self):
