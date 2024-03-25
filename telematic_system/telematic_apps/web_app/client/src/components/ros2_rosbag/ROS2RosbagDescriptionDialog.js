@@ -89,14 +89,40 @@ function ROS2RosbagDescriptionDialog(props) {
     <Dialog open={props.open} onClose={props.onCloseHandler}>
       <DialogTitle sx={{ fontWeight: "bolder" }}>{props.title}</DialogTitle>
       <DialogContent>
-        <DialogContentText>  Update description for file (<b>{props.ROS2RosbagRow.original_filename?.split("/")[props.ROS2RosbagRow.original_filename?.split("/")?.length - 1]}</b>)  and click "SAVE". </DialogContentText>
+        <DialogContentText>
+          {" "}
+          Update description for file (
+          <b>
+            {
+              props.ROS2RosbagRow.original_filename?.split("/")[
+                props.ROS2RosbagRow.original_filename?.split("/")?.length - 1
+              ]
+            }
+          </b>
+          ) and click "SAVE".{" "}
+        </DialogContentText>
         <FormControl fullWidth>
-          <TextField {...register("description")} error={errors.description ? true : false} margin="dense" id="description" label="Description*" variant="standard" value={description} onChange={handleDescChange} sx={{ marginBottom: 5 }} />
+          <TextField
+            {...register("description")}
+            error={errors.description ? true : false}
+            margin="dense"
+            id="description"
+            label="Description*"
+            variant="standard"
+            inputProps={{ maxLength: 255 }}
+            value={description}
+            onChange={handleDescChange}
+            sx={{ marginBottom: 5 }}
+          />
         </FormControl>
       </DialogContent>
       <DialogActions>
-        <CustomizedOutlinedButton onClick={onCloseHandler}>Cancel</CustomizedOutlinedButton>
-        <CustomizedButton onClick={handleSubmit(saveDescHandler)}>Save </CustomizedButton>
+        <CustomizedOutlinedButton onClick={onCloseHandler}>
+          Cancel
+        </CustomizedOutlinedButton>
+        <CustomizedButton onClick={handleSubmit(saveDescHandler)}>
+          Save{" "}
+        </CustomizedButton>
       </DialogActions>
     </Dialog>
   );
