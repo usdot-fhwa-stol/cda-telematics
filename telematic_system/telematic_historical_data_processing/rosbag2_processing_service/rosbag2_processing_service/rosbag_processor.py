@@ -17,6 +17,7 @@
 from mcap_ros2.reader import read_ros2_messages
 import re
 import time
+from influxdb.exceptions import InfluxDBClientError
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import ASYNCHRONOUS
 from .config import Config
@@ -89,7 +90,7 @@ class Rosbag2Parser:
                     #Write record to influx
                     self.write_api.write(bucket=self.config.influx_bucket, org=self.config.influx_org, record=record)
 
-                except InfluxDBClientError as e:
+                except influxdb.exceptions.InfluxDBClientError as e:
                     self.config.logger.error(f"Error from Influx Client: {(e)}")
                 except Exception as e:
                     self.config.logger.error(f"Failed to process ros message with exception: {(e)}")

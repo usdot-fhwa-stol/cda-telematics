@@ -181,11 +181,17 @@ services:
           dockerfile: Dockerfile
           network: host
     image: usdotfhwastoldev/rosbag2_processing_service:develop
+    restart: always
+    depends_on:
+      - nats
+      - mysqldb
+      - influxdb
     logging:
       options:
         max-size: "2g"
         max-file: "1"
     container_name: rosbag2_processing_service
+    network_mode: host
     entrypoint: /ws/entrypoint.sh
     volumes:
            - /opt/telematics/logs:/opt/telematics/logs
@@ -201,8 +207,8 @@ services:
     - INFLUX_BUCKET=${INFLUXDB_DEV_INIT_BUCKET}
     - INFLUX_ORG=my-org
     - INFLUX_TOKEN=my-super-secret-token
-    - INFLUX_URL=<>
-    - MYSQL_HOST=${DB_HOST}# Add host IP where mysql database is hosted
+    - INFLUX_URL=${INFLUX_URL}
+    - MYSQL_HOST=${DB_HOST} # Add host IP where mysql database is hosted
     - MYSQL_PORT=${DB_PORT}
     - MYSQL_DB=${MYSQL_DATABASE}  # Name of Mysql databse
     - MYSQL_USER=${DB_USER} # Login credentials for mysql database, User
