@@ -59,7 +59,7 @@ const ROS2RosbagRowItem = (props) => {
                   : isRed
                   ? "red"
                   : "black",
-                wordBreak: "break-all",
+                wordBreak: "break-word",
               }}
             >
               {value}
