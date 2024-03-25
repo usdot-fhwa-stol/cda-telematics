@@ -24,7 +24,8 @@ import json
 from pathlib import Path
 
 import mysql.connector
-from mysql.connector import errorcode
+from mysql.connector import Error
+import time
 
 
 class ServiceManager:
@@ -66,6 +67,9 @@ class ServiceManager:
         self.rosbag_queue = []
 
         self.config = config
+
+        # Hardcoded max number of attempts to retry connection to mysql
+        self.mysql_max_reconnect_attempts = 5
 
         # Create rosbag parser object
         self.rosbag_parser = Rosbag2Parser(config)
@@ -143,24 +147,31 @@ class ServiceManager:
 
     def create_mysql_conn(self):
 
-        try:
-            conn = mysql.connector.connect(user= self.config.mysql_user, password= self.config.mysql_password,
-                              host= self.config.mysql_host,
-                              database= self.config.mysql_db, port = self.config.mysql_port)
-            self.config.logger.info("Connected to MySQL database!")
-            return conn
-        except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                self.config.logger.error(f"Mysql User name or password not accepted for user: {self.config.mysql_user} and pass: {self.config.mysql_password}")
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                self.config.logger.error(f"Mysql Database {self.config.mysql_db} does not exist")
-            else:
-                self.config.logger.error(f"Error connecting to mysql database: {err}")
+        attempt = 1
+        while attempt < self.mysql_max_reconnect_attempts:
+            try:
+                conn = mysql.connector.connect(user= self.config.mysql_user, password= self.config.mysql_password,
+                                host= self.config.mysql_host,
+                                database= self.config.mysql_db, port = self.config.mysql_port)
+                self.config.logger.info("Connected to MySQL database!")
+                return conn
+            except mysql.connector.Error as err:
+                if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                    self.config.logger.error(f"Mysql User name or password not accepted for user: {self.config.mysql_user} and pass: {self.config.mysql_password}")
+                elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                    self.config.logger.error(f"Mysql Database {self.config.mysql_db} does not exist")
+                else:
+                    self.config.logger.error(f"Error connecting to mysql database: {err}")
+            time.sleep(1)
+            attempt += 1
 
 
     def update_mysql_entry(self, file_name, process_status, process_error_msg="NA"):
         # This method updates the mysql database entry for the rosbag to process
         # Update the update fields with update values
+        if not self.mysql_conn.is_connected():
+            self.mysql_conn = self.create_mysql_conn()
+
         try:
             cursor = self.mysql_conn.cursor()
 
@@ -170,6 +181,7 @@ class ServiceManager:
             self.mysql_conn.commit()
 
             self.config.logger.info(f"Updated mysql entry for {file_name} to {process_status}")
+            cursor.close()
 
         except mysql.connector.Error as e:
             self.config.logger.error(f"Failed to update mysql table with error: {e}")
