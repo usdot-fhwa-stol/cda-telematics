@@ -207,7 +207,7 @@ services:
     - INFLUX_BUCKET=${INFLUXDB_DEV_INIT_BUCKET}
     - INFLUX_ORG=my-org
     - INFLUX_TOKEN=my-super-secret-token
-    - INFLUX_URL=<>
+    - INFLUX_URL=${INFLUX_URL}
     - MYSQL_HOST=${DB_HOST} # Add host IP where mysql database is hosted
     - MYSQL_PORT=${DB_PORT}
     - MYSQL_DB=${MYSQL_DATABASE}  # Name of Mysql databse
