@@ -3,7 +3,7 @@ services:
 
   influxdb:
     image:  influxdb:${INFLUXDB_DEV_TAG}
-    container_name: influxdb-dev
+    container_name: influxdb
     ports:
       - '8086:8086'
     restart: always
@@ -27,6 +27,7 @@ services:
   mysqldb:
     image: mysql:5.7
     restart: always
+    container_name: mysqldb
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
@@ -43,6 +44,7 @@ services:
   nats:
     image: 'nats:2.7.3-alpine3.15'
     restart: always
+    container_name: nats
     logging:
       options:
         max-size: "2g"
@@ -53,6 +55,7 @@ services:
       build:
         context: "./telematic_apps/grafana"
       restart: always
+      container_name: grafana
       logging:
         options:
           max-size: "10m"
@@ -69,11 +72,12 @@ services:
         - /home/ubuntu/.aws/credentials:/usr/share/grafana/.aws/credentials
       user: "472" #grafana user id
 
-  telematic_web_server:
+  web_server:
       build:
         context: "./telematic_apps/web_app/server"
         dockerfile: "local.Dockerfile"
       restart: always
+      container_name: web_server
       logging:
         options:
           max-size: "10m"
@@ -119,23 +123,25 @@ services:
         - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
         - /opt/telematics/upload:/opt/telematics/upload
 
-  telematic_web_client:
+  web_client:
     build:
       context: "./telematic_apps/web_app/client"
     restart: always
+    container_name: web_client
     logging:
       options:
         max-size: "10m"
         max-file: "1"
     network_mode: host
     depends_on:
-      - telematic_web_server
+      - web_server
 
   apache2:
     build:
       context: "./telematic_apps/apache2"
       dockerfile: "./local.Dockerfile"
     restart: always
+    container_name: apache2
     logging:
       options:
         max-size: "10m"
@@ -149,15 +155,16 @@ services:
       - UISERVICE_LOCAL_UPLOAD_URL=http://127.0.0.1:9011/
     depends_on:
       - grafana
-      - telematic_web_client
-      - telematic_web_server
+      - web_client
+      - web_server
     volumes:
       - /opt/apache2/grafana_htpasswd:/etc/apache2/grafana_htpasswd
 
-  telematic_messaging_server:
+  messaging_server:
     build:
       context: "./telematic_cloud_messaging"
       dockerfile: "local.Dockerfile"
+    container_name: messaging_server
     depends_on:
       - nats
       - mysqldb
@@ -175,12 +182,12 @@ services:
       - WAIT_SLEEP_INTERVAL=5
       - WAIT_HOST_CONNECT_TIMEOUT=30
 
-  rosbag2-processing-service:
+  rosbag2_processing_service:
     build:
           context: ./telematic_historical_data_processing
           dockerfile: Dockerfile
           network: host
-    image: usdotfhwastoldev/rosbag2_processing_service:develop
+    container_name: rosbag2_processing_service
     restart: always
     depends_on:
       - nats
@@ -190,7 +197,6 @@ services:
       options:
         max-size: "2g"
         max-file: "1"
-    container_name: rosbag2_processing_service
     network_mode: host
     entrypoint: /ws/entrypoint.sh
     volumes:

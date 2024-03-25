@@ -2,7 +2,7 @@ version: '3'
 services:
   influxdb:
     image:  influxdb:${INFLUXDB_DEV_TAG} 
-    container_name: influxdb-dev
+    container_name: influxdb
     ports:
       - '8086:8086'
     restart: always
