@@ -17,7 +17,7 @@
 from mcap_ros2.reader import read_ros2_messages
 import re
 import time
-import influxdb
+from influxdb.exceptions import InfluxDBClientError
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import ASYNCHRONOUS
 from .config import Config
