@@ -158,8 +158,7 @@ jobs:
         run: |
           source install/setup.bash
           cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/
-          python3 -m coverage run -m pytest
-          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
+          python3 -m pytest test
       - name: Find coverage.xml
         shell: bash
         run: |
