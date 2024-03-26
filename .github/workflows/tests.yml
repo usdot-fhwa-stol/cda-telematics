@@ -146,7 +146,8 @@ jobs:
         shell: bash
         run: |
           apt-get update
-          apt-get -y install python3-coverage python3-pip 
+          apt-get -y install python3-coverage python3-pip python3-pytest python3-pytest-asyncio
+          pytest --version
           cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/docker
           chmod 777 checkout.sh install.sh
           ./checkout.sh
