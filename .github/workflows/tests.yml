@@ -162,10 +162,11 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
+          cd /ws/src/
           source install/setup.bash
           cd $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/
           python3 -m coverage -m pytest 
-
+          python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
       - name: Find coverage.xml
         shell: bash
         run: |
