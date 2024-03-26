@@ -145,19 +145,20 @@ jobs:
       - name: Install dependencies and build
         shell: bash
         run: |
-          apt-get update
-          apt-get -y install python3-coverage python3-pip python3-pytest python3-pytest-asyncio ros-foxy-rclpy unzip
-          python3 -m pip install nats-py influxdb influxdb_client mcap-ros2-support pathlib pytest-env pytest-asyncio aiounittest mysql-connector-python
-          apt install -y apt-utils python3-pybind11 ros-foxy-test-msgs python3-colcon-common-extensions
-          git clone https://github.com/ros2/rosbag2.git --branch foxy-future src/rosbag2
-          ls -la
-          source /opt/ros/foxy/setup.bash
+          cp -R src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service /ws
+          cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/docker
+          chmod 777 checkout.sh
+          ./checkout.sh
+          chmod 777 install.sh
+          ./install.sh
           colcon build --packages-up-to rosbag2_processing_service
       - name: Run tests
         shell: bash
         run: |
           source install/setup.bash
           cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/
+          ls
+
       - name: Find coverage.xml
         shell: bash
         run: |
