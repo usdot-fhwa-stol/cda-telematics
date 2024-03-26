@@ -151,7 +151,7 @@ jobs:
           cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/docker
           chmod 777 checkout.sh
           ./checkout.sh
-          cp -R $GITHUB_WORKSPACE/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/** /ws/src
+          cp -R $GITHUB_WORKSPACE/src/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/** /ws/src
           chmod 777 install.sh
           ./install.sh
           colcon build --packages-up-to rosbag2_processing_service
@@ -159,8 +159,8 @@ jobs:
         shell: bash
         run: |
           source install/setup.bash
-          cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/
-          ls
+          cd $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/
+          python3 -m coverage -m pytest 
 
       - name: Find coverage.xml
         shell: bash
