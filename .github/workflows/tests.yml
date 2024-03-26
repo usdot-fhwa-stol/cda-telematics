@@ -164,7 +164,9 @@ jobs:
         run: |
           cd /ws/
           source install/setup.bash
+          export PYTHONPATH=$PYTHONPATH:/usr/lib/python3/dist-packages
           cd $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/test
+          source source /ws/install/setup.bash
           python3 -m coverage run -m pytest
           python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
       - name: Find coverage.xml
