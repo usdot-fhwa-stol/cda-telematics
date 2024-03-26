@@ -144,6 +144,7 @@ jobs:
           path: src/${{ github.event.repository.name }}
       - name: Install dependencies and build
         shell: bash
+        # Downgrade pytest to version 8.0.2 due to issue with required parameter 'consider_namespace_packages' not satisfied with version 8.1.1: https://github.com/ros2/launch/issues/765
         run: |
           apt-get update
           apt-get -y install python3-coverage python3-pip python3-pytest python3-pytest-asyncio
