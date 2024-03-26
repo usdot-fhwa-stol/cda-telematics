@@ -145,24 +145,16 @@ jobs:
       - name: Install dependencies and build
         shell: bash
         run: |
-          ls -a
-          pwd
           apt-get update
           apt-get -y install python3-coverage python3-pip 
-          echo $GITHUB_WORKSPACE
           cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/docker
-          pwd
-          ls -a
-          chmod 777 checkout.sh
+          chmod 777 checkout.sh install.sh
           ./checkout.sh
           cp -R $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/** /ws/src/
-          ls /ws/src/
-          chmod 777 install.sh
           ./install.sh
       - name: Run tests
         shell: bash
         run: |
-          export PYTHONPATH=$PYTHONPATH:/usr/lib/python3/dist-packages
           cd $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/test
           source /ws/install/setup.bash
           python3 -m coverage run -m pytest
