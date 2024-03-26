@@ -147,6 +147,7 @@ jobs:
         run: |
           ls -a
           pwd
+          apt-get -y install python3-coverage python3-pip
           echo $GITHUB_WORKSPACE
           cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/docker
           pwd
@@ -154,6 +155,7 @@ jobs:
           chmod 777 checkout.sh
           ./checkout.sh
           cp -R $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/** /ws/src/
+          ls /ws/src/
           chmod 777 install.sh
           ./install.sh
           colcon build --packages-up-to rosbag2_processing_service
