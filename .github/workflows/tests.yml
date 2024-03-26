@@ -147,7 +147,7 @@ jobs:
         run: |
           apt-get update
           apt-get -y install python3-coverage python3-pip python3-pytest python3-pytest-asyncio
-          pytest --version
+          pip3 install pytest==8.0.2
           cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/docker
           chmod 777 checkout.sh install.sh
           ./checkout.sh
@@ -156,7 +156,7 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          cd $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/test
+          cd $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service
           source /ws/install/setup.bash
           python3 -m coverage run -m pytest
           python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
