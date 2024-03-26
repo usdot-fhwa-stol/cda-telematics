@@ -162,9 +162,9 @@ jobs:
       - name: Run tests
         shell: bash
         run: |
-          cd /ws/src/
-          ls /ws/src/
-          ls /ws/src/rosbag2_processing_service
+          cd /ws/
+          ls /ws/
+          ls /ws/src
           source install/setup.bash
           cd $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/
           python3 -m coverage -m pytest 
