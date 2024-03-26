@@ -154,9 +154,10 @@ jobs:
           chmod 777 checkout.sh
           ./checkout.sh
           cd $GITHUB_WORKSPACE
-          ls $GITHUB_WORKSPACE/src/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/
+          pwd
+          ls $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service
           ls  /ws/src/
-          cp -R $GITHUB_WORKSPACE/src/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/ /ws/src/
+          cp -R $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/ /ws/src/
           chmod 777 install.sh
           ./install.sh
           colcon build --packages-up-to rosbag2_processing_service
