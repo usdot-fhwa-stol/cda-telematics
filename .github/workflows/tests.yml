@@ -145,10 +145,13 @@ jobs:
       - name: Install dependencies and build
         shell: bash
         run: |
+          ls -a
+          pwd
+          echo $GITHUB_WORKSPACE
           cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/docker
           chmod 777 checkout.sh
           ./checkout.sh
-          cp -R src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/** /ws
+          cp -R $GITHUB_WORKSPACE/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/** /ws/src
           chmod 777 install.sh
           ./install.sh
           colcon build --packages-up-to rosbag2_processing_service
