@@ -159,7 +159,6 @@ jobs:
           ls /ws/src/
           chmod 777 install.sh
           ./install.sh
-          colcon build --packages-up-to rosbag2_processing_service
       - name: Run tests
         shell: bash
         run: |
