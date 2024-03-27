@@ -156,9 +156,9 @@ class ServiceManager:
                 self.config.logger.info("Connected to MySQL database!")
                 return conn
             except mysql.connector.Error as err:
-                if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
+                if err.errno == mysql.connector.Error.errorcode.ER_ACCESS_DENIED_ERROR:
                     self.config.logger.error(f"Mysql User name or password not accepted for user: {self.config.mysql_user} and pass: {self.config.mysql_password}")
-                elif err.errno == errorcode.ER_BAD_DB_ERROR:
+                elif err.errno == mysql.connector.Error.errorcode.ER_BAD_DB_ERROR:
                     self.config.logger.error(f"Mysql Database {self.config.mysql_db} does not exist")
                 else:
                     self.config.logger.error(f"Error connecting to mysql database: {err}")
