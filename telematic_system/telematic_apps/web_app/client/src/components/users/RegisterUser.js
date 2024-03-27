@@ -128,9 +128,9 @@ const RegisterUser = () => {
                 <DialogTitle sx={{ color: 'green' }}>Successfully registered user </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">                       
-                    The created user is by default assigned viewer role. Please send email to
-                            <Link href={`mailto:${adminEmails.join(';')}?subject=Role update request&body=Request`}> administrators </Link>
-                            &nbsp;to update your role.
+                        The created user is by default assigned viewer role. If you would like to create dashboards, events, etc, you must send an email to 
+                        <Link href={`mailto:${adminEmails.join(';')}?subject=Role update request&body=Request`}> administrators </Link>
+                            &nbsp; requesting an editor role.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
