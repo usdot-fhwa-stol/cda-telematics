@@ -5,7 +5,7 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  apache:
+  telematic-apache:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -17,7 +17,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_apps/apache2/
           file: ./telematic_system/telematic_apps/apache2/Dockerfile
-  carma-cloud-nats-bridge:
+  telematic-carma-cloud-nats-bridge:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -29,7 +29,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_units/carma_cloud_bridge/
           file: ./telematic_system/telematic_units/carma_cloud_bridge/Dockerfile
-  carma-streets-bridge:
+  telematic-carma-streets-bridge:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -41,7 +41,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_units/carma_street_bridge/
           file: ./telematic_system/telematic_units/carma_street_bridge/Dockerfile
-  carma-vehicle-bridge:
+  telematic-carma-vehicle-bridge:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -53,7 +53,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_units/carma_vehicle_bridge/
           file: ./telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile
-  telematic_historical-data-processing:
+  telematic-historical-data-processing:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -65,7 +65,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_historical_data_processing/
           file: ./telematic_system/telematic_historical_data_processing/Dockerfile
-  grafana:
+  telematic-grafana:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -89,7 +89,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_cloud_messaging/
           file: ./telematic_system/telematic_cloud_messaging/Dockerfile
-  web-app-client:
+  telematic-web-app-client:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -101,7 +101,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_apps/web_app/client/
           file: ./telematic_system/telematic_apps/web_app/client/Dockerfile
-  web-app-server:
+  telematic-web-app-server:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

@@ -87,7 +87,7 @@ jobs:
           push: true
           tags: usdotfhwastoldev/carma_cloud_nats_bridge:${{ github.ref_name }}
 
-  dockerhub-telematic_historical_data_processing:
+  dockerhub-telematic-historical-data-processing:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
