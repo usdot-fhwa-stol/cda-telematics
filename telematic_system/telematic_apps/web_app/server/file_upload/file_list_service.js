@@ -106,9 +106,7 @@ const listAllDBFilesAndS3Objects = async (req, res) => {
           let newFile = await fileInfoController
             .upsertFileInfo(newFileFromS3)
             .catch((error) => console.log(error));
-          let isUpdate = Array.isArray(newFile) && newFile.length > 0 && Number.isInteger(newFile[0]);
-          console.log(newFile)
-          isUpdate ? contents.filter(file => file.original_filename.includes(newFileFromS3.original_filename))[0].upload_status = UPLOADSTATUS.COMPLETED : contents.push(newFile);
+          newFile?.isNewRecord ? contents.filter(file => file.original_filename.includes(newFileFromS3.original_filename))[0].upload_status = UPLOADSTATUS.COMPLETED : contents.push(newFile);
         }
       }
     }

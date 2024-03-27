@@ -253,26 +253,15 @@ const TopicPage = React.memo(() => {
     });
 
     const res_testing_types_data = findAllTestingTypes({});
-    res_testing_types_data.then(json => {
+    res_testing_types_data.then((json) => {
       if (json !== undefined) {
         let testing_types = [];
-        json.forEach(tt => {
+        json.forEach((tt) => {
           testing_types.push(tt);
         });
         setTestingTypeList(testing_types);
       }
     });
-
-    //If user role is missing, display a warning to the user
-    if ((authCtx.role === undefined || authCtx.role === null || authCtx.role === "")
-      && authCtx.org_name !== undefined && authCtx.org_name !== null && authCtx.org_name !== "") {
-      setAlertStatus({
-        open: true,
-        severity: NOTIFICATION_STATUS.WARNING,
-        title: NOTIFICATION_STATUS.WARNING.toLocaleUpperCase(),
-        messageList: ['You are not allowed to access the current organization: ' + authCtx.org_name]
-      });
-    }
   }, []);
 
   return (
