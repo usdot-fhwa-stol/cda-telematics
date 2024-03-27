@@ -53,7 +53,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_units/carma_vehicle_bridge/
           file: ./telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile
-  telematic_historical_data_processing:
+  telematic_historical-data-processing:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
