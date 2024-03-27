@@ -28,6 +28,10 @@ services:
     image: mysql:5.7
     restart: always
     container_name: mysqldb
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "1"
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_USER=${MYSQL_USER}
@@ -76,8 +80,8 @@ services:
   web_server:
       build:
         context: "./telematic_apps/web_app/server"
-        dockerfile: "local.Dockerfile"
-      image: usdotfhwastoldev/telematic_local_web_server:develop
+        dockerfile: "Dockerfile"
+      image: usdotfhwastoldev/telematic_web_server:develop
       restart: always
       container_name: web_server
       logging:
@@ -89,10 +93,6 @@ services:
         - mysqldb
         - grafana
       environment:
-        - WAIT_HOSTS=localhost:3307,localhost:3000
-        - WAIT_TIMEOUT=300
-        - WAIT_SLEEP_INTERVAL=5
-        - WAIT_HOST_CONNECT_TIMEOUT=30
         - NODE_ENV=dev.comelopment
         - CHOKIDAR_USEPOLLING=true
         - ALLOW_CLIENT_URL=http://local.cav-telematics.com:8888
@@ -120,7 +120,8 @@ services:
         - CONCURRENT_QUEUE_SIZE=5
         - PART_SIZE=10485760
         - NATS_SERVERS=localhost:4222
-        - FILE_PROCESSING_SUBJECT=ui.file.processing
+        - FILE_PROCESSING_SUBJECT=ui.file.processing      
+      command: bash -c 'wait-for-it localhost:3307 && wait-for-it localhost:3000 && /app/service.sh'
       volumes:
         - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
         - /opt/telematics/upload:/opt/telematics/upload
@@ -180,12 +181,7 @@ services:
         max-size: "2g"
         max-file: "1"
     network_mode: host
-    environment:
-      - NATS_URI=nats://localhost:4222
-      - WAIT_HOSTS=localhost:3307,localhost:4222,localhost:8086
-      - WAIT_TIMEOUT=300
-      - WAIT_SLEEP_INTERVAL=5
-      - WAIT_HOST_CONNECT_TIMEOUT=30
+    command: bash -c 'java -jar /telematic_cloud_messaging/app.jar'
 
   rosbag2_processing_service:
     build:

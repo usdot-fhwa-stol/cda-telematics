@@ -39,6 +39,7 @@ services:
         - PART_SIZE=10485760 
         - NATS_SERVERS=<NATS_IP>:4222
         - FILE_PROCESSING_SUBJECT=ui.file.processing
+      command: bash -c '/app/service.sh'
       volumes:
         - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
         - /opt/telematics/upload:/opt/telematics/upload

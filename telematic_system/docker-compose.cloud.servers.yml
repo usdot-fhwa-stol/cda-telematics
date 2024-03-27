@@ -23,5 +23,6 @@ services:
         max-size: "2g"
         max-file: "1"
     network_mode: host
+    command: bash -c 'wait-for-it localhost:4222 && java -jar /telematic_cloud_messaging/app.jar'
     environment:
       - NATS_URI=nats://localhost:4222
