@@ -1,6 +1,6 @@
 version: "3.4"
 services:
-  ros2-nats-bridge:
+  ros2_nats_bridge:
     build:
           context: ./telematic_units/carma_vehicle_bridge
           dockerfile: Dockerfile
@@ -9,7 +9,7 @@ services:
       options:
         max-size: "2g"
         max-file: "1"
-    container_name: carma_vehicle_bridge
+    container_name: ros2_nats_bridge
     network_mode: host
     entrypoint: /ws/ros_entrypoint.sh
     volumes:
@@ -28,7 +28,7 @@ services:
     - VEHICLE_BRIDGE_EXCLUSION_LIST= ${VEHICLE_BRIDGE_EXCLUSION_LIST} #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
     - IS_SIM=False #OPTIONAL variable to treat incoming messages as coming from simulation env.  In this case the bridge will use system time as message timestamp. Defaults to False.
 
-  streets-nats-bridge:
+  streets_nats_bridge:
     build:
           context: ./telematic_units/carma_street_bridge
           dockerfile: Dockerfile
@@ -37,7 +37,7 @@ services:
       options:
         max-size: "2g"
         max-file: "1"
-    container_name: carma_street_bridge
+    container_name: streets_nats_bridge
     network_mode: host
     volumes:
            - ./logs:/var/logs
@@ -56,7 +56,7 @@ services:
     - STREETS_BRIDGE_EXCLUSION_LIST= ${STREETS_BRIDGE_EXCLUSION_LIST} #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
     - IS_SIM=False #OPTIONAL variable to treat incoming messages as coming from simulation env.  In this case the bridge will use system time as message timestamp. Defaults to False.
 
-  cloud-nats-bridge:
+  cloud_nats_bridge:
     build:
           context: ./telematic_units/carma_cloud_bridge
           dockerfile: Dockerfile
@@ -65,7 +65,7 @@ services:
       options:
         max-size: "2g"
         max-file: "1"
-    container_name: carma_cloud_bridge
+    container_name: cloud_nats_bridge
     network_mode: host
     volumes:
            - ./logs:/var/logs

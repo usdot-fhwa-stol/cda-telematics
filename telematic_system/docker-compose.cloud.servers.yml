@@ -2,6 +2,7 @@ version: "3"
 services:
   nats:
     image: 'nats:2.7.3-alpine3.15'
+    container_name: nats
     restart: always
     logging:
       options:
@@ -9,9 +10,10 @@ services:
         max-file: "1"
     network_mode: host
 
-  telematic_messaging_server:
+  messaging_server:
     build:
       context: "./telematic_cloud_messaging"
+    container_name: messaging_server
     depends_on:
       - nats
     restart: always

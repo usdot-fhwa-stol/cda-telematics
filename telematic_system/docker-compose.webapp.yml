@@ -1,9 +1,10 @@
 version: "3"
 services:
-  telematic_web_server:
+  web_server:
       build:
         context: "./telematic_apps/web_app/server"
       restart: always
+      container_name: web_server
       logging:
         options:
           max-size: "10m"
@@ -41,17 +42,18 @@ services:
         - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
         - /opt/telematics/upload:/opt/telematics/upload
 
-  telematic_web_client:
+  web_client:
     build:
       context: "./telematic_apps/web_app/client"
     restart: always
+    container_name: web_client
     logging:
       options:
         max-size: "10m"
         max-file: "1"
     network_mode: host
     depends_on:
-      - telematic_web_server
+      - web_server
     volumes:
       - ./web_client.production.env.js:/usr/share/nginx/html/env.js
 
@@ -59,6 +61,7 @@ services:
     build:
       context: "./telematic_apps/apache2"
     restart: always
+    container_name: apache2
     logging:
       options:
         max-size: "10m"
@@ -72,8 +75,8 @@ services:
       - UISERVICE_LOCAL_UPLOAD_URL=http://127.0.0.1:9011/
     depends_on:
       - grafana
-      - telematic_web_client
-      - telematic_web_server
+      - web_client
+      - web_server
     volumes:
       - /opt/apache2/grafana_htpasswd:/etc/apache2/grafana_htpasswd
 
@@ -81,6 +84,7 @@ services:
     build:
       context: "./telematic_apps/grafana"
     restart: always
+    container_name: grafana
     logging:
       options:
         max-size: "10m"
