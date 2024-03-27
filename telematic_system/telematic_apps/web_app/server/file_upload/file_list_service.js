@@ -28,7 +28,7 @@
  */
 const fileInfoController = require("../controllers/file_info.controller");
 const listObjectsModule = require("../file_upload/s3_list_objects");
-const {verifyToken} = require("../utils/verifyToken");
+const { verifyToken } = require("../utils/verify_token");
 const { UPLOADSTATUS } = require("./file_upload_status_emitter");
 require("dotenv").config();
 const uploadDest = process.env.UPLOAD_DESTINATION;

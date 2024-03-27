@@ -60,7 +60,7 @@ class ServiceManager:
     """
 
     def __init__(self, config=Config()):
-        #NATS client to receive requests from the web ui
+        # NATS client to receive requests from the web ui
         self.nc = NATS()
         # List of rosbags to be processed
         self.rosbag_queue = []
@@ -70,11 +70,10 @@ class ServiceManager:
         # Create rosbag parser object
         self.rosbag_parser = Rosbag2Parser(config)
 
-        #nats connection status
+        # nats connection status
         self.is_nats_connected = False
 
         self.mysql_conn = self.create_mysql_conn()
-
 
     async def nats_connect(self):
         """
@@ -104,7 +103,7 @@ class ServiceManager:
             except ConnectionRefusedError:
                 self.config.logger.error("Connect refused trying to connect to nats")
             except Exception as e:
-                 self.logger.error("Unable to connect to NATS")
+                self.config.error("Unable to connect to NATS")
 
             # Create subscriber for nats
             try:
@@ -132,7 +131,7 @@ class ServiceManager:
                 rosbag_complete_path = Path(self.rosbag_queue[0])
                 rosbag_mysql_filename = str(rosbag_complete_path.relative_to(Path(self.config.upload_destination_path)))
 
-                #Update mysql status to Processing
+                # Update mysql status to Processing
                 self.update_mysql_entry(rosbag_mysql_filename, ProcessingStatus.IN_PROGRESS.value)
 
                 processing_status, processing_err_msg = self.rosbag_parser.process_rosbag(self.rosbag_queue.pop(0))
@@ -156,7 +155,6 @@ class ServiceManager:
                 self.config.logger.error(f"Mysql Database {self.config.mysql_db} does not exist")
             else:
                 self.config.logger.error(f"Error connecting to mysql database: {err}")
-
 
     def update_mysql_entry(self, file_name, process_status, process_error_msg="NA"):
         # This method updates the mysql database entry for the rosbag to process

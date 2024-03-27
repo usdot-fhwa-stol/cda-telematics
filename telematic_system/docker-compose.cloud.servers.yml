@@ -14,6 +14,8 @@ services:
     build:
       context: "./telematic_cloud_messaging"
     container_name: messaging_server
+    #Todo: The cloud messaging service image has incorrect configuration. Please update the application.properties, and build it from source code.
+    image: usdotfhwastoldev/telematic_cloud_messaging:develop
     depends_on:
       - nats
     restart: always
@@ -22,5 +24,6 @@ services:
         max-size: "2g"
         max-file: "1"
     network_mode: host
+    command: bash -c 'wait-for-it localhost:4222 && java -jar /telematic_cloud_messaging/app.jar'
     environment:
       - NATS_URI=nats://localhost:4222

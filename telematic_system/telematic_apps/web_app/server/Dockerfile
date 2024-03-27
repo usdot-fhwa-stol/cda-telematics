@@ -7,11 +7,11 @@ WORKDIR /app
 COPY package*.json ./
 
 RUN npm install -g nodemon
+RUN npm install -g node-wait-for-it
 RUN npm init -y
 RUN npm install
 
 # Bundle app source
 COPY . .
 RUN chmod +x service.sh
-
-CMD ./service.sh
+CMD ['/bin/sh', '-c', '/app/service.sh']

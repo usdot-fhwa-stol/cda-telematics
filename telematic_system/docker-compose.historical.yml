@@ -5,6 +5,7 @@ services:
           context: ./telematic_historical_data_processing
           dockerfile: Dockerfile
           network: host
+    image: usdotfhwastoldev/telematic_historical_data_processing:develop
     logging:
       options:
         max-size: "2g"

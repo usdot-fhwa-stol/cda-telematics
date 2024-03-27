@@ -28,7 +28,7 @@ const formidable = require("formidable");
 require("dotenv").config();
 const { uploadFile } = require("./file_upload/file_upload_service");
 const { listAllFiles } = require("./file_upload/file_list_service");
-const { verifyToken } = require("./utils/verifyToken");
+const { verifyToken } = require("./utils/verify_token");
 const { updateDescription } = require("./controllers/file_info.controller");
 const { createNatsConn } = require("./nats_client/nats_connection");
 const {
