@@ -181,7 +181,7 @@ services:
         max-size: "2g"
         max-file: "1"
     network_mode: host
-    command: bash -c 'java -jar /telematic_cloud_messaging/app.jar'
+    command: bash -c 'wait-for-it localhost:3307 && wait-for-it localhost:4222 && wait-for-it localhost:8086 && java -jar /telematic_cloud_messaging/app.jar'
 
   rosbag2_processing_service:
     build:
