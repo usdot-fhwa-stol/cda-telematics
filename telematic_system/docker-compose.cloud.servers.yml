@@ -14,6 +14,7 @@ services:
     build:
       context: "./telematic_cloud_messaging"
     container_name: messaging_server
+    #Todo: The cloud messaging service image has incorrect configuration. Please update the application.properties, and build it from source code.
     image: usdotfhwastoldev/telematic_cloud_messaging:develop
     depends_on:
       - nats
