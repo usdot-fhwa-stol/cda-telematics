@@ -49,8 +49,11 @@ const natsConnModule = require("../nats_client/nats_connection");
 const {
   pubFileProcessingReq,
 } = require("../nats_client/file_processing_nats_publisher");
-const { verifyToken } = require("../utils/verifyToken");
-const { updateDescription, bulkUpdateDescription } = require("../controllers/file_info.controller");
+const { verifyToken } = require("../utils/verify_token");
+const {
+  updateDescription,
+  bulkUpdateDescription,
+} = require("../controllers/file_info.controller");
 
 /**
  * Parse files and upload them to defined destination
@@ -98,7 +101,6 @@ const parseLocalFileUpload = async (req, form, listener, natsConn) => {
   let userInfo = verifyToken(req);
   let trackingInProgressFiles = [];
   form.parse(req, async (err, fields, files) => {
-    console.log('parse >>> parse')
     //If error occurs, save error messages.
     if (err) {
       handleFormError(err, trackingInProgressFiles, userInfo, listener);
@@ -106,7 +108,11 @@ const parseLocalFileUpload = async (req, form, listener, natsConn) => {
     }
 
     //If no error, continue
-    if (!(fields && files) || Object.keys(fields).length === 0 || Object.keys(files).length === 0) {
+    if (
+      !(fields && files) ||
+      Object.keys(fields).length === 0 ||
+      Object.keys(files).length === 0
+    ) {
       console.error("Files or fields cannot be empty!");
       return;
     }
@@ -145,15 +151,19 @@ const parseLocalFileUpload = async (req, form, listener, natsConn) => {
 
   form.on("fileBegin", (formName, file) => {
     //Update file name prefix with folder name (= organization name) to be consistent with s3 originalFilename
-    file.originalFilename = getUpdatedOrgFileName(file.originalFilename, userInfo);
+    file.originalFilename = getUpdatedOrgFileName(
+      file.originalFilename,
+      userInfo
+    );
     //create folder with org name if does not already exist
-    let uploadFolder = uploadDestPath + "/" + userInfo.org_name.replaceAll(' ', '_');
+    let uploadFolder =
+      uploadDestPath + "/" + userInfo.org_name.replaceAll(" ", "_");
     if (!fs.existsSync(uploadFolder)) {
       fs.mkdirSync(uploadFolder);
     }
     file.updated_by = userInfo.id;
     file.created_by = userInfo.id;
-    
+
     //Update file info status
     updateFileUploadStatusEmitter(listener).emit(
       UPLOADSTATUS.IN_PROGRESS,

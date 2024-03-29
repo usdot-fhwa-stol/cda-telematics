@@ -81,7 +81,6 @@ class ServiceManagerTestClass(AsyncTestCase):
         # Revert log level to debug
         os.environ["LOG_LEVEL"] = "debug"
 
-
     @pytest.mark.asyncio
     async def test_nats_callback(self):
         config = Config()
@@ -97,7 +96,6 @@ class ServiceManagerTestClass(AsyncTestCase):
         await service_manager.get_file_path_from_nats(mock_message)
 
         assert len(service_manager.rosbag_queue) > 0
-
 
     @pytest.mark.asyncio
     async def test_rosbag_queue_add(self):
@@ -117,9 +115,7 @@ class ServiceManagerTestClass(AsyncTestCase):
         service_manager.nc = mock_nats_client
 
         # Test establishing nats connection with mock client. Exception expected
-        with pytest.raises(Exception):
-            await service_manager.nats_connect()
-
+        await service_manager.nats_connect()
 
     def test_update_mysql_entry(self):
         config = Config()

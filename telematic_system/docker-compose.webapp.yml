@@ -5,6 +5,7 @@ services:
         context: "./telematic_apps/web_app/server"
       restart: always
       container_name: web_server
+      image: usdotfhwastoldev/telematic_web_server:develop
       logging:
         options:
           max-size: "10m"
@@ -38,6 +39,7 @@ services:
         - PART_SIZE=10485760 
         - NATS_SERVERS=<NATS_IP>:4222
         - FILE_PROCESSING_SUBJECT=ui.file.processing
+      command: bash -c '/app/service.sh'
       volumes:
         - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
         - /opt/telematics/upload:/opt/telematics/upload
@@ -45,6 +47,7 @@ services:
   web_client:
     build:
       context: "./telematic_apps/web_app/client"
+    image: usdotfhwastoldev/telematic_web_client:develop
     restart: always
     container_name: web_client
     logging:
@@ -61,6 +64,7 @@ services:
     build:
       context: "./telematic_apps/apache2"
     restart: always
+    image: usdotfhwastoldev/telematic_apache2:develop
     container_name: apache2
     logging:
       options:
@@ -83,6 +87,7 @@ services:
   grafana:
     build:
       context: "./telematic_apps/grafana"
+    image: usdotfhwastoldev/telematic_grafana:develop
     restart: always
     container_name: grafana
     logging:
