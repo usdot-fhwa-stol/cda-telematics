@@ -120,7 +120,7 @@ services:
         - CONCURRENT_QUEUE_SIZE=5
         - PART_SIZE=10485760
         - NATS_SERVERS=localhost:4222
-        - FILE_PROCESSING_SUBJECT=ui.file.processing      
+        - FILE_PROCESSING_SUBJECT=ui.file.processing
       command: bash -c 'wait-for-it localhost:3307 && wait-for-it localhost:3000 && /app/service.sh'
       volumes:
         - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
@@ -188,9 +188,8 @@ services:
           context: ./telematic_historical_data_processing
           dockerfile: Dockerfile
           network: host
-    image: usdotfhwastoldev/rosbag2_processing_service:develop
-    container_name: rosbag2_processing_service
     image: usdotfhwastoldev/telematic_historical_data_processing:develop
+    container_name: rosbag2_processing_service
     restart: always
     depends_on:
       - nats
@@ -200,13 +199,12 @@ services:
       options:
         max-size: "2g"
         max-file: "1"
-    container_name: rosbag2_processing_service
     network_mode: host
     volumes:
            - /opt/telematics/logs:/opt/telematics/logs
            - /opt/telematics/upload:/opt/telematics/upload
     environment:
-    - TOPIC_EXCLUSION_LIST=${ROSBAG2_EXCLUSION_LIST}
+    - TOPIC_EXCLUSION_LIST=${TOPIC_EXCLUSION_LIST}
     - NATS_SERVER_IP_PORT=nats://localhost:4222
     - LOG_LEVEL=debug
     - LOG_NAME=rosbag2_processing_service
@@ -217,8 +215,8 @@ services:
     - INFLUX_ORG=my-org
     - INFLUX_TOKEN=my-super-secret-auth-token
     - INFLUX_URL=127.0.0.1:8086
-    - MYSQL_HOST=${DB_HOST} #Add host IP where mysql database is hosted
-    - MYSQL_PORT=${DB_PORT}
+    - MYSQL_HOST=127.0.0.1 #Add host IP where mysql database is hosted
+    - MYSQL_PORT=3307
     - MYSQL_DB=wfd_grafana # Name of Mysql databse
     - MYSQL_USER=${DB_USER} # Login credentials for mysql database, User
     - MYSQL_PASSWORD=${DB_PASSWORD} # Login credentials for mysql database, Password
@@ -228,7 +226,7 @@ services:
     - IGNORE_FIELDS=[]
     - FILE_PROCESSING_SUBJECT=ui.file.*
     - ACCEPTED_FILE_EXTENSIONS=[".mcap"]
-    command: bash -c 'source /ws/install/setup.bash && wait-for-it ${DB_HOST}:${DB_PORT} -- ros2 run rosbag2_processing_service main'
+    command: bash -c 'source /ws/install/setup.bash && wait-for-it 127.0.0.1:3307 -- ros2 run rosbag2_processing_service main'
 
 secrets:
   mysql_password:
