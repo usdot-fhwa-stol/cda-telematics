@@ -24,7 +24,8 @@ import json
 from pathlib import Path
 
 import mysql.connector
-from mysql.connector import errorcode
+from mysql.connector import Error
+import time
 
 
 class ServiceManager:
@@ -113,12 +114,12 @@ class ServiceManager:
 
     # Nats request callback
     async def get_file_path_from_nats(self, msg):
-        self.config.logger.info("Entering process nats request")
 
         data = msg.data.decode()
         msg_json_object = json.loads(data)
 
         rosbag_path = msg_json_object["filepath"]
+        self.config.logger.info(f"Received nats request to process {rosbag_path}")
 
         # Add rosbag name to queue
         self.rosbag_queue.append(rosbag_path)
@@ -144,21 +145,22 @@ class ServiceManager:
 
         try:
             conn = mysql.connector.connect(user= self.config.mysql_user, password= self.config.mysql_password,
-                              host= self.config.mysql_host,
-                              database= self.config.mysql_db, port = self.config.mysql_port)
+                            host= self.config.mysql_host,
+                            database= self.config.mysql_db, port = self.config.mysql_port)
             self.config.logger.info("Connected to MySQL database!")
             return conn
         except mysql.connector.Error as err:
-            if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-                self.config.logger.error(f"Mysql User name or password not accepted for user: {self.config.mysql_user} and pass: {self.config.mysql_password}")
-            elif err.errno == errorcode.ER_BAD_DB_ERROR:
-                self.config.logger.error(f"Mysql Database {self.config.mysql_db} does not exist")
-            else:
-                self.config.logger.error(f"Error connecting to mysql database: {err}")
+            self.config.logger.error(f"Error connecting to mysql database: {err.msg}")
+
 
     def update_mysql_entry(self, file_name, process_status, process_error_msg="NA"):
         # This method updates the mysql database entry for the rosbag to process
         # Update the update fields with update values
+        if not self.mysql_conn.is_connected():
+            # TODO restart service if not connected
+            self.config.logger.error("Mysqldb not connected")
+
+
         try:
             cursor = self.mysql_conn.cursor()
 
@@ -168,6 +170,7 @@ class ServiceManager:
             self.mysql_conn.commit()
 
             self.config.logger.info(f"Updated mysql entry for {file_name} to {process_status}")
+            cursor.close()
 
         except mysql.connector.Error as e:
             self.config.logger.error(f"Failed to update mysql table with error: {e}")

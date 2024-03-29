@@ -14,7 +14,8 @@
 # the License.
 #
 
-from mcap_ros2.reader import read_ros2_messages
+from mcap_ros2.reader import read_ros2_messages, DecoderFactory
+from mcap.reader import McapReader, NonSeekingReader, SeekingReader, make_reader
 import re
 import time
 from influxdb.exceptions import InfluxDBClientError
@@ -81,7 +82,16 @@ class Rosbag2Parser:
 
         # Load the rosbag from the config directory
         try:
-            for msg in read_ros2_messages(rosbag2_path):
+            with open(rosbag2_path, "rb") as file:
+                reader = make_reader(file, decoder_factories=[DecoderFactory()])
+                unique_topics = set()
+                for schema, channel, message in reader.iter_messages():
+                    unique_topics.add(channel.topic)
+
+
+            inclusion_topics = [topic for topic in unique_topics if topic not in self.config.topic_exclusion_list ]
+
+            for msg in read_ros2_messages(rosbag2_path, inclusion_topics):
                 if msg.channel.topic in self.config.topic_exclusion_list:
                     continue
 
@@ -91,9 +101,9 @@ class Rosbag2Parser:
                     self.write_api.write(bucket=self.config.influx_bucket, org=self.config.influx_org, record=record)
 
                 except influxdb.exceptions.InfluxDBClientError as e:
-                    self.config.logger.error(f"Error from Influx Client: {(e)}")
+                    self.config.logger.error(f"Error from Influx Client: {(e.message)}")
                 except Exception as e:
-                    self.config.logger.error(f"Failed to process ros message with exception: {(e)}")
+                    self.config.logger.error(f"Failed to write to influx with exception: {(e)}")
 
 
         except exceptions.McapError as e:

@@ -188,6 +188,7 @@ services:
           context: ./telematic_historical_data_processing
           dockerfile: Dockerfile
           network: host
+    image: usdotfhwastoldev/rosbag2_processing_service:develop
     container_name: rosbag2_processing_service
     image: usdotfhwastoldev/telematic_historical_data_processing:develop
     restart: always
@@ -199,14 +200,14 @@ services:
       options:
         max-size: "2g"
         max-file: "1"
+    container_name: rosbag2_processing_service
     network_mode: host
-    entrypoint: /ws/entrypoint.sh
     volumes:
            - /opt/telematics/logs:/opt/telematics/logs
            - /opt/telematics/upload:/opt/telematics/upload
     environment:
-    - TOPIC_EXCLUSION_LIST=["/rosout","/parameter_events","/robot_description","/tf_static","/tf","/environment/fused_external_objects","/environment/base_map","/environment/external_objects_viz","/environment/motion_computation_visualize","/environment/external_object_predictions","/localization/current_pose","/localization/map_param_loader/georeference","/environment/semantic_map","/hardware_interface/comms/outbound_binary_msg","/environment/lanelet2_map_viz","/localization/points_map"]
-    - NATS_SERVER_IP_PORT=${NATS_SERVERS}
+    - TOPIC_EXCLUSION_LIST=${ROSBAG2_EXCLUSION_LIST}
+    - NATS_SERVER_IP_PORT=nats://localhost:4222
     - LOG_LEVEL=debug
     - LOG_NAME=rosbag2_processing_service
     - LOG_PATH=/opt/telematics/logs
@@ -214,19 +215,20 @@ services:
     - LOG_HANDLER_TYPE=console
     - INFLUX_BUCKET=${INFLUXDB_DEV_INIT_BUCKET}
     - INFLUX_ORG=my-org
-    - INFLUX_TOKEN=my-super-secret-token
-    - INFLUX_URL=${INFLUX_URL}
-    - MYSQL_HOST=${DB_HOST} # Add host IP where mysql database is hosted
+    - INFLUX_TOKEN=my-super-secret-auth-token
+    - INFLUX_URL=127.0.0.1:8086
+    - MYSQL_HOST=${DB_HOST} #Add host IP where mysql database is hosted
     - MYSQL_PORT=${DB_PORT}
-    - MYSQL_DB=${MYSQL_DATABASE}  # Name of Mysql databse
+    - MYSQL_DB=wfd_grafana # Name of Mysql databse
     - MYSQL_USER=${DB_USER} # Login credentials for mysql database, User
     - MYSQL_PASSWORD=${DB_PASSWORD} # Login credentials for mysql database, Password
     - MYSQL_TABLE=file_infos
-    - UPLOAD_DESTINATION_PATH=/opt/telematics/upload # For cloud deployment:This is the directory S3 bucket is mounted
+    - UPLOAD_DESTINATION_PATH=${UPLOAD_DESTINATION_PATH} # For cloud deployment:This is the directory S3 bucket is mounted
     - TO_STR_FIELDS=[]
     - IGNORE_FIELDS=[]
-    - FILE_PROCESSING_SUBJECT=${FILE_PROCESSING_SUBJECT}
+    - FILE_PROCESSING_SUBJECT=ui.file.*
     - ACCEPTED_FILE_EXTENSIONS=[".mcap"]
+    command: bash -c 'source /ws/install/setup.bash && wait-for-it ${DB_HOST}:${DB_PORT} -- ros2 run rosbag2_processing_service main'
 
 secrets:
   mysql_password:
