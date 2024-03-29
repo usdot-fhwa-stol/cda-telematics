@@ -82,13 +82,12 @@ class Rosbag2Parser:
 
         # Load the rosbag from the config directory
         try:
-            fd = open(rosbag2_path, "rb")
-            reader = make_reader(fd, decoder_factories=[DecoderFactory()])
-            unique_topics = []
-            for schema, channel, message in reader.iter_messages():
-                if channel.topic not in unique_topics:
-                    unique_topics.append(channel.topic)
-            fd.close()
+            with open(rosbag2_path, "rb") as file:
+                reader = make_reader(file, decoder_factories=[DecoderFactory()])
+                unique_topics = set()
+                for schema, channel, message in reader.iter_messages():
+                    unique_topics.add(channel.topic)
+
 
             inclusion_topics = [topic for topic in unique_topics if topic not in self.config.topic_exclusion_list ]
 
