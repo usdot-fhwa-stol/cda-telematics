@@ -144,20 +144,21 @@ jobs:
           path: src/${{ github.event.repository.name }}
       - name: Install dependencies and build
         shell: bash
+        # Downgrade pytest to version 8.0.2 due to issue with required parameter 'consider_namespace_packages' not satisfied with version 8.1.1: https://github.com/ros2/launch/issues/765
         run: |
           apt-get update
-          apt-get -y install python3-coverage python3-pip python3-pytest python3-pytest-asyncio ros-foxy-rclpy unzip
-          python3 -m pip install nats-py influxdb influxdb_client mcap-ros2-support pathlib pytest-env pytest-asyncio aiounittest mysql-connector-python
-          apt install -y apt-utils python3-pybind11 ros-foxy-test-msgs python3-colcon-common-extensions
-          git clone https://github.com/ros2/rosbag2.git --branch foxy-future src/rosbag2
-          ls -la
-          source /opt/ros/foxy/setup.bash
-          colcon build --packages-up-to rosbag2_processing_service
+          apt-get -y install python3-coverage python3-pip python3-pytest python3-pytest-asyncio
+          pip3 install pytest==8.0.2
+          cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/docker
+          chmod 777 checkout.sh install.sh
+          ./checkout.sh
+          cp -R $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/** /ws/src/
+          ./install.sh
       - name: Run tests
         shell: bash
         run: |
-          source install/setup.bash
-          cd src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service/
+          cd $GITHUB_WORKSPACE/src/cda-telematics/telematic_system/telematic_historical_data_processing/rosbag2_processing_service
+          source /ws/install/setup.bash
           python3 -m coverage run -m pytest
           python3 -m coverage xml --omit="/opt/*,/root/*,/tmp/*,/usr/*,/var/*,**/__init__.py"
       - name: Find coverage.xml

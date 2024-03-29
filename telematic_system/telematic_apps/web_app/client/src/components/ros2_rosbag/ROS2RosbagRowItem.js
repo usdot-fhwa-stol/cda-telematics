@@ -46,20 +46,37 @@ const ROS2RosbagRowItem = (props) => {
           value = column.id === "original_filename" && value.includes("/") ? value.split("/")[value.split("/").length-1]: value;
 
           return (
-            <TableCell key={`ros2-rosbag-cell-${props.ROS2RosbagRow.id}-${column.id}`} align={column.align}
-              style={{ top: 0, minWidth: column.minWidth, color: isGreen ? "green" : isBlue ? "blue" : isRed? "red": "black" }}>
-
+            <TableCell
+              key={`ros2-rosbag-cell-${props.ROS2RosbagRow.id}-${column.id}`}
+              align={column.align}
+              style={{
+                top: 0,
+                minWidth: column.minWidth,
+                color: isGreen
+                  ? "green"
+                  : isBlue
+                  ? "blue"
+                  : isRed
+                  ? "red"
+                  : "black",
+                wordBreak: "break-word",
+              }}
+            >
               {value}
 
-              {column.id === "process_status" && isRed &&
-                (
-                  <InfoPopover sx={{ color: "red" }} info={props.ROS2RosbagRow.process_error_msg} />
-                )}
+              {column.id === "process_status" && isRed && (
+                <InfoPopover
+                  sx={{ color: "red" }}
+                  info={props.ROS2RosbagRow.process_error_msg}
+                />
+              )}
 
-              {column.id === "upload_status" && isRed &&
-                (
-                  <InfoPopover  sx={{ color: "red" }} info={props.ROS2RosbagRow.upload_error_msg} />
-                )}
+              {column.id === "upload_status" && isRed && (
+                <InfoPopover
+                  sx={{ color: "red" }}
+                  info={props.ROS2RosbagRow.upload_error_msg}
+                />
+              )}
             </TableCell>
           );
         })

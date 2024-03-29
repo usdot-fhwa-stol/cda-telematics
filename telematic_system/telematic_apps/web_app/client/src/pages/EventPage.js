@@ -320,26 +320,15 @@ const EventPage = React.memo(() => {
     });
 
     const res_states_data = findAllStates();
-    res_states_data.then(json => {
+    res_states_data.then((json) => {
       if (json !== undefined && json.errCode === undefined) {
         let states = [];
-        json.forEach(state => {
+        json.forEach((state) => {
           states.push(state);
         });
         setStateList(states);
       }
     });
-
-    //If user role is missing, display a warning to the user
-    if ((authCtx.role === undefined || authCtx.role === null || authCtx.role === "")
-      && authCtx.org_name !== undefined && authCtx.org_name !== null && authCtx.org_name !== "") {
-      setAlertStatus({
-        open: true,
-        severity: NOTIFICATION_STATUS.WARNING,
-        title: NOTIFICATION_STATUS.WARNING.toLocaleUpperCase(),
-        message: 'You are not allowed to access the current organization: ' + authCtx.org_name
-      });
-    }
   }, []);
 
   return (
