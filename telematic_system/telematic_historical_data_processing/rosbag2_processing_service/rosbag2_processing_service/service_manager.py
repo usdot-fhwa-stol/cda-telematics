@@ -103,7 +103,7 @@ class ServiceManager:
             except ConnectionRefusedError:
                 self.config.logger.error("Connect refused trying to connect to nats")
             except Exception as e:
-                self.config.error("Unable to connect to NATS")
+                self.config.logger.error("Unable to connect to NATS")
 
             # Create subscriber for nats
             try:
