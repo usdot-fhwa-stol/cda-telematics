@@ -39,6 +39,7 @@ services:
         - PART_SIZE=10485760 
         - NATS_SERVERS=<NATS_IP>:4222
         - FILE_PROCESSING_SUBJECT=ui.file.processing
+        - FILE_EXTENSIONS=.mcap 
       command: bash -c '/app/service.sh'
       volumes:
         - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
@@ -58,7 +59,7 @@ services:
     depends_on:
       - web_server
     volumes:
-      - ./web_client.production.env.js:/usr/share/nginx/html/env.js
+      - ./env.js:/usr/share/nginx/html/env.js
 
   apache2:
     build:
