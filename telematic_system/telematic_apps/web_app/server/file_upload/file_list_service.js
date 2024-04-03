@@ -82,7 +82,6 @@ const listAllDBFilesAndS3Objects = async (req, res) => {
     //Get user organization name
     let currentFolder = verifyToken(req)?.org_name?.replaceAll(' ', '_');
     let files = await fileInfoController.list({});
-    console.log(files)
     //Get a list of objects from organization folder in MYSQL DB
     let contents = files.filter(file => file.original_filename.includes(currentFolder));
     //Get file names from current folder (= Current user organization name) and file upload status is completed
