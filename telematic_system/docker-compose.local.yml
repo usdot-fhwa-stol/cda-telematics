@@ -222,8 +222,8 @@ services:
     - MYSQL_PASSWORD=${DB_PASSWORD} # Login credentials for mysql database, Password
     - MYSQL_TABLE=file_infos
     - UPLOAD_DESTINATION_PATH=${UPLOAD_DESTINATION_PATH} # For cloud deployment:This is the directory S3 bucket is mounted
-    - TO_STR_FIELDS=['status','data','TrafficControlRequest.reqid',m_header.sender_bsm_id,core_data.id]
-    - IGNORE_FIELDS=['payload.MessageFrame.value.PersonalSafetyMessage.id','tcr_v01.reqid.id']
+    - TO_STR_FIELDS={TO_STR_FIELDS}
+    - IGNORE_FIELDS={IGNORE_FIELDS}
     - FILE_PROCESSING_SUBJECT=ui.file.*
     - ACCEPTED_FILE_EXTENSIONS=[".mcap"]
     command: bash -c 'source /ws/install/setup.bash && wait-for-it 127.0.0.1:3307 -- ros2 run rosbag2_processing_service main'
