@@ -18,6 +18,7 @@ from mcap_ros2.reader import read_ros2_messages, DecoderFactory
 from mcap.reader import McapReader, NonSeekingReader, SeekingReader, make_reader
 import re
 import time
+import influxdb
 from influxdb.exceptions import InfluxDBClientError
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import ASYNCHRONOUS
@@ -138,6 +139,8 @@ class Rosbag2Parser:
 
             elif isinstance(attr_value, list):  # Handle arrays
                 records.append(f'{attr_name}="{str(attr_value)}"')
+            elif isinstance(attr_value, bytes):
+                records.append(f'{attr_name}=\"{attr_value}\"')
             else:
                 if isinstance(attr_value, str):
                     attr_value = f'"{attr_value}"'  # Correctly format string values
