@@ -1,11 +1,11 @@
 version: "3.4"
 services:
-  rosbag2-processing-service:
+  rosbag2_processing_service:
     build:
           context: ./telematic_historical_data_processing
           dockerfile: Dockerfile
           network: host
-    image: usdotfhwastoldev/rosbag2_processing_service:develop
+    image: usdotfhwastoldev/telematic_historical_data_processing:develop
     logging:
       options:
         max-size: "2g"
@@ -38,3 +38,4 @@ services:
     - IGNORE_FIELDS=[]
     - FILE_PROCESSING_SUBJECT=ui.file.processing
     - ACCEPTED_FILE_EXTENSIONS=[".mcap"]
+    command: bash -c 'source /ws/install/setup.bash && wait-for-it ${DB_HOST}:${DB_PORT} -- ros2 run rosbag2_processing_service main'

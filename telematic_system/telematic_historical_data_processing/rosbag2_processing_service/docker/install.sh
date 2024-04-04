@@ -31,7 +31,8 @@ sudo apt update
 sudo apt install -y apt-utils \
                 python3-pybind11 \
                 ros-foxy-test-msgs \
-                python3-colcon-common-extensions
+                python3-colcon-common-extensions \
+                wait-for-it
 
 # Build rosbag2
 colcon build --packages-up-to rosbag2_processing_service

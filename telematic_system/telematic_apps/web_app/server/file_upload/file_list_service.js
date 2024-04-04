@@ -28,7 +28,7 @@
  */
 const fileInfoController = require("../controllers/file_info.controller");
 const listObjectsModule = require("../file_upload/s3_list_objects");
-const {verifyToken} = require("../utils/verifyToken");
+const { verifyToken } = require("../utils/verify_token");
 const { UPLOADSTATUS } = require("./file_upload_status_emitter");
 require("dotenv").config();
 const uploadDest = process.env.UPLOAD_DESTINATION;
@@ -82,7 +82,6 @@ const listAllDBFilesAndS3Objects = async (req, res) => {
     //Get user organization name
     let currentFolder = verifyToken(req)?.org_name?.replaceAll(' ', '_');
     let files = await fileInfoController.list({});
-    console.log(files)
     //Get a list of objects from organization folder in MYSQL DB
     let contents = files.filter(file => file.original_filename.includes(currentFolder));
     //Get file names from current folder (= Current user organization name) and file upload status is completed
@@ -106,9 +105,7 @@ const listAllDBFilesAndS3Objects = async (req, res) => {
           let newFile = await fileInfoController
             .upsertFileInfo(newFileFromS3)
             .catch((error) => console.log(error));
-          let isUpdate = Array.isArray(newFile) && newFile.length > 0 && Number.isInteger(newFile[0]);
-          console.log(newFile)
-          isUpdate ? contents.filter(file => file.original_filename.includes(newFileFromS3.original_filename))[0].upload_status = UPLOADSTATUS.COMPLETED : contents.push(newFile);
+          newFile?.isNewRecord ? contents.filter(file => file.original_filename.includes(newFileFromS3.original_filename))[0].upload_status = UPLOADSTATUS.COMPLETED : contents.push(newFile);
         }
       }
     }

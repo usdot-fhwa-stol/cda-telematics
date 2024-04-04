@@ -49,8 +49,11 @@ const natsConnModule = require("../nats_client/nats_connection");
 const {
   pubFileProcessingReq,
 } = require("../nats_client/file_processing_nats_publisher");
-const { verifyToken } = require("../utils/verifyToken");
-const { updateDescription, bulkUpdateDescription } = require("../controllers/file_info.controller");
+const { verifyToken } = require("../utils/verify_token");
+const {
+  updateDescription,
+  bulkUpdateDescription,
+} = require("../controllers/file_info.controller");
 
 /**
  * Parse files and upload them to defined destination
@@ -59,7 +62,7 @@ const { updateDescription, bulkUpdateDescription } = require("../controllers/fil
  */
 exports.uploadFile = async (req) => {
   try {
-    const NATSConn = await natsConnModule.createNatsConn();
+    const natsConn = await natsConnModule.createNatsConn();
     return await new Promise((resolve, reject) => {
       const listener = new FileUploadStatusListener(UPLOADSTATUS.UNKNOWN);
       const form = formidable(options);
@@ -76,9 +79,9 @@ exports.uploadFile = async (req) => {
           });
         });
       if (uploadDest.trim().toLowerCase() === "s3") {
-        parseS3FileUpload(req, form, listener, NATSConn);
+        parseS3FileUpload(req, form, listener, natsConn);
       } else {
-        parseLocalFileUpload(req, form, listener, NATSConn);
+        parseLocalFileUpload(req, form, listener, natsConn);
       }
     });
   } catch (error) {
@@ -92,9 +95,9 @@ exports.uploadFile = async (req) => {
  * @param {*} req http request
  * @param {*} form Form data that includes the files
  * @param {*} listener File upload status listener to update DB with updated status
- * @param {*} NATSConn NATS connection to send processing file request
+ * @param {*} natsConn NATS connection to send processing file request
  */
-const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
+const parseLocalFileUpload = async (req, form, listener, natsConn) => {
   let userInfo = verifyToken(req);
   let trackingInProgressFiles = [];
   form.parse(req, async (err, fields, files) => {
@@ -105,7 +108,11 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
     }
 
     //If no error, continue
-    if (!(fields && files) || Object.keys(fields).length === 0 || Object.keys(files).length === 0) {
+    if (
+      !(fields && files) ||
+      Object.keys(fields).length === 0 ||
+      Object.keys(files).length === 0
+    ) {
       console.error("Files or fields cannot be empty!");
       return;
     }
@@ -130,33 +137,39 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
         let processingReq = {
           filepath: uploadDestPath + "/" + localFile.originalFilename,
         };
-        if (NATSConn) {
-          await pubFileProcessingReq(NATSConn, processingReq);
+        if (natsConn) {
+          await pubFileProcessingReq(natsConn, processingReq);
         }
       } catch (err) {
         console.error(err);
       }
     }
-    if (NATSConn) {
-      NATSConn.close();
+    if (natsConn) {
+      natsConn.close();
     }
   });
 
   form.on("fileBegin", (formName, file) => {
     //Update file name prefix with folder name (= organization name) to be consistent with s3 originalFilename
-    file.originalFilename = getUpdatedOrgFileName(file.originalFilename, userInfo);
+    file.originalFilename = getUpdatedOrgFileName(
+      file.originalFilename,
+      userInfo
+    );
     //create folder with org name if does not already exist
-    let uploadFolder = uploadDestPath + "/" + userInfo.org_name.replaceAll(' ', '_');
+    let uploadFolder =
+      uploadDestPath + "/" + userInfo.org_name.replaceAll(" ", "_");
     if (!fs.existsSync(uploadFolder)) {
       fs.mkdirSync(uploadFolder);
     }
     file.updated_by = userInfo.id;
     file.created_by = userInfo.id;
+
     //Update file info status
     updateFileUploadStatusEmitter(listener).emit(
       UPLOADSTATUS.IN_PROGRESS,
       file
     );
+
     trackingInProgressFiles.push(file);
     //Write file to HOST machine
     file.filepath = uploadDestPath + "/" + file.originalFilename;
@@ -168,9 +181,9 @@ const parseLocalFileUpload = async (req, form, listener, NATSConn) => {
  * @param {*} req http request
  * @param {*} form Form data that includes the files
  * @param {*} listener File upload status listener to update DB with updated status
- * @param {*} NATSConn NATS connection to send processing file request
+ * @param {*} natsConn NATS connection to send processing file request
  */
-const parseS3FileUpload = async (req, form, listener, NATSConn) => {
+const parseS3FileUpload = async (req, form, listener, natsConn) => {
   let fileCount = 0;
   let totalFiles = [];
   let formFields = [];
@@ -184,7 +197,11 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
     }
 
     //If no error, continue
-    if (!(fields && files) || Object.keys(fields).length === 0 || Object.keys(files).length === 0) {
+    if (
+      !(fields && files) ||
+      Object.keys(fields).length === 0 ||
+      Object.keys(files).length === 0
+    ) {
       console.error("Files or fields cannot be empty!");
       return;
     }
@@ -192,17 +209,20 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
     totalFiles = Array.isArray(totalFiles) ? totalFiles : [totalFiles];
     formFields = fields["fields"];
     formFields = Array.isArray(formFields) ? formFields : [formFields];
-    updateFileInfoWithDescription(formFields, userInfo);
   });
 
   form.on("fileBegin", async (formName, file) => {
     //Get user org name and file is uploaded to organization folder in S3 bucket
-    file.originalFilename = getUpdatedOrgFileName(file.originalFilename, userInfo);
-    //Update upload status
-    updateFileUploadStatusEmitter(listener).emit(
-      UPLOADSTATUS.IN_PROGRESS,
-      { ...file.toJSON(), created_by: userInfo.id, updated_by: userInfo.id }
+    file.originalFilename = getUpdatedOrgFileName(
+      file.originalFilename,
+      userInfo
     );
+    //Update upload status
+    updateFileUploadStatusEmitter(listener).emit(UPLOADSTATUS.IN_PROGRESS, {
+      ...file.toJSON(),
+      created_by: userInfo.id,
+      updated_by: userInfo.id,
+    });
     trackingInProgressFiles.push(file);
     //Write stream into S3 bucket
     await uploadToS3(file)
@@ -213,19 +233,20 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
           UPLOADSTATUS.COMPLETED,
           data
         );
+        updateFileInfoWithDescription(formFields, userInfo);
 
         //Send file process request to NATS
         let processingReq = {
           filepath: uploadDestPath + "/" + data.originalFilename,
         };
-        if (NATSConn) {
-          await pubFileProcessingReq(NATSConn, processingReq);
+        if (natsConn) {
+          await pubFileProcessingReq(natsConn, processingReq);
         }
 
         //Close NATS connection when all files are uploaded
         fileCount += 1;
-        if (fileCount === totalFiles.length && NATSConn) {
-          NATSConn.close();
+        if (fileCount === totalFiles.length && natsConn) {
+          natsConn.close();
         }
       })
       .catch((err) => {
@@ -234,7 +255,7 @@ const parseS3FileUpload = async (req, form, listener, NATSConn) => {
         //Close NATS connection when all files are uploaded or failed
         fileCount += 1;
         if (fileCount === totalFiles.length) {
-          NATSConn.close();
+          natsConn.close();
         }
         console.log("Cannot upload file to S3 bucket due to error!");
         console.trace();

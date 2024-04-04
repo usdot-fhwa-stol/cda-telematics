@@ -112,42 +112,16 @@ exports.upsertFileInfo = async (fileInfo) => {
     fileInfoLocal.upload_status = fileInfo.status;
   }
   if (fileInfo.filepath) {
-    fileInfoLocal.filepath = fileInfo.filepath;
+    fileInfoLocal.content_location = fileInfo.filepath;
   }
   if (fileInfo.description) {
     fileInfoLocal.description = fileInfo.description;
   }
   let condition = { original_filename: originalFilename };
   return await file_info
-    .findAll({
-      where: condition,
-    })
+    .upsert(fileInfoLocal,  condition)
     .then(async (data) => {
-      if (data.length > 0) {
-        return await file_info
-          .update(fileInfoLocal, {
-            where: condition,
-          })
-          .then((num) => {
-            return num;
-          });
-      } else {
-        return await file_info.create(fileInfoLocal).then((data) => {
-          return {
-            content_location: data.content_location,
-            created_at: data.created_at,
-            updated_at: data.updated_at,
-            id: data.id,
-            original_filename: data.original_filename,
-            upload_status: data.upload_status,
-            upload_error_msg: data.upload_error_msg,
-            size: data.size,
-            created_by: data.created_by,
-            updated_by: data.updated_by,
-            description: data.description,
-          };
-        });
-      }
+      return data[0];
     })
     .catch((err) => {
       throw new Error("Error updating file info record: " + err);
