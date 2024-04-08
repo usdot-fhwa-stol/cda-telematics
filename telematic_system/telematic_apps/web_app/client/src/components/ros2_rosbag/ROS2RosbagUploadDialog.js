@@ -47,7 +47,7 @@ const ROS2RosbagUploadDialog = (props) => {
       filesInfo.push({
         filename: file.name,
         filetype: file.type,
-        datetime: file.lastModifiedDate.toLocaleString(),
+        datetime: file.lastModifiedDate?.toLocaleString(),
         filesize: calFilesizes(file.size),
         description: "",
       });
