@@ -16,20 +16,6 @@ FROM ros:foxy as base
 
 SHELL ["/bin/bash", "-c"]
 
-RUN useradd -m ubuntu && \
-        echo "ubuntu:ubuntu" | chpasswd && \
-        usermod --shell /bin/bash ubuntu && \
-        usermod -aG sudo ubuntu && \
-        mkdir -p /etc/sudoers.d && \
-        echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/ubuntu && \
-        chmod 0440 /etc/sudoers.d/ubuntu && \
-        usermod  --uid 1000 ubuntu && \
-        groupmod --gid 1000 ubuntu && \
-        mkdir -p /opt/telematics/upload && \
-        chown ubuntu:ubuntu -R /opt/telematics /opt/telematics/upload
-
-USER ubuntu
-
 RUN sudo apt-get update -y \
     && sudo apt-get install -y \
     git \
