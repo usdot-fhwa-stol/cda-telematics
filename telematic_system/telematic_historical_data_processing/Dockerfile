@@ -25,7 +25,7 @@ RUN sudo apt-get update -y \
 WORKDIR /ws
 
 COPY rosbag2_processing_service src/rosbag2_processing_service
-RUN chmod +x /ws/src/rosbag2_processing_service/docker/*
+RUN sudo chmod +x /ws/src/rosbag2_processing_service/docker/*
 RUN sudo bash /ws/src/rosbag2_processing_service/docker/checkout.sh
 RUN sudo bash /ws/src/rosbag2_processing_service/docker/install.sh
 
