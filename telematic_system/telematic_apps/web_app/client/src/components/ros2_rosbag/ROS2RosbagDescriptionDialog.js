@@ -74,6 +74,8 @@ function ROS2RosbagDescriptionDialog(props) {
       original_filename: props.ROS2RosbagRow.original_filename,
       upload_status: props.ROS2RosbagRow.upload_status,
       upload_error_msg: props.ROS2RosbagRow.upload_error_msg,
+      process_status: props.ROS2RosbagRow?.process_status,
+      process_error_msg: props.ROS2RosbagRow?.process_error_msg,
       size: props.ROS2RosbagRow.size,
       created_by: props.ROS2RosbagRow.created_by,
       updated_by: parseInt(authCtx.user_id),
