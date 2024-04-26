@@ -2,11 +2,14 @@ package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
 import java.util.*;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 /**
  * The Config object instantiates a configuration object which stores information to create a connection to the telematic nats server 
  * and influxdb bucket.
  */
-
+@Component
 public class Config {
 
     public enum BucketType{
@@ -22,53 +25,103 @@ public class Config {
         }
     }
     //URI where the NATS service is hosted
+    @Value("${NATS_URI}")
     String nats_uri;
-    // URI where the influxdb bucket is hosted    
+
+    // URI where the influxdb bucket is hosted  
+    @Value("${INFLUX_URI}")  
     String influx_uri;
+    
+    //PORT to which influxDB is connected
+    @Value("${INFLUX_PORT}")  
+    String influx_port;
+    
     // Influxdb bucket type: Can be Platform, Streets or All
+    @Value("${INFLUX_BUCKET_TYPE}")  
+    String influx_bucket_type_str;
     BucketType influx_bucket_type;
+    
     // Influxdb bucket name for CARMA Streets bucket
+    @Value("${INFLUX_BUCKET_STREETS}") 
     String influx_bucket_streets;
+    
     // nats topic carma-streets data is published to. 
+    @Value("${STREETS_SUBSCRIPTION_TOPIC}") 
     String streets_subscription_topic;
+    
     // Influxdb bucket name for CARMA Platform bucket
+    @Value("${INFLUX_BUCKET_STREETS}") 
     String influx_bucket_platform;
+    
     // nats topic carma-platform data is published to
+    @Value("${PLATFORM_SUBSCRIPTION_TOPIC}") 
     String platform_subscription_topic;
+    
     // Influxdb bucket name for CARMA Cloud bucket
+    @Value("${INFLUX_BUCKET_CLOUD}") 
     String influx_bucket_cloud;
+    
     // nats topic carma-cloud data is published to. 
+    @Value("${CLOUD_SUBSCRIPTION_TOPIC}") 
     String cloud_subscription_topic;
+    
     // Organization for the influxdb bucket
+    @Value("${INFLUX_ORG}") 
     String influx_org;
+    
     // Organization id of the influxdb bucket
+    @Value("${INFLUX_ORG_ID}") 
     String influx_org_id;
+    
     // Token to access influxdb bucket
+    @Value("${INFLUX_TOKEN}") 
     String influx_token;
+    
     // Username for influxdb bucket
+    @Value("${INFLUX_USERNAME}") 
     String influx_username;
+    
     // Password for influxdb bucket
+    @Value("${INFLUX_PWD}") 
     String influx_pwd;
+    
     // Maximum number of times the service tries to establish a NATS connection
+    @Value("${NATS_MAX_RECONNECTS}") 
     int nats_max_reconnects;
+    
     // Time in milliseconds after which the request to connect to the influxdb bucket times out
+    @Value("${INFLUX_BUCKET_STREETS}")
     int influx_connect_timeout;
+    
     // Time in milliseconds after which the request to write data to the influxdb bucket times out
+    @Value("${INFLUX_WRITE_TIMEOUT}")
     int influx_write_timeout;
+    
     // Maximum number of topics to assign to dispatcher
+    @Value("${NUMBER_TOPICS_PER_DISPATCHER}") 
     int topics_per_dispatcher;
+    
     // List of vehicle unit ids
+    @Value("${VEHICLE_UNIT_ID_LIST}")
     String vehicle_unit_id_list;
+    
     // List of streets unit ids
+    @Value("${STREETS_UNIT_ID_LIST}")
     String streets_unit_id_list;
+    
     // List of cloud unit ids
+    @Value("${CLOUD_UNIT_ID_LIST}")
     String cloud_unit_id_list;
+
     //List of fields in the stream that should only be set to string data type
+    @Value("#{'${TO_STR_FIELDS}'.split(',')'}")
     List<String> to_str_fields;
+    
     //List of fields in the stream that should be ignored
+    @Value("#{'${IGNORE_FIELDS}'.split(',')'}")
     List<String> ignore_fields;
     
-    public Config(){}
+    // public Config(){}
 
     // Converts config object parameters to a string
     public String ToString(){

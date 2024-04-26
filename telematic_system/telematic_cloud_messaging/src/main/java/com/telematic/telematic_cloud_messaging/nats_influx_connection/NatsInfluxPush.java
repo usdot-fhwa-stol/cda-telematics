@@ -1,6 +1,7 @@
 package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
 import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 
@@ -31,7 +32,8 @@ public class NatsInfluxPush implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(NatsInfluxPush.class);
 
-    private static Config config_;
+    @Autowired
+    private Config config_;
 
     /**
      * Constructor to instantiate NatsInfluxPush object
@@ -43,41 +45,42 @@ public class NatsInfluxPush implements CommandLineRunner {
     /**
      * Load required configuration values from config.properties file    
      */
-    static Config getConfigValues() {
+    static Config convertConfigValues() {
         
         Config config = new Config();
 
         try {
-            String configFilePath = "src/main/resources/application.properties";
-            FileInputStream propsInput = new FileInputStream(configFilePath);
-            Properties prop = new Properties();
-            prop.load(propsInput);
+            // String configFilePath = "src/main/resources/application.properties";
+            // FileInputStream propsInput = new FileInputStream(configFilePath);
+            // Properties prop = new Properties();
+            // prop.load(propsInput);
             
-            config.nats_uri = prop.getProperty("NATS_URI");
-            config.nats_max_reconnects = Integer.parseInt(prop.getProperty("NATS_MAX_RECONNECTS"));
-            config.influx_uri = "http://" + prop.getProperty("INFLUX_URI") + ":" + prop.getProperty("INFLUX_PORT");
-            config.influx_username = prop.getProperty("INFLUX_USERNAME");
-            config.influx_pwd = prop.getProperty("INFLUX_PWD");
-            config.influx_bucket_streets = prop.getProperty("INFLUX_BUCKET_STREETS");
-            config.streets_subscription_topic = prop.getProperty("STREETS_SUBSCRIPTION_TOPIC");
-            config.influx_bucket_platform = prop.getProperty("INFLUX_BUCKET_PLATFORM");
-            config.platform_subscription_topic = prop.getProperty("PLATFORM_SUBSCRIPTION_TOPIC");
-            config.influx_bucket_cloud = prop.getProperty("INFLUX_BUCKET_CLOUD");
-            config.cloud_subscription_topic = prop.getProperty("CLOUD_SUBSCRIPTION_TOPIC");
-            config.influx_org = prop.getProperty("INFLUX_ORG");
-            config.influx_org_id = prop.getProperty("INFLUX_ORG_ID");
-            config.influx_token = prop.getProperty("INFLUX_TOKEN");
-            config.influx_connect_timeout = Integer.parseInt(prop.getProperty("INFLUX_CONNECT_TIMEOUT"));
-            config.influx_write_timeout = Integer.parseInt(prop.getProperty("INFLUX_WRITE_TIMEOUT"));
-            config.topics_per_dispatcher = Integer.parseInt(prop.getProperty("NUMBER_TOPICS_PER_DISPATCHER"));
-            config.vehicle_unit_id_list = prop.getProperty("VEHICLE_UNIT_ID_LIST");
-            config.streets_unit_id_list = prop.getProperty("STREETS_UNIT_ID_LIST");
-            config.cloud_unit_id_list = prop.getProperty("CLOUD_UNIT_ID_LIST");
-            config.to_str_fields = Arrays.asList(prop.getProperty("TO_STR_FIELDS").split(","));
-            config.ignore_fields = Arrays.asList(prop.getProperty("IGNORE_FIELDS").split(","));
+            // config.nats_uri = prop.getProperty("NATS_URI");
+            // config.nats_max_reconnects = Integer.parseInt(config.nats_max_reconnects );
+            config.influx_uri = "http://" + config.influx_uri + ":" + config.influx_port;
+            // config.influx_username = prop.getProperty("INFLUX_USERNAME");
+            // config.influx_pwd = prop.getProperty("INFLUX_PWD");
+            // config.influx_bucket_streets = prop.getProperty("INFLUX_BUCKET_STREETS");
+            // config.streets_subscription_topic = prop.getProperty("STREETS_SUBSCRIPTION_TOPIC");
+            // config.influx_bucket_platform = prop.getProperty("INFLUX_BUCKET_PLATFORM");
+            // config.platform_subscription_topic = prop.getProperty("PLATFORM_SUBSCRIPTION_TOPIC");
+            // config.influx_bucket_cloud = prop.getProperty("INFLUX_BUCKET_CLOUD");
+            // config.cloud_subscription_topic = prop.getProperty("CLOUD_SUBSCRIPTION_TOPIC");
+            // config.influx_org = prop.getProperty("INFLUX_ORG");
+            // config.influx_org_id = prop.getProperty("INFLUX_ORG_ID");
+            // config.influx_token = prop.getProperty("INFLUX_TOKEN");
+            // config.influx_connect_timeout = Integer.parseInt(prop.getProperty("INFLUX_CONNECT_TIMEOUT"));
+            // config.influx_write_timeout = Integer.parseInt(prop.getProperty("INFLUX_WRITE_TIMEOUT"));
+            // config.topics_per_dispatcher = Integer.parseInt(prop.getProperty("NUMBER_TOPICS_PER_DISPATCHER"));
+            // config.vehicle_unit_id_list = prop.getProperty("VEHICLE_UNIT_ID_LIST");
+            // config.streets_unit_id_list = prop.getProperty("STREETS_UNIT_ID_LIST");
+            // config.cloud_unit_id_list = prop.getProperty("CLOUD_UNIT_ID_LIST");
+            // config.to_str_fields = Arrays.asList(config.to_str_fields.split(","));
+            // config.ignore_fields = Arrays.asList(config.ignore_fields.split(","));
 
-            try{
-                config.influx_bucket_type = BucketType.valueOf(prop.getProperty("INFLUX_BUCKET_TYPE"));
+            try {
+                config.influx_bucket_type = BucketType.valueOf(config.influx_bucket_type_str);
+                // config.influx_bucket_type = BucketType.valueOf(prop.getProperty("INFLUX_BUCKET_TYPE"));
             }catch(Exception e){
                 logger.error("Invalid bucket type defined. Options are PLATFORM, STREETS, CLOUD and ALL");
             }
@@ -89,8 +92,11 @@ public class NatsInfluxPush implements CommandLineRunner {
         return config;
     }
     
-    public static void initialize_data_persistent_service(Config.BucketType bucket_type, Config config) {
+    public void initialize_data_persistent_service(Config.BucketType bucket_type, Config config) {
         
+        config = convertConfigValues();        
+        logger.info(config.ToString());
+
         // Create NATS and InfluxWriter
         logger.info("Created thread for " + bucket_type + " Data");
         
@@ -121,7 +127,7 @@ public class NatsInfluxPush implements CommandLineRunner {
         NatsConsumer natsObject = new NatsConsumer(config.nats_uri, subscription_topic, config.nats_max_reconnects, 
         config.topics_per_dispatcher, unit_id_list, unit_type);
 
-        InfluxDataWriter influxDataWriter = new InfluxDataWriter(config_, bucket_type);
+        InfluxDataWriter influxDataWriter = new InfluxDataWriter(config, bucket_type);
 
         //Wait until we successfully connect to the nats server and InfluxDb
         while(!natsObject.getNatsConnected() & !influxDataWriter.getInfluxConnected()){
@@ -167,11 +173,7 @@ public class NatsInfluxPush implements CommandLineRunner {
      * @param args 
      */
     @Override
-    public void run(String[] args) {
-        config_ = getConfigValues();
-        
-        logger.info(config_.ToString());
-        
+    public void run(String[] args) {        
         if(config_.influx_bucket_type == Config.BucketType.ALL){
             // Create thread for platform
             Thread platform_thread  = new Thread() {
