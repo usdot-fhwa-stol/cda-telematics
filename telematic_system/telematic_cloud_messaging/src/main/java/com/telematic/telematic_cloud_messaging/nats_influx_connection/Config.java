@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
- * The Config object instantiates a configuration object which stores information to create a connection to the telematic nats server 
+ * The Config object instantiates a configuration object which stores information to create a connection to the telematic NATS server 
  * and influxdb bucket.
  */
 @Component
@@ -26,125 +26,121 @@ public class Config {
     }
     //URI where the NATS service is hosted
     @Value("${NATS_URI}")
-    String nats_uri;
+    String natsUri;
 
     // URI where the influxdb bucket is hosted  
     @Value("${INFLUX_URI}")  
-    String influx_uri;
+    String influxUri;
     
     //PORT to which influxDB is connected
     @Value("${INFLUX_PORT}")  
-    String influx_port;
+    String influxPort;
     
     // Influxdb bucket type: Can be Platform, Streets or All
     @Value("${INFLUX_BUCKET_TYPE}")  
-    String influx_bucket_type_str;
-    BucketType influx_bucket_type;
+    String influxBucketTypeStr;
+    BucketType influxBucketType;
     
     // Influxdb bucket name for CARMA Streets bucket
     @Value("${INFLUX_BUCKET_STREETS}") 
-    String influx_bucket_streets;
+    String influxBucketStreets;
     
-    // nats topic carma-streets data is published to. 
+    // NATS topic carma-streets data is published to. 
     @Value("${STREETS_SUBSCRIPTION_TOPIC}") 
-    String streets_subscription_topic;
+    String streetsSubscriptionTopic;
     
     // Influxdb bucket name for CARMA Platform bucket
     @Value("${INFLUX_BUCKET_STREETS}") 
-    String influx_bucket_platform;
+    String influxBucketPlatform;
     
-    // nats topic carma-platform data is published to
+    // NATS topic carma-platform data is published to
     @Value("${PLATFORM_SUBSCRIPTION_TOPIC}") 
-    String platform_subscription_topic;
+    String platformSubscriptionTopic;
     
     // Influxdb bucket name for CARMA Cloud bucket
     @Value("${INFLUX_BUCKET_CLOUD}") 
-    String influx_bucket_cloud;
+    String influxBucketCloud;
     
-    // nats topic carma-cloud data is published to. 
+    // NATS topic carma-cloud data is published to. 
     @Value("${CLOUD_SUBSCRIPTION_TOPIC}") 
-    String cloud_subscription_topic;
+    String cloudSubscriptionTopic;
     
     // Organization for the influxdb bucket
     @Value("${INFLUX_ORG}") 
-    String influx_org;
+    String influxOrg;
         
     // Token to access influxdb bucket
     @Value("${INFLUX_TOKEN}") 
-    String influx_token;
+    String influxToken;
     
     // Username for influxdb bucket
     @Value("${INFLUX_USERNAME}") 
-    String influx_username;
+    String influxUsername;
     
     // Password for influxdb bucket
     @Value("${INFLUX_PWD}") 
-    String influx_pwd;
+    String influxPwd;
     
     // Maximum number of times the service tries to establish a NATS connection
     @Value("${NATS_MAX_RECONNECTS}") 
-    int nats_max_reconnects;
+    int natsMaxReconnects;
     
     // Time in milliseconds after which the request to connect to the influxdb bucket times out
     @Value("${INFLUX_CONNECT_TIMEOUT}")
-    int influx_connect_timeout;
+    int influxConnectTimeout;
     
     // Time in milliseconds after which the request to write data to the influxdb bucket times out
     @Value("${INFLUX_WRITE_TIMEOUT}")
-    int influx_write_timeout;
+    int influxWriteTimeout;
     
     // Maximum number of topics to assign to dispatcher
     @Value("${NUMBER_TOPICS_PER_DISPATCHER}") 
-    int topics_per_dispatcher;
+    int topicsPerDispatcher;
     
     // List of vehicle unit ids
     @Value("${VEHICLE_UNIT_ID_LIST}")
-    String vehicle_unit_id_list;
+    String vehicleUnitIdList;
     
     // List of streets unit ids
     @Value("${STREETS_UNIT_ID_LIST}")
-    String streets_unit_id_list;
+    String streetsUnitIdList;
     
     // List of cloud unit ids
     @Value("${CLOUD_UNIT_ID_LIST}")
-    String cloud_unit_id_list;
+    String cloudUnitIdList;
 
     //List of fields in the stream that should only be set to string data type
     @Value("#{'${TO_STR_FIELDS}'.split(',')}")
-    List<String> to_str_fields;
+    List<String> toStrFields;
     
     //List of fields in the stream that should be ignored
     @Value("#{'${IGNORE_FIELDS}'.split(',')}")
-    List<String> ignore_fields;    
+    List<String> ignoreFields;    
 
     // Converts config object parameters to a string
-    public String ToString(){
-        
-        String config_str = new String("Configuration: " + 
-        "\nnats_uri: " + nats_uri + 
-        "\ninflux_uri: " + influx_uri + 
-        "\ninflux_bucket_type: " + influx_bucket_type + 
-        "\ninflux_bucket_streets: " + influx_bucket_streets + 
-        "\nstreets_subscription_topic: " + streets_subscription_topic +
-        "\ninflux_bucket_platform: " + influx_bucket_platform +
-        "\nplatform_subscription_topic: " + platform_subscription_topic +
-        "\ninflux_bucket_cloud: " + influx_bucket_cloud + 
-        "\ncloud_subscription_topic: " + cloud_subscription_topic + 
-        "\ninflux_org: " + influx_org +
-        "\ninflux_token: " + influx_token +
-        "\ninflux_username:" + influx_username +
-        "\ninflux_pwd: " + influx_pwd +
-        "\nnats_max_reconnects: " + nats_max_reconnects +
-        "\ninflux_connect_timeout: " + influx_connect_timeout +
-        "\ninflux_write_timeout: " + influx_write_timeout +
-        "\nnats_topic_per_dispatcher: " + topics_per_dispatcher+
-        "\nvehicle_unit_id_list: " + vehicle_unit_id_list +
-        "\nstreets_unit_id_list: " + streets_unit_id_list +
-        "\ncloud_unit_id_list: " + cloud_unit_id_list + 
-        "\nto_str_fields:" + to_str_fields.toString() +
-        "\nignore_fields:" + ignore_fields.toString());
-
-        return config_str;
-
+    public String toString(){        
+        return "Configuration: " + 
+        "\nNATS uri: " + natsUri + 
+        "\ninflux uri: " + influxUri + 
+        "\ninflux bucket type: " + influxBucketType + 
+        "\ninflux bucket streets: " + influxBucketStreets + 
+        "\nstreets subscription topic: " + streetsSubscriptionTopic +
+        "\ninflux bucket platform: " + influxBucketPlatform +
+        "\nplatform subscription topic: " + platformSubscriptionTopic +
+        "\ninflux bucket cloud: " + influxBucketCloud + 
+        "\ncloud subscription topic: " + cloudSubscriptionTopic + 
+        "\ninflux org: " + influxOrg +
+        "\ninflux token: " + influxToken +
+        "\ninflux username:" + influxUsername +
+        "\ninflux pwd: " + influxPwd +
+        "\nNATS max reconnects: " + NATSMaxReconnects +
+        "\ninflux connect timeout: " + influxConnectTimeout +
+        "\ninflux write timeout: " + influxWriteTimeout +
+        "\nNATS topic per dispatcher: " + topicsPerDispatcher+
+        "\nvehicle unit id list: " + vehicleUnitIdList +
+        "\nstreets unit id list: " + streetsUnitIdList +
+        "\ncloud unit id list: " + cloudUnitIdList + 
+        "\nto str fields:" + toStrFields.toString() +
+        "\nignore fields:" + ignoreFields.toString();
     }
 };
