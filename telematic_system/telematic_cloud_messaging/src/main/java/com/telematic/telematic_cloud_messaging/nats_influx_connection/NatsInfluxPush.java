@@ -111,47 +111,47 @@ public class NatsInfluxPush implements CommandLineRunner {
         config_.influx_uri = "http://" + config_.influx_uri + ":" + config_.influx_port;
         config_.influx_bucket_type = Config.BucketType.valueOf(config_.influx_bucket_type_str);
         logger.info(config_.ToString());
-        if(config_.influx_bucket_type == Config.BucketType.ALL){
-            // Create thread for platform
-            Thread platform_thread  = new Thread() {
-                public void run(){
-                    initialize_data_persistent_service(Config.BucketType.PLATFORM, config_);
-                }
-            };
+        // if(config_.influx_bucket_type == Config.BucketType.ALL){
+        // //     // Create thread for platform
+        // //     Thread platform_thread  = new Thread() {
+        // //         public void run(){
+        // //             initialize_data_persistent_service(Config.BucketType.PLATFORM, config_);
+        // //         }
+        // //     };
 
-            // Create thread for streets
-            Thread streets_thread = new Thread() {
-                public void run() {
-                    initialize_data_persistent_service(Config.BucketType.STREETS, config_);
-                }
-            };
+        // //     // Create thread for streets
+        // //     Thread streets_thread = new Thread() {
+        // //         public void run() {
+        // //             initialize_data_persistent_service(Config.BucketType.STREETS, config_);
+        // //         }
+        // //     };
 
-            // Create thread for cloud
-            Thread cloud_thread = new Thread() {
-                public void run() {
-                    initialize_data_persistent_service(Config.BucketType.CLOUD, config_);
-                }
-            };
+        // //     // Create thread for cloud
+        // //     Thread cloud_thread = new Thread() {
+        // //         public void run() {
+        // //             initialize_data_persistent_service(Config.BucketType.CLOUD, config_);
+        // //         }
+        // //     };
             
-            // Start threads
-            platform_thread.start();
-            streets_thread.start();
-            cloud_thread.start();
-        }
-        else if(config_.influx_bucket_type.equals(Config.BucketType.PLATFORM) || config_.influx_bucket_type.equals(Config.BucketType.STREETS) || 
-            config_.influx_bucket_type.equals(Config.BucketType.CLOUD))
-        {
-            // Create thread for specified type
-            Thread worker_thread  = new Thread() {
-                public void run(){
-                    initialize_data_persistent_service(config_.influx_bucket_type, config_);
-                }
-            };
-            worker_thread.start();
-        }
-        else{
-            logger.error("Invalid bucket type requested. Options are PLATFORM, STREETS, CLOUD and ALL");
-        }
+        // //     // Start threads
+        // //     platform_thread.start();
+        // //     streets_thread.start();
+        // //     cloud_thread.start();
+        // }
+        // else if(config_.influx_bucket_type.equals(Config.BucketType.PLATFORM) || config_.influx_bucket_type.equals(Config.BucketType.STREETS) || 
+        //     config_.influx_bucket_type.equals(Config.BucketType.CLOUD))
+        // {
+        //     // Create thread for specified type
+        //     Thread worker_thread  = new Thread() {
+        //         public void run(){
+        //             initialize_data_persistent_service(config_.influx_bucket_type, config_);
+        //         }
+        //     };
+        //     worker_thread.start();
+        // }
+        // else{
+        //     logger.error("Invalid bucket type requested. Options are PLATFORM, STREETS, CLOUD and ALL");
+        // }
         
     }
 }

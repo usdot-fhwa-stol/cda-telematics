@@ -1,6 +1,6 @@
 package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
-import java.util.*;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
