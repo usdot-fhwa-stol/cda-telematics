@@ -68,11 +68,7 @@ public class Config {
     // Organization for the influxdb bucket
     @Value("${INFLUX_ORG}") 
     String influx_org;
-    
-    // Organization id of the influxdb bucket
-    @Value("${INFLUX_ORG_ID}") 
-    String influx_org_id;
-    
+        
     // Token to access influxdb bucket
     @Value("${INFLUX_TOKEN}") 
     String influx_token;
@@ -90,7 +86,7 @@ public class Config {
     int nats_max_reconnects;
     
     // Time in milliseconds after which the request to connect to the influxdb bucket times out
-    @Value("${INFLUX_BUCKET_STREETS}")
+    @Value("${INFLUX_CONNECT_TIMEOUT}")
     int influx_connect_timeout;
     
     // Time in milliseconds after which the request to write data to the influxdb bucket times out
@@ -114,14 +110,12 @@ public class Config {
     String cloud_unit_id_list;
 
     //List of fields in the stream that should only be set to string data type
-    @Value("#{'${TO_STR_FIELDS}'.split(',')'}")
+    @Value("#{'${TO_STR_FIELDS}'.split(',')}")
     List<String> to_str_fields;
     
     //List of fields in the stream that should be ignored
-    @Value("#{'${IGNORE_FIELDS}'.split(',')'}")
-    List<String> ignore_fields;
-    
-    // public Config(){}
+    @Value("#{'${IGNORE_FIELDS}'.split(',')}")
+    List<String> ignore_fields;    
 
     // Converts config object parameters to a string
     public String ToString(){
@@ -137,7 +131,6 @@ public class Config {
         "\ninflux_bucket_cloud: " + influx_bucket_cloud + 
         "\ncloud_subscription_topic: " + cloud_subscription_topic + 
         "\ninflux_org: " + influx_org +
-        "\ninflux_org_id: " + influx_org_id +
         "\ninflux_token: " + influx_token +
         "\ninflux_username:" + influx_username +
         "\ninflux_pwd: " + influx_pwd +
