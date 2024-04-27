@@ -133,7 +133,7 @@ public class Config {
         "\ninflux token: " + influxToken +
         "\ninflux username:" + influxUsername +
         "\ninflux pwd: " + influxPwd +
-        "\nNATS max reconnects: " + NATSMaxReconnects +
+        "\nNATS max reconnects: " + natsMaxReconnects +
         "\ninflux connect timeout: " + influxConnectTimeout +
         "\ninflux write timeout: " + influxWriteTimeout +
         "\nNATS topic per dispatcher: " + topicsPerDispatcher+

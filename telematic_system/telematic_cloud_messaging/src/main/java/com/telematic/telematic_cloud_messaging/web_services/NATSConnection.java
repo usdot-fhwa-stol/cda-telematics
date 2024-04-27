@@ -34,7 +34,7 @@ public class NATSConnection implements ConnectionListener {
 
         if (connection == null || (connection.getStatus() == Status.DISCONNECTED)) {
             Options.Builder connectionBuilder = new Options.Builder().connectionListener(this);
-            logger.info("Connecting to NATS server = " + natServerURL);
+            logger.info("Connecting to NATS server = {}",  natServerURL);
             Options options = connectionBuilder.server(natServerURL).connectionTimeout(Duration.ofSeconds(5))
                     .pingInterval(Duration.ofSeconds(2))
                     .reconnectWait(Duration.ofSeconds(1))
@@ -45,6 +45,8 @@ public class NATSConnection implements ConnectionListener {
                 connection = Nats.connect(options);
             } catch (IOException | InterruptedException e) {
                 logger.error("Cannot connect to NATS.");
+                /* Clean up whatever needs to be handled before interrupting  */
+                Thread.currentThread().interrupt();
                 return null;
             }
         }
@@ -53,14 +55,14 @@ public class NATSConnection implements ConnectionListener {
 
     @Override
     public void connectionEvent(Connection connection, Events event) {
-        logger.info("Connection event: " + event);
+        logger.info("Connection event: {}", event);
         switch (event) {
             case CONNECTED:
                 logger.info("CONNECTED!");
                 break;
             case DISCONNECTED:
                 try {
-                    connection = null;
+                    this.connection = null;
                     getConnection();
                 } catch (Exception ex) {
                     logger.error(ex.getMessage());

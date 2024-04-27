@@ -29,7 +29,7 @@ public class NatsInfluxPush implements CommandLineRunner {
         logger.info("Creating new NatsInfluxPush");
     }
     
-    public void InitDataPersistentService(Config.BucketType bucketType) {       
+    public void initDataPersistentService(Config.BucketType bucketType) {       
 
         // Create NATS and InfluxWriter
         logger.info("Created thread for {} Data", bucketType);
@@ -64,12 +64,12 @@ public class NatsInfluxPush implements CommandLineRunner {
         InfluxDataWriter influxDataWriter = new InfluxDataWriter(config, bucketType);
 
         //Wait until we successfully connect to the nats server and InfluxDb
-        while(!natsObject.getNatsConnected() & !influxDataWriter.getInfluxConnected()){
+        while(!natsObject.getNatsConnected() && !influxDataWriter.getInfluxConnected()){
 
             //wait for 100 ms and try to connect again
             try {
-                natsObject.nats_connect();
-                influxDataWriter.influx_connect();
+                natsObject.natsConnect();
+                influxDataWriter.influxConnect();
                 Thread.sleep(100);
             } 
             catch (InterruptedException e) 
@@ -84,6 +84,7 @@ public class NatsInfluxPush implements CommandLineRunner {
 
         //Initialize thread that will check for new topics and create dispatchers every 30 seconds
         Thread updateTopicThread = new Thread() {
+            @Override
             public void run() {
                 while(true) {
                     natsObject.unitStatusCheck(influxDataWriter);
@@ -106,29 +107,32 @@ public class NatsInfluxPush implements CommandLineRunner {
      * Override run method that instantiates the NatsConsumer and InfluxDataWriter.
      */
     @Override
-    public void run(String[] args) {
+    public void run(String... args) {
         config.influxUri = "http://" + config.influxUri + ":" + config.influxPort;
         config.influxBucketType = Config.BucketType.valueOf(config.influxBucketTypeStr);
         logger.info("{}", config);
         if(config.influxBucketType == Config.BucketType.ALL){
             // Create thread for platform
-            Thread platformThread  = new Thread() {
+            Thread platformThread = new Thread() {
+                @Override
                 public void run(){
-                    InitDataPersistentService(Config.BucketType.PLATFORM);
+                    initDataPersistentService(Config.BucketType.PLATFORM);
                 }
             };
 
             // Create thread for streets
             Thread streetsThread = new Thread() {
+                @Override
                 public void run() {
-                    InitDataPersistentService(Config.BucketType.STREETS);
+                    initDataPersistentService(Config.BucketType.STREETS);
                 }
             };
 
             // Create thread for cloud
             Thread cloudThread = new Thread() {
+                @Override
                 public void run() {
-                    InitDataPersistentService(Config.BucketType.CLOUD);
+                    initDataPersistentService(Config.BucketType.CLOUD);
                 }
             };
             
@@ -141,12 +145,13 @@ public class NatsInfluxPush implements CommandLineRunner {
             config.influxBucketType.equals(Config.BucketType.CLOUD))
         {
             // Create thread for specified type
-            Thread worker_thread  = new Thread() {
+            Thread workerThread = new Thread() {
+                @Override
                 public void run(){
-                    InitDataPersistentService(config.influxBucketType);
+                    initDataPersistentService(config.influxBucketType);
                 }
             };
-            worker_thread.start();
+            workerThread.start();
         }
         else{
             logger.error("Invalid bucket type requested. Options are PLATFORM, STREETS, CLOUD and ALL");
