@@ -228,7 +228,7 @@ public class NatsConsumer {
         List<String> topicListOld = new ArrayList<>(topicList);
 
         //update the topic_list
-        this.updateAvailableTopicList();
+        updateAvailableTopicList();
 
         //Create a copy of the current topic list and compare with the old topic list copy
         List<String> currentListCopy =  new ArrayList<>(topicList);
