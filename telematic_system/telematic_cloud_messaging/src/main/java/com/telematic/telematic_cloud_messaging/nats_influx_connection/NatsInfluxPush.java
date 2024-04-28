@@ -1,11 +1,15 @@
 package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
+import java.util.Arrays;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+
+import com.mysql.cj.x.protobuf.MysqlxDatatypes.Array;
 
 /**
  * The NatsInfluxPush object instantiates a NatsConsumer that creates a connection to the telematic nats server 
@@ -29,11 +33,10 @@ public class NatsInfluxPush implements CommandLineRunner {
         logger.info("Creating new NatsInfluxPush");
     }
     
-    public void initDataPersistentService(Config.BucketType bucketType) {       
+    public void initDataPersistentService(Config.BucketType bucketType) {  
 
         // Create NATS and InfluxWriter
         logger.info("Created thread for {} Data", bucketType);
-        
         String unitType = "";
         String subscriptionTopic = "";
         String unitIdList = "";

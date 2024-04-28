@@ -2,7 +2,7 @@ version: "3"
 services:
 
   influxdb:
-    image:  influxdb:${INFLUXDB_DEV_TAG}
+    image:  influxdb:latest
     container_name: influxdb
     ports:
       - '8086:8086'
@@ -11,15 +11,8 @@ services:
       options:
         max-size: "10m"
         max-file: "1"
-    environment:
-      - DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME=${DOCKER_INFLUXDB_INIT_CLI_CONFIG_NAME}
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_DEV_INIT_USERNAME}
-      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_DEV_INIT_PASSWORD}
-      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_DEV_INIT_BUCKET}
-      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_DEV_ORG}
-      - DOCKER_INFLUXDB_INIT_RETENTION=${INFLUXDB_DEV_RETENTION}
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
+    env_file:
+      - .env
     volumes:
       - /opt/influxdb2/data:/var/lib/influxdb2 # data directory
       - /opt/influxdb2/:/etc/influxdb2 # config directory
@@ -92,35 +85,8 @@ services:
       depends_on:
         - mysqldb
         - grafana
-      environment:
-        - NODE_ENV=dev.comelopment
-        - CHOKIDAR_USEPOLLING=true
-        - ALLOW_CLIENT_URL=http://local.cav-telematics.com:8888
-        - GRAFANA_HTPASSWORD=/opt/apache2/grafana_htpasswd
-        - SESSION_TIMEOUT=3600
-        - SECRET=my_secret_telematic_ui
-        # Server port
-        - PORT=9010
-        # MYSQL DB credentials. Need to be replaced with actual MYSQL DB during deployment
-        - DB_HOST=127.0.0.1
-        - DB_PORT=3307
-        - DB_USER=telematic
-        - DB_PASSWORD=telematic
-        - GRAFANA_DB=wfd_grafana
-        # File upload service settings
-        - UPLOAD_DESTINATION=host
-        - UPLOAD_DESTINATION_PATH=/opt/telematics/upload
-        - AWS_ACCESS_KEY_ID=
-        - AWS_SECRET_KEY=
-        - S3_BUCKET=
-        - S3_REGION=us-east-2
-        - UPLOAD_HTTP_PORT=9011
-        - UPLOAD_TIME_OUT=3600000 # Milliseconds
-        - UPLOAD_MAX_FILE_SIZE=21474836480 #20 GB
-        - CONCURRENT_QUEUE_SIZE=5
-        - PART_SIZE=10485760
-        - NATS_SERVERS=localhost:4222
-        - FILE_PROCESSING_SUBJECT=ui.file.processing
+      env_file:
+        - .env
       command: bash -c 'wait-for-it localhost:3307 && wait-for-it localhost:3000 && /app/service.sh'
       volumes:
         - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
@@ -181,36 +147,8 @@ services:
         max-file: "1"
     network_mode: host
     command: bash -c 'wait-for-it localhost:3307 && wait-for-it localhost:4222 && wait-for-it localhost:8086 && java -jar /telematic_cloud_messaging/app.jar'
-    environment:
-      - MESSAGING_NATS_URL=${MESSAGING_NATS_URL}
-      - MESSAGING_NATS_MAX_RECONNECTS=${MESSAGING_NATS_MAX_RECONNECTS}
-      - MESSAGING_INFLUX_BUCKET_TYPE=${MESSAGING_INFLUX_BUCKET_TYPE}
-      - MESSAGING_INFLUX_URI=${MESSAGING_INFLUX_URI}
-      - MESSAGING_INFLUX_PORT=${MESSAGING_INFLUX_PORT}
-      - MESSAGING_INFLUX_USERNAME=${MESSAGING_INFLUX_USERNAME}
-      - MESSAGING_INFLUX_PWD=${MESSAGING_INFLUX_PWD}
-      - MESSAGING_INFLUX_BUCKET_STREETS=${MESSAGING_INFLUX_BUCKET_STREETS}
-      - MESSAGING_STREETS_SUBSCRIPTION_TOPIC=${MESSAGING_STREETS_SUBSCRIPTION_TOPIC}
-      - MESSAGING_INFLUX_BUCKET_PLATFORM=${MESSAGING_INFLUX_BUCKET_PLATFORM}
-      - MESSAGING_PLATFORM_SUBSCRIPTION_TOPIC=${MESSAGING_PLATFORM_SUBSCRIPTION_TOPIC}
-      - MESSAGING_INFLUX_BUCKET_CLOUD=${MESSAGING_INFLUX_BUCKET_CLOUD}
-      - MESSAGING_CLOUD_SUBSCRIPTION_TOPIC=${MESSAGING_CLOUD_SUBSCRIPTION_TOPIC}
-      - MESSAGING_NUMBER_TOPICS_PER_DISPATCHER=${MESSAGING_NUMBER_TOPICS_PER_DISPATCHER}
-      - MESSAGING_VEHICLE_UNIT_ID_LIST=${MESSAGING_VEHICLE_UNIT_ID_LIST}
-      - MESSAGING_STREETS_UNIT_ID_LIST=${MESSAGING_STREETS_UNIT_ID_LIST}
-      - MESSAGING_CLOUD_UNIT_ID_LIST=${MESSAGING_CLOUD_UNIT_ID_LIST}
-      - MESSAGING_INFLUX_ORG=${MESSAGING_INFLUX_ORG}
-      - MESSAGING_INFLUX_TOKEN=${MESSAGING_INFLUX_TOKEN}
-      - MESSAGING_TO_STR_FIELDS=${MESSAGING_TO_STR_FIELDS}
-      - MESSAGING_IGNORE_FIELDS=${MESSAGING_IGNORE_FIELDS}
-      - MESSAGING_INFLUX_CONNECT_TIMEOUT=${MESSAGING_INFLUX_CONNECT_TIMEOUT}
-      - MESSAGING_INFLUX_WRITE_TIMEOUT=${MESSAGING_INFLUX_WRITE_TIMEOUT}
-      - MESSAGING_DB_DRIVER=${MESSAGING_DB_DRIVER}
-      - MESSAGING_DB_URL=${MESSAGING_DB_URL}
-      - MESSAGING_DB_USERNAME=${MESSAGING_DB_USERNAME}
-      - MESSAGING_DB_PASSWORD=${MESSAGING_DB_PASSWORD}
-      - MESSAGEING_DB_DIALECT=${MESSAGEING_DB_DIALECT}
-      - MESSAGING_LOGGING_LEVEL=${MESSAGING_LOGGING_LEVEL}
+    env_file:
+      - .env
 
   rosbag2_processing_service:
     build:
@@ -232,29 +170,8 @@ services:
     volumes:
            - /opt/telematics/logs:/opt/telematics/logs
            - /opt/telematics/upload:/opt/telematics/upload
-    environment:
-    - TOPIC_EXCLUSION_LIST=${TOPIC_EXCLUSION_LIST}
-    - NATS_SERVER_IP_PORT=nats://localhost:4222
-    - LOG_LEVEL=debug
-    - LOG_NAME=rosbag2_processing_service
-    - LOG_PATH=/opt/telematics/logs
-    - LOG_ROTATION_SIZE_BYTES=2147483648
-    - LOG_HANDLER_TYPE=console
-    - INFLUX_BUCKET=${INFLUXDB_DEV_INIT_BUCKET}
-    - INFLUX_ORG=my-org
-    - INFLUX_TOKEN=my-super-secret-auth-token
-    - INFLUX_URL=127.0.0.1:8086
-    - MYSQL_HOST=127.0.0.1 #Add host IP where mysql database is hosted
-    - MYSQL_PORT=3307
-    - MYSQL_DB=wfd_grafana # Name of Mysql databse
-    - MYSQL_USER=${DB_USER} # Login credentials for mysql database, User
-    - MYSQL_PASSWORD=${DB_PASSWORD} # Login credentials for mysql database, Password
-    - MYSQL_TABLE=file_infos
-    - UPLOAD_DESTINATION_PATH=${UPLOAD_DESTINATION_PATH} # For cloud deployment:This is the directory S3 bucket is mounted
-    - TO_STR_FIELDS={TO_STR_FIELDS}
-    - IGNORE_FIELDS={IGNORE_FIELDS}
-    - FILE_PROCESSING_SUBJECT=ui.file.*
-    - ACCEPTED_FILE_EXTENSIONS=[".mcap"]
+    env_file:
+      - .env
     command: bash -c 'source /ws/install/setup.bash && wait-for-it 127.0.0.1:3307 -- ros2 run rosbag2_processing_service main'
 
 secrets:

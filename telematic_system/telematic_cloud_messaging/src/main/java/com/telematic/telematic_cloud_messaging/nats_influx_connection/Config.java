@@ -25,96 +25,96 @@ public class Config {
         }
     }
     //URI where the NATS service is hosted
-    @Value("${NATS_URI}")
+    @Value("${M_NATS_URI}")
     String natsUri;
 
     // URI where the influxdb bucket is hosted  
-    @Value("${INFLUX_URI}")  
+    @Value("${M_INFLUX_URI}")  
     String influxUri;
     
     //PORT to which influxDB is connected
-    @Value("${INFLUX_PORT}")  
+    @Value("${M_INFLUX_PORT}")  
     String influxPort;
     
     // Influxdb bucket type: Can be Platform, Streets or All
-    @Value("${INFLUX_BUCKET_TYPE}")  
+    @Value("${M_INFLUX_BUCKET_TYPE}")  
     String influxBucketTypeStr;
     BucketType influxBucketType;
     
     // Influxdb bucket name for CARMA Streets bucket
-    @Value("${INFLUX_BUCKET_STREETS}") 
+    @Value("${M_INFLUX_BUCKET_STREETS}") 
     String influxBucketStreets;
     
     // NATS topic carma-streets data is published to. 
-    @Value("${STREETS_SUBSCRIPTION_TOPIC}") 
+    @Value("${M_STREETS_SUBSCRIPTION_TOPIC}") 
     String streetsSubscriptionTopic;
     
     // Influxdb bucket name for CARMA Platform bucket
-    @Value("${INFLUX_BUCKET_STREETS}") 
+    @Value("${M_INFLUX_BUCKET_STREETS}") 
     String influxBucketPlatform;
     
     // NATS topic carma-platform data is published to
-    @Value("${PLATFORM_SUBSCRIPTION_TOPIC}") 
+    @Value("${M_PLATFORM_SUBSCRIPTION_TOPIC}") 
     String platformSubscriptionTopic;
     
     // Influxdb bucket name for CARMA Cloud bucket
-    @Value("${INFLUX_BUCKET_CLOUD}") 
+    @Value("${M_INFLUX_BUCKET_CLOUD}") 
     String influxBucketCloud;
     
     // NATS topic carma-cloud data is published to. 
-    @Value("${CLOUD_SUBSCRIPTION_TOPIC}") 
+    @Value("${M_CLOUD_SUBSCRIPTION_TOPIC}") 
     String cloudSubscriptionTopic;
     
     // Organization for the influxdb bucket
-    @Value("${INFLUX_ORG}") 
+    @Value("${M_INFLUX_ORG}") 
     String influxOrg;
         
     // Token to access influxdb bucket
-    @Value("${INFLUX_TOKEN}") 
+    @Value("${M_INFLUX_TOKEN}") 
     String influxToken;
     
     // Username for influxdb bucket
-    @Value("${INFLUX_USERNAME}") 
+    @Value("${M_INFLUX_USERNAME}") 
     String influxUsername;
     
     // Password for influxdb bucket
-    @Value("${INFLUX_PWD}") 
+    @Value("${M_INFLUX_PWD}") 
     String influxPwd;
     
     // Maximum number of times the service tries to establish a NATS connection
-    @Value("${NATS_MAX_RECONNECTS}") 
+    @Value("${M_NATS_MAX_RECONNECTS}") 
     int natsMaxReconnects;
     
     // Time in milliseconds after which the request to connect to the influxdb bucket times out
-    @Value("${INFLUX_CONNECT_TIMEOUT}")
+    @Value("${M_INFLUX_CONNECT_TIMEOUT}")
     int influxConnectTimeout;
     
     // Time in milliseconds after which the request to write data to the influxdb bucket times out
-    @Value("${INFLUX_WRITE_TIMEOUT}")
+    @Value("${M_INFLUX_WRITE_TIMEOUT}")
     int influxWriteTimeout;
     
     // Maximum number of topics to assign to dispatcher
-    @Value("${NUMBER_TOPICS_PER_DISPATCHER}") 
+    @Value("${M_NUMBER_TOPICS_PER_DISPATCHER}") 
     int topicsPerDispatcher;
     
     // List of vehicle unit ids
-    @Value("${VEHICLE_UNIT_ID_LIST}")
+    @Value("${M_VEHICLE_UNIT_ID_LIST}")
     String vehicleUnitIdList;
     
     // List of streets unit ids
-    @Value("${STREETS_UNIT_ID_LIST}")
+    @Value("${M_STREETS_UNIT_ID_LIST}")
     String streetsUnitIdList;
     
     // List of cloud unit ids
-    @Value("${CLOUD_UNIT_ID_LIST}")
+    @Value("${M_CLOUD_UNIT_ID_LIST}")
     String cloudUnitIdList;
 
     //List of fields in the stream that should only be set to string data type
-    @Value("#{'${TO_STR_FIELDS}'.split(',')}")
+    @Value("${M_TO_STR_FIELDS}")
     List<String> toStrFields;
     
     //List of fields in the stream that should be ignored
-    @Value("#{'${IGNORE_FIELDS}'.split(',')}")
+    @Value("${M_IGNORE_FIELDS}")
     List<String> ignoreFields;    
 
     // Converts config object parameters to a string
