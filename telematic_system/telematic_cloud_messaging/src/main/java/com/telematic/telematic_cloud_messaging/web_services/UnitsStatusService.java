@@ -1,6 +1,5 @@
 package com.telematic.telematic_cloud_messaging.web_services;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;

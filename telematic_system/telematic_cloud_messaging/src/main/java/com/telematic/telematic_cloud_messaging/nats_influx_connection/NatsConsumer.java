@@ -63,7 +63,8 @@ public class NatsConsumer {
         this.natsConnected = false;
         this.nc = null;
         this.topicList = new ArrayList<>();
-        this.unitIdList = Arrays.asList(unitIds.split(","));
+        unitIds = unitIds.replaceAll("\\s+", "");
+        this.unitIdList = unitIds.isEmpty()? new ArrayList<>(): Arrays.asList(unitIds.split(","));
         logger.info("{} NatsConsumer unit id list: {}",unitType, unitIdList);
     }
 
@@ -113,7 +114,7 @@ public class NatsConsumer {
                 Future<Message> future = nc.request(availableTopicString, " ".getBytes(StandardCharsets.UTF_8));
                 Message msg = future.get();
                 String reply = new String(msg.getData(), StandardCharsets.UTF_8);
-                logger.debug("{} NatsConsumer available topics request. Reply: {}", this.unitType, reply);
+                logger.debug("{} NatsConsumer available topics [{}] request. Reply: {}", this.unitType, availableTopicString, reply);
 
                 JSONObject jsonObject = new JSONObject(reply); 
                 Object topicsObject = jsonObject.get("topics");
