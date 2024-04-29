@@ -114,7 +114,7 @@ public class NatsInfluxPush implements CommandLineRunner {
                     public void run(){
                         if(configType != Config.BucketType.ALL){
                             initDataPersistentService(configType);
-                        };
+                        }
                     }
                 }.start();
             }

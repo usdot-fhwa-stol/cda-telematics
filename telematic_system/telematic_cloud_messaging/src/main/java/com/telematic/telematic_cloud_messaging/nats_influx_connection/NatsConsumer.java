@@ -213,7 +213,7 @@ public class NatsConsumer {
                 //need to remove slashes from topic name to match nats subject format
                 String topicStr = topic.replace("/", "");
                 newDispatcher.subscribe(natsSubscribeStr+topicStr);
-                logger.info("{} NatsConsumer dispatcher {} subscribed to {} {}", unitType, i, natsSubscribeStr,
+                logger.info("{} NatsConsumer dispatcher {} subscribed to {}{}", unitType, i, natsSubscribeStr,
                         topicStr);
             }
         }       
