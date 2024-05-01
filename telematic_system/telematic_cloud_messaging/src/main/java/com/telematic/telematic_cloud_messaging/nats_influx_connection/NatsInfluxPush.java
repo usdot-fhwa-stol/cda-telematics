@@ -95,9 +95,16 @@ public class NatsInfluxPush implements CommandLineRunner {
     }
 
     private void adjustConfig() {
-        config.influxUri = "http://" + config.influxUri + ":" + config.influxPort;
-        config.influxBucketType = Config.BucketType.valueOf(config.influxBucketTypeStr);
-        logger.info("Adjusted config: {}", config);
+        try{
+            config.influxUri = "http://" + config.influxUri + ":" + config.influxPort;
+            config.influxBucketType = Config.BucketType.valueOf(config.influxBucketTypeStr);
+            logger.info("Adjusted config: {}", config);
+        }catch(IllegalArgumentException ex){
+            logger.error("Invalid bucket type: {}. Error: {}", config.influxBucketTypeStr, ex.getMessage());
+        } catch (NullPointerException ex) {
+            logger.error("Bucket type cannot be null: {}. Error: {}", config.influxBucketTypeStr, ex.getMessage());
+        }
+       
     }
 
     /**
