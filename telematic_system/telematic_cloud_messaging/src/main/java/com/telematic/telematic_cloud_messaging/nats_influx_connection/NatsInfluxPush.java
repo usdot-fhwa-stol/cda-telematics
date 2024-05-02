@@ -7,6 +7,8 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
+import com.telematic.telematic_cloud_messaging.exceptions.ConfigurationException;
+
 /**
  * The NatsInfluxPush object instantiates a NatsConsumer that creates a connection to the telematic nats server 
  * and subscribes to all available subjects. It also instantiates an InfluxDataWriter object that is used to publish the
@@ -101,8 +103,10 @@ public class NatsInfluxPush implements CommandLineRunner {
             logger.info("Adjusted config: {}", config);
         }catch(IllegalArgumentException ex){
             logger.error("Invalid bucket type: {}. Error: {}", config.influxBucketTypeStr, ex.getMessage());
+            throw new ConfigurationException(String.format("M_INFLUX_BUCKET_TYPE: %s is invalid!", config.influxBucketTypeStr));
         } catch (NullPointerException ex) {
             logger.error("Bucket type cannot be null: {}. Error: {}", config.influxBucketTypeStr, ex.getMessage());
+            throw new ConfigurationException(String.format("M_INFLUX_BUCKET_TYPE: %s is not found!", config.influxBucketTypeStr));
         }
        
     }
