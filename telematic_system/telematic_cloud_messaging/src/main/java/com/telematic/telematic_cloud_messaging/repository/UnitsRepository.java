@@ -12,5 +12,5 @@ import com.telematic.telematic_cloud_messaging.models.Units;
 @Repository
 public interface UnitsRepository extends JpaRepository<Units, Integer> {
     @Query(value = "SELECT u FROM Units u where u.unit_identifier=:unit_identifier")
-    List<Units> getUnitsByIdentifier(@Param("unit_identifier") String unit_identifier);
+    List<Units> getUnitsByIdentifier(@Param("unit_identifier") String unitIdentifier);
 }
