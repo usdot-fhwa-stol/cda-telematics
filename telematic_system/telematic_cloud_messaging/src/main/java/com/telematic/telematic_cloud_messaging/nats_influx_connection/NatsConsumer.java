@@ -142,6 +142,7 @@ public class NatsConsumer {
             }
             catch (Exception e) {
                 logger.error(ExceptionUtils.getStackTrace(e));
+                logger.error("Request for units failed, and retrying...");
             }
         }     
     }
