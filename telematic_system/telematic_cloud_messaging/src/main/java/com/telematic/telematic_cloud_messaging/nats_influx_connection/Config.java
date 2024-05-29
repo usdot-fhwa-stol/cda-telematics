@@ -50,7 +50,7 @@ public class Config {
     String streetsSubscriptionTopic;
     
     // Influxdb bucket name for CARMA Platform bucket
-    @Value("${M_INFLUX_BUCKET_STREETS}") 
+    @Value("${M_INFLUX_BUCKET_PLATFORM}") 
     String influxBucketPlatform;
     
     // NATS topic carma-platform data is published to
