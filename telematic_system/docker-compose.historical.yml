@@ -16,7 +16,7 @@ services:
            - /opt/telematics:/opt/telematics
     environment:
     - TOPIC_EXCLUSION_LIST=${ROS2_TOPIC_EXCLUSION_LIST}
-    - NATS_SERVER_IP_PORT={NATS_SERVER_IP_PORT}
+    - NATS_SERVER_IP_PORT=${NATS_SERVER_IP_PORT}
     - LOG_LEVEL=debug
     - LOG_NAME=rosbag2_processing_service
     - LOG_PATH=/opt/telematics/logs
@@ -24,17 +24,17 @@ services:
     - LOG_HANDLER_TYPE=console
     - INFLUX_BUCKET=${INFLUXDB_DEV_INIT_BUCKET}
     - INFLUX_ORG=${INFLUXDB_DEV_ORG}
-    - INFLUX_TOKEN={DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
-    - INFLUX_URL={INFLUX_URL}
-    - MYSQL_HOST={DB_HOST} #Add host IP where mysql database is hosted
-    - MYSQL_PORT={DB_PORT}
-    - MYSQL_DB={GRAFANA_DB} # Name of Mysql databse
+    - INFLUX_TOKEN=${DOCKER_INFLUXDB_INIT_ADMIN_TOKEN}
+    - INFLUX_URL=${INFLUX_URL}
+    - MYSQL_HOST=${DB_HOST} #Add host IP where mysql database is hosted
+    - MYSQL_PORT=${DB_PORT}
+    - MYSQL_DB=${GRAFANA_DB} # Name of Mysql databse
     - MYSQL_USER=${DB_USER} # Login credentials for mysql database, User
     - MYSQL_PASSWORD=${DB_PASSWORD} # Login credentials for mysql database, Password
     - MYSQL_TABLE=file_infos
     - UPLOAD_DESTINATION_PATH=${UPLOAD_DESTINATION_PATH} # For cloud deployment:This is the directory S3 bucket is mounted
-    - TO_STR_FIELDS={TO_STR_FIELDS}
-    - IGNORE_FIELDS={IGNORE_FIELDS}
+    - TO_STR_FIELDS=${TO_STR_FIELDS}
+    - IGNORE_FIELDS=${IGNORE_FIELDS}
     - FILE_PROCESSING_SUBJECT=ui.file.*
     - ACCEPTED_FILE_EXTENSIONS=[".mcap"]
     command: bash -c 'source /ws/install/setup.bash && ros2 run rosbag2_processing_service main'
