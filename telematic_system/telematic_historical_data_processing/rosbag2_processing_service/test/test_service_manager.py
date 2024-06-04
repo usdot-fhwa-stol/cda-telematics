@@ -48,16 +48,16 @@ class ServiceManagerTestClass(AsyncTestCase):
         config1 = Config()
         assert config1.log_handler_type == "console"
 
-        os.environ["LOG_HANDLER_TYPE"] = "file"
+        os.environ["HPS_LOG_HANDLER_TYPE"] = "file"
         config2 = Config()
         assert config2.log_handler_type == "file"
 
-        os.environ["LOG_HANDLER_TYPE"] = "all"
+        os.environ["HPS_LOG_HANDLER_TYPE"] = "all"
         config2 = Config()
         config2.set_logger()
         assert config2.log_handler_type == "all"
 
-        os.environ["LOG_HANDLER_TYPE"] = "incorrect_type"
+        os.environ["HPS_LOG_HANDLER_TYPE"] = "incorrect_type"
         config3 = Config()
         # Should default to console without exception
         try:
@@ -67,19 +67,19 @@ class ServiceManagerTestClass(AsyncTestCase):
             pytest.fail(f"Unexpected exception raised: {e}")
 
         # Reset environment var
-        os.environ["LOG_HANDLER_TYPE"] = "console"
+        os.environ["HPS_LOG_HANDLER_TYPE"] = "console"
 
         # Test config log levels
-        os.environ["LOG_LEVEL"] = "info"
+        os.environ["HPS_LOG_LEVEL"] = "info"
         config4 = Config()
         assert config4.log_level == "info"
 
-        os.environ["LOG_LEVEL"] = "error"
+        os.environ["HPS_LOG_LEVEL"] = "error"
         config5 = Config()
         assert config5.log_level == "error"
 
         # Revert log level to debug
-        os.environ["LOG_LEVEL"] = "debug"
+        os.environ["HPS_LOG_LEVEL"] = "debug"
 
     @pytest.mark.asyncio
     async def test_nats_callback(self):

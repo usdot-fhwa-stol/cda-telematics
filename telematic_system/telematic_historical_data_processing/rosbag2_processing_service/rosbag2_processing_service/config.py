@@ -41,46 +41,43 @@ class Config:
         if not self.logger.hasHandlers():
             self.set_logger()
 
-
     def load_env_variables(self):
         # Configured directory to read rosbags from
-        self.upload_destination_path = os.getenv("UPLOAD_DESTINATION_PATH")
+        self.upload_destination_path = os.getenv("HPS_UPLOAD_DESTINATION_PATH")
 
-        #NATS params
-        self.nats_ip_port = os.getenv("NATS_SERVER_IP_PORT")
+        # NATS params
+        self.nats_ip_port = os.getenv("HPS_NATS_SERVER_IP_PORT")
         # Nats request topic
-        self.nats_request_topic = os.getenv("FILE_PROCESSING_SUBJECT")
+        self.nats_request_topic = os.getenv("HPS_FILE_PROCESSING_SUBJECT")
 
         # Load Influx params
-        self.influx_bucket = os.getenv("INFLUX_BUCKET")
-        self.influx_org = os.getenv("INFLUX_ORG")
-        self.influx_token = os.getenv("INFLUX_TOKEN")
-        self.influx_url = os.getenv("INFLUX_URL")
+        self.influx_bucket = os.getenv("HPS_INFLUX_BUCKET")
+        self.influx_org = os.getenv("HPS_INFLUX_ORG")
+        self.influx_token = os.getenv("HPS_INFLUX_TOKEN")
+        self.influx_url = os.getenv("HPS_INFLUX_URL")
 
-        #Fields in the ros message to force to string type.
-        self.to_str_fields = os.getenv("TO_STR_FIELDS")
+        # Fields in the ros message to force to string type.
+        self.to_str_fields = os.getenv("HPS_TO_STR_FIELDS")
         # Fields in the ros message to ignore
-        self.ignore_fields = os.getenv("IGNORE_FIELDS")
+        self.ignore_fields = os.getenv("HPS_IGNORE_FIELDS")
         # List of topics to be excluded from reading
-        self.topic_exclusion_list = os.getenv("TOPIC_EXCLUSION_LIST")
+        self.topic_exclusion_list = os.getenv("HPS_TOPIC_EXCLUSION_LIST")
 
-        self.accepted_file_extensions = os.getenv("ACCEPTED_FILE_EXTENSIONS")
+        self.accepted_file_extensions = os.getenv("HPS_ACCEPTED_FILE_EXTENSIONS")
 
-        #Logging configuration parameters
-        self.log_level = os.getenv("LOG_LEVEL")
-        self.log_name = os.getenv("LOG_NAME")
-        self.log_path = os.getenv("LOG_PATH")
-        self.log_rotation = int(os.getenv("LOG_ROTATION_SIZE_BYTES"))
-        self.log_handler_type = os.getenv("LOG_HANDLER_TYPE")
+        # Logging configuration parameters
+        self.log_level = os.getenv("HPS_LOG_LEVEL")
+        self.log_name = os.getenv("HPS_LOG_NAME")
+        self.log_path = os.getenv("HPS_LOG_PATH")
+        self.log_rotation = int(os.getenv("HPS_LOG_ROTATION_SIZE_BYTES"))
+        self.log_handler_type = os.getenv("HPS_LOG_HANDLER_TYPE")
 
         # Mysql parameters
-        self.mysql_host = os.getenv("MYSQL_HOST")
-        self.mysql_port = int(os.getenv("MYSQL_PORT"))
-        self.mysql_db = os.getenv("MYSQL_DB")
-        self.mysql_user = os.getenv("MYSQL_USER")
-        self.mysql_password = os.getenv("MYSQL_PASSWORD")
-
-
+        self.mysql_host = os.getenv("HPS_MYSQL_HOST")
+        self.mysql_port = int(os.getenv("HPS_MYSQL_PORT"))
+        self.mysql_db = os.getenv("HPS_MYSQL_DB")
+        self.mysql_user = os.getenv("HPS_MYSQL_USER")
+        self.mysql_password = os.getenv("HPS_MYSQL_PASSWORD")
 
     def set_logger(self):
         # Create logger
@@ -93,7 +90,6 @@ class Config:
         else:
             self.createLogger(LogType.CONSOLE.value)
             self.logger.warn("Incorrect Log type defined, defaulting to console")
-
 
     def createLogger(self, log_type):
         """Creates log file for the ServiceManager with configuration items based on the settings input in the params.yaml file"""
