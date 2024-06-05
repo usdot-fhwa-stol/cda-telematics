@@ -27,3 +27,21 @@ services:
     command: bash -c 'wait-for-it localhost:4222 && java -jar /telematic_cloud_messaging/app.jar'
     env_file:
       - .env
+  
+  rosbag2_processing_service:
+    build:
+          context: ./telematic_historical_data_processing
+          dockerfile: Dockerfile
+          network: host
+    image: usdotfhwastoldev/telematic_historical_data_processing:develop
+    network_mode: host
+    logging:
+      options:
+        max-size: "2g"
+        max-file: "1"
+    container_name: rosbag2_processing_service
+    volumes:
+           - /opt/telematics:/opt/telematics
+    env_file:
+      - .env
+    command: bash -c 'source /ws/install/setup.bash && ros2 run rosbag2_processing_service main'
