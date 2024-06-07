@@ -16,7 +16,6 @@
 
 from mcap_ros2.reader import read_ros2_messages, DecoderFactory
 from mcap.reader import McapReader, NonSeekingReader, SeekingReader, make_reader
-import mysql.connector
 import re
 import time
 import influxdb
