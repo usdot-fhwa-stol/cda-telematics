@@ -85,6 +85,14 @@ class Rosbag2Parser:
         try:
             with open(rosbag2_path, "rb") as file:
                 reader = make_reader(file, decoder_factories=[DecoderFactory()])
+
+                try:
+                    # Check file validity
+                    reader.get_summary()
+                except Exception as e:
+                    processing_error_msg = f"Rosbag is unindexed, cannot be processed."
+                    return ProcessingStatus.ERROR.value, processing_error_msg
+
                 unique_topics = set()
                 for schema, channel, message in reader.iter_messages():
                     unique_topics.add(channel.topic)
