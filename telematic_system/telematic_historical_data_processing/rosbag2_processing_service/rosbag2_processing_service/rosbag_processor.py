@@ -90,7 +90,7 @@ class Rosbag2Parser:
                     # Check file validity. Below method checks for optional summary field - must be valid if not None
                     reader.get_summary()
                 except MemoryError as e:
-                    processing_error_msg = f"Rosbag is unindexed, cannot be processed."
+                    processing_error_msg = "Rosbag is unindexed, cannot be processed."
                     return ProcessingStatus.ERROR.value, processing_error_msg
 
                 unique_topics = set()
