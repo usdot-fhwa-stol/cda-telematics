@@ -87,9 +87,9 @@ class Rosbag2Parser:
                 reader = make_reader(file, decoder_factories=[DecoderFactory()])
 
                 try:
-                    # Check file validity
+                    # Check file validity. Below method checks for optional summary field - must be valid if not None
                     reader.get_summary()
-                except Exception as e:
+                except MemoryError as e:
                     processing_error_msg = f"Rosbag is unindexed, cannot be processed."
                     return ProcessingStatus.ERROR.value, processing_error_msg
 

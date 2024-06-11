@@ -162,6 +162,7 @@ services:
       - nats
       - mysqldb
       - influxdb
+      - apache2
     logging:
       options:
         max-size: "2g"
