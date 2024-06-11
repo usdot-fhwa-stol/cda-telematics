@@ -54,7 +54,9 @@ class Config:
         self.influx_bucket = os.getenv("HPS_INFLUX_BUCKET")
         self.influx_org = os.getenv("HPS_INFLUX_ORG")
         self.influx_token = os.getenv("HPS_INFLUX_TOKEN")
-        self.influx_url = os.getenv("HPS_INFLUX_URL")
+        self.influx_url = (
+            os.getenv("HPS_INFLUX_IP") + ":" + os.getenv("HPS_INFLUX_PORT")
+        )
 
         # Fields in the ros message to force to string type.
         self.to_str_fields = os.getenv("HPS_TO_STR_FIELDS")
