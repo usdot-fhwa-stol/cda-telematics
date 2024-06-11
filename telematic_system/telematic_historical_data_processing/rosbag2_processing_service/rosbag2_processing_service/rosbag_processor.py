@@ -86,13 +86,6 @@ class Rosbag2Parser:
             with open(rosbag2_path, "rb") as file:
                 reader = make_reader(file, decoder_factories=[DecoderFactory()])
 
-                try:
-                    # Check file validity. Below method checks for optional summary field - must be valid if not None
-                    reader.get_summary()
-                except MemoryError as e:
-                    processing_error_msg = "Rosbag is unindexed, cannot be processed."
-                    return ProcessingStatus.ERROR.value, processing_error_msg
-
                 unique_topics = set()
                 for schema, channel, message in reader.iter_messages():
                     unique_topics.add(channel.topic)
@@ -119,8 +112,13 @@ class Rosbag2Parser:
             processing_error_msg = f"Failed to read from rosbag with exception {(e)} "
             self.config.logger.error(processing_error_msg)
             self.is_processing = False
-
             return ProcessingStatus.ERROR.value, processing_error_msg
+        except MemoryError as e:
+            processing_error_msg = "Rosbag is unindexed, cannot be processed."
+            self.config.logger.error(processing_error_msg)
+            self.is_processing = False
+            return ProcessingStatus.ERROR.value, processing_error_msg
+
 
         self.config.logger.info(f"Completed rosbag processing for {rosbag2_name}")
 
