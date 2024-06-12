@@ -25,6 +25,7 @@ from influxdb_client.client.write_api import ASYNCHRONOUS
 from .config import Config
 from .config import ProcessingStatus
 from mcap import exceptions
+from struct import error
 
 import asyncio
 from pathlib import Path
@@ -58,7 +59,6 @@ class Rosbag2Parser:
         # Create Asynchronous write API for influxdb
         self.write_api = self.influx_client.write_api(write_options=ASYNCHRONOUS)
 
-
         # Processing status
         self.is_processing = False
 
@@ -66,7 +66,7 @@ class Rosbag2Parser:
         self.is_processing = True
 
         if Path(rosbag2_path).suffix not in self.config.accepted_file_extensions:
-            #TODO update mysql entry for rosbag
+            # TODO update mysql entry for rosbag
             raise Exception(f"File type not acceptable for {rosbag2_path}")
 
         measurement_name = Path(rosbag2_path).stem # Measurement name is rosbag name without mcap extension
@@ -86,17 +86,9 @@ class Rosbag2Parser:
             with open(rosbag2_path, "rb") as file:
                 reader = make_reader(file, decoder_factories=[DecoderFactory()])
 
-                try:
-                    # Check file validity. Below method checks for optional summary field - must be valid if not None
-                    reader.get_summary()
-                except MemoryError as e:
-                    processing_error_msg = "Rosbag is unindexed, cannot be processed."
-                    return ProcessingStatus.ERROR.value, processing_error_msg
-
                 unique_topics = set()
                 for schema, channel, message in reader.iter_messages():
                     unique_topics.add(channel.topic)
-
 
             inclusion_topics = [topic for topic in unique_topics if topic not in self.config.topic_exclusion_list ]
 
@@ -106,7 +98,7 @@ class Rosbag2Parser:
 
                 try:
                     record = self.create_record_from_msg(msg, measurement_name)
-                    #Write record to influx
+                    # Write record to influx
                     self.write_api.write(bucket=self.config.influx_bucket, org=self.config.influx_org, record=record)
 
                 except influxdb.exceptions.InfluxDBClientError as e:
@@ -114,13 +106,17 @@ class Rosbag2Parser:
                 except Exception as e:
                     self.config.logger.error(f"Failed to write to influx with exception: {(e)}")
 
-
-        except exceptions.McapError as e:
+        except (exceptions.McapError, exceptions.InvalidMagic, error) as e:
             processing_error_msg = f"Failed to read from rosbag with exception {(e)} "
             self.config.logger.error(processing_error_msg)
             self.is_processing = False
-
             return ProcessingStatus.ERROR.value, processing_error_msg
+        except MemoryError as e:
+            processing_error_msg = "Rosbag is unindexed, cannot be processed."
+            self.config.logger.error(processing_error_msg)
+            self.is_processing = False
+            return ProcessingStatus.ERROR.value, processing_error_msg
+
 
         self.config.logger.info(f"Completed rosbag processing for {rosbag2_name}")
 
@@ -154,9 +150,7 @@ class Rosbag2Parser:
                     attr_value = f'"{attr_value}"'  # Correctly format string values
                 records.append(f"{attr_name}={attr_value}")
 
-
         return f"{measurement_name},topic_name={topic} " + ",".join(records) + f",timestamp={msg_timestamp} {msg_timestamp}"
-
 
     def extract_attributes(self, obj, parent_attr=None):
         attributes = []
