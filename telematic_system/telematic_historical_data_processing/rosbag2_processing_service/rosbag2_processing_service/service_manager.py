@@ -74,6 +74,8 @@ class ServiceManager:
         # nats connection status
         self.is_nats_connected = False
 
+        self.last_processed_rosbag = ""
+
         self.mysql_conn = self.create_mysql_conn()
 
     async def nats_connect(self):
@@ -134,6 +136,8 @@ class ServiceManager:
 
                 # Update mysql status to Processing
                 self.update_mysql_entry(rosbag_mysql_filename, ProcessingStatus.IN_PROGRESS.value)
+
+                self.last_processed_rosbag = rosbag_mysql_filename
 
                 processing_status, processing_err_msg = self.rosbag_parser.process_rosbag(self.rosbag_queue.pop(0))
                 # Update mysql entry for rosbag based on whether processing was successful or not
