@@ -20,6 +20,7 @@
  * - upsertFileInfo: Update the file_info table based on the unique filename if file_info exist in the database table, and return the number
  * of records updated. Otherwise, insert a new file_info record into the database table and return the new record.
  */
+const { Op } = require("sequelize");
 const { file_info, user } = require("../models");
 
 /**
@@ -119,11 +120,30 @@ exports.upsertFileInfo = async (fileInfo) => {
   }
   let condition = { original_filename: originalFilename };
   return await file_info
-    .upsert(fileInfoLocal,  condition)
+    .upsert(fileInfoLocal, condition)
     .then(async (data) => {
       return data[0];
     })
     .catch((err) => {
       throw new Error("Error updating file info record: " + err);
+    });
+};
+
+exports.findByFilenames = async (filenames) => {
+  return await file_info
+    .findOne({
+      where: {
+        original_filename: {
+          [Op.in]: filenames,
+        },
+      },
+    })
+    .then((data) => {
+      console.log(data);
+      return data;
+    })
+    .catch((err) => {
+      console.log(err);
+      throw new Error("Error find all files by filenames");
     });
 };

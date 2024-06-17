@@ -115,8 +115,15 @@ const ROS2RosbagPage = React.memo(() => {
         }
         for (let existingFile of fileInfoList) {
           //existingFile includes the organization name as the uploaded folder. Checking if file exist and completed. If exist and completed, show error messages and prevent from sending upload request
-          if (existingFile?.upload_status === UPLOAD_STATUS.COMPLETED && existingFile.original_filename.split("/")[existingFile.original_filename.split("/").length - 1] === newFileInfo.filename) {
-            messageList.push("ROS2 Rosbag files exist: " + newFileInfo.filename);
+          if (
+            existingFile?.upload_status === UPLOAD_STATUS.IN_PROGRESS &&
+            existingFile.original_filename.split("/")[
+              existingFile.original_filename.split("/").length - 1
+            ] === newFileInfo.filename
+          ) {
+            messageList.push(
+              "ROS2 Rosbag files exist: " + newFileInfo.filename
+            );
             isValid = false;
           }
         }
@@ -148,12 +155,23 @@ const ROS2RosbagPage = React.memo(() => {
     console.log(ROS2RosBagsFormData);
     if (validateUpload(ROS2RosbagList, fields)) {
       uploadROS2Rosbags(ROS2RosBagsFormData).then((data) => {
-        setAlertStatus({
-          open: true,
-          severity: NOTIFICATION_STATUS.SUCCESS,
-          title: "ROS2 Rosbag files upload",
-          message: ["Server responds with ROS2 Rosbag files upload end! Click the refresh button to get the latest upload status."],
-        });
+        if (data.errCode !== undefined && data.errMsg !== undefined) {
+          setAlertStatus({
+            open: true,
+            severity: NOTIFICATION_STATUS.ERROR,
+            title: "Error",
+            message: [data.errMsg],
+          });
+        } else {
+          setAlertStatus({
+            open: true,
+            severity: NOTIFICATION_STATUS.SUCCESS,
+            title: "ROS2 Rosbag files upload",
+            message: [
+              "Server responds with ROS2 Rosbag files upload end! Click the refresh button to get the latest upload status.",
+            ],
+          });
+        }
       });
       setAlertStatus({
         open: true,

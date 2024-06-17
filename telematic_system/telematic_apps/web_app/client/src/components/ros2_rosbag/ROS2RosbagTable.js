@@ -42,11 +42,11 @@ const columns = [
     align: "right",
     info: "",
   },
-  { id: "upload_status", label: "Upload Status", minWidth: 100, info: "" },
+  { id: "upload_status", label: "Upload Status", minWidth: 120, info: "" },
   {
     id: "process_status",
     label: "Process Status",
-    minWidth: 100,
+    minWidth: 120,
     info: "",
   },
   {
@@ -71,7 +71,7 @@ const columns = [
     align: "right",
     format: (value) => value.toLocaleString("en-US"),
     info: "",
-  }
+  },
 ];
 
 export default function ROS2RosbagTable(props) {
