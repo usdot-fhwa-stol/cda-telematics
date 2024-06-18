@@ -154,6 +154,7 @@ const ROS2RosbagPage = React.memo(() => {
         message: ["ROS2 Rosbag files cannot be empty!"],
       });
       isValid = false;
+      return isValid;
     }
 
     //Server side validation
