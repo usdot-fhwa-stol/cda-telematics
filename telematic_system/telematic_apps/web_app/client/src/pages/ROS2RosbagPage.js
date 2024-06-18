@@ -21,6 +21,7 @@ import {
   sendProcessRequest,
   updateDescription,
   uploadROS2Rosbags,
+  validateROS2Rosbags,
 } from "../api/api-ros2-rosbag";
 import ROS2ROSBagFilter from "../components/ros2_rosbag/ROS2ROSBagFilter";
 import {
@@ -40,8 +41,12 @@ const ROS2RosbagPage = React.memo(() => {
   const ROS2RosbagCtx = React.useContext(ROS2RosbagContext);
   const authCtx = React.useContext(AuthContext);
   const [alertStatus, setAlertStatus] = useState({});
-  const [uploadStatusList, setUploadStatusList] = useState(Object.keys(UPLOAD_STATUS).map((status) => status));
-  const [processingStatusList, setProcessingStatusList] = useState(Object.keys(PROCESSING_STATUS).map((status) => status));
+  const [uploadStatusList, setUploadStatusList] = useState(
+    Object.keys(UPLOAD_STATUS).map((status) => status)
+  );
+  const [processingStatusList, setProcessingStatusList] = useState(
+    Object.keys(PROCESSING_STATUS).map((status) => status)
+  );
   const [ROS2RosbagList, setROS2RosbagList] = useState([]);
 
   const closeAlertHandler = () => {
@@ -63,7 +68,13 @@ const ROS2RosbagPage = React.memo(() => {
           message: [data.errMsg],
         });
       } else {
-        setROS2RosbagList([UpdatedFileInfo, ...ROS2RosbagList.filter((item) => item.original_filename !== UpdatedFileInfo.original_filename)]);
+        setROS2RosbagList([
+          UpdatedFileInfo,
+          ...ROS2RosbagList.filter(
+            (item) =>
+              item.original_filename !== UpdatedFileInfo.original_filename
+          ),
+        ]);
       }
     });
   };
@@ -103,33 +114,30 @@ const ROS2RosbagPage = React.memo(() => {
     });
   };
 
-  const validateUpload = (fileInfoList, uploadFileInfoList) => {
+  const validateUpload = async (ROS2RosBagsFormData) => {
+    let uploadFileInfoList = ROS2RosBagsFormData["fields"] || [];
     let isValid = true;
+    let messageList = [];
     if (Array.isArray(uploadFileInfoList) && uploadFileInfoList.length > 0) {
-      let messageList = [];
-      uploadFileInfoList.forEach(newFileInfo => {
+      uploadFileInfoList.forEach((newFileInfo) => {
         //Check file extensions
-        if (!ACCEPT_FILE_EXTENSIONS?.toLowerCase().includes(newFileInfo?.filename?.split('.')[newFileInfo?.filename?.split('.').length - 1])) {
-          messageList.push("Invalid files (only accept " + ACCEPT_FILE_EXTENSIONS + " files): " + newFileInfo?.filename);
+        if (
+          !ACCEPT_FILE_EXTENSIONS?.toLowerCase().includes(
+            newFileInfo?.filename?.split(".")[
+              newFileInfo?.filename?.split(".").length - 1
+            ]
+          )
+        ) {
+          messageList.push(
+            "Invalid files (only accept " +
+              ACCEPT_FILE_EXTENSIONS +
+              " files): " +
+              newFileInfo?.filename
+          );
           isValid = false;
         }
-        for (let existingFile of fileInfoList) {
-          //existingFile includes the organization name as the uploaded folder. Checking if file exist and completed. If exist and completed, show error messages and prevent from sending upload request
-          if (
-            existingFile?.upload_status === UPLOAD_STATUS.IN_PROGRESS &&
-            existingFile.original_filename.split("/")[
-              existingFile.original_filename.split("/").length - 1
-            ] === newFileInfo.filename
-          ) {
-            messageList.push(
-              "ROS2 Rosbag files exist: " + newFileInfo.filename
-            );
-            isValid = false;
-          }
-        }
       });
-
-      if (messageList.length > 0) {
+      if (!isValid && messageList.length > 0) {
         setAlertStatus({
           open: true,
           severity: NOTIFICATION_STATUS.ERROR,
@@ -147,13 +155,28 @@ const ROS2RosbagPage = React.memo(() => {
       });
       isValid = false;
     }
-    return isValid;
-  }
 
-  const uploadHandler = (ROS2RosBagsFormData) => {
-    let fields = ROS2RosBagsFormData["fields"] || [];
+    //Server side validation
+    let data = await validateROS2Rosbags(ROS2RosBagsFormData);
+    if (data.errCode !== undefined && data.errMsg !== undefined) {
+      messageList.push(data.errMsg);
+      isValid = false;
+    }
+    if (!isValid && messageList.length > 0) {
+      setAlertStatus({
+        open: true,
+        severity: NOTIFICATION_STATUS.ERROR,
+        title: "Error upload",
+        message: messageList,
+      });
+    }
+    return isValid;
+  };
+
+  const uploadHandler = async (ROS2RosBagsFormData) => {
     console.log(ROS2RosBagsFormData);
-    if (validateUpload(ROS2RosbagList, fields)) {
+    let isValid = await validateUpload(ROS2RosBagsFormData);
+    if (isValid) {
       uploadROS2Rosbags(ROS2RosBagsFormData).then((data) => {
         if (data.errCode !== undefined && data.errMsg !== undefined) {
           setAlertStatus({
@@ -177,7 +200,9 @@ const ROS2RosbagPage = React.memo(() => {
         open: true,
         severity: NOTIFICATION_STATUS.WARNING,
         title: "ROS2 Rosbag files upload",
-        message: ["ROS2 Rosbag files upload request sent! Please DOT NOT close this browser window tab until the ROS2 Rosbag files upload completed! Click the refresh button to get the latest upload status."],
+        message: [
+          "ROS2 Rosbag files upload request sent! Please DOT NOT close this browser window tab until the ROS2 Rosbag files upload completed! Click the refresh button to get the latest upload status.",
+        ],
       });
     }
   };
@@ -195,19 +220,41 @@ const ROS2RosbagPage = React.memo(() => {
         let filterredROS2RosbagList = data;
         if (ROS2RosbagCtx.uploadStatus.length > 0) {
           filterredROS2RosbagList = filterredROS2RosbagList.filter(
-            (item) => (item.upload_status !== null && item.upload_status.toUpperCase().trim() === ROS2RosbagCtx.uploadStatus) || (ROS2RosbagCtx.uploadStatus === UPLOAD_STATUS.NA && (item.upload_status === null || item.upload_status.length === 0))
+            (item) =>
+              (item.upload_status !== null &&
+                item.upload_status.toUpperCase().trim() ===
+                  ROS2RosbagCtx.uploadStatus) ||
+              (ROS2RosbagCtx.uploadStatus === UPLOAD_STATUS.NA &&
+                (item.upload_status === null ||
+                  item.upload_status.length === 0))
           );
         }
 
         if (ROS2RosbagCtx.processingStatus.length > 0) {
           filterredROS2RosbagList = filterredROS2RosbagList.filter(
-            (item) => (item.process_status !== null && item.process_status.toUpperCase().trim() === ROS2RosbagCtx.processingStatus) || (ROS2RosbagCtx.processingStatus === PROCESSING_STATUS.NA && (item.process_status === null || item.process_status.length === 0))
+            (item) =>
+              (item.process_status !== null &&
+                item.process_status.toUpperCase().trim() ===
+                  ROS2RosbagCtx.processingStatus) ||
+              (ROS2RosbagCtx.processingStatus === PROCESSING_STATUS.NA &&
+                (item.process_status === null ||
+                  item.process_status.length === 0))
           );
         }
 
         if (ROS2RosbagCtx.filterText.length > 0) {
           filterredROS2RosbagList = filterredROS2RosbagList.filter(
-            (item) => (item.description !== null && item.description.toLowerCase().includes(ROS2RosbagCtx.filterText.toLowerCase().toLowerCase())) || (item.original_filename !== null && item.original_filename.includes(ROS2RosbagCtx.filterText.toLowerCase()))
+            (item) =>
+              (item.description !== null &&
+                item.description
+                  .toLowerCase()
+                  .includes(
+                    ROS2RosbagCtx.filterText.toLowerCase().toLowerCase()
+                  )) ||
+              (item.original_filename !== null &&
+                item.original_filename.includes(
+                  ROS2RosbagCtx.filterText.toLowerCase()
+                ))
           );
         }
         setROS2RosbagList(filterredROS2RosbagList);
@@ -239,16 +286,30 @@ const ROS2RosbagPage = React.memo(() => {
         title={alertStatus.title}
         messageList={alertStatus.message}
       />
-      {authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" && (
-        <Grid container columnSpacing={2} rowSpacing={1}>
-          <PageAvatar icon={<WorkHistorySharpIcon />} title="ROS2 Rosbag" />
-          <Grid item xs={4}></Grid>
-          <ROS2ROSBagFilter uploadStatusList={uploadStatusList} processingStatusList={processingStatusList} onRefresh={refreshHandler} filter={filterHandler} onUpload={uploadHandler} />
-          <Grid container item xs={12}>
-            <ROS2RosbagTable ROS2RosbagList={ROS2RosbagList} onSaveDescription={saveDescriptionHandler} onProcessReq={(ROS2RosBagInfo) => processReqHandler(ROS2RosBagInfo)} />
+      {authCtx.role !== undefined &&
+        authCtx.role !== null &&
+        authCtx.role !== "" && (
+          <Grid container columnSpacing={2} rowSpacing={1}>
+            <PageAvatar icon={<WorkHistorySharpIcon />} title="ROS2 Rosbag" />
+            <Grid item xs={4}></Grid>
+            <ROS2ROSBagFilter
+              uploadStatusList={uploadStatusList}
+              processingStatusList={processingStatusList}
+              onRefresh={refreshHandler}
+              filter={filterHandler}
+              onUpload={uploadHandler}
+            />
+            <Grid container item xs={12}>
+              <ROS2RosbagTable
+                ROS2RosbagList={ROS2RosbagList}
+                onSaveDescription={saveDescriptionHandler}
+                onProcessReq={(ROS2RosBagInfo) =>
+                  processReqHandler(ROS2RosBagInfo)
+                }
+              />
+            </Grid>
           </Grid>
-        </Grid>
-      )}
+        )}
     </React.Fragment>
   );
 });

@@ -131,7 +131,7 @@ exports.upsertFileInfo = async (fileInfo) => {
 
 exports.findByFilenames = async (filenames) => {
   return await file_info
-    .findOne({
+    .findAll({
       where: {
         original_filename: {
           [Op.in]: filenames,
@@ -143,7 +143,6 @@ exports.findByFilenames = async (filenames) => {
       return data;
     })
     .catch((err) => {
-      console.log(err);
-      throw new Error("Error find all files by filenames");
+      throw new Error("Error find all files by filenames: " + err);
     });
 };
