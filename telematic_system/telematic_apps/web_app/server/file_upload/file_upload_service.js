@@ -53,6 +53,7 @@ const { verifyToken } = require("../utils/verify_token");
 const {
   updateDescription,
   bulkUpdateDescription,
+  findByFilenames,
 } = require("../controllers/file_info.controller");
 
 /**
@@ -266,33 +267,61 @@ const parseS3FileUpload = async (req, form, listener, natsConn) => {
 
 const handleFormError = (err, trackingInProgressFiles, userInfo, listener) => {
   for (let beginFile of trackingInProgressFiles) {
-    updateFileUploadStatusEmitter(listener).emit(
-      UPLOADSTATUS.ERROR,
-      { ...beginFile, error: err?.message, created_by: userInfo.id, updated_by: userInfo.id }
-    );
+    updateFileUploadStatusEmitter(listener).emit(UPLOADSTATUS.ERROR, {
+      ...beginFile,
+      error: err?.message,
+      created_by: userInfo.id,
+      updated_by: userInfo.id,
+    });
   }
-}
+};
 
 const updateFileInfoWithDescription = (fields, userInfo) => {
   try {
     console.log("Update description from fields: " + fields);
     for (let field of fields) {
       let localField = JSON.parse(field);
-      if (
-        localField.filename &&
-        localField.description
-      ) {
-        localField.originalFilename = getUpdatedOrgFileName(localField.filename, userInfo);
-        updateDescription(localField)
+      if (localField.filename && localField.description) {
+        localField.originalFilename = getUpdatedOrgFileName(
+          localField.filename,
+          userInfo
+        );
+        updateDescription(localField);
       }
     }
   } catch (error) {
-    console.error("Cannot update file info with description from fields: " + fields);
-    console.error(error)
+    console.error(
+      "Cannot update file info with description from fields: " + fields
+    );
+    console.error(error);
     console.trace();
   }
 };
 
 const getUpdatedOrgFileName = (originalFilename, userInfo) => {
-  return userInfo.org_name.replaceAll(' ', '_') + "/" + originalFilename;
-}
+  return userInfo.org_name.replaceAll(" ", "_") + "/" + originalFilename;
+};
+
+exports.validateFileExist = async (req, fields) => {
+  try {
+    let userInfo = verifyToken(req);
+    fields = fields["fields"];
+    fields = JSON.parse(fields);
+    fields = Array.isArray(fields) ? fields : [fields];
+    let filenames = [];
+    for (let field of fields) {
+      filenames.push(getUpdatedOrgFileName(field.filename, userInfo));
+    }
+    let existFileInfos = await findByFilenames(filenames);
+    let found = false;
+    //Do not consider files that have upload status ERROR
+    for (let existFileInfo of existFileInfos) {
+      if (existFileInfo.upload_status !== UPLOADSTATUS.ERROR) {
+        found = true;
+      }
+    }
+    return found;
+  } catch (err) {
+    throw Error("Cannot validate file exist!");
+  }
+};

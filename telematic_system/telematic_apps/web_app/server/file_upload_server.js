@@ -26,7 +26,10 @@
 const http = require("http");
 const formidable = require("formidable");
 require("dotenv").config();
-const { uploadFile } = require("./file_upload/file_upload_service");
+const {
+  uploadFile,
+  validateFileExist,
+} = require("./file_upload/file_upload_service");
 const { listAllFiles } = require("./file_upload/file_list_service");
 const { verifyToken } = require("./utils/verify_token");
 const { updateDescription } = require("./controllers/file_info.controller");
@@ -47,6 +50,7 @@ const HTTP_URLS = {
   API_FILE_UPLOADED_LIST: "/api/upload/list/all",
   API_FILE_DESCRIPTION_UPDATE: "/api/upload/description",
   API_FILE_PROCESS_REQUEST: "/api/upload/process/request",
+  API_FILE_VALIDATION_REQUEST: "/api/upload/validation",
 };
 
 const uploadDestPath = process.env.UPLOAD_DESTINATION_PATH;
@@ -73,10 +77,9 @@ const requestListener = function (req, res) {
   }
 };
 
-
 const health_check = (req, res) => {
   let data = { health_status: "OK" };
-  sendResponse(res, JSON.stringify(data));
+  sendResponse(res, 200, JSON.stringify(data));
 };
 
 const postListener = async (req, res) => {
@@ -85,7 +88,7 @@ const postListener = async (req, res) => {
       formidable().parse(req, async (err, fields, files) => {
         await listAllFiles(req, res)
           .then((data) => {
-            sendResponse(res, data);
+            sendResponse(res, 200, data);
           })
           .catch((err) => {
             serverError(res, err);
@@ -95,7 +98,7 @@ const postListener = async (req, res) => {
     case HTTP_URLS.API_FILE_UPLOAD:
       await uploadFile(req)
         .then((data) => {
-          sendResponse(res, data);
+          sendResponse(res, 200, data);
         })
         .catch((err) => {
           serverError(res, err);
@@ -106,7 +109,7 @@ const postListener = async (req, res) => {
         let fileInfo = JSON.parse(fields["fields"]);
         await updateDescription(fileInfo)
           .then((data) => {
-            sendResponse(res, data);
+            sendResponse(res, 200, data);
           })
           .catch((err) => {
             serverError(res, err);
@@ -119,16 +122,39 @@ const postListener = async (req, res) => {
           let fileInfo = JSON.parse(fields["fields"]);
           //Send file process request to NATS
           let processingReq = {
-            filepath: uploadDestPath + '/' + fileInfo.original_filename,
+            filepath: uploadDestPath + "/" + fileInfo.original_filename,
           };
 
           let natsConn = await createNatsConn();
           await pubFileProcessingReq(natsConn, processingReq);
           await natsConn.close();
-          sendResponse(res, "Process request sent: " + fileInfo.original_filename);
+          sendResponse(
+            res,
+            200,
+            "Process request sent: " + fileInfo.original_filename
+          );
         } catch (err) {
           serverError(res, err);
         }
+      });
+      break;
+    case HTTP_URLS.API_FILE_VALIDATION_REQUEST:
+      await formidable().parse(req, (err, fields, files) => {
+        validateFileExist(req, fields)
+          .then((found) => {
+            if (found) {
+              sendResponse(res, 409, {
+                error:
+                  "File validation error as at least one file is found in database!",
+              });
+            } else {
+              sendResponse(res, 200, "success");
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+            serverError(res, err);
+          });
       });
       break;
     default:
@@ -137,8 +163,8 @@ const postListener = async (req, res) => {
   }
 };
 
-const sendResponse = (res, data) => {
-  res.writeHead(200);
+const sendResponse = (res, statusCode, data) => {
+  res.writeHead(statusCode);
   res.write(JSON.stringify(data));
   res.end();
 };

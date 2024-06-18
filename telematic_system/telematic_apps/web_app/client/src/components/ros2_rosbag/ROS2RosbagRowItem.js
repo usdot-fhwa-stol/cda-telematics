@@ -62,7 +62,7 @@ const ROS2RosbagRowItem = (props) => {
                 wordBreak: "break-word",
               }}
             >
-              {value}
+              {value.toLowerCase()}
 
               {column.id === "process_status" && isRed && (
                 <InfoPopover

@@ -64,6 +64,27 @@ const uploadROS2Rosbags = async (ROS2RosbagsFormData) => {
   }
 };
 
+/***
+ *@brief Send post request to validate files
+  @param ROS2RosbagsFormData Request form data with file content.
+  @return Server response
+ */
+const validateROS2Rosbags = async (ROS2RosbagsFormData) => {
+  const URL = `${env.REACT_APP_FILE_UPLOAD_WEB_SERVER_URI}/api/upload/validation`;
+  try {
+    let formData = new FormData();
+    let fields = ROS2RosbagsFormData["fields"];
+    for (let key in fields) {
+      formData.append("fields", JSON.stringify(fields[key]));
+    }
+    const { data } = await axios.post(URL, formData);
+    return data;
+  } catch (err) {
+    console.log(err)
+    return constructError(err);
+  }
+};
+
 /**
  * @brief Send POST request to process an existing rROS2 rosbag in the server.
  * @returns server response with acknowledgement
@@ -87,4 +108,5 @@ export {
   uploadROS2Rosbags,
   updateDescription,
   sendProcessRequest,
+  validateROS2Rosbags,
 };
