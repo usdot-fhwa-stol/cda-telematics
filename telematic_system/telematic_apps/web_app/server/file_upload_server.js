@@ -142,7 +142,6 @@ const postListener = async (req, res) => {
       await formidable().parse(req, (err, fields, files) => {
         validateFileExist(req, fields)
           .then((found) => {
-            console.log(found);
             if (found) {
               sendResponse(res, 409, {
                 error:
