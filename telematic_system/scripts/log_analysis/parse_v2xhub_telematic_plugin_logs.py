@@ -1,3 +1,4 @@
+import argparse
 import json
 import pandas as pd
 
@@ -66,6 +67,12 @@ class TelematicMessageConvertor:
                     self.append_published_msg(msg_json)
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog="v2xhub_telematic_bridge_log_parser",
+                                     description="Parse v2xhub telematic bridge log file")
+    parser.add_argument("log_file_path", help="Path to v2xhub telematic bridge log file")
+    parser.add_argument("output_path", help="Path to output csv file")
+    args = parser.parse_args()
+
     converter = TelematicMessageConvertor()
-    converter.parse_log_file("./v2xhub_telematic_bridge.log")
-    converter.to_csv("./v2xhub_telematic_bridge.csv")
+    converter.parse_log_file(args.log_file_path)
+    converter.to_csv(args.output_path)
