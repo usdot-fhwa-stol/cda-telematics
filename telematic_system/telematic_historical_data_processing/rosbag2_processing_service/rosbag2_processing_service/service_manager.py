@@ -139,7 +139,7 @@ class ServiceManager:
 
                 self.last_processed_rosbag = rosbag_mysql_filename
 
-                processing_status, processing_err_msg = self.rosbag_parser.process_rosbag(self.rosbag_queue.pop(0))
+                processing_status, processing_err_msg = await self.rosbag_parser.process_rosbag(self.rosbag_queue.pop(0))
                 # Update mysql entry for rosbag based on whether processing was successful or not
                 self.update_mysql_entry(rosbag_mysql_filename, processing_status, processing_err_msg)
 

@@ -22,10 +22,13 @@ import influxdb
 from influxdb.exceptions import InfluxDBClientError
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import ASYNCHRONOUS
+from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
 from .config import Config
 from .config import ProcessingStatus
 from mcap import exceptions
 from struct import error
+
+import datetime
 
 import asyncio
 from pathlib import Path
@@ -59,10 +62,13 @@ class Rosbag2Parser:
         # Create Asynchronous write API for influxdb
         self.write_api = self.influx_client.write_api(write_options=ASYNCHRONOUS)
 
+        self.influx_client_2 = InfluxDBClientAsync(url=self.config.influx_url, token=self.config.influx_token, org=self.config.influx_org)
+        self.write_api_2 = self.influx_client_2.write_api()
+
         # Processing status
         self.is_processing = False
 
-    def process_rosbag(self,rosbag2_path):
+    async def process_rosbag(self,rosbag2_path):
         self.is_processing = True
 
         if Path(rosbag2_path).suffix not in self.config.accepted_file_extensions:
@@ -83,6 +89,8 @@ class Rosbag2Parser:
 
         # Load the rosbag from the config directory
         try:
+            # Add additional record at the start to get time the first record was written - this will always be without an added message timestamp
+            await self.write_influx_record(f"{measurement_name},topic_name=\"get_start_time\" start_timestamp={time.time_ns()} ")
             with open(rosbag2_path, "rb") as file:
                 reader = make_reader(file, decoder_factories=[DecoderFactory()])
 
@@ -92,19 +100,21 @@ class Rosbag2Parser:
 
             inclusion_topics = [topic for topic in unique_topics if topic not in self.config.topic_exclusion_list ]
 
+            time_before_reading = time.time_ns()
             for msg in read_ros2_messages(rosbag2_path, inclusion_topics):
                 if msg.channel.topic in self.config.topic_exclusion_list:
                     continue
 
-                try:
-                    record = self.create_record_from_msg(msg, measurement_name)
-                    # Write record to influx
-                    self.write_api.write(bucket=self.config.influx_bucket, org=self.config.influx_org, record=record)
+                record = self.create_record_from_msg(msg, measurement_name, time_before_reading)
+                # self.config.logger.info(f"Writing to influx: {record}")
+                await self.write_influx_record(record)
+                self.config.logger.info(f"Record: {record}, Time_after_writing={time.time_ns()}")
+                #Update time
+                time_before_reading = time.time_ns()
 
-                except influxdb.exceptions.InfluxDBClientError as e:
-                    self.config.logger.error(f"Error from Influx Client: {(e.message)}")
-                except Exception as e:
-                    self.config.logger.error(f"Failed to write to influx with exception: {(e)}")
+            # Add additional record at the end to get time the last record was written - this will always be without an added message timestamp
+            await self.write_influx_record(f"{measurement_name},topic_name=\"get_end_time\" time_before_writing={time.time_ns()} ")
+
 
         except (exceptions.McapError, exceptions.InvalidMagic, error) as e:
             processing_error_msg = f"Failed to read from rosbag with exception {(e)} "
@@ -124,12 +134,26 @@ class Rosbag2Parser:
 
         return ProcessingStatus.COMPLETED.value, "NA"
 
-    def create_record_from_msg(self, msg, measurement_name):
+    async def write_influx_record(self, record):
+        try:
+            await self.write_api_2.write(bucket=self.config.influx_bucket, org=self.config.influx_org, record=record)
+            # self.config.logger.info(f"Finished writing to influx: {record} at time: {time.time_ns()}")
+
+        except influxdb.exceptions.InfluxDBClientError as e:
+            self.config.logger.error(f"Error from Influx Client: {(e.message)}")
+        except Exception as e:
+            self.config.logger.error(f"Failed to write to influx with exception: {(e)}")
+
+
+
+    def create_record_from_msg(self, msg, measurement_name, time_before_reading):
 
         topic = msg.channel.topic
         ros_msg = msg.ros_msg
         msg_attributes = self.extract_attributes(ros_msg)
         msg_timestamp = msg.publish_time_ns
+        msg_timestamp_dt = datetime.datetime.fromtimestamp(msg_timestamp/1e9).strftime('%Y-%m-%dT%H:%M:%S.%f')
+        # self.config.logger.info(f"Message timestamp in datetime: {msg_timestamp_dt}")
 
         records = []
 
@@ -150,7 +174,7 @@ class Rosbag2Parser:
                     attr_value = f'"{attr_value}"'  # Correctly format string values
                 records.append(f"{attr_name}={attr_value}")
 
-        return f"{measurement_name},topic_name={topic} " + ",".join(records) + f",timestamp={msg_timestamp} {msg_timestamp}"
+        return f"{measurement_name},topic_name={topic} " + ",".join(records) + f",timestamp=\"{msg_timestamp_dt}\",timestamp_before_reading={time_before_reading} "
 
     def extract_attributes(self, obj, parent_attr=None):
         attributes = []
