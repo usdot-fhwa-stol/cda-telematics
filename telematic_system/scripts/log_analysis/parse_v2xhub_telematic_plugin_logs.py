@@ -1,6 +1,9 @@
 import argparse
 import json
 import pandas as pd
+import sys
+import json.decoder as decoder
+import tkinter
 
 class TelematicMessageConvertor:
     def __init__(self):
@@ -17,8 +20,8 @@ class TelematicMessageConvertor:
         try:
             msg_json = json.loads(msg)
             return msg_json
-        except:
-            return None
+        except (decoder.JSONDecodeError , TypeError) as e:
+            return sys.exit("Could not decode JSON message " + str(e))
         
     def to_csv(self, output_path: str):
         df = pd.DataFrame.from_dict(self.published_msg, orient='columns')
@@ -38,7 +41,7 @@ class TelematicMessageConvertor:
         return (lines, remaining_part)
 
     def is_published_msg(self, line: str)->bool:
-        return 'Topic:' in line and 'TelematicUnit'  in line
+        return 'Published:' in line and 'TelematicUnit'  in line
     
     def extract_published_msg(self, line: str)->str:
         msg_idx = line.find("Published:")
@@ -48,29 +51,32 @@ class TelematicMessageConvertor:
         return published_msg
             
     def parse_log_file(self, log_file_path: str):
-        incomplete_data = ''
-        with open(log_file_path, "r") as file:
-            while True:
-                chunk = file.read(1024)
-                if not chunk:
-                    break
-                complete_data = incomplete_data + chunk
-                lines, incomplete_data = self.split_lines(complete_data)
-                for line in lines:
-                    # Process each line with topic and generated from TelematicUnit file
-                    if not self.is_published_msg(line):
-                        continue
-                    msg = self.extract_published_msg(line)
-                    msg_json = self.convert_to_json(msg)
-                    if msg_json is None:
-                        continue
-                    self.append_published_msg(msg_json)
+        remaining_part = ''
+        try:
+            with open(log_file_path, "r") as file:
+                while True:
+                    chunk = file.read(1024)
+                    if not chunk:
+                        break
+                    lines = remaining_part + chunk
+                    completed_lines, remaining_part = self.split_lines(lines)
+                    for line in completed_lines:
+                        # Process each line with topic and generated from TelematicUnit file
+                        if not self.is_published_msg(line):
+                            continue
+                        msg = self.extract_published_msg(line)
+                        msg_json = self.convert_to_json(msg)
+                        if msg_json is None:
+                            continue
+                        self.append_published_msg(msg_json)
+        except FileNotFoundError as e:
+            sys.exit("Could not find file " + str(e))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog="v2xhub_telematic_bridge_log_parser",
                                      description="Parse v2xhub telematic bridge log file")
-    parser.add_argument("log_file_path", help="Path to v2xhub telematic bridge log file")
-    parser.add_argument("output_path", help="Path to output csv file")
+    parser.add_argument("--log_file_path", required=True, help="Path to v2xhub telematic bridge log file")
+    parser.add_argument("--output_path",required=False, default="v2xhub_telematic_published_msgs.csv",help="Path to output csv file")
     args = parser.parse_args()
 
     converter = TelematicMessageConvertor()
