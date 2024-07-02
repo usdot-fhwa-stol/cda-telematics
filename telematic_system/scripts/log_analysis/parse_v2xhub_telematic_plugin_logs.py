@@ -3,16 +3,35 @@ import json
 import pandas as pd
 import sys
 import json.decoder as decoder
+from enum import Enum
 
-class TelematicMessageConvertor:
+
+class ColumnName(Enum):
+    UNIT_ID= "Unit ID"
+    TOPIC= "Topic"
+    PAYLOAD_TS= "Payload Timestamp"
+    PAYLOAD_SRC= "Payload Source"
+    EVENT_NAME= "Event Name"
+    UNIT_TYPE= "Unit Type"
+
+class LogKeys(Enum):
+    UNIT_ID= "unit_id"
+    TOPIC= "topic_name"
+    PAYLOAD_TS= "timestamp"
+    PAYLOAD= "payload"
+    SOURCE="source"
+    EVENT_NAME= "event_name"
+    UNIT_TYPE= "unit_type"
+
+class TelematicMessageConvertor:    
     def __init__(self):
         self.published_msg : dict= {
-                                    'unit_id':[],
-                                    'topic_name':[],
-                                    'timestamp':[],
-                                    'payload_source':[],
-                                    'event_name':[],
-                                    'unit_type':[]
+                                    ColumnName.UNIT_ID.value:[],
+                                    ColumnName.TOPIC.value:[],
+                                    ColumnName.PAYLOAD_TS.value:[],
+                                    ColumnName.PAYLOAD_SRC.value:[],
+                                    ColumnName.EVENT_NAME.value:[],
+                                    ColumnName.UNIT_TYPE.value:[]
                                 }   
 
     def convert_to_json(self, msg: str):
@@ -27,14 +46,14 @@ class TelematicMessageConvertor:
         df.to_csv(output_path, index=False)
         
     def append_published_msg(self, msg_json: dict):
-        self.published_msg['event_name'].append(msg_json['event_name'])
-        self.published_msg['timestamp'].append(str(msg_json['timestamp']))
-        self.published_msg['topic_name'].append(msg_json['topic_name'])
-        self.published_msg['payload_source'].append(msg_json['payload']['source'])
-        self.published_msg['unit_id'].append(msg_json['unit_id'])
-        self.published_msg['unit_type'].append(msg_json['unit_type'])
+        self.published_msg[ColumnName.EVENT_NAME.value].append(msg_json[LogKeys.EVENT_NAME.value])
+        self.published_msg[ColumnName.PAYLOAD_TS.value].append(str(msg_json[LogKeys.PAYLOAD_TS.value]))
+        self.published_msg[ColumnName.TOPIC.value].append(msg_json[LogKeys.TOPIC.value])
+        self.published_msg[ColumnName.PAYLOAD_SRC.value].append(msg_json[LogKeys.PAYLOAD.value][LogKeys.SOURCE.value])
+        self.published_msg[ColumnName.UNIT_ID.value].append(msg_json[LogKeys.UNIT_ID.value])
+        self.published_msg[ColumnName.UNIT_TYPE.value].append(msg_json[LogKeys.UNIT_TYPE.value])
 
-    def split_lines(self, chunk: str)-> list[str]:
+    def split_lines(self, chunk: str)-> tuple[list[str], str]:
         lines = chunk.split('\n')
         remaining_part = lines.pop(-1)
         return (lines, remaining_part)
