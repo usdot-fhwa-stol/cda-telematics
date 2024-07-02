@@ -72,7 +72,7 @@ class Rosbag2Parser:
         measurement_name = Path(rosbag2_path).stem # Measurement name is rosbag name without mcap extension
         rosbag2_name = Path(rosbag2_path).name
 
-        self.config.logger.info(f"rosbag name: {rosbag2_name}")
+        self.config.logger.info(f"Processing rosbag: {rosbag2_name}")
 
         if not Path(rosbag2_path).exists():
             processing_error_msg = f"File not found {rosbag2_path}"
@@ -100,6 +100,7 @@ class Rosbag2Parser:
                     record = self.create_record_from_msg(msg, measurement_name)
                     # Write record to influx
                     self.write_api.write(bucket=self.config.influx_bucket, org=self.config.influx_org, record=record)
+                    self.config.logger.info(f"Writing to Influxdb: {record}")
 
                 except influxdb.exceptions.InfluxDBClientError as e:
                     self.config.logger.error(f"Error from Influx Client: {(e.message)}")
@@ -118,7 +119,7 @@ class Rosbag2Parser:
             return ProcessingStatus.ERROR.value, processing_error_msg
 
 
-        self.config.logger.info(f"Completed rosbag processing for {rosbag2_name}")
+        self.config.logger.info(f"Completed rosbag processing for: {rosbag2_name}")
 
         self.is_processing = False
 
