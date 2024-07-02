@@ -6,7 +6,7 @@ import json.decoder as decoder
 from enum import Enum
 
 
-class ColumnName(Enum):
+class Column(Enum):
     UNIT_ID= "Unit ID"
     TOPIC= "Topic"
     PAYLOAD_TS= "Payload Timestamp"
@@ -14,7 +14,7 @@ class ColumnName(Enum):
     EVENT_NAME= "Event Name"
     UNIT_TYPE= "Unit Type"
 
-class LogKeys(Enum):
+class LogKey(Enum):
     UNIT_ID= "unit_id"
     TOPIC= "topic_name"
     PAYLOAD_TS= "timestamp"
@@ -26,12 +26,12 @@ class LogKeys(Enum):
 class TelematicMessageConvertor:    
     def __init__(self):
         self.published_msg : dict= {
-                                    ColumnName.UNIT_ID.value:[],
-                                    ColumnName.TOPIC.value:[],
-                                    ColumnName.PAYLOAD_TS.value:[],
-                                    ColumnName.PAYLOAD_SRC.value:[],
-                                    ColumnName.EVENT_NAME.value:[],
-                                    ColumnName.UNIT_TYPE.value:[]
+                                    Column.UNIT_ID.value:[],
+                                    Column.TOPIC.value:[],
+                                    Column.PAYLOAD_TS.value:[],
+                                    Column.PAYLOAD_SRC.value:[],
+                                    Column.EVENT_NAME.value:[],
+                                    Column.UNIT_TYPE.value:[]
                                 }   
 
     def convert_to_json(self, msg: str):
@@ -46,12 +46,12 @@ class TelematicMessageConvertor:
         df.to_csv(output_path, index=False)
         
     def append_published_msg(self, msg_json: dict):
-        self.published_msg[ColumnName.EVENT_NAME.value].append(msg_json[LogKeys.EVENT_NAME.value])
-        self.published_msg[ColumnName.PAYLOAD_TS.value].append(str(msg_json[LogKeys.PAYLOAD_TS.value]))
-        self.published_msg[ColumnName.TOPIC.value].append(msg_json[LogKeys.TOPIC.value])
-        self.published_msg[ColumnName.PAYLOAD_SRC.value].append(msg_json[LogKeys.PAYLOAD.value][LogKeys.SOURCE.value])
-        self.published_msg[ColumnName.UNIT_ID.value].append(msg_json[LogKeys.UNIT_ID.value])
-        self.published_msg[ColumnName.UNIT_TYPE.value].append(msg_json[LogKeys.UNIT_TYPE.value])
+        self.published_msg[Column.EVENT_NAME.value].append(msg_json[LogKey.EVENT_NAME.value])
+        self.published_msg[Column.PAYLOAD_TS.value].append(str(msg_json[LogKey.PAYLOAD_TS.value]))
+        self.published_msg[Column.TOPIC.value].append(msg_json[LogKey.TOPIC.value])
+        self.published_msg[Column.PAYLOAD_SRC.value].append(msg_json[LogKey.PAYLOAD.value][LogKey.SOURCE.value])
+        self.published_msg[Column.UNIT_ID.value].append(msg_json[LogKey.UNIT_ID.value])
+        self.published_msg[Column.UNIT_TYPE.value].append(msg_json[LogKey.UNIT_TYPE.value])
 
     def split_lines(self, chunk: str)-> tuple[list[str], str]:
         lines = chunk.split('\n')
@@ -71,7 +71,7 @@ class TelematicMessageConvertor:
     def parse_log_file(self, log_file_path: str):
         remaining_part = ''
         try:
-            with open(log_file_path, "r") as file:
+            with open(log_file_path, "r", encoding='utf-8') as file:
                 while True:
                     chunk = file.read(1024)
                     if not chunk:
