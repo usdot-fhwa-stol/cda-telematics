@@ -34,7 +34,7 @@ def combineFiles(log_dir):
     filenames = [ f.name for f in path_obj.glob('*.csv')]
     
     bridge_csv_exist = False
-    bridge_csv_regex = r'.*(Streets|Vehicle|BlueLexus|Fusion|V2xHub).*'
+    bridge_csv_regex = r'.*(Streets|Vehicle|BlueLexus|Fusion|V2xHub|Cloud).*'
     bridges_csv = []
 
     messaging_server_csv_exist = False

@@ -20,6 +20,7 @@ class Column(Enum):
 class LogKey(Enum):
     '''
     The key of telematic message in JSON format in v2xhub log file.
+    The need for having these as two different enums is due to the logs this is reading from and the messaging server script reading CSV this is comparing to.
     '''
     UNIT_ID= "unit_id"
     TOPIC= "topic_name"
@@ -32,7 +33,7 @@ class LogKey(Enum):
 class TelematicMessageConvertor:   
     """
      The `TelematicMessageConvertor` class is responsible for parsing and converting v2xhub telematic bridge log files into a CSV format.
-     The CSV is then further process by the get_message_drop.py. 
+     The CSV is then further processed by the get_message_drop.py. 
      """
           
     def __init__(self):
