@@ -3,7 +3,6 @@ import json
 import pandas as pd
 import sys
 import json.decoder as decoder
-import tkinter
 
 class TelematicMessageConvertor:
     def __init__(self):
