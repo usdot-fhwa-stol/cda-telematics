@@ -7,6 +7,9 @@ from enum import Enum
 
 
 class Column(Enum):
+    '''
+    Column The column name of the output csv file.
+    '''
     UNIT_ID= "Unit ID"
     TOPIC= "Topic"
     PAYLOAD_TS= "Payload Timestamp"
@@ -15,6 +18,9 @@ class Column(Enum):
     UNIT_TYPE= "Unit Type"
 
 class LogKey(Enum):
+    '''
+    The key of telematic message in JSON format in v2xhub log file.
+    '''
     UNIT_ID= "unit_id"
     TOPIC= "topic_name"
     PAYLOAD_TS= "timestamp"
@@ -23,7 +29,12 @@ class LogKey(Enum):
     EVENT_NAME= "event_name"
     UNIT_TYPE= "unit_type"
 
-class TelematicMessageConvertor:    
+class TelematicMessageConvertor:   
+    """
+     The `TelematicMessageConvertor` class is responsible for parsing and converting v2xhub telematic bridge log files into a CSV format.
+     The CSV is then further process by the get_message_drop.py. 
+     """
+          
     def __init__(self):
         self.published_msg : dict= {
                                     Column.UNIT_ID.value:[],
