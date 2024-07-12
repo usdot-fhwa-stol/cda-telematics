@@ -43,7 +43,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_cloud_messaging/
           push: true
-          tags: usdotfhwastoldev/telematic_cloud_messaging:${{ github.ref_name }}
+          tags: usdotfhwastolcandidate/telematic_cloud_messaging:${{ github.ref_name }}
           build-args: |
             BUILD_DATE=${{ steps.docker-image-metadata.outputs.build_date }}
             VCS_REF=${{ steps.docker-image-metadata.outputs.vcs_ref }}
@@ -72,7 +72,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_units/carma_street_bridge/
           push: true
-          tags: usdotfhwastoldev/carma_street_nats_bridge:${{ github.ref_name }}
+          tags: usdotfhwastolcandidate/carma_street_nats_bridge:${{ github.ref_name }}
           build-args: |
             BUILD_DATE=${{ steps.docker-image-metadata.outputs.build_date }}
             VCS_REF=${{ steps.docker-image-metadata.outputs.vcs_ref }}
@@ -101,7 +101,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_units/carma_vehicle_bridge/
           push: true
-          tags: usdotfhwastoldev/carma_vehicle_nats_bridge:${{ github.ref_name }}
+          tags: usdotfhwastolcandidate/carma_vehicle_nats_bridge:${{ github.ref_name }}
           build-args: |
             BUILD_DATE=${{ steps.docker-image-metadata.outputs.build_date }}
             VCS_REF=${{ steps.docker-image-metadata.outputs.vcs_ref }}
@@ -130,7 +130,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_units/carma_cloud_bridge/
           push: true
-          tags: usdotfhwastoldev/carma_cloud_nats_bridge:${{ github.ref_name }}
+          tags: usdotfhwastolcandidate/carma_cloud_nats_bridge:${{ github.ref_name }}
           build-args: |
             BUILD_DATE=${{ steps.docker-image-metadata.outputs.build_date }}
             VCS_REF=${{ steps.docker-image-metadata.outputs.vcs_ref }}
@@ -159,7 +159,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_historical_data_processing/
           push: true
-          tags: usdotfhwastoldev/telematic_historical_data_processing:${{ github.ref_name }}
+          tags: usdotfhwastolcandidate/telematic_historical_data_processing:${{ github.ref_name }}
           build-args: |
             BUILD_DATE=${{ steps.docker-image-metadata.outputs.build_date }}
             VCS_REF=${{ steps.docker-image-metadata.outputs.vcs_ref }}
@@ -188,7 +188,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_apps/web_app/server
           push: true
-          tags: usdotfhwastoldev/telematic_web_server:${{ github.ref_name }}
+          tags: usdotfhwastolcandidate/telematic_web_server:${{ github.ref_name }}
           build-args: |
             BUILD_DATE=${{ steps.docker-image-metadata.outputs.build_date }}
             VCS_REF=${{ steps.docker-image-metadata.outputs.vcs_ref }}
@@ -217,7 +217,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_apps/web_app/client
           push: true
-          tags: usdotfhwastoldev/telematic_web_client:${{ github.ref_name }}
+          tags: usdotfhwastolcandidate/telematic_web_client:${{ github.ref_name }}
           build-args: |
             BUILD_DATE=${{ steps.docker-image-metadata.outputs.build_date }}
             VCS_REF=${{ steps.docker-image-metadata.outputs.vcs_ref }}
@@ -246,7 +246,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_apps/apache2
           push: true
-          tags: usdotfhwastoldev/telematic_apache2:${{ github.ref_name }}
+          tags: usdotfhwastolcandidate/telematic_apache2:${{ github.ref_name }}
           build-args: |
             BUILD_DATE=${{ steps.docker-image-metadata.outputs.build_date }}
             VCS_REF=${{ steps.docker-image-metadata.outputs.vcs_ref }}
@@ -275,7 +275,7 @@ jobs:
         with:
           context: ./telematic_system/telematic_apps/grafana
           push: true
-          tags: usdotfhwastoldev/telematic_grafana:${{ github.ref_name }}
+          tags: usdotfhwastolcandidate/telematic_grafana:${{ github.ref_name }}
           build-args: |
             BUILD_DATE=${{ steps.docker-image-metadata.outputs.build_date }}
             VCS_REF=${{ steps.docker-image-metadata.outputs.vcs_ref }}
@@ -305,7 +305,7 @@ jobs:
           context: ./telematic_system/telematic_apps/apache2
           file: ./telematic_system/telematic_apps/apache2/local.Dockerfile
           push: true
-          tags: usdotfhwastoldev/telematic_local_apache2:${{ github.ref_name }}
+          tags: usdotfhwastolcandidate/telematic_local_apache2:${{ github.ref_name }}
           build-args: |
             BUILD_DATE=${{ steps.docker-image-metadata.outputs.build_date }}
             VCS_REF=${{ steps.docker-image-metadata.outputs.vcs_ref }}
