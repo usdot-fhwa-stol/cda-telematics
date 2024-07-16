@@ -15,7 +15,7 @@ services:
       context: "./telematic_cloud_messaging"
     container_name: messaging_server
     #Todo: The cloud messaging service image has incorrect configuration. Please update the application.properties, and build it from source code.
-    image: usdotfhwastoldev/telematic_cloud_messaging:develop
+    image: usdotfhwastolcandidate/telematic_cloud_messaging:neon
     depends_on:
       - nats
     restart: always
@@ -27,13 +27,13 @@ services:
     command: bash -c 'wait-for-it localhost:4222 && java -jar /telematic_cloud_messaging/app.jar'
     env_file:
       - .env
-  
+
   rosbag2_processing_service:
     build:
           context: ./telematic_historical_data_processing
           dockerfile: Dockerfile
           network: host
-    image: usdotfhwastoldev/telematic_historical_data_processing:develop
+    image: usdotfhwastolcandidate/telematic_historical_data_processing:neon
     network_mode: host
     logging:
       options:

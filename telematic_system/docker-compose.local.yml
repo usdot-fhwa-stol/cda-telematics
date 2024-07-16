@@ -51,7 +51,7 @@ services:
   grafana:
       build:
         context: "./telematic_apps/grafana"
-      image: usdotfhwastoldev/telematic_grafana:develop
+      image: usdotfhwastolcandidate/telematic_grafana:neon
       restart: always
       container_name: grafana
       logging:
@@ -74,7 +74,7 @@ services:
       build:
         context: "./telematic_apps/web_app/server"
         dockerfile: "Dockerfile"
-      image: usdotfhwastoldev/telematic_web_server:develop
+      image: usdotfhwastolcandidate/telematic_web_server:neon
       restart: always
       container_name: web_server
       logging:
@@ -95,7 +95,7 @@ services:
   web_client:
     build:
       context: "./telematic_apps/web_app/client"
-    image: usdotfhwastoldev/telematic_web_client:develop
+    image: usdotfhwastolcandidate/telematic_web_client:neon
     restart: always
     container_name: web_client
     logging:
@@ -110,7 +110,7 @@ services:
     build:
       context: "./telematic_apps/apache2"
       dockerfile: "./local.Dockerfile"
-    image: usdotfhwastoldev/telematic_local_apache2:develop
+    image: usdotfhwastolcandidate/telematic_local_apache2:neon
     restart: always
     container_name: apache2
     logging:
@@ -135,7 +135,7 @@ services:
     build:
       context: "./telematic_cloud_messaging"
     container_name: messaging_server
-    image: usdotfhwastoldev/telematic_local_messaging:develop
+    image: usdotfhwastolcandidate/telematic_local_messaging:neon
     depends_on:
       - nats
       - mysqldb
@@ -155,7 +155,7 @@ services:
           context: ./telematic_historical_data_processing
           dockerfile: Dockerfile
           network: host
-    image: usdotfhwastoldev/telematic_historical_data_processing:develop
+    image: usdotfhwastolcandidate/telematic_historical_data_processing:neon
     container_name: rosbag2_processing_service
     restart: always
     depends_on:
