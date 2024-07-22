@@ -40,10 +40,17 @@ const ROS2RosbagRowItem = (props) => {
           let isGreen = (column.id === "process_status" && props.ROS2RosbagRow.process_status === PROCESSING_STATUS.COMPLETED) || (column.id === "upload_status" && props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.COMPLETED);
           let isRed = (column.id === "process_status" && props.ROS2RosbagRow.process_status === PROCESSING_STATUS.ERROR) || (column.id === "upload_status" && props.ROS2RosbagRow.upload_status === UPLOAD_STATUS.ERROR);
           let createdBy = column.id === "created_by" && props.ROS2RosbagRow?.user?.login !== undefined ? props.ROS2RosbagRow?.user?.login : "NA";
+          let isLowerCase = column.id === "process_status" || column.id === "upload_status";
           value = column.id === "size" ? calFilesizes(value) : value;
           value = column.id === "created_by" ? createdBy : value;
-          value = column.id === "created_at" ? new Date(value).toLocaleString() : value;
-          value = column.id === "original_filename" && value.includes("/") ? value.split("/")[value.split("/").length-1]: value;
+          value =
+            column.id === "created_at"
+              ? new Date(value).toLocaleString()
+              : value;
+          value =
+            column.id === "original_filename" && value.includes("/")
+              ? value.split("/")[value.split("/").length - 1]
+              : value;
 
           return (
             <TableCell
@@ -62,7 +69,7 @@ const ROS2RosbagRowItem = (props) => {
                 wordBreak: "break-word",
               }}
             >
-              {value.toLowerCase()}
+              {isLowerCase ? value.toLowerCase() : value}
 
               {column.id === "process_status" && isRed && (
                 <InfoPopover
