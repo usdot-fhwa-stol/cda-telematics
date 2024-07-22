@@ -135,7 +135,7 @@ services:
     build:
       context: "./telematic_cloud_messaging"
     container_name: messaging_server
-    image: usdotfhwastolcandidate/telematic_local_messaging:neon
+    image: usdotfhwastolcandidate/telematic_cloud_messaging:neon
     depends_on:
       - nats
       - mysqldb
