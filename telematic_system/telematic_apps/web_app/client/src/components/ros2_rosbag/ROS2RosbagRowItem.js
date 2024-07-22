@@ -43,14 +43,8 @@ const ROS2RosbagRowItem = (props) => {
           let isLowerCase = column.id === "process_status" || column.id === "upload_status";
           value = column.id === "size" ? calFilesizes(value) : value;
           value = column.id === "created_by" ? createdBy : value;
-          value =
-            column.id === "created_at"
-              ? new Date(value).toLocaleString()
-              : value;
-          value =
-            column.id === "original_filename" && value.includes("/")
-              ? value.split("/")[value.split("/").length - 1]
-              : value;
+          value = column.id === "created_at" ? new Date(value).toLocaleString() : value;
+          value = column.id === "original_filename" && value.includes("/") ? value.split("/")[value.split("/").length-1]: value;
 
           return (
             <TableCell
