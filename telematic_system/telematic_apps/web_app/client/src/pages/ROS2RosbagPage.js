@@ -139,9 +139,9 @@ const ROS2RosbagPage = React.memo(() => {
 
         //Check file name
         const re = /^[A-Za-z0-9_]+\.(mcap)$/g;
-        if (newFileInfo?.original_filename?.length <0 || newFileInfo?.original_filename.match(re)===null) {
+        if (newFileInfo?.filename?.length <0 || newFileInfo?.filename?.match(re)===null) {
           messageList.push(
-            "Invalid filename: " + newFileInfo?.original_filename + ". Filename can only contain alphanumeric characters and underscore!"
+            "Invalid filename: " + newFileInfo?.filename + ". Filename can only contain alphanumeric characters and underscore!"
           );
           isValid = false;
         }
