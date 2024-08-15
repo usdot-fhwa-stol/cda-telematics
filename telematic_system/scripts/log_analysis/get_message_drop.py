@@ -9,7 +9,7 @@ from pathlib import Path
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-
+import os
 warnings.filterwarnings("ignore")
 
 '''
@@ -38,12 +38,12 @@ def combineFiles(log_dir):
     bridges_csv = []
 
     messaging_server_csv_exist = False
-    messaging_server_csv = ""
+    messaging_server_csv = []
 
     for filename in filenames:        
-        if "Messaging" in filename:
+        if "messaging".lower() in filename:
             messaging_server_csv_exist = True
-            messaging_server_csv = log_dir + "/" + filename
+            messaging_server_csv.append(log_dir + "/" + filename)
 
         matched = re.match(bridge_csv_regex, filename, re.IGNORECASE)
         if matched:
@@ -55,14 +55,24 @@ def combineFiles(log_dir):
     
     if not messaging_server_csv_exist:
         sys.exit("Did not find any Messaging server csv logs in directory: "+log_dir+ "")
-    
 
-    messaging_server_df = pd.read_csv(messaging_server_csv)
+    messaging_server_df = pd.concat(map(pd.read_csv, messaging_server_csv), ignore_index=True)
     infrastructure_units = ['streets_id', 'cloud_id']
 
     ############# Load messaging server logs and get a list of dataframes for all unit ids
     #### Dictionary of dataframes with unique unit ids
     messaging_server_dfs = dict(tuple(messaging_server_df.groupby('Unit Id')))
+    # print(messaging_server_dfs)
+    # count = 0
+    # for item in messaging_server_csv:
+    #     try:
+    #         df = pd.read_csv(item)
+    #         print(item+" size :"+str(df.size/4))
+    #         count += df.size/4
+    #         # bridge_dfs.update(dict(tuple(bridge_df.groupby('Unit Id'))))   
+    #     except KeyError:
+    #         print("Error reading csv: " + str(bridge_csv))
+    # print("total count "+ str(count))
 
     #Remove null entries and metadata column from vehicle bridge dfs
     for key, value in messaging_server_dfs.items():
@@ -72,24 +82,36 @@ def combineFiles(log_dir):
     
    
     #Get dataframes from bridge logs
-    bridge_dfs = dict()
-    for bridge_csv in bridges_csv:
-        bridge_df = pd.read_csv(bridge_csv)
-        bridge_dfs.update(dict(tuple(bridge_df.groupby('Unit Id'))))   
-
-    print(bridge_dfs.keys())
+    # bridge_dfs = dict()
+    # count = 0
+    # for bridge_csv in bridges_csv:
+    #     try:
+    #         bridge_df = pd.read_csv(bridge_csv)
+    #         print(bridge_csv+" size :"+str(bridge_df.size/4))
+    #         count += bridge_df.size/4
+    #         # bridge_dfs.update(dict(tuple(bridge_df.groupby('Unit Id'))))   
+    #     except KeyError:
+    #         print("Error reading csv: " + str(bridge_csv))
+    # print("total count "+ str(count))
+    # print( "Total bridge_dfs length: "+ str(len(bridge_dfs['DOT_45254'])))
+    # print(bridge_dfs)
+    bridge_df = pd.concat(map(pd.read_csv, bridges_csv), ignore_index=True)
+    bridge_dfs = dict(tuple(bridge_df.groupby('Unit Id')))
+    # print(bridge_dfs)
 
 
     # Create combined dataframes from 
     for key in bridge_dfs:
         if key in messaging_server_dfs:
-            
+            # breakpoint()
             bridge_df_combined = pd.merge(bridge_dfs[key], messaging_server_dfs[key],  how='left', left_on=['Topic','Payload Timestamp'], right_on = ['Topic','Message Time'])
-            bridge_df_combined.to_csv(log_dir + key + "_combined.csv")
+            if not os.path.exists("output"):
+                os.mkdir("output")
+            bridge_df_combined.to_csv("output/"+log_dir+"_"+ key + "_combined.csv")
 
             bridge_missing_message_count = bridge_df_combined['Log_Timestamp(s)'].isnull().sum()
             bridge_total_message_count = len(bridge_df_combined['Payload Timestamp'])
-            print("Message drop for unit: ", key)
+            print("\nMessage drop for unit: ", key)
             print("Missing count: ", bridge_missing_message_count)
             print("Total count: ", bridge_total_message_count)
             print("Percentage of messages received",(1 - (bridge_missing_message_count/bridge_total_message_count))*100)
@@ -100,29 +122,6 @@ def combineFiles(log_dir):
             
             print("{} missed messages: ".format(key))
             print(topics_with_empty_count)
-
-            # Plot vehicle data
-            bridge_df_combined = bridge_df_combined[bridge_df_combined['Message Time'].isnull()]
-            bridge_df_combined['Payload Timestamp'] = pd.to_datetime(bridge_df_combined['Payload Timestamp'], infer_datetime_format=True)
-            bridge_df_combined['Message Time'] = pd.to_datetime(bridge_df_combined['Message Time'], infer_datetime_format=True)
-            
-
-            ax1 = plt.plot(bridge_df_combined['Topic'], bridge_df_combined['Payload Timestamp'], '|')
-            
-            #Plot start and end lines
-            start_time = pd.to_datetime(messaging_server_dfs[key]['Log_Timestamp(s)'].iloc[0])
-            end_time = pd.to_datetime(messaging_server_dfs[key]['Log_Timestamp(s)'].iloc[-1])
-
-            plt.axhline(y = start_time, color = 'r', linestyle = '-', label = 'Test Start Time')
-            plt.axhline(y = end_time, color = 'r', linestyle = '-', label = 'Test End Time')
-
-            plt.title('{} : Topics against time of dropped message'.format(key))
-            plt.xlabel('Topics with dropped messages hours:mins:seconds')
-            plt.ylabel('Time of message drop')
-            xfmt = mdates.DateFormatter('%H:%M:%S')
-            plt.gcf().autofmt_xdate()
-            plt.show()
-            # plt.savefig('{}_Message_drop.png'.format(key))
 
     
 
