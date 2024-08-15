@@ -34,27 +34,35 @@
     - Clone cda-telematics GitHub repos
     ```
     git clone https://github.com/usdot-fhwa-stol/cda-telematics.git
+    cd cda-telematics
     ```
 
 
 # Process V2xHub bridge log 
-1. Download v2xhub logs to the current folder.
-2. Run command to generate data publishing metrics.
+1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
+2. Download v2xhub logs to the current folder.
+3. Run command to generate data publishing metrics.
     ```
     python3 parse_v2xhub_telematic_plugin_logs.py  --log_file_path <input-file-name>
 
     e.g:
     python3 parse_v2xhub_telematic_plugin_logs.py  --log_file_path T20_R6-13_V2XHub.log 
     ```
+    It will generate parsed bridge log in csv files.
+    
 # Process Streets bridge log 
-1. Download streets bridge logs to the current folder.
-2. Run command to generate data publishing metrics.
+1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
+2. Download streets bridge logs to the current folder.
+3. Run command to generate data publishing metrics.
     ```
     python3 parse_streets_bridge_logs.py  <path-to-log-file>
     ```
+    It will generate parsed bridge log in csv files.
+
 # Process Cloud bridge log 
-1. Download streets bridge logs to the current folder.
-2. Run command to generate data publishing metrics.
+1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
+2. Download streets bridge logs to the current folder.
+3. Run command to generate data publishing metrics.
     ```
     parse_cloud_bridge_logs.py <path-to-log-file>
 
@@ -62,33 +70,40 @@
     python3 parse_cloud_bridge_logs.py  T20_R6-9_carma_cloud.log 
     python3 parse_cloud_bridge_logs.py  T20_R10-13_carma_cloud.log 
     ```
+    It will generate parsed bridge log in csv files.
 
 # Process Vehicle bridge log 
-1. Download vehicle bridge logs to the current folder.
-2. Run command to generate data publishing metrics.
+1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
+2. Download vehicle bridge logs to the current folder.
+3. Run command to generate data publishing metrics.
     ```
     python3 parse_vehicle_bridge_logs.py  <path-to-log-file>
 
     e.g:
     python3 parse_vehicle_bridge_logs.py T20_R6_R13_fusion/T20_R6_fusion.log 
     ```
+    It will generate parsed bridge log in csv files.
+
 # Process Messaging Server log 
-1. Download messaging server logs to the current folder.
-2. Run command to generate data publishing metrics.
+1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
+2. Download messaging server logs to the current folder.
+3. Run command to generate data publishing metrics.
     ```
     parse_messaging_server_logs.py <path-to-log-file>
 
     e.g:
     python3 parse_messaging_server_logs.py T20_R6-13_messaging_server.log
     ```
+    It will generate parsed messaging server delay and message drop log in csv files.
+
 # Metric analysis
 ## Latency
-1. Create a folder with the test case name.
+1. Create a folder with the test case name in the current `log_analysis` folder.
 For example, test case 20:
     ```
     mkdir T20
     ```
-2. Copy all the T20_*_messaging_server_*_delay_parsed.csv files to this new folder `T20`
+2. Copy all the generated T20_*_messaging_server_*_delay_parsed.csv files to this new folder `T20`
 3. Run plot latency script to generate plots for those csv files with delay metrics in folder `T20`.
     ```
     python3 latencyPlotter.py <folder-name or test case name>
@@ -98,13 +113,13 @@ For example, test case 20:
     ``` 
     The generated plots are saved into `output` folder.
 ## Message loss
-1. Create a folder with the test case name and message drop.
+1. Create a folder with the test case name and message drop in the current `log_analysis` folder.
 For example, test case 20:
     ```
     mkdir T20_message_drop
 
     ```
-2. Copy all  <test case name>_*_messaging_server_*_message_drop_parsed.csv files to this new folder `<test case name>_message_drop`.
+2. Copy all generated  <test case name>_*_messaging_server_*_message_drop_parsed.csv files to this new folder `<test case name>_message_drop`.
 3. Copy all generated bridge csv files into the same folder
 4. Run message drop analysis script to analyze all files in the `<test case name>_message_drop` folder.
     ```
