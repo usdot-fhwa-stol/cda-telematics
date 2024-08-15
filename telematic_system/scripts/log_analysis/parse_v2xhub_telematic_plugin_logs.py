@@ -161,9 +161,9 @@ if __name__ == "__main__":
     print("Parsing "+ args.log_file_path+" ...")
     converter = TelematicMessageConvertor()
     converter.parse_log_file(args.log_file_path)
+    test_case, target_run_range = converter.get_test_case_run_nums(args.log_file_path)
 
     log_timesheet=LogTimeSheet("log_timesheet.csv")
-    test_case, target_run_range = converter.get_test_case_run_nums(args.log_file_path)
 
     for target_run_num in target_run_range:
         start_time, end_time = log_timesheet.get_run_duration(test_case, target_run_num)

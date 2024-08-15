@@ -62,17 +62,6 @@ def combineFiles(log_dir):
     ############# Load messaging server logs and get a list of dataframes for all unit ids
     #### Dictionary of dataframes with unique unit ids
     messaging_server_dfs = dict(tuple(messaging_server_df.groupby('Unit Id')))
-    # print(messaging_server_dfs)
-    # count = 0
-    # for item in messaging_server_csv:
-    #     try:
-    #         df = pd.read_csv(item)
-    #         print(item+" size :"+str(df.size/4))
-    #         count += df.size/4
-    #         # bridge_dfs.update(dict(tuple(bridge_df.groupby('Unit Id'))))   
-    #     except KeyError:
-    #         print("Error reading csv: " + str(bridge_csv))
-    # print("total count "+ str(count))
 
     #Remove null entries and metadata column from vehicle bridge dfs
     for key, value in messaging_server_dfs.items():
@@ -81,29 +70,13 @@ def combineFiles(log_dir):
             # value = value.drop('Metadata',axis =1)
     
    
-    #Get dataframes from bridge logs
-    # bridge_dfs = dict()
-    # count = 0
-    # for bridge_csv in bridges_csv:
-    #     try:
-    #         bridge_df = pd.read_csv(bridge_csv)
-    #         print(bridge_csv+" size :"+str(bridge_df.size/4))
-    #         count += bridge_df.size/4
-    #         # bridge_dfs.update(dict(tuple(bridge_df.groupby('Unit Id'))))   
-    #     except KeyError:
-    #         print("Error reading csv: " + str(bridge_csv))
-    # print("total count "+ str(count))
-    # print( "Total bridge_dfs length: "+ str(len(bridge_dfs['DOT_45254'])))
-    # print(bridge_dfs)
     bridge_df = pd.concat(map(pd.read_csv, bridges_csv), ignore_index=True)
     bridge_dfs = dict(tuple(bridge_df.groupby('Unit Id')))
-    # print(bridge_dfs)
 
 
     # Create combined dataframes from 
     for key in bridge_dfs:
         if key in messaging_server_dfs:
-            # breakpoint()
             bridge_df_combined = pd.merge(bridge_dfs[key], messaging_server_dfs[key],  how='left', left_on=['Topic','Payload Timestamp'], right_on = ['Topic','Message Time'])
             if not os.path.exists("output"):
                 os.mkdir("output")
