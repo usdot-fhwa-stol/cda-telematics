@@ -34,12 +34,14 @@ class LogKey(Enum):
     UNIT_TYPE= "unit_type"
 
 class LogTimeSheet:
+    ''' Read the log_timesheet.csv file to store the list of test cases and their start and end time of all runs within each test case.'''
     def __init__(self, log_timesheet_path: str) -> None:
         self.log_df = pd.read_csv(log_timesheet_path)
         self.log_df = self.log_df.dropna()
         self.log_df_dict = dict(tuple(self.log_df.groupby('Test Case')))
     
-    def get_run_duration(self, test_case_name: str, target_run_num: int)->datetime:        
+    def get_run_duration(self, test_case_name: str, target_run_num: int):       
+        '''Return start and end time for a given test case and run number.''' 
         test_case_log_table = self.log_df_dict[test_case_name]
         for index, row in test_case_log_table.iterrows():
             run_num = re.sub(r"[a-z|A-Z]*", "", row['Run'])
@@ -87,6 +89,7 @@ class TelematicMessageConvertor:
         
 
     def append_published_msg(self, msg_json: dict):
+        '''Append the msg in JSON format as a row in the published msg dictionary.'''
         self.published_msg[Column.EVENT_NAME.value].append(msg_json[LogKey.EVENT_NAME.value])        
         payload_time_str = str(msg_json[LogKey.PAYLOAD_TS.value])
         payload_timestamp_utc = self.convert_timestamp(payload_time_str)
@@ -104,6 +107,7 @@ class TelematicMessageConvertor:
         return payload_timestamp_utc
 
     def to_utc_datetime(self, timestamp):
+        '''Convert timestamp to datetime and UTC timezone.'''
         return datetime.datetime.fromtimestamp(timestamp).astimezone(pytz.utc).replace(tzinfo=None)
 
     def split_lines(self, chunk: str)-> tuple[list[str], str]:
@@ -144,6 +148,7 @@ class TelematicMessageConvertor:
             sys.exit("Could not find file " + str(e))
 
     def get_test_case_run_nums(self, file_path: str):
+        '''Get the test case and run numbers for each test case given the filepath.'''
         test_case = (file_path.split("/")[-1]).split("_")[0]
         runs_string = ((file_path.split("/")[-1]).split("_")[1].split(".")[0])[1:]
         runs_range_split = runs_string.split('-')
@@ -173,5 +178,5 @@ if __name__ == "__main__":
         filter_published_msg_frame = converter.get_filter_published_msg_frame(start_time_utc, end_time_utc)
         print(filter_published_msg_frame)
         if not filter_published_msg_frame.empty:
-            converter.to_csv(filter_published_msg_frame, args.log_file_path+"_"+ str(target_run_num)+"_parsed.csv")
+            converter.to_csv(filter_published_msg_frame, args.log_file_path.split("/")[-1]+"_"+ str(target_run_num)+"_parsed.csv")
 
