@@ -36,6 +36,7 @@
     git clone https://github.com/usdot-fhwa-stol/cda-telematics.git
     cd cda-telematics
     ```
+- Most of the python analysis scripts need to refer to `log_timesheet.csv` for test runs and their duration. Since this `log_timesheet.csv` is generated during the verification/validation testing, ensure download the `log_timesheet.csv` file to this `log_analysis`  folder before executing any python scripts.
 
 
 # Process V2xHub bridge log 
@@ -49,7 +50,7 @@
     python3 parse_v2xhub_telematic_plugin_logs.py  --log_file_path T20_R6-13_V2XHub.log 
     ```
     It will generate parsed bridge log in csv files.
-    
+
 # Process Streets bridge log 
 1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
 2. Download streets bridge logs to the current folder.
