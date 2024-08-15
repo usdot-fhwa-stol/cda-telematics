@@ -36,7 +36,8 @@
     git clone https://github.com/usdot-fhwa-stol/cda-telematics.git
     cd cda-telematics
     ```
-- Most of the python analysis scripts need to refer to `log_timesheet.csv` for test runs and their duration. Since this `log_timesheet.csv` is generated during the verification/validation testing, ensure download the `log_timesheet.csv` file to this `log_analysis`  folder before executing any python scripts.
+- Download `log_timesheet.csv`
+Most of the python analysis scripts refer to `log_timesheet.csv` for test runs and their duration. Since this `log_timesheet.csv` is generated during the verification/validation testing, ensure download the `log_timesheet.csv` file to this `log_analysis`  folder before executing any python scripts.
 
 
 # Process V2xHub bridge log 
