@@ -30,7 +30,13 @@
         ```
         pip install -r requirements.txt
         ```
-- Download the `log_timesheet.csv` to the current folder
+- Clone repos:
+    - Clone cda-telematics GitHub repos
+    ```
+    git clone https://github.com/usdot-fhwa-stol/cda-telematics.git
+    git checkout release/neon
+    ```
+
 
 # Process V2xHub bridge log 
 1. Download v2xhub logs to the current folder.
@@ -45,10 +51,7 @@
 1. Download streets bridge logs to the current folder.
 2. Run command to generate data publishing metrics.
     ```
-    python3 parse_cloud_bridge_logs.py  <path-to-log-file>
-
-    e.g:
-    python3 parse_cloud_bridge_logs.py T20_R4_carma_cloud.log 
+    python3 parse_streets_bridge_logs.py  <path-to-log-file>
     ```
 # Process Cloud bridge log 
 1. Download streets bridge logs to the current folder.
@@ -103,7 +106,8 @@ For example, test case 20:
 
     ```
 2. Copy all  <test case name>_*_messaging_server_*_message_drop_parsed.csv files to this new folder `<test case name>_message_drop`.
-3. Run message drop analysis script to analyze all files in the `<test case name>_message_drop` folder.
+3. Copy all generated bridge csv files into the same folder
+4. Run message drop analysis script to analyze all files in the `<test case name>_message_drop` folder.
     ```
     python3 get_message_drop.py <folder-name or test case name>_message_drop
 
