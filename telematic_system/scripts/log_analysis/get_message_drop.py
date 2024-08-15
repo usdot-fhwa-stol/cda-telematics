@@ -41,7 +41,7 @@ def combineFiles(log_dir):
     messaging_server_csv = []
 
     for filename in filenames:        
-        if "messaging".lower() in filename:
+        if "messaging" in filename.lower():
             messaging_server_csv_exist = True
             messaging_server_csv.append(log_dir + "/" + filename)
 
