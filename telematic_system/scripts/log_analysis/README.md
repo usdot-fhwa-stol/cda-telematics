@@ -73,8 +73,6 @@
 # Process Messaging Server log 
 1. Download messaging server logs to the current folder.
 2. Run command to generate data publishing metrics.
-3. Rename log files:
-    - `T20_messaging_server.log` rename to `T20_R6-13_messaging_server.log`
     ```
     parse_messaging_server_logs.py <path-to-log-file>
 
