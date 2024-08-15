@@ -34,7 +34,6 @@
     - Clone cda-telematics GitHub repos
     ```
     git clone https://github.com/usdot-fhwa-stol/cda-telematics.git
-    git checkout release/neon
     ```
 
 
