@@ -111,5 +111,6 @@ For example, test case 20:
     python3 get_message_drop.py T20_message_drop
     ```
 Generated result is similar to below:
+<br>
 ![Message_loss_result](https://github.com/user-attachments/assets/15fefacb-e929-4340-a0e3-6d7f6441ba8e)
 
