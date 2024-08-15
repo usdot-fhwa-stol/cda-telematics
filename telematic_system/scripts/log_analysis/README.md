@@ -100,6 +100,7 @@ For example, test case 20:
 For example, test case 20:
     ```
     mkdir T20_message_drop
+
     ```
 2. Copy all  <test case name>_*_messaging_server_*_message_drop_parsed.csv files to this new folder `<test case name>_message_drop`.
 3. Run message drop analysis script to analyze all files in the `<test case name>_message_drop` folder.
@@ -110,4 +111,5 @@ For example, test case 20:
     python3 get_message_drop.py T20_message_drop
     ```
 Generated result is similar to below:
+![Message_loss_result](https://github.com/user-attachments/assets/15fefacb-e929-4340-a0e3-6d7f6441ba8e)
 
