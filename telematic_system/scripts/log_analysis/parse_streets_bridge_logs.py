@@ -54,11 +54,8 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
 
 
             if 'timestamp' in payload_json:
-                timestamp_string=re.sub(r"\.\d","", str(payload_json['timestamp']))
-                # The 0's at the end of the timestamp can be rounded off at times, so divide by power required to keep timestamp current
-                if len(timestamp_string) > 10:
-                    exponent = len(timestamp_string) - 10
-                time_in_s = float(timestamp_string)/(10 **exponent)
+                timestamp_string = str(payload_json['timestamp'])[:-1]
+                time_in_s = float(timestamp_string)/1e6
 
             
             else:
