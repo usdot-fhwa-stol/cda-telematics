@@ -110,7 +110,7 @@ class TelematicMessageConvertor:
         '''Convert timestamp to datetime and UTC timezone.'''
         return datetime.datetime.fromtimestamp(timestamp).astimezone(pytz.utc).replace(tzinfo=None)
 
-    def split_lines(self, chunk: str)-> tuple[list[str], str]:
+    def split_lines(self, chunk: str):
         lines = chunk.split('\n')
         remaining_part = lines.pop(-1)
         return (lines, remaining_part)
