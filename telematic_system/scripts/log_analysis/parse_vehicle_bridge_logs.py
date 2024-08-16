@@ -25,7 +25,6 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
         
         # For each published message logged, convert payload to json and extract required info
         for line in vehicle_bridge_log:
-            print(line)
             topic_name = ""
             unit_id = ""
             
@@ -42,6 +41,7 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
             
             
             line_split = line.split("\\r\\n\"")[0]
+            print(line_split)
             
             payload = line_split.replace('\\', "")
             payload_json = json.loads(payload)
