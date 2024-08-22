@@ -21,7 +21,8 @@ def parse_start_end_processing_line(line, search_str):
     if timestamp_match:
         timestamp_str = timestamp_match.group(1)
     else:
-        print("Could not find processing starting time for rosbag")
+        print("Could not find processing time for rosbag")
+        sys.exit()
 
     log_timestamp = datetime.datetime.strptime(timestamp_str, '%Y-%m-%d %H:%M:%S,%f')
 
@@ -48,6 +49,7 @@ def parse_processing_service_logs(logfile):
 
             elif processing_completed_msg_str in line:
                 end_timestamp, rosbag_name = parse_start_end_processing_line(line, processing_completed_msg_str)
+                processing_time_in_seconds = (end_timestamp - start_timestamp).total_seconds()
                 continue
 
             elif processing_status_str in line:
@@ -56,7 +58,6 @@ def parse_processing_service_logs(logfile):
                 status = status_match.group(1) if status_match else None
 
                 if status == ProcessingStatus.COMPLETED.value:
-                    processing_time_in_seconds = (end_timestamp - start_timestamp).total_seconds()
                     print(f"rosbag_name: {rosbag_name} processing_time: {processing_time_in_seconds} status: {status}")
                     processing_times.append(processing_time_in_seconds)
 
