@@ -16,6 +16,7 @@ def to_utc_datetime(self, timestamp):
         return datetime.datetime.fromtimestamp(timestamp).astimezone(pytz.utc).replace(tzinfo=None)
 
 def parse_start_end_processing_line(line, search_str):
+    # Regex match to extract timestamp of the form: "log":"2024-07-23 15:43:45,821
     timestamp_match = re.search(r'"log":"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d+)', line)
     if timestamp_match:
         timestamp_str = timestamp_match.group(1)
@@ -40,19 +41,13 @@ def parse_processing_service_logs(logfile):
     processing_times = []
 
     with open(logfile, 'r') as file:
-        is_processing_rosbag = False
         for line in file:
-            # print(line)
             if processing_started_msg_str in line:
-                # print(line)
                 start_timestamp, rosbag_name = parse_start_end_processing_line(line, processing_started_msg_str)
-                is_processing_rosbag = True
                 continue
 
             elif processing_completed_msg_str in line:
                 end_timestamp, rosbag_name = parse_start_end_processing_line(line, processing_completed_msg_str)
-                # print(end_timestamp)
-                is_processing_rosbag = False
                 continue
 
             elif processing_status_str in line:
@@ -60,7 +55,6 @@ def parse_processing_service_logs(logfile):
                 status_match = re.search(status_pattern, line)
                 status = status_match.group(1) if status_match else None
 
-                # print(f"Status: {status}")
                 if status == ProcessingStatus.COMPLETED.value:
                     processing_time_in_seconds = (end_timestamp - start_timestamp).total_seconds()
                     print(f"rosbag_name: {rosbag_name} processing_time: {processing_time_in_seconds} status: {status}")
