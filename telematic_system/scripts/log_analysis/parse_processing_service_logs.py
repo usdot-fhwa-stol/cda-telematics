@@ -44,10 +44,12 @@ def parse_processing_service_logs(logfile):
     with open(logfile, 'r') as file:
         for line in file:
             if processing_started_msg_str in line:
+                # Start line sample string: "log":"2024-07-23 17:38:16,055 - rosbag2_processing_service - process_rosbag - INFO - Processing rosbag: rosbag2_2024_06_06_201142_0_verification_T19_R1.mcap
                 start_timestamp, rosbag_name = parse_start_end_processing_line(line, processing_started_msg_str)
                 continue
 
             elif processing_completed_msg_str in line:
+                # {"log":"2024-07-23 17:38:15,044 - rosbag2_processing_service - process_rosbag - INFO - Completed rosbag processing for: rosbag2_2024_06_06_194729_0_verification_T19_R1.mcap\n","stream":"stderr","time":"2024-07-23T17:38:15.044890288Z"}
                 end_timestamp, rosbag_name = parse_start_end_processing_line(line, processing_completed_msg_str)
                 processing_time_in_seconds = (end_timestamp - start_timestamp).total_seconds()
                 continue
@@ -64,7 +66,7 @@ def parse_processing_service_logs(logfile):
 
     arr = np.array(processing_times, dtype='float32')
     average_completion_time = np.mean(arr, axis=0)
-    print(f'average_completion_time: {average_completion_time}')
+    print(f'average_completion_time in seconds for {len(processing_times)} files: {average_completion_time}')
 
 
 
