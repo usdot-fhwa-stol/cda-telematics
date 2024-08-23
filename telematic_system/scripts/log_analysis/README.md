@@ -3,7 +3,7 @@
 - Python environment setup
     1. Install python
         ```
-        sudo apt update 
+        sudo apt update
         sudo apt install python3
         ```
     2. Check python version
@@ -21,7 +21,7 @@
         ```
         Note: Need to run this command to activate virtual environment every time openning a new terminal.
 - Install depedencies:
-    - Install debian packages 
+    - Install debian packages
         ```
         sudo apt install libcairo2-dev libxt-dev libgirepository1.0-dev
 
@@ -40,7 +40,7 @@
 Most of the python analysis scripts refer to `log_timesheet.csv` for test runs and their duration. Since this `log_timesheet.csv` is generated during the verification/validation testing, ensure download the `log_timesheet.csv` file to this `log_analysis`  folder before executing any python scripts.
 
 
-# Process V2xHub bridge log 
+# Process V2xHub bridge log
 1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
 2. Download v2xhub logs to the current folder.
 3. Run command to generate data publishing metrics.
@@ -48,11 +48,11 @@ Most of the python analysis scripts refer to `log_timesheet.csv` for test runs a
     python3 parse_v2xhub_telematic_plugin_logs.py  --log_file_path <input-file-name>
 
     e.g:
-    python3 parse_v2xhub_telematic_plugin_logs.py  --log_file_path T20_R6-13_V2XHub.log 
+    python3 parse_v2xhub_telematic_plugin_logs.py  --log_file_path T20_R6-13_V2XHub.log
     ```
     It will generate parsed bridge log in csv files.
 
-# Process Streets bridge log 
+# Process Streets bridge log
 1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
 2. Download streets bridge logs to the current folder.
 3. Run command to generate data publishing metrics.
@@ -61,7 +61,7 @@ Most of the python analysis scripts refer to `log_timesheet.csv` for test runs a
     ```
     It will generate parsed bridge log in csv files.
 
-# Process Cloud bridge log 
+# Process Cloud bridge log
 1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
 2. Download streets bridge logs to the current folder.
 3. Run command to generate data publishing metrics.
@@ -69,12 +69,12 @@ Most of the python analysis scripts refer to `log_timesheet.csv` for test runs a
     parse_cloud_bridge_logs.py <path-to-log-file>
 
     e.g:
-    python3 parse_cloud_bridge_logs.py  T20_R6-9_carma_cloud.log 
-    python3 parse_cloud_bridge_logs.py  T20_R10-13_carma_cloud.log 
+    python3 parse_cloud_bridge_logs.py  T20_R6-9_carma_cloud.log
+    python3 parse_cloud_bridge_logs.py  T20_R10-13_carma_cloud.log
     ```
     It will generate parsed bridge log in csv files.
 
-# Process Vehicle bridge log 
+# Process Vehicle bridge log
 1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
 2. Download vehicle bridge logs to the current folder.
 3. Run command to generate data publishing metrics.
@@ -82,11 +82,11 @@ Most of the python analysis scripts refer to `log_timesheet.csv` for test runs a
     python3 parse_vehicle_bridge_logs.py  <path-to-log-file>
 
     e.g:
-    python3 parse_vehicle_bridge_logs.py T20_R6_R13_fusion/T20_R6_fusion.log 
+    python3 parse_vehicle_bridge_logs.py T20_R6_R13_fusion/T20_R6_fusion.log
     ```
     It will generate parsed bridge log in csv files.
 
-# Process Messaging Server log 
+# Process Messaging Server log
 1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
 2. Download messaging server logs to the current folder.
 3. Run command to generate data publishing metrics.
@@ -112,7 +112,7 @@ For example, test case 20:
 
     e.g:
     python3 latencyPlotter.py T20
-    ``` 
+        ```
     The generated plots are saved into `output` folder.
 ## Message loss
 1. Create a folder with the test case name and message drop in the current `log_analysis` folder.
@@ -134,3 +134,14 @@ Generated result is similar to below:
 <br>
 ![Message_loss_result](https://github.com/user-attachments/assets/15fefacb-e929-4340-a0e3-6d7f6441ba8e)
 
+## Rosbag Processing time
+1. Navigate to `cda-telematics/telematic_system/scripts/log_analysis` directory
+2. Download historical data processing service logs to the current folder.
+3. Run command to generate data publishing metrics.
+    ```
+    parse_processing_service_logs.py <path-to-log-file>
+
+    e.g:
+    python3 parse_processing_service_logs.py T19_R1_R5_rosbag2.log
+    ```
+    It will print the time required to process each rosbag .mcap file and the average time required for all the files in the log.
