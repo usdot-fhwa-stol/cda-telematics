@@ -112,7 +112,7 @@ For example, test case 20:
 
     e.g:
     python3 latencyPlotter.py T20
-    ```
+        ```
     The generated plots are saved into `output` folder.
 ## Message loss
 1. Create a folder with the test case name and message drop in the current `log_analysis` folder.
@@ -142,6 +142,6 @@ Generated result is similar to below:
     parse_processing_service_logs.py <path-to-log-file>
 
     e.g:
-    python3 parse_processing_service_logs.py T20_R6-13_messaging_server.log
+    python3 parse_processing_service_logs.py T19_R1_R5_rosbag2.log
     ```
-    It will generate parsed messaging server delay and message drop log in csv files.
+    It will print the time required to process each rosbag .mcap file and the average time required for all the files in the log.
