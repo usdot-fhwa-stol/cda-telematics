@@ -1,6 +1,5 @@
 package com.telematic.telematic_cloud_messaging.nats_influx_connection;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;

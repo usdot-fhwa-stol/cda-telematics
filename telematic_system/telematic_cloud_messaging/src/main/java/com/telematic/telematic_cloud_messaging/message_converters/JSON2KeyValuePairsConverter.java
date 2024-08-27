@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class JSON2KeyValuePairsConverter {
     /**
+<<<<<<< HEAD
      * @param jsonStr String JSON format consumed from NATS subject
      * @param toStrFields Array of String to match in the JSON and convert the match to String data type value
      * @return String of key value pairs separated by commas.

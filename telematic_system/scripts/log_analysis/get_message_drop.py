@@ -96,8 +96,6 @@ def combineFiles(log_dir):
             print("{} missed messages: ".format(key))
             print(topics_with_empty_count)
 
-    
-
 
 
 

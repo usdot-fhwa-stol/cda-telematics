@@ -9,7 +9,6 @@ import numpy as np
 import pandas as pd
 import re
 
-
 def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
     filename = logname.split(".")[0]
 

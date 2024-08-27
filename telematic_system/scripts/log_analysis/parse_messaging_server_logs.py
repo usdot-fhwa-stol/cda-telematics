@@ -70,7 +70,6 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
                 write_time_split = log_line.split("INFO")
                 write_time_string = write_time_split[0][:len(write_time_split[0]) - 2]
                 log_time_in_datetime = datetime.datetime.strptime(write_time_string, '%Y-%m-%dT%H:%M:%S.%fZ')
-                    
             
                 payload_index = log_line.index(search_string) + 1
                 payload = log_line[payload_index + len(search_string) + 1:]
@@ -197,8 +196,6 @@ def main():
         for index in range(0, len(test_df)):
             start_time_epoch = test_df['Start Time'].values[index]
             end_time_epoch = test_df['End Time'].values[index]
-
-
             
             local = pytz.timezone("America/New_York")    
             
