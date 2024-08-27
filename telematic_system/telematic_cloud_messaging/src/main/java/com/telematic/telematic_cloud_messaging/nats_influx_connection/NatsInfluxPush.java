@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 import com.telematic.telematic_cloud_messaging.exceptions.ConfigurationException;
 
 /**
- * The NatsInfluxPush object instantiates a NatsConsumer that creates a connection to the telematic nats server 
+ * The NatsInfluxPush object instantiates a NatsConsumer that creates a connection to the telematic nats server
  * and subscribes to all available subjects. It also instantiates an InfluxDataWriter object that is used to publish the
  * received data to the Influx database.
  */
 @Component
 @Profile("!test") //Skip Unit test on the CommandLineRunner task
 public class NatsInfluxPush implements CommandLineRunner {
-    
+
 
     private static final Logger logger = LoggerFactory.getLogger(NatsInfluxPush.class);
 
@@ -30,7 +30,7 @@ public class NatsInfluxPush implements CommandLineRunner {
     public NatsInfluxPush() {
         logger.info("Creating new NatsInfluxPush");
     }
-    
+
     public void initDataPersistentService(Config.BucketType bucketType) {
 
         // Create NATS and InfluxWriter
@@ -108,7 +108,7 @@ public class NatsInfluxPush implements CommandLineRunner {
             logger.error("Bucket type cannot be null: {}. Error: {}", config.influxBucketTypeStr, ex.getMessage());
             throw new ConfigurationException(String.format("M_INFLUX_BUCKET_TYPE: %s is not found!", config.influxBucketTypeStr));
         }
-       
+
     }
 
     /**
@@ -116,9 +116,9 @@ public class NatsInfluxPush implements CommandLineRunner {
      */
     @Override
     public void run(String... args) {
-        adjustConfig();       
+        adjustConfig();
         if (config.influxBucketType == Config.BucketType.ALL) {
-            
+
             for (Config.BucketType configType : Config.BucketType.values()) {
                 new Thread() {
                     @Override
@@ -130,7 +130,7 @@ public class NatsInfluxPush implements CommandLineRunner {
                 }.start();
             }
         }
-        else if(config.influxBucketType.equals(Config.BucketType.PLATFORM) || config.influxBucketType.equals(Config.BucketType.STREETS) || 
+        else if(config.influxBucketType.equals(Config.BucketType.PLATFORM) || config.influxBucketType.equals(Config.BucketType.STREETS) ||
             config.influxBucketType.equals(Config.BucketType.CLOUD))
         {
             // Create thread for specified type
@@ -144,6 +144,6 @@ public class NatsInfluxPush implements CommandLineRunner {
         else{
             logger.error("Invalid bucket type requested. Options are PLATFORM, STREETS, CLOUD and ALL");
         }
-        
+
     }
 }
