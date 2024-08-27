@@ -17,13 +17,13 @@ public class UnitsService {
     @Autowired
     UnitsRepository unitsRepository;
 
-    public Events getEventsByUnitAndTimestamp(String unit_identifier, Timestamp unit_received_at) {
-        List<Units> units_list = unitsRepository.getUnitsByIdentifier(unit_identifier);
-        for (Units unit : units_list) {
-            Set<EventUnits> event_units = unit.getEvent_units();
-            for (EventUnits eu : event_units) {
-                if (eu.getStart_time().compareTo(unit_received_at) < 0
-                        && eu.getEnd_time().compareTo(unit_received_at) > 0) {
+    public Events getEventsByUnitAndTimestamp(String unitIdentifier, Timestamp unitReceivedAt) {
+        List<Units> unitsList = unitsRepository.getUnitsByIdentifier(unitIdentifier);
+        for (Units unit : unitsList) {
+            Set<EventUnits> eventUnits = unit.getEvent_units();
+            for (EventUnits eu : eventUnits) {
+                if (eu.getStart_time().compareTo(unitReceivedAt) < 0
+                        && eu.getEnd_time().compareTo(unitReceivedAt) > 0) {
                     return eu.getEvents();
                 }
             }

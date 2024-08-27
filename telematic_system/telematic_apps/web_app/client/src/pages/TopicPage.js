@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -14,18 +14,19 @@
  * the License.
  */
 import StreamIcon from '@mui/icons-material/Stream';
-import { Button, FormControl, Grid, Tooltip } from '@mui/material';
+import { FormControl, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { findAllEvents } from '../api/api-events';
 import { findAllLocations } from '../api/api-locations';
 import { findAllTestingTypes } from '../api/api-testing-types';
 import { requestSelectedLiveUnitsTopics } from '../api/api-topics';
-import { findUsersTopicRequestByEventUnits, upsertUserTopicRequestForEventUnits } from '../api/user_topic_request';
+import { findUsersTopicRequestByEventUnits, upsertUserTopicRequestForEventUnits } from '../api/user-topic-request';
 import { VALID_UNIT_TYPES } from '../components/events/EventMetadata';
 import InfrastructureTopicList from '../components/topics/InfrastructureTopicList';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
 import TopicsFilter from '../components/topics/TopicsFilter';
 import VehicleTopicList from '../components/topics/VehicleTopicList';
+import { CustomizedButton } from '../components/ui/CustomizedButton';
 import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
 import { USER_ROLES } from '../components/users/UserMetadata';
@@ -229,7 +230,6 @@ const TopicPage = React.memo(() => {
   }
 
   useEffect(() => {
-    authCtx.updateViewCount();
     const res_loc_data = findAllLocations();
     res_loc_data.then(json => {
       if (json !== undefined) {
@@ -253,26 +253,15 @@ const TopicPage = React.memo(() => {
     });
 
     const res_testing_types_data = findAllTestingTypes({});
-    res_testing_types_data.then(json => {
+    res_testing_types_data.then((json) => {
       if (json !== undefined) {
         let testing_types = [];
-        json.forEach(tt => {
+        json.forEach((tt) => {
           testing_types.push(tt);
         });
         setTestingTypeList(testing_types);
       }
     });
-
-    //If user role is missing, display a warning to the user
-    if ((authCtx.role === undefined || authCtx.role === null || authCtx.role === "")
-      && authCtx.org_name !== undefined && authCtx.org_name !== null && authCtx.org_name !== "") {
-      setAlertStatus({
-        open: true,
-        severity: NOTIFICATION_STATUS.WARNING,
-        title: NOTIFICATION_STATUS.WARNING.toLocaleUpperCase(),
-        messageList: ['You are not allowed to access the current organization: ' + authCtx.org_name]
-      });
-    }
   }, []);
 
   return (
@@ -294,9 +283,10 @@ const TopicPage = React.memo(() => {
             authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
             <Grid item xs={12} sx={{ textAlign: 'center' }}>
               <FormControl>
-                <Tooltip title="Send a request with a list of selected topics, and request telematic server to stream data for the selected topics." placement="top" arrow>
-                  <Button variant="outlined" onClick={confirmSelectedTopicHandler}>Confirm Selected Topics</Button>
-                </Tooltip>
+                <CustomizedButton title="Send a request with a list of selected topics, and request telematic server to stream data for the selected topics."
+                 onClick={confirmSelectedTopicHandler}>
+                    Confirm Selected Topics
+                </CustomizedButton>
               </FormControl>
             </Grid>
           }

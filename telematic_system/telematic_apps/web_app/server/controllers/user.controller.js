@@ -15,10 +15,12 @@
  */
 var manager = require('htpasswd-mgr');
 const saltHash = require('password-salt-and-hash')
-const { org_user, user, Sequelize } = require("../models");
+const { org_user, org, user, Sequelize } = require("../models");
 const { Op } = require("sequelize");
 const { addOrgUser } = require('./org.controller');
 const getUuid = require('uuid-by-string');
+const jwt = require("jsonwebtoken");
+require('dotenv').config();
 var grafana_htpasswd = process.env.GRAFANA_HTPASSWORD!=undefined && process.env.GRAFANA_HTPASSWORD.length > 0 ? process.env.GRAFANA_HTPASSWORD : '/opt/apache2/grafana_htpasswd';
 var htpasswordManager = manager(grafana_htpasswd)
 /**
@@ -193,21 +195,31 @@ exports.loginUser = (req, res) => {
             let is_pwd_match = saltHash.verifySaltHash(data[0].salt, data[0].password, req.body.password);
             if (is_pwd_match) {
                 //Update user credential file
-                let session_token = getUuid(data[0].login + data[0].email + data[0].password + Date.now().toString());
                 htpasswordManager.upsertUser(req.body.username, req.body.password).then((status) => {
-                    var result = {
-                        id: data[0].id,
-                        last_seen_at: data[0].last_seen_at,
-                        is_admin: data[0].is_admin,
-                        email: data[0].email,
-                        name: data[0].name,
-                        org_id: data[0].org_id,
-                        login: data[0].login,
-                        username: data[0].login,
-                        session_token: session_token
-                    }
-                    req.session.token = session_token;
-                    res.status(200).send(result);
+                    //get org name
+                    org.findAll({ where: { id: data[0].org_id } }).then(org_data => {
+                        if (org_data.length > 0) {
+                            let result = {
+                                id: data[0].id,
+                                last_seen_at: data[0].last_seen_at,
+                                is_admin: data[0].is_admin,
+                                email: data[0].email,
+                                name: data[0].name,
+                                org_id: data[0].org_id,
+                                login: data[0].login,
+                                username: data[0].login,
+                                org_name: org_data[0].name
+                            }
+                            //Creating jwt token, and the token expire in an hour
+                            let token = jwt.sign(
+                                result,
+                                process.env.SECRET,
+                                { expiresIn: "1h" });
+                            result.token = token;
+                            result.tokenExpiredAt = Math.round(new Date().getTime() / 1000) + 3600;
+                            res.status(200).send(result);
+                        }
+                    });
                 }).catch((err) => {
                     console.error(err)
                     res.status(500).send({ message: "Server error while user login." });
@@ -219,7 +231,7 @@ exports.loginUser = (req, res) => {
             res.status(401).send({ message: `Failed to authenticate user = ${req.body.username} , password = ${req.body.password} ` });
         }
     }).catch(err => {
-        console.log(err);
+        
         res.status(500).send({ message: "Error while authenticating user." });
     });
 }

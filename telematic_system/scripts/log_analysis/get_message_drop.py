@@ -1,19 +1,15 @@
-import datetime
-import csv
-import json
-import sys
-from datetime import timezone, date
-import pytz
 import re
-import numpy as np
-import pandas as pd
-from glob import glob
+import sys
 import matplotlib
-matplotlib.use("GTK3Agg")
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
+import pandas as pd
 
+matplotlib.use("GTK3Agg")
 import warnings
+from pathlib import Path
+
+import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
+import os
 warnings.filterwarnings("ignore")
 
 '''
@@ -31,45 +27,36 @@ Cloud bridge parsed csv  file name needs to start with the word Messaging by sep
 
 '''
 def combineFiles(log_dir):
-    messaging_server_csv = ""
-    bluelexus_csv = ""
-    fusion_csv = ""
-    vehicle_bridge_csv = ""
-    streets_bridge_csv = ""
-    cloud_bridge_csv = ""
 
     # Get all csv files
-    files = glob(log_dir + "/*.csv")
-
-    for file in files:
-        required_file = file.split("/")[-1]
-        
-        if "Messaging" in required_file.split("_"):
-            messaging_server_csv = file
-        elif "Streets" in required_file.split("_"):
-            streets_bridge_csv = file
-        elif "Cloud" in required_file.split("_"):
-            cloud_bridge_csv = file
-        elif "Vehicle" in required_file.split("_"):
-            vehicle_bridge_csv = file
-        elif "BlueLexus" in required_file.split("_"):
-            bluelexus_csv = file
-        elif "Fusion" in required_file.split("_"):
-            fusion_csv = file
+    path_obj = Path(log_dir)
+    print(log_dir)
+    filenames = [ f.name for f in path_obj.glob('*.csv')]
     
-    if vehicle_bridge_csv == "" and fusion_csv == "" and bluelexus_csv == "":
-        sys.exit("Did not find any vehicle bridge csv logs in directory. File name needs to start with the word Vehicle or BlueLexus or Fusion separated by underscores(_)")
-    elif not streets_bridge_csv:
-        sys.exit("Did not find any streets bridge csv logs in directory. File name needs to start with the word Streets separated by underscores(_)")
-    elif not cloud_bridge_csv:
-        sys.exit("Did not find any cloud bridge csv logs in directory. File name needs to start with the word Cloud separated by underscores(_)")
-    elif not messaging_server_csv:
-        sys.exit("Did not find any Messaging server csv logs in directory. File name needs to start with the word Messaging by separated underscores(_)")
+    bridge_csv_exist = False
+    bridge_csv_regex = r'.*(Streets|Vehicle|BlueLexus|Fusion|V2xHub|Cloud|Ros2).*'
+    bridges_csv = []
+
+    messaging_server_csv_exist = False
+    messaging_server_csv = []
+
+    for filename in filenames:        
+        if "messaging" in filename.lower():
+            messaging_server_csv_exist = True
+            messaging_server_csv.append(log_dir + "/" + filename)
+
+        matched = re.match(bridge_csv_regex, filename, re.IGNORECASE)
+        if matched:
+            bridges_csv.append(log_dir + "/" + filename)
+            bridge_csv_exist = True
+            
+    if not bridge_csv_exist:
+        sys.exit("Did not find any Vehicle/Streets/Cloud/BlueLexus/Fusion/V2xHub bridge csv logs in directory: " +log_dir+ "")
     
+    if not messaging_server_csv_exist:
+        sys.exit("Did not find any Messaging server csv logs in directory: "+log_dir+ "")
 
-
-    messaging_server_df = pd.read_csv(messaging_server_csv)
-
+    messaging_server_df = pd.concat(map(pd.read_csv, messaging_server_csv), ignore_index=True)
     infrastructure_units = ['streets_id', 'cloud_id']
 
     ############# Load messaging server logs and get a list of dataframes for all unit ids
@@ -83,42 +70,20 @@ def combineFiles(log_dir):
             # value = value.drop('Metadata',axis =1)
     
    
-    #Get dataframes from bridge logs
-    bridge_dfs = dict()
-    if vehicle_bridge_csv:
-        # Get unit id of vehicle bridge unit
-        vehicle_bridge_df = pd.read_csv(vehicle_bridge_csv)
-        bridge_dfs.update(dict(tuple(vehicle_bridge_df.groupby('Unit Id'))))
-    
-    if bluelexus_csv:
-        vehicle_bridge_df = pd.read_csv(bluelexus_csv)
-        bridge_dfs.update(dict(tuple(vehicle_bridge_df.groupby('Unit Id'))))
-    
-    if fusion_csv:
-        vehicle_bridge_df = pd.read_csv(fusion_csv)
-        bridge_dfs.update(dict(tuple(vehicle_bridge_df.groupby('Unit Id'))))
-
-    if streets_bridge_csv:
-        streets_bridge_df = pd.read_csv(streets_bridge_csv)
-        bridge_dfs.update(dict(tuple(streets_bridge_df.groupby('Unit Id'))))
-
-    if cloud_bridge_csv:
-        cloud_bridge_df = pd.read_csv(cloud_bridge_csv)
-        bridge_dfs.update(dict(tuple(cloud_bridge_df.groupby('Unit Id'))))
-
-    print(bridge_dfs.keys())
-
+    bridge_df = pd.concat(map(pd.read_csv, bridges_csv), ignore_index=True)
+    bridge_dfs = dict(tuple(bridge_df.groupby('Unit Id')))
 
     # Create combined dataframes from 
     for key in bridge_dfs:
         if key in messaging_server_dfs:
-            
             bridge_df_combined = pd.merge(bridge_dfs[key], messaging_server_dfs[key],  how='left', left_on=['Topic','Payload Timestamp'], right_on = ['Topic','Message Time'])
-            bridge_df_combined.to_csv(log_dir + key + "_combined.csv")
+            if not os.path.exists("output"):
+                os.mkdir("output")
+            bridge_df_combined.to_csv("output/"+log_dir+"_"+ key + "_combined.csv")
 
             bridge_missing_message_count = bridge_df_combined['Log_Timestamp(s)'].isnull().sum()
             bridge_total_message_count = len(bridge_df_combined['Payload Timestamp'])
-            print("Message drop for unit: ", key)
+            print("\nMessage drop for unit: ", key)
             print("Missing count: ", bridge_missing_message_count)
             print("Total count: ", bridge_total_message_count)
             print("Percentage of messages received",(1 - (bridge_missing_message_count/bridge_total_message_count))*100)
@@ -129,33 +94,6 @@ def combineFiles(log_dir):
             
             print("{} missed messages: ".format(key))
             print(topics_with_empty_count)
-
-            # Plot vehicle data
-            bridge_df_combined = bridge_df_combined[bridge_df_combined['Message Time'].isnull()]
-            bridge_df_combined['Payload Timestamp'] = pd.to_datetime(bridge_df_combined['Payload Timestamp'], infer_datetime_format=True)
-            bridge_df_combined['Message Time'] = pd.to_datetime(bridge_df_combined['Message Time'], infer_datetime_format=True)
-            
-
-            ax1 = plt.plot(bridge_df_combined['Topic'], bridge_df_combined['Payload Timestamp'], '|')
-            
-            #Plot start and end lines
-            start_time = pd.to_datetime(messaging_server_dfs[key]['Log_Timestamp(s)'].iloc[0])
-            end_time = pd.to_datetime(messaging_server_dfs[key]['Log_Timestamp(s)'].iloc[-1])
-
-            plt.axhline(y = start_time, color = 'r', linestyle = '-', label = 'Test Start Time')
-            plt.axhline(y = end_time, color = 'r', linestyle = '-', label = 'Test End Time')
-
-            plt.title('{} : Topics against time of dropped message'.format(key))
-            plt.xlabel('Topics with dropped messages hours:mins:seconds')
-            plt.ylabel('Time of message drop')
-            xfmt = mdates.DateFormatter('%H:%M:%S')
-            plt.gcf().autofmt_xdate()
-            plt.show()
-            # plt.savefig('{}_Message_drop.png'.format(key))
-
-    
-
-
 
 
 def main():

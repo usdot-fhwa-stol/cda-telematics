@@ -12,7 +12,6 @@ const RolesDropDown = (props) => {
         setSelectedOrgRole(props.role);
     },[props])
     return (
-        <React.Fragment>
             <FormControl sx={{ minWidth: 120 }} size="small" fullWidth>
                 <InputLabel id="user-role-select-small">User Role</InputLabel>
                 <Select
@@ -26,7 +25,6 @@ const RolesDropDown = (props) => {
                     <MenuItem value={USER_ROLES.VIEWER} key={USER_ROLES.VIEWER}>{USER_ROLES.VIEWER}</MenuItem>
                 </Select>
             </FormControl>
-        </React.Fragment>
     )
 }
 

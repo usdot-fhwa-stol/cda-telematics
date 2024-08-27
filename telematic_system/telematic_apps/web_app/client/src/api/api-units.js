@@ -1,17 +1,20 @@
 
 import axios from 'axios';
+import {env} from "../env"
+import { constructError } from './api-utils';
 /**
  *@brief Create a unit
  * @Return Response status and message
  */
 const createUnit = async (unit) => {
     try {
-        const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/units/create`
+        const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/units/create`
         const { data } = await axios.post(URL, unit, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return constructError(err)
+  
     }
 };
 
@@ -21,12 +24,13 @@ const createUnit = async (unit) => {
  */
 const findAllUnits = async () => {
     try {
-        const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/units/all`
+        const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/units/all`
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return constructError(err)
+  
     }
 };
 

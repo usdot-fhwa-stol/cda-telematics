@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -27,7 +27,7 @@ const EventsFilter = (props) => {
       <Grid container item xs={12} columnSpacing={3} sx={{ margin: '0px 3px' }}>
         <Box sx={{ width: '100%' }}>
           <Card>
-            <CardHeader sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }} title="Filters" titleTypographyProps={{ variant: 'title' }} />
+            <CardHeader sx={{ color: "#000", backgroundColor: "#eee", padding: 1 }} title="Filter Events" titleTypographyProps={{ variant: 'title' }} />
             <CardContent>
               <EventsFilterForm eventInfoList={props.eventInfoList} onFilterEvents={onFilterEventsHandler} testingTypeList={props.testingTypeList} locationList={props.locationList} />
             </CardContent>

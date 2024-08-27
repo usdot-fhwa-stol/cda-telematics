@@ -3,7 +3,6 @@ import React from 'react';
 import UserOrgRoleTableRow from './UserOrgRoleTableRow';
 const UserOrgRoleTable = (props) => {
     return (
-        <React.Fragment>
             <Table size="small" aria-label="user-role-table" >
                 <TableHead >
                     <TableRow >
@@ -14,14 +13,13 @@ const UserOrgRoleTable = (props) => {
                 </TableHead>
                 <TableBody>
                     {props.userCurOrgsRoles !== undefined && props.userCurOrgsRoles.map((userOrgRole) => (
-                        <UserOrgRoleTableRow userOrgRole={userOrgRole}
+                        <UserOrgRoleTableRow key={`user-org-role-table-row-${userOrgRole.id}`} userOrgRole={userOrgRole}
                             onUserOrgRoleChange={props.onUserOrgRoleChange}
                             onUserOrgRoleDelete={props.onUserOrgRoleDelete}
                             onChangeServerAdmin ={props.onChangeServerAdmin} />
                     ))}
                 </TableBody>
             </Table>
-        </React.Fragment>
     )
 }
 

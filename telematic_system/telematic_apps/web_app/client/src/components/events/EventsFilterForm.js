@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,11 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import { Button, Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import { Checkbox, FormControl, FormControlLabel, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers'
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import React, { useState } from 'react'
 import { findAllEvents } from '../../api/api-events'
+import { CustomizedButton } from '../ui/CustomizedButton'
 import { INVALID_EVENT_NAME_ID_STR, INVALID_LOCATION_ID, INVALID_LOCATION_ID_STR, INVALID_TESTING_TYPE_ID, INVALID_TESTING_TYPE_ID_STR, LIVE_EVENT } from './EventMetadata'
 
 const EventsFilterForm = (props) => {
@@ -168,7 +169,7 @@ const EventsFilterForm = (props) => {
       </FormControl>
 
       <FormControl sx={{ margin: 1 }}>
-        <Button variant="outlined" size='large' onClick={onFilterEventsHandler}>Search</Button>
+        <CustomizedButton onClick={onFilterEventsHandler}>Search</CustomizedButton>
       </FormControl>
     </React.Fragment>
   )

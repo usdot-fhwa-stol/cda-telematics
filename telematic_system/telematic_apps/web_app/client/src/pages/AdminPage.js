@@ -1,21 +1,21 @@
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import { Grid, Typography } from '@mui/material';
-import React, { useEffect, useState } from 'react';
-import { addOrgUser, deleteOrgUser, listOrgs, listOrgUsers, updateOrgUser } from '../api/api-org';
+import React, { useEffect } from 'react';
+import { addOrgUser, deleteOrgUser, listOrgUsers, listOrgs, updateOrgUser } from '../api/api-org';
 import { listUsers, updateUserServerAdmin } from '../api/api-user';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
 import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
-import UserRoleManagement from '../components/users/admin/UserRoleManagement';
 import { USER_ROLES } from '../components/users/UserMetadata';
+import UserRoleManagement from '../components/users/admin/UserRoleManagement';
 import AuthContext from '../context/auth-context';
 
-const AdminPage = () => {
+const AdminPage = React.memo(() => {
     //Add Alert notification
-    const [alertStatus, setAlertStatus] = useState({});
-    const [users, setUsers] = useState([]);
-    const [orgs, setOrgs] = useState([]);
-    const [orgsUsers, setOrgsUsers] = useState([]);
+    const [alertStatus, setAlertStatus] = React.useState({});
+    const [users, setUsers] =  React.useState([]);
+    const [orgs, setOrgs] =  React.useState([]);
+    const [orgsUsers, setOrgsUsers] =  React.useState([]);
     const authContxt = React.useContext(AuthContext);
 
     const closeAlertHandler = () => {
@@ -79,7 +79,6 @@ const AdminPage = () => {
     }
 
     useEffect(() => {
-        authContxt.updateViewCount();
         const user_response = listUsers();
         user_response.then(data => {
             if (data !== undefined && Array.isArray(data) && data.length !== 0) {
@@ -159,7 +158,7 @@ const AdminPage = () => {
                 <UserRoleManagement
                     users={users}
                     orgs={orgs}
-                    orgsUsers={orgsUsers}
+                    orgsusers={orgsUsers}
                     onAddUserToOrg={handleAddUserToOrg}
                     onUserOrgRoleChange={handleUserOrgRoleChange}
                     onUserOrgRoleDelete={handleUserOrgRoleDelete}
@@ -167,6 +166,6 @@ const AdminPage = () => {
             }
         </React.Fragment>
     )
-}
+});
 
 export default AdminPage

@@ -40,14 +40,14 @@ class LogType(Enum):
     FILE = "file"
     CONSOLE = "console"
     ALL = "all"
-    
+
 class FileListener(FileSystemEventHandler):
     """
     The FileListener class is used to listen to the carma cloud log file for new TCR/TCM messages.
     """
     def __init__(self, cc_logpath, bridge_logname, tcr_search_string, tcm_search_string):
         self.lock = Lock()
-        self.logger = logging.getLogger(bridge_logname) 
+        self.logger = logging.getLogger(bridge_logname)
         self.tcr_search_string = tcr_search_string
         self.tcm_search_string = tcm_search_string
         self.cc_log_path = cc_logpath
@@ -59,12 +59,12 @@ class FileListener(FileSystemEventHandler):
         f.close()
 
         self.logger.info("FileListener created for: " + str(self.cc_log_path))
-    
+
     def findNewCarmaCloudMessage(self):
         """This method will parse the newly generated line in the carma cloud log file and assign
         the xml and message type to the appropriate global variables. It also assigns the epoch_time
         variable which will be used to create a bridge timestamp that will be added to the message sent
-        to nats """   
+        to nats """
 
         with open(f'{self.cc_log_path}', 'r', encoding="utf-8") as f:
             line_count = 1
@@ -86,21 +86,21 @@ class FileListener(FileSystemEventHandler):
                     if self.tcm_search_string in newLine and "TCM" in subscriber_list:
                         topic = "TCM"
                         startingIndex = newLine.find("<")
-                        new_carma_cloud_message = newLine[startingIndex:]                                
+                        new_carma_cloud_message = newLine[startingIndex:]
                         self.logger.info("Carma Cloud generated new " + str(topic) + " message with payload: " + str(new_carma_cloud_message))
-                        
+
                         message_queue.put([topic, new_carma_cloud_message, epoch_time])
                         self.logger.info("Current queue size: " + str(message_queue.qsize()))
 
                     elif self.tcr_search_string in newLine and "TCR" in subscriber_list:
                         topic = "TCR"
                         startingIndex = newLine.find("<")
-                        new_carma_cloud_message = newLine[startingIndex:]                                
+                        new_carma_cloud_message = newLine[startingIndex:]
                         self.logger.info("Carma Cloud generated new " + str(topic) + " message with payload: " + str(new_carma_cloud_message))
-                        
+
                         message_queue.put([topic, new_carma_cloud_message, epoch_time])
                         self.logger.info("Current queue size: " + str(message_queue.qsize()))
-                       
+
                     self.current_lines = line_count
 
                 line_count += 1
@@ -125,8 +125,7 @@ class CloudNatsBridge():
     def __init__(self):
 
         # Retrieve config values from environment variables
-        self.nats_ip = os.getenv('NATS_IP')
-        self.nats_port = os.getenv('NATS_PORT')
+        self.nats_ip_port = os.getenv("NATS_SERVER_IP_PORT")
         self.unit_id = os.getenv('CARMA_CLOUD_BRIDGE_UNIT_ID')
         self.unit_type = os.getenv('CARMA_CLOUD_BRIDGE_UNIT_TYPE')
         self.carma_cloud_log = os.getenv('CARMA_CLOUD_LOG')
@@ -169,7 +168,6 @@ class CloudNatsBridge():
             for excluded in self.excludedTopics.split(","):
                 self.exclusion_list.append(excluded.strip())
         self.logger.info("Exclusion list: " + str(self.exclusion_list))
-        
         self.file_listener_start()
         self.logger.info(" Created Cloud-NATS bridge object")
 
@@ -185,7 +183,7 @@ class CloudNatsBridge():
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
         # Create a rotating log handler that will rotate after maxBytes rotation, that can be configured in the
-        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size       
+        # params yaml file. The backup count is how many rotating logs will be created after reaching the maxBytes size
         if log_type == LogType.FILE.value:
             self.log_handler = RotatingFileHandler(
                 self.log_path+log_name, maxBytes=self.log_rotation, backupCount=5)
@@ -203,7 +201,7 @@ class CloudNatsBridge():
             self.logger.setLevel(logging.ERROR)
             self.log_handler.setLevel(logging.ERROR)
 
-        self.logger.addHandler(self.log_handler)  
+        self.logger.addHandler(self.log_handler)
 
     def file_listener_start(self):
         """
@@ -214,7 +212,7 @@ class CloudNatsBridge():
         directory = "/" + splitter[1] + "/" + splitter[2] + "/" + splitter[3]
 
         event_handler = FileListener(self.carma_cloud_log, self.log_name, self.tcr_search_string, self.tcm_search_string)
-        observer = Observer()        
+        observer = Observer()
         observer.schedule(event_handler, directory, recursive=True)
         observer.start()
 
@@ -231,6 +229,9 @@ class CloudNatsBridge():
 
         return json_data
             
+    async def queue_send(self):
+        self.logger.info("In queue send")
+
     async def queue_send(self):
         self.logger.info("In queue send")
 
@@ -255,7 +256,7 @@ class CloudNatsBridge():
                 message[EventKeys.LOCATION.value] = self.cloud_info[EventKeys.LOCATION.value]
                 message[TopicKeys.TOPIC_NAME.value] = topic
                 message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
-                message["log_timestamp"] = log_timestamp 
+                message["log_timestamp"] = log_timestamp
 
                 # telematic cloud server will look for topic names with the pattern ".data."
                 self.topic_name = "cloud." + self.unit_id + ".data." + topic
@@ -272,7 +273,7 @@ class CloudNatsBridge():
             the public ipv4 address of the EC2 instance should be used.
         """
         self.logger.info(" In nats_connect: Attempting to connect to nats server at: " +
-                         str(self.nats_ip) + ":" + str(self.nats_port))
+                         str(self.nats_ip_port))
 
         async def disconnected_cb():
             self.logger.info(
@@ -288,7 +289,7 @@ class CloudNatsBridge():
                 " In nats_connect: Error with nats server: {0}".format(err))
 
         try:
-            await self.nc.connect("nats://"+str(self.nats_ip)+":"+str(self.nats_port),
+            await self.nc.connect("nats://"+str(self.nats_ip_port),
                                   error_cb=error_cb,
                                   reconnected_cb=reconnected_cb,
                                   disconnected_cb=disconnected_cb,
@@ -326,7 +327,7 @@ class CloudNatsBridge():
 
     async def register_unit(self):
         """
-            send request to server to register unit and waits for ack 
+            send request to server to register unit and waits for ack
         """
         self.logger.info("Entering register unit")
         cloud_info_message = json.dumps(self.cloud_info, ensure_ascii=False).encode('utf8')
@@ -348,7 +349,7 @@ class CloudNatsBridge():
 
     async def check_status(self):
         """
-            process request from server to check status 
+            process request from server to check status
         """
         async def send_status(msg):
             await self.nc.publish(msg.reply, b"OK")

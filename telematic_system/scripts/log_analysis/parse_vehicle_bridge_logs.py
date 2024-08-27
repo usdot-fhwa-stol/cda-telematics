@@ -11,6 +11,7 @@ import pandas as pd
 
 def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
     filename = logname.split(".")[0]
+    print(filename)
 
     with open(logname, 'r') as vehicle_bridge_log:
         results_file = open(f'{filename}_{run_num}_parsed.csv', 'w')
@@ -24,7 +25,6 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
         
         # For each published message logged, convert payload to json and extract required info
         for line in vehicle_bridge_log:
-            print(line)
             topic_name = ""
             unit_id = ""
             
@@ -41,6 +41,7 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
             
             
             line_split = line.split("\\r\\n\"")[0]
+            print(line_split)
             
             payload = line_split.replace('\\', "")
             payload_json = json.loads(payload)
@@ -89,6 +90,8 @@ def main():
         test_case = (logname.split("/")[-1]).split("_")[0]
         runs_string = ((logname.split("/")[-1]).split("_")[1].split(".")[0])[1:]
         runs_range_split = runs_string.split('-')
+        print("test case: "+ test_case)
+        print("runs_string: "+ runs_string)
         if len(runs_range_split) == 1:
             runs_range = range(int(runs_range_split[0]),int(runs_range_split[0]) + 1)
         else:
@@ -109,6 +112,9 @@ def main():
             
             if int(run_num) in runs_range: 
 
+                print("start time epoch: " + str(start_time_epoch))
+                print("end time epoch: " + str(end_time_epoch))
+                print(runs_range)
                 print("Run num: ", run_num)
                 parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num)
 

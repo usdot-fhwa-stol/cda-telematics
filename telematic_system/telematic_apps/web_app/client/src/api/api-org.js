@@ -1,28 +1,32 @@
 import axios from 'axios';
+import {env} from "../env"
+import { constructError } from './api-utils';
 const listOrgs = async () => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/all`
+    const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/org/all`
     try {
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return constructError(err)
+  
     }
 }
 
 const listOrgUsers = async () => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/all/users`
+    const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/org/all/users`
     try {
         const { data } = await axios.get(URL, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return constructError(err)
+  
     }
 }
 
 const addOrgUser = async (reqData) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/user/add`
+    const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/org/user/add`
 
     try {
         const { data } = await axios.post(URL, {
@@ -30,27 +34,29 @@ const addOrgUser = async (reqData) => {
         }, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return constructError(err)
+  
     }
 }
 
 const getUserRole = async (reqData) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/role/get`
+    const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/org/role/get`
     try {
         const { data } = await axios.post(URL, {
             data: reqData
         }, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return constructError(err)
+  
     }
 }
 
 
 const getOrgsByUser = async (userId) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/user/find`
+    const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/org/user/find`
 
     try {
         const { data } = await axios.post(URL, {
@@ -58,13 +64,14 @@ const getOrgsByUser = async (userId) => {
         }, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return constructError(err)
+  
     }
 }
 
 const updateOrgUser = async (reqData) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/user/update`
+    const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/org/user/update`
 
     try {
         const { data } = await axios.post(URL, {
@@ -72,23 +79,24 @@ const updateOrgUser = async (reqData) => {
         }, { withCredentials: true });
         return data;
     } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+        
+          return constructError(err)
+  
     }
 }
 
 
 const deleteOrgUser = async (req) => {
-    const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/org/user/delete`
+    const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/org/user/delete`
     if (req === undefined || req.user_id === undefined || req.org_id === undefined) {
-        console.error("Cannot delete org user because request data is empty")
+        return { errCode: "", errMsg: "Cannot delete org user because request data is empty"};
     }
     try {
         const { data } = await axios.delete(URL + "?org_id=" + req.org_id + "&user_id=" + req.user_id, { withCredentials: true });
         return data;
-    } catch (err) {
-        console.log(err);
-        return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    } catch (err) {        
+          return constructError(err)
+  
     }
 }
 

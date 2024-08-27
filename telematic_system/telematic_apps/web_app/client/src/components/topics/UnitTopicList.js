@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,13 +13,13 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-import SyncIcon from '@mui/icons-material/Sync';
-import { Button, Card, CardContent, CardHeader, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, Tooltip, Typography } from '@mui/material';
+import { Card, CardContent, CardHeader, FormControl, Grid, InputLabel, MenuItem, OutlinedInput, Select, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import React, { useContext, useEffect, useState } from 'react';
 import { getAvailableLiveTopicsByEventUnits } from '../../api/api-topics';
 import AuthContext from '../../context/auth-context';
 import TopicContext from '../../context/topic-context';
+import { CustomizedRefreshButton } from '../ui/CustomizedRefreshButton';
 import { USER_ROLES } from '../users/UserMetadata';
 import DefaultTopicSettings from './DefaultTopicSettings';
 import TopicList from './TopicList';
@@ -232,7 +232,6 @@ const UnitTopicList = React.memo((props) => {
     }, [props]);
 
     return (
-        <React.Fragment>
             <Grid container item xs={6} >
                 <Box sx={{ width: '100%' }}>
                     <Card>
@@ -258,16 +257,13 @@ const UnitTopicList = React.memo((props) => {
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={1} >
-                                    <FormControl sx={{ m: 1, width: 30, display: "inline-flex" }}>
-                                        <Tooltip title={`Send request to get latest topic list for the selected ${props.unitSectionTitle}s.`} placement="top" arrow>
-                                            <Button variant="outlined" size='large' key={`refresh-${props.unitSectionTitle}-topics`} onClick={refreshAvailableLiveTopics4SelectedUnit}>
-                                                <SyncIcon sx={{ color: '#2196f3' }} />
-                                            </Button>
-                                        </Tooltip>
+                                    <FormControl sx={{ marginLeft: 1, width: 30, display: "inline-flex" }}>
+                                    <CustomizedRefreshButton title={`Send request to get latest topic list for the selected ${props.unitSectionTitle}s.`} 
+                                        key={`refresh-${props.unitSectionTitle}-topics`}  onClick ={refreshAvailableLiveTopics4SelectedUnit} />
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={2}>
-                                    <FormControl sx={{ m: 1, width: '100%', display: "inline-flex" }}>
+                                    <FormControl sx={{ marginLeft: 3, width: '100%', display: "inline-flex" }}>
                                         {isRefreshed && refreshMsg.length > 0 && <Typography sx={{ color: 'green' }} style={{ flex: 1 }}>{refreshMsg}</Typography>}
                                         {!isRefreshed && refreshMsg.length > 0 && <Typography sx={{ color: 'red' }} style={{ flex: 1 }}>{refreshMsg}</Typography>}
                                     </FormControl>
@@ -284,7 +280,6 @@ const UnitTopicList = React.memo((props) => {
                     </Card>
                 </Box>
             </Grid>
-        </React.Fragment>
     )
 });
 

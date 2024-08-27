@@ -48,8 +48,8 @@ public class TopicsService {
     @GetMapping(value = "requestAvailableTopics/{unitId}")
     public ResponseEntity<String> requestAvailableTopics(@PathVariable("unitId") String unitId) {
         String subject = unitId + "." + availableTopicSubject;
-        logger.debug("Available topics request. subject: " + subject);
-        String error_msg = "";
+        logger.debug("Available topics request. subject: {}" , subject);
+        String errorMsg = "";
         Connection conn = natsConn.getConnection();
         if (conn != null) {
             try {
@@ -57,21 +57,23 @@ public class TopicsService {
                 Message msg;
                 msg = future.get();
                 String reply = new String(msg.getData(), StandardCharsets.UTF_8);
-                logger.debug("Available topics request. Reply: " + reply);
+                logger.debug("Available topics request. Reply: {}" , reply);
                 return new ResponseEntity<>(reply, HttpStatus.OK);
             } catch (InterruptedException | ExecutionException e) {
-                error_msg = "Response interrupted for subject: " + subject;
-                logger.error(error_msg, e);
-                return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
+                errorMsg = "Response interrupted for subject: " + subject;
+                logger.error(errorMsg, e);
+                /* Clean up whatever needs to be handled before interrupting  */
+                Thread.currentThread().interrupt();
+                return new ResponseEntity<>(errorMsg, HttpStatus.INTERNAL_SERVER_ERROR);
             } catch (CancellationException e) {
-                error_msg = "No response from subject: " + subject;
-                logger.error(error_msg, e);
-                return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
+                errorMsg = "No response from subject: " + subject;
+                logger.error(errorMsg, e);
+                return new ResponseEntity<>(errorMsg, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } else {
-            error_msg = "NATS Connection failed";
-            logger.error(error_msg);
-            return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
+            errorMsg = "NATS Connection failed";
+            logger.error(errorMsg);
+            return new ResponseEntity<>(errorMsg, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -84,39 +86,41 @@ public class TopicsService {
      */
     @PostMapping(value = "requestSelectedTopics")
     public ResponseEntity<String> requestSelectedTopics(@RequestBody String body) {
-        logger.debug("Selected topics request. body: " + body);
+        logger.debug("Selected topics request. body: {}" , body);
         Connection conn = natsConn.getConnection();
-        String error_msg = "";
+        String errorMsg = "";
         if (conn != null) {
             try {
                 JSONParser parser = new JSONParser();
                 JSONObject jsonObj = (JSONObject) parser.parse(body);
                 String unitId = (String) jsonObj.get("unit_id");
                 String subject = unitId + "." + publishDataToTopicSubject;
-                logger.debug("Selected topics request. subject: " + subject);
+                logger.debug("Selected topics request. subject: {}", subject);
                 Future<Message> future = conn.request(subject,
                         body.getBytes(StandardCharsets.UTF_8));
                 Message msg = future.get();
                 String reply = new String(msg.getData(), StandardCharsets.UTF_8);
-                logger.debug("Selected topics request. Reply: " + reply);
+                logger.debug("Selected topics request. Reply: {}" , reply);
                 return new ResponseEntity<>(reply, HttpStatus.OK);
             } catch (InterruptedException | ExecutionException e) {
-                error_msg = "Response interrupted for subject: " + publishDataToTopicSubject;
-                logger.error(error_msg, e);
-                return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
+                errorMsg = "Response interrupted for subject: " + publishDataToTopicSubject;
+                logger.error(errorMsg, e);
+                /* Clean up whatever needs to be handled before interrupting  */
+                Thread.currentThread().interrupt();
+                return new ResponseEntity<>(errorMsg, HttpStatus.INTERNAL_SERVER_ERROR);
             } catch (CancellationException e) {
-                error_msg = "No response from subject: " + publishDataToTopicSubject;
-                logger.error(error_msg, e);
-                return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
+                errorMsg = "No response from subject: " + publishDataToTopicSubject;
+                logger.error(errorMsg, e);
+                return new ResponseEntity<>(errorMsg, HttpStatus.INTERNAL_SERVER_ERROR);
             } catch (ParseException e) {
-                error_msg = "Cannot parse requestSelectTopics body";
-                logger.error(error_msg, e);
-                return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
+                errorMsg = "Cannot parse requestSelectTopics body";
+                logger.error(errorMsg, e);
+                return new ResponseEntity<>(errorMsg, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } else {
-            error_msg = "NATS Connection failed";
-            logger.error(error_msg);
-            return new ResponseEntity<>(error_msg, HttpStatus.INTERNAL_SERVER_ERROR);
+            errorMsg = "NATS Connection failed";
+            logger.error(errorMsg);
+            return new ResponseEntity<>(errorMsg, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

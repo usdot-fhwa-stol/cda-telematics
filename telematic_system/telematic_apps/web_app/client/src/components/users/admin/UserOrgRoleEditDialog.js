@@ -1,16 +1,17 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, ToggleButton, ToggleButtonGroup, Tooltip, Typography } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, FormHelperText, Grid, InputLabel, MenuItem, Select, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import React, { useState } from 'react';
+import React from 'react';
 import AuthContext from '../../../context/auth-context';
+import { CustomizedButton } from '../../ui/CustomizedButton';
 import RolesDropDown from './RolesDropDown';
 import UserOrgRoleTable from './UserOrgRoleTable';
 
 const UserOrgRoleEditDialog = (props) => {
-    const [isAdmin, setIsAdmin] = useState('NO');
-    const [isChangeAdmin, setIsChangeAdmin] = useState(false);
-    const [selectedOrg, setSelectedOrg] = useState('');
-    const [orgAssignErr, setOrgAssignErr] = useState({});
-    const [selectedOrgRole, setSelectedOrgRole] = useState('');
+    const [isAdmin, setIsAdmin] = React.useState('NO');
+    const [isChangeAdmin, setIsChangeAdmin] = React.useState(false);
+    const [selectedOrg, setSelectedOrg] = React.useState('');
+    const [orgAssignErr, setOrgAssignErr] = React.useState({});
+    const [selectedOrgRole, setSelectedOrgRole] = React.useState('');
     const authContxt = React.useContext(AuthContext);
     const handleUserRoleChange = (role) => {
         setSelectedOrgRole(role);
@@ -118,7 +119,7 @@ const UserOrgRoleEditDialog = (props) => {
         <React.Fragment>
             <Dialog open={props.open} onClose={handleClose}>
                 <DialogTitle sx={{ fontWeight: "bolder" }}>
-                    Update roles and organizations for user:  <Box sx={{ display: "inline", color: 'green' }}>
+                    Update roles and organizations for user :  <Box sx={{ display: "inline", color: 'green' }}>
                         {
                             props.userRow !== undefined &&
                                 props.userRow.login !== undefined ? props.userRow.login : ""
@@ -158,9 +159,10 @@ const UserOrgRoleEditDialog = (props) => {
                                 </Select>
                             </FormControl>
                             <RolesDropDown role={selectedOrgRole} onUserOrgRoleChange={handleUserRoleChange} />
-                            <Tooltip title="Click assign button to add user to the selected organizations." placement="top-start">
-                                <Button onClick={handleAddUserToOrg} variant="contained" sx={{ marginTop: 1 }}>Assign</Button>
-                            </Tooltip>
+                            <CustomizedButton title="Click assign button to add user to the selected organizations." 
+                                onClick={handleAddUserToOrg} data-testid='assign-user-to-org'>
+                                Assign
+                            </CustomizedButton>
                             {
                                 orgAssignErr.color !== undefined && orgAssignErr.message !== undefined &&
                                 <FormHelperText sx={{
@@ -197,17 +199,17 @@ const UserOrgRoleEditDialog = (props) => {
                                                 exclusive
                                                 onChange={handleAdminValue}
                                                 aria-label="text alignment">
-                                                <ToggleButton value="YES" aria-label="YES aligned" >
+                                                <ToggleButton value="YES" aria-label="YES aligned" data-testid="YES-aligned" >
                                                     Yes
                                                 </ToggleButton>
-                                                <ToggleButton value="NO" aria-label="NO aligned">
+                                                <ToggleButton value="NO" aria-label="NO aligned" data-testid="NO-aligned">
                                                     No
                                                 </ToggleButton>
                                             </ToggleButtonGroup>
                                         }
                                     </Grid>
                                     <Grid item xs={4}>
-                                        {!isChangeAdmin && <Button onClick={onClickisChangeAdmin} >Change</Button>}
+                                        {!isChangeAdmin && <Button onClick={onClickisChangeAdmin} data-testid='change-to-admin-btn' >Change</Button>}
                                         {
                                             isChangeAdmin &&
                                             <ToggleButtonGroup
@@ -217,10 +219,10 @@ const UserOrgRoleEditDialog = (props) => {
                                                 exclusive
                                                 onChange={handleIsChangeAdminConfirm}
                                                 aria-label="text alignment">
-                                                <ToggleButton value="y" aria-label="Change aligned">
+                                                <ToggleButton value="y" aria-label="Change aligned" data-testid='confirm-change-to-admin-toggle-btn'>
                                                     Change
                                                 </ToggleButton>
-                                                <ToggleButton value="n" aria-label="Cancel aligned">
+                                                <ToggleButton value="n"  data-testid='cancel-admin-toggle-btn'  aria-label="Cancel aligned">
                                                     Cancel
                                                 </ToggleButton>
                                             </ToggleButtonGroup>
@@ -247,7 +249,7 @@ const UserOrgRoleEditDialog = (props) => {
                         onUserOrgRoleDelete={props.onUserOrgRoleDelete} />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose} variant="outlined">Close</Button>
+                    <CustomizedButton title="Close user org role dialog" data-testid='close-assign-user-to-org' onClick={handleClose}>Close</CustomizedButton>
                 </DialogActions>
             </Dialog>
         </React.Fragment >

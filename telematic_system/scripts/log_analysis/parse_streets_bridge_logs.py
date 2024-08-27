@@ -7,6 +7,7 @@ import pytz
 import re
 import numpy as np
 import pandas as pd
+import re
 
 
 def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
@@ -54,11 +55,7 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
 
             if 'timestamp' in payload_json:
                 timestamp_string = str(payload_json['timestamp'])[:-1]
-                # The 0's at the end of the timestamp can be rounded off at times, so divide by power required to keep timestamp current
-                if len(timestamp_string) > 10:
-                    exponent = len(timestamp_string) - 10
-                time_in_s = float(timestamp_string)/(10 **exponent)
-
+                time_in_s = float(timestamp_string)/1e6
             
             else:
                 print("Couldn't find timestamp in payload, exiting")
@@ -66,7 +63,6 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
             
             if time_in_s == 0:
                 continue
-            
             payload_time_in_datetime = datetime.datetime.fromtimestamp(time_in_s)
             payload_timestamp_utc = (payload_time_in_datetime.astimezone(pytz.utc)).replace(tzinfo=None)
             metadata = payload_timestamp_utc

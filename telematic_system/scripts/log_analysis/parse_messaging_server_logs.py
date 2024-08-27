@@ -69,7 +69,7 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
                # Get write time 
                 write_time_split = log_line.split("INFO")
                 write_time_string = write_time_split[0][:len(write_time_split[0]) - 2]
-                log_time_in_datetime = datetime.datetime.strptime(write_time_string, '%Y-%m-%d %H:%M:%S.%f')
+                log_time_in_datetime = datetime.datetime.strptime(write_time_string, '%Y-%m-%dT%H:%M:%S.%fZ')
                     
             
                 payload_index = log_line.index(search_string) + 1
@@ -204,7 +204,11 @@ def main():
             run_num = test_df['Run'].values[index].split('R')[1]
             
             if int(run_num) in runs_range: 
-
+                print("start time epoch: " + str(start_time_epoch))
+                print("end time epoch: " + str(end_time_epoch))
+                print("test case: "+ test_case)
+                print("runs_string: "+ runs_string)
+                print(runs_range)
                 print("Run num: ", run_num)
                 parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num)
             

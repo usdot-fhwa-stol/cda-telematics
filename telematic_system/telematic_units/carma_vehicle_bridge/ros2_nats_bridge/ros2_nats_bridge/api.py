@@ -59,6 +59,9 @@ class Ros2NatsBridgeNode(Node):
         self.registered = False
         self.subscribers_list = {}
         self.exclusion_list = []
+        
+        # Get is_sim env variable as boolean
+        self.is_sim = os.getenv("IS_SIM", 'False').lower() in ('true', '1')
 
         self.vehicle_info = {
             UnitKeys.UNIT_ID.value: os.getenv("VEHICLE_BRIDGE_UNIT_ID"),
@@ -281,7 +284,8 @@ class Ros2NatsBridgeNode(Node):
                     exec("from " + msg_type[0] + '.' +
                             msg_type[1] + " import " + msg_type[2])
                     call_back = self.CallBack(i[1][0], topic, self.nc, self.vehicle_info[UnitKeys.UNIT_ID.value], self.vehicle_info[UnitKeys.UNIT_TYPE.value],
-                                                self.vehicle_info[UnitKeys.UNIT_NAME.value], self.vehicle_info[EventKeys.EVENT_NAME.value], self.vehicle_info[EventKeys.TESTING_TYPE.value], self.vehicle_info[EventKeys.LOCATION.value], self.logger)
+                                                self.vehicle_info[UnitKeys.UNIT_NAME.value], self.vehicle_info[EventKeys.EVENT_NAME.value], self.vehicle_info[EventKeys.TESTING_TYPE.value], self.vehicle_info[EventKeys.LOCATION.value], 
+                                                self.is_sim, self.logger)
                     try:
                         self.subscribers_list[topic] = self.create_subscription(
                             eval(msg_type[2]), topic, call_back.listener_callback, 10)
@@ -303,7 +307,7 @@ class Ros2NatsBridgeNode(Node):
 
 
     class CallBack():
-        def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name, event_name, testing_type, location, logger):
+        def __init__(self, msg_type, topic_name, nc, unit_id, unit_type, unit_name, event_name, testing_type, location, is_sim, logger):
             """
                 initilize CallBack class
                 declare Nats client 
@@ -321,6 +325,7 @@ class Ros2NatsBridgeNode(Node):
             self.logger = logger
             self.logger.info("Publishing on topic: "+ self.topic_name)
             self.nc = nc
+            self.is_sim = is_sim
 
         async def listener_callback(self, msg):
             """
@@ -342,28 +347,32 @@ class Ros2NatsBridgeNode(Node):
             nanosecondToSecond = 0.000000001 #convert nanoseconds to seconds
             secondToMicro = 1000000 #convert seconds to microseconds
 
-            #Check if the ROS message has a timestamp and use it for the NATS message
-            if "header" in ordereddict_msg["payload"]:
-                timestamp_seconds = int(ordereddict_msg["payload"]["header"]["stamp"]["sec"])
-                timestamp_nanoseconds_converted = int(ordereddict_msg["payload"]["header"]["stamp"]["nanosec"])*nanosecondToSecond
-
-                combined_timestamp = timestamp_seconds + timestamp_nanoseconds_converted
-                timestamp_microseconds = combined_timestamp*secondToMicro
-
-                ordereddict_msg["timestamp"] = timestamp_microseconds
-            #Check for "stamp" if the ROS message doesn't utilize the standard message header
-            elif "stamp" in ordereddict_msg["payload"]:
-                timestamp_seconds = int(ordereddict_msg["payload"]["stamp"]["sec"])
-                timestamp_nanoseconds_converted = int(ordereddict_msg["payload"]["stamp"]["nanosec"])*nanosecondToSecond
-
-                combined_timestamp = timestamp_seconds + timestamp_nanoseconds_converted
-                timestamp_microseconds = combined_timestamp*secondToMicro
-
-                ordereddict_msg["timestamp"] = timestamp_microseconds
-            #If no ROS timestamp (unit of microsecond that has at least 16 digits) is available, use the bridge time for the NATS message            
-            if "timestamp" not in ordereddict_msg or len(str(ordereddict_msg["timestamp"])) < 16:
+            # If simulation environment - use current system time instead of ros header time
+            if self.is_sim:
                 ordereddict_msg["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # microseconds
-            
+            else:   
+                #Check if the ROS message has a timestamp and use it for the NATS message
+                if "header" in ordereddict_msg["payload"]:
+                    timestamp_seconds = int(ordereddict_msg["payload"]["header"]["stamp"]["sec"])
+                    timestamp_nanoseconds_converted = int(ordereddict_msg["payload"]["header"]["stamp"]["nanosec"])*nanosecondToSecond
+
+                    combined_timestamp = timestamp_seconds + timestamp_nanoseconds_converted
+                    timestamp_microseconds = combined_timestamp*secondToMicro
+
+                    ordereddict_msg["timestamp"] = timestamp_microseconds
+                #Check for "stamp" if the ROS message doesn't utilize the standard message header
+                elif "stamp" in ordereddict_msg["payload"]:
+                    timestamp_seconds = int(ordereddict_msg["payload"]["stamp"]["sec"])
+                    timestamp_nanoseconds_converted = int(ordereddict_msg["payload"]["stamp"]["nanosec"])*nanosecondToSecond
+
+                    combined_timestamp = timestamp_seconds + timestamp_nanoseconds_converted
+                    timestamp_microseconds = combined_timestamp*secondToMicro
+
+                    ordereddict_msg["timestamp"] = timestamp_microseconds
+                #If no ROS timestamp (unit of microsecond that has at least 16 digits) is available, use the bridge time for the NATS message            
+                if "timestamp" not in ordereddict_msg or len(str(ordereddict_msg["timestamp"])) < 16:
+                    ordereddict_msg["timestamp"] = datetime.now(timezone.utc).timestamp()*secondToMicro  # microseconds
+                
             try:
                 json_message = json.dumps(ordereddict_msg)
                 self.logger.info("Publishing message: " + str(json_message))

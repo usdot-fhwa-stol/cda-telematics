@@ -9,34 +9,42 @@ import org.springframework.stereotype.Component;
 @Component
 public class JSON2KeyValuePairsConverter {
     /**
-     * @param json_str String JSON format consumed from NATS subject
-     * @param to_str_values Array of String to match in the JSON and convert the match to String data type value
+     * @param jsonStr String JSON format consumed from NATS subject
+     * @param toStrFields Array of String to match in the JSON and convert the match to String data type value
      * @return String of key value pairs separated by commas.
      */
-    public String convertJson2KeyValuePairs(String json_str, List<String> to_str_values) {
+    public String convertJson2KeyValuePairs(String jsonStr, List<String> toStrFields, List<String> ignoreFields) {
         String pairs = "";
         JSONParser parser = new JSONParser();
         try {
-            JSONObject json = (JSONObject) parser.parse(json_str);
-            int key_count = 0;
+            JSONObject json = (JSONObject) parser.parse(jsonStr);
+            int keyCount = 0;
             for (Object key : json.keySet()) {
-                key_count++;
+                keyCount++;
                 Object value = json.get(key.toString());
+                boolean isIgnored = false;
 
                 if (value == null || value.toString().isEmpty())
                 {
                     pairs += key + "=\"NA\"";
                 }
                 else {
-                    boolean is_skip = false;
-                    for (String value_item: to_str_values)
+                    for(String field: ignoreFields)
                     {
-                        if (key.toString().strip().equals(value_item)){
-                            pairs += key + "=\"" + value.toString().replaceAll("\\s", "") + "\"";
-                            is_skip = true;
+                        if(key.toString().strip().equalsIgnoreCase(field))   
+                        {
+                            isIgnored = true;
                         }
                     }
-                    if(!is_skip)
+                    boolean is_processed = false;
+                    for (String field: toStrFields)
+                    {
+                        if (key.toString().strip().equalsIgnoreCase(field)){
+                            pairs += key + "=\"" + value.toString().replaceAll("\\s", "") + "\"";
+                            is_processed = true;
+                        }
+                    }
+                    if(!is_processed && !isIgnored)
                     {
                         // Regex matching integers
                         if (value.toString().matches("[-+]?\\d*")) {
@@ -62,10 +70,15 @@ public class JSON2KeyValuePairsConverter {
                     }                    
                 }              
                 
-                if (json.keySet().size() != key_count) {
+                if (!isIgnored && json.keySet().size() != keyCount) {
                     pairs += ",";
                 }
-            }
+                //If last field is ignored, remove the tail comma
+                if(isIgnored && json.keySet().size() == keyCount && pairs.length() >= 1)
+                {
+                   pairs = pairs.substring(0, pairs.length()-1);
+                }
+            }//Loop through JSON keys
         } catch (ParseException e) {
             e.printStackTrace();
         }

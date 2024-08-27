@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,7 +15,7 @@
  */
 module.exports = app => {
   const users = require("../controllers/user.controller");
-  var router = require('express').Router();
+  let router = require('express').Router();
 
   /* GET users ping. */
   router.get('/ping', function (req, res, next) {

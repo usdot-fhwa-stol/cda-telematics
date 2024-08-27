@@ -2,18 +2,18 @@ import { yupResolver } from '@hookform/resolvers/yup';
 import KeyboardDoubleArrowLeftIcon from '@mui/icons-material/KeyboardDoubleArrowLeft';
 import PasswordIcon from '@mui/icons-material/Password';
 import { Alert, Avatar, Box, Button, Container, FormControl, Grid, Snackbar, TextField } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as Yup from 'yup';
 import { updatePassword } from '../api/api-user';
 import { SEVERITY } from '../components/users/UserMetadata';
 
-const ForgetPasswordPage = () => {
+const ForgetPasswordPage = React.memo(() => {
   const [open, setOpen] = useState(false);
   const [confirmNewPwd, setconfirmNewPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
-  const [errStatus, setErrorStatus] = useState('');
+  const [errStatus, setErrorStatus] = useState('info');
   const [errorMsg, setErrorMsg] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -126,6 +126,7 @@ const ForgetPasswordPage = () => {
                 <TextField id="name"
                   label="User Name *"
                   variant='outlined'
+                  inputProps={{'data-testid':'username'}}
                   fullWidth
                   {...register('name')}
                   error={errors.name ? true : false}
@@ -140,6 +141,7 @@ const ForgetPasswordPage = () => {
                   variant='outlined'
                   fullWidth
                   margin="normal"
+                  inputProps={{'data-testid':'email'}}
                   {...register('email')}
                   value={email}
                   error={errors.email ? true : false}
@@ -152,6 +154,7 @@ const ForgetPasswordPage = () => {
                   label="New Password *"
                   name="new_password"
                   type="password"
+                  inputProps={{'data-testid':'password'}}
                   fullWidth
                   value={newPwd}
                   margin="normal"
@@ -168,6 +171,7 @@ const ForgetPasswordPage = () => {
                   fullWidth
                   margin="normal"
                   name="confirm_new_password"
+                  inputProps={{'data-testid':'new_password'}}
                   type="password"
                   {...register('confirm_new_password')}
                   error={errors.confirm_new_password ? true : false}
@@ -199,6 +203,6 @@ const ForgetPasswordPage = () => {
       </ThemeProvider>
     </React.Fragment >
   )
-}
+});
 
 export default ForgetPasswordPage

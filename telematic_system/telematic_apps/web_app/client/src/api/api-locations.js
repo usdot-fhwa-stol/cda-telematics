@@ -1,5 +1,7 @@
 
 import axios from 'axios';
+import {env} from "../env"
+import { constructError } from './api-utils';
 
 /**
  *@brief Create a location
@@ -7,13 +9,14 @@ import axios from 'axios';
  * @Return Response status and message
  */
 const createLocation = async (location) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/locations/create`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/locations/create`
   try {
     const { data } = await axios.post(URL, location, { withCredentials: true });
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    
+      return constructError(err)
+  
   }
 }
 
@@ -22,13 +25,14 @@ const createLocation = async (location) => {
  * @Return Response status and a list of locations
  */
 const findAllLocations = async () => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/locations/all`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/locations/all`
   try {
     const { data } = await axios.get(URL, { withCredentials: true });
     return data;
   } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+    
+      return constructError(err)
+  
   }
 }
 

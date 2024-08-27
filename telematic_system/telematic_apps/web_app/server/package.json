@@ -3,36 +3,58 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/www",
+    "test": "cross-env NODE_ENV=test DOTENV_CONFIG_PATH=server.test.env jest --setupFiles=dotenv/config --testTimeout=60000 --coverage --verbose --detectOpenHandles  --forceExit",
+    "file-upload-server": "nodemon ./file_upload_server.js"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.485.0",
+    "@aws-sdk/lib-storage": "^3.485.0",
+    "@fortawesome/fontawesome-free": "^6.0.0",
+    "@sensorfactdev/mock-node-nats": "^0.3.3",
     "axios": "^0.27.2",
     "cookie-parser": "~1.4.4",
     "cookie-session": "^2.0.0",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.3",
     "debug": "~2.6.9",
     "dotenv": "^16.0.3",
     "express": "~4.16.1",
     "express-session": "^1.17.3",
     "htpasswd-mgr": "^1.1.7",
     "http-errors": "~1.6.3",
+    "jest": "^29.7.0",
+    "jsonwebtoken": "^9.0.2",
     "morgan": "~1.9.1",
     "mysql": "^2.18.1",
     "mysql2": "^2.3.3",
-    "nats": "2.7.1",
+    "nats": "^2.19.0",
     "password-salt-and-hash": "^1.0.5",
     "pug": "2.0.0-beta11",
     "request": "^2.88.2",
     "rest-request": "^1.0.12",
     "sequelize": "^6.25.2",
+    "supertest": "^6.3.3",
     "uuid-by-string": "^4.0.0"
   },
-  "author": "Samir Tabriz",
   "license": "Apache-2.0",
   "description": "telematic web app",
   "main": "app.js",
   "keywords": [],
   "devDependencies": {
     "nodemon": "^2.0.21"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ]
+  },
+  "env": {
+    "browser": true,
+    "node": true,
+    "jasmine": true,
+    "jest": true,
+    "es6": true
   }
 }

@@ -1,7 +1,8 @@
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
-import { Button, ButtonGroup, TableCell, TableRow, Tooltip } from '@mui/material';
+import { TableCell, TableRow } from '@mui/material';
 import React, { useState } from 'react';
 import AuthContext from '../../../context/auth-context';
+import { CustomizedButton } from '../../ui/CustomizedButton';
 import { USER_ROLES } from '../UserMetadata';
 import UserOrgRoleEditDialog from './UserOrgRoleEditDialog';
 
@@ -19,7 +20,7 @@ const UserTableRow = (props) => {
     }
     const updateSelectedUserOrgsRoles = () => {
         let userOrgs = [];
-        props.orgsUsers !== undefined && props.userRow !== undefined && props.orgsUsers.forEach(orgUser => {
+        props.orgsusers !== undefined && props.userRow !== undefined && props.orgsusers.forEach(orgUser => {
             //Checking whether current user is server admin or not. 
             //If the user is server admin, the user can see users from all organizations
             //If the user is not server admin, the user can only manage users from their own organizations
@@ -116,7 +117,7 @@ const UserTableRow = (props) => {
                                 <TableCell
                                     key={`user-org-role-${props.userRow.id}-${column.id}`} align={column.align}>
                                     {
-                                        props.orgsUsers !== undefined && props.orgsUsers.map(orgUser => {
+                                        props.orgsusers !== undefined && props.orgsusers.map(orgUser => {
                                             if (parseInt(authCtx.is_admin) !== 1 && parseInt(authCtx.org_id) !== orgUser.org_id) {
                                                 return null;
                                             }
@@ -145,7 +146,7 @@ const UserTableRow = (props) => {
                         } else {
                             return (
                                 <TableCell
-                                    key={`user-table-row-cell-${props.userRow.id}-${column.id}`} align={column.align} orgsUsers={props.orgsUsers}>
+                                    key={`user-table-row-cell-${props.userRow.id}-${column.id}`} align={column.align} orgsusers={props.orgsusers}>
                                     {value}
                                 </TableCell>
                             );
@@ -153,14 +154,12 @@ const UserTableRow = (props) => {
                     })
                 }
                 <TableCell key={`user-table-row-actions-${props.userRow.id}`}>
-                    <ButtonGroup variant="outlined" aria-label="controls">
-                        <Tooltip key={`user-table-row-control-${props.userRow.id}`} title="Update user organizations and roles">
-                            <Button onClick={handleOpen}><AssignmentIndIcon /></Button>
-                        </Tooltip>
-                    </ButtonGroup>
+                    <CustomizedButton data-testid = {`user-table-open-btn-${props.userRow.id}`} key={`user-table-row-control-${props.userRow.id}`} title="Update user organizations and roles" onClick={handleOpen}>
+                        <AssignmentIndIcon />
+                    </CustomizedButton>
                 </TableCell>
             </TableRow>
-            {open && <UserOrgRoleEditDialog key={'user-org-dialog'}
+             <UserOrgRoleEditDialog key={'user-org-dialog'}
                 open={open}
                 onClose={handleClose}
                 orgs={props.orgs}
@@ -169,7 +168,7 @@ const UserTableRow = (props) => {
                 curSelectedOrgsRoles={curSelectedOrgsRoles}
                 onUserOrgRoleChange={handleUserOrgRoleUpdate}
                 onUserOrgRoleDelete={handleUserOrgRoleDelete}
-                onChangeServerAdmin={props.onChangeServerAdmin} />}
+                onChangeServerAdmin={props.onChangeServerAdmin} />
         </React.Fragment>
     )
 }

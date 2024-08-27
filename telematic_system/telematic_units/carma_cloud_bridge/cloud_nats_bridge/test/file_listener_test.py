@@ -40,6 +40,7 @@ class TestFileListener():
         log_name = "test.log"
         tcr_search_string = "TrafficControlRequest" 
         tcm_search_string = "TrafficControlMessage"
+        cloud_nats_bridge.subscriber_list = ["TCR","TCM"]
         
         event_handler = FileListener(carma_cloud_log, log_name, tcr_search_string, tcm_search_string)
         newTCRLine = "[DEBUG 13:41:50.470 [] - TCR <?xml version=\"1.0\" encoding=\"UTF-8\"?><TrafficControlRequest><reqid>3A0D0145E8934B48</reqid><reqseq>0</reqseq><scale>0</scale><bounds><oldest>27484661</oldest><reflon>-818349472</reflon><reflat>281118677</reflat><offsets><deltax>376</deltax><deltay>0</deltay></offsets><offsets><deltax>376</deltax><deltay>1320</deltay></offsets><offsets><deltax>0</deltax><deltay>1320</deltay></offsets></bounds></TrafficControlRequest>"
@@ -47,18 +48,20 @@ class TestFileListener():
         
         self.unit_setup(event_handler)
 
-        #Verify new carma cloud message type is empty prior to adding TCR/TCM to the log file
-        assert (str(event_handler.getNewCarmaCloudMessageType()) == "")
+        #Verify new carma cloud message type is empty prior to adding TCR/TCM to the log file        
+        event_handler.findNewCarmaCloudMessage()
+        assert(cloud_nats_bridge.message_queue.qsize() == 0)
 
         #Append a TCR to the logfile and verify the new carma cloud message type updates appropriately
         self.append_TCR(newTCRLine)
         time.sleep(1)
-        assert (str(event_handler.getNewCarmaCloudMessageType()) == "TCR")
-
+        event_handler.findNewCarmaCloudMessage()
+        assert(cloud_nats_bridge.message_queue.qsize() == 1)
         #Append a TCM to the logfile and verify the new carma cloud message type updates appropriately
         self.append_TCM(newTCMLine)
         time.sleep(1)
-        assert (str(event_handler.getNewCarmaCloudMessageType()) == "TCM")
+        event_handler.findNewCarmaCloudMessage()
+        assert(cloud_nats_bridge.message_queue.qsize() == 2)
 
 
 if __name__ == '__main__':
