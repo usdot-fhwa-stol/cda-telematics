@@ -9,12 +9,17 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.WriteApi;
 import com.influxdb.client.domain.WritePrecision;
+import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
+import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
+
+import okhttp3.OkHttpClient;
 
 /**
  * The InfluxDataWriter object creates a client with the InfluxDb and publishes data that has been
