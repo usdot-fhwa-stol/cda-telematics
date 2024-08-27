@@ -52,13 +52,14 @@ class FileListener(FileSystemEventHandler):
         self.tcm_search_string = tcm_search_string
         self.cc_log_path = cc_logpath
         self.today = date.today()
-        
+
         #Need to get current number of lines in file for future comparison
         with open(f'{self.cc_log_path}', 'r', encoding="utf-8") as f:
             self.current_lines = len(f.readlines())
         f.close()
 
         self.logger.info("FileListener created for: " + str(self.cc_log_path))
+
     def findNewCarmaCloudMessage(self):
         """This method will parse the newly generated line in the carma cloud log file and assign
         the xml and message type to the appropriate global variables. It also assigns the epoch_time
@@ -167,6 +168,7 @@ class CloudNatsBridge():
             for excluded in self.excludedTopics.split(","):
                 self.exclusion_list.append(excluded.strip())
         self.logger.info("Exclusion list: " + str(self.exclusion_list))
+
         self.file_listener_start()
         self.logger.info(" Created Cloud-NATS bridge object")
 
@@ -227,9 +229,6 @@ class CloudNatsBridge():
             self.logger.info("Error converting xml to json for: " + str(xmlString))
 
         return json_data
-            
-    async def queue_send(self):
-        self.logger.info("In queue send")
 
     async def queue_send(self):
         self.logger.info("In queue send")
