@@ -24,6 +24,7 @@ services:
         max-size: "2g"
         max-file: "1"
     network_mode: host
+<<<<<<< HEAD
     command: bash -c 'wait-for-it localhost:4222 && java -jar /telematic_cloud_messaging/app.jar'
     env_file:
       - .env
@@ -45,3 +46,7 @@ services:
     env_file:
       - .env
     command: bash -c 'source /ws/install/setup.bash && ros2 run rosbag2_processing_service main'
+=======
+    environment:
+      - NATS_URI=nats://localhost:4222
+>>>>>>> master

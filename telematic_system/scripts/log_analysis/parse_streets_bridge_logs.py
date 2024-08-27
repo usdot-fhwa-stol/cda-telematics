@@ -19,20 +19,20 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
         writer.writerow(["Unit Id","Topic","Payload Timestamp", "Metadata"])
 
         start_time = (datetime.datetime.fromtimestamp(start_time_epoch).astimezone(pytz.utc)).replace(tzinfo=None)
-        end_time = (datetime.datetime.fromtimestamp(end_time_epoch).astimezone(pytz.utc)).replace(tzinfo=None) 
+        end_time = (datetime.datetime.fromtimestamp(end_time_epoch).astimezone(pytz.utc)).replace(tzinfo=None)
         print("Start time: ", start_time)
         print("End Time: ", end_time)
 
         # For each published message logged, convert payload to json and extract required info
         for line in vehicle_bridge_log:
-            
+
             topic_name = ""
             unit_id = ""
-            
+
             time_in_s = 0
             payload_timestamp_utc = datetime.datetime.fromtimestamp(1681345530)
             metadata = payload_timestamp_utc
-            
+
 
             line = line.replace("}\\n\"","")
             # Convert True and False to strings
@@ -42,13 +42,13 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
             split = line.split("Publishing message: ")
             if len(split) < 2:
                 continue
-            
+
 
             p = re.compile('(?<!\\\\)\'')
             split[1] = p.sub('\"', split[1])
-            
+
             payload_json = json.loads(split[1])
-            
+
             topic_name = payload_json['topic_name']
             unit_id = payload_json['unit_id']
 
@@ -57,11 +57,11 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
                 timestamp_string = str(payload_json['timestamp'])[:-1]
                 time_in_s = float(timestamp_string)/1e6
 
-            
+
             else:
                 print("Couldn't find timestamp in payload, exiting")
                 break
-            
+
             if time_in_s == 0:
                 continue
             payload_time_in_datetime = datetime.datetime.fromtimestamp(time_in_s)
@@ -69,18 +69,18 @@ def parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num):
             metadata = payload_timestamp_utc
 
             if payload_timestamp_utc > start_time and payload_timestamp_utc < end_time:
-                
-                writer.writerow([unit_id, topic_name, payload_timestamp_utc, metadata])    
+
+                writer.writerow([unit_id, topic_name, payload_timestamp_utc, metadata])
             elif payload_timestamp_utc > end_time:
-                    break   
-            
+                    break
+
 
 def read_log_table():
     log_csv = 'log_timesheet.csv'
     log_df = pd.read_csv(log_csv)
     log_df = log_df.dropna()
     log_df_dict = dict(tuple(log_df.groupby('Test Case')))
-    
+
     # print(log_df_group)
     return log_df_dict
 
@@ -88,7 +88,7 @@ def read_log_table():
 def main():
     if len(sys.argv) < 2:
         print('Run with: "python3 parse_streets_bridge.py logname"')
-    else:       
+    else:
         logname = sys.argv[1]
 
 
@@ -99,21 +99,21 @@ def main():
             runs_range = range(int(runs_range_split[0]),int(runs_range_split[0]) + 1)
         else:
             runs_range = range(int(runs_range_split[0]),int(runs_range_split[1]) + 1)
-        
+
 
         log_timesheet_df = read_log_table()
         test_df = log_timesheet_df[test_case]
-        
+
         for index in range(0, len(test_df)):
             start_time_epoch = test_df['Start Time'].values[index]
             end_time_epoch = test_df['End Time'].values[index]
-            
-            local = pytz.timezone("America/New_York")    
-            
+
+            local = pytz.timezone("America/New_York")
+
 
             run_num = test_df['Run'].values[index].split('R')[1]
-            
-            if int(run_num) in runs_range: 
+
+            if int(run_num) in runs_range:
 
                 print("Run num: ", run_num)
                 parseVehicleBridgeLogs(logname,start_time_epoch, end_time_epoch, run_num)

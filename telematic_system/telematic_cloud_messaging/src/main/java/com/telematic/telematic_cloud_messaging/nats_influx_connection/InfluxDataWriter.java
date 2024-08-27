@@ -9,24 +9,19 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.influxdb.client.InfluxDBClient;
 import com.influxdb.client.InfluxDBClientFactory;
 import com.influxdb.client.InfluxDBClientOptions;
 import com.influxdb.client.WriteApi;
 import com.influxdb.client.domain.WritePrecision;
-import com.telematic.telematic_cloud_messaging.message_converters.JSON2KeyValuePairsConverter;
-import com.telematic.telematic_cloud_messaging.message_converters.JSONFlattenerHelper;
-
-import okhttp3.OkHttpClient;
 
 /**
  * The InfluxDataWriter object creates a client with the InfluxDb and publishes data that has been
  * received from the nats server. Required parameters for connection to InfluxDb are included in
  * the config.properties file.
  */
-public class InfluxDataWriter {    
+public class InfluxDataWriter {
     private static final Logger logger = LoggerFactory.getLogger(InfluxDataWriter.class);
 
     Config influxConfig;
@@ -51,7 +46,7 @@ public class InfluxDataWriter {
         else if(bucketType == Config.BucketType.CLOUD){
             this.influxBucket = config.influxBucketCloud;
         }
-        
+
         influxConfig = config;
         influxConnected = false;
 
@@ -59,7 +54,7 @@ public class InfluxDataWriter {
         logger.info("InfluxDb bucket name: {}", influxBucket);
         logger.info("InfluxDb org name: {}", influxConfig.influxOrg);
     }
-    
+
     public List<String> convertCloudDataToString(String incomingCloudData){
 
         // This method returns a list of TCM messages breaking the list into individual components
@@ -73,7 +68,7 @@ public class InfluxDataWriter {
             JSONObject tcmList = payloadJson.getJSONObject("TrafficControlMessageList");
             try{
                 Object item = tcmList.get("TrafficControlMessage");
-                
+
                 if(item instanceof JSONArray){
                     JSONArray tcmArray = tcmList.getJSONArray("TrafficControlMessage");
 
@@ -90,7 +85,7 @@ public class InfluxDataWriter {
                 }
                 else{
                     // If object is not a JSONArray it must be JSONObject
-                    outputTcmMsgs.add(incomingCloudData); 
+                    outputTcmMsgs.add(incomingCloudData);
                 }
             }
             catch (Exception e) {
@@ -100,9 +95,9 @@ public class InfluxDataWriter {
         else{
             outputTcmMsgs.add(incomingCloudData);
         }
-        
+
         return outputTcmMsgs;
-        
+
     }
 
     /**
@@ -116,12 +111,12 @@ public class InfluxDataWriter {
      * Create an influxdb client using the configuration parameters in the config.properties and enable
      * asynchronous writing to the database.
      */
-    public void influxConnect() {  
+    public void influxConnect() {
         logger.debug("Attempting to create influxdb client");
 
         try {
             OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient().newBuilder()
-                                                            .connectTimeout(influxConfig.influxConnectTimeout, TimeUnit.MILLISECONDS)            
+                                                            .connectTimeout(influxConfig.influxConnectTimeout, TimeUnit.MILLISECONDS)
                                                             .writeTimeout(influxConfig.influxWriteTimeout, TimeUnit.MILLISECONDS);
             InfluxDBClientOptions options = InfluxDBClientOptions
                                             .builder()
@@ -130,7 +125,7 @@ public class InfluxDataWriter {
                                             .org(influxConfig.influxOrg)
                                             .bucket(influxBucket)
                                             .okHttpClient(okHttpClientBuilder)
-                                            .build();                                                                       
+                                            .build();
             influxDBClient = InfluxDBClientFactory.create(options);
             logger.info("Successfully created influxdb client");
 
@@ -142,7 +137,7 @@ public class InfluxDataWriter {
 
         //Create a new asynchronous non-blocking Write client.
         writeApi = influxDBClient.makeWriteApi();
-    }       
+    }
 
     /**
      * @param publishData The data to publish to influxdb
@@ -152,14 +147,14 @@ public class InfluxDataWriter {
     public void publish(String publishData) {
         try {
             String influxRecord = influxStringConverter(publishData);
-            
+
             logger.info("Sending to influxdb: {}" , influxRecord);
             writeApi.writeRecord(WritePrecision.US, influxRecord);
             writeApi.flush();
         }
         catch (Exception e) {
             logger.error(ExceptionUtils.getStackTrace(e));
-        }       
+        }
     }
 
     /**
@@ -171,11 +166,11 @@ public class InfluxDataWriter {
             for(String cloudData : cloudDataList){
                 publish(cloudData);
             }
-            
+
         }
         catch (Exception e) {
             logger.error(ExceptionUtils.getStackTrace(e));
-        }       
+        }
     }
 
     /**
@@ -192,7 +187,7 @@ public class InfluxDataWriter {
 
         JSONObject publishDataJson = new JSONObject(publishData);
         JSONObject payloadJson = publishDataJson.getJSONObject("payload");
-        
+
         String flattenedPayloadJson = jsonFlattener.flattenJsonStr(payloadJson.toString());
         String keyValuePairs = keyValueConverter.convertJson2KeyValuePairs(flattenedPayloadJson, influxConfig.toStrFields, influxConfig.ignoreFields);
 
@@ -207,6 +202,6 @@ public class InfluxDataWriter {
         return eventName + "," + "unit_id=" + unitId + "," + "unit_type=" + unitType + "," + "location=" + location
         + "," + "testing_type=" + testingType + "," + "topic_name=" + topicName + " " + keyValuePairs + " " + timestamp;
     }
-    
-            
+
+
 }

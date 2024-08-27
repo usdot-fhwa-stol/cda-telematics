@@ -52,10 +52,10 @@ def plotter(folderName):
     units = ["DOT-45244", "DOT-45254","DOT_45254","vehicle_id","rsu_1234","streets_id","cloud_id"]
     for unit in units:
         unit_data = trimmed_data[trimmed_data['Unit Id'] == unit]
-        
+
         if len(unit_data) > 0:
             fig, ax1 = plt.subplots()
-            fig.set_size_inches(10, 10) 
+            fig.set_size_inches(10, 10)
             sns.histplot(unit_data['Delay(s)'], kde=False)
             plt.xlim(0, 0.75)
             plt.xlabel('Latency(s)', fontsize=18)
@@ -68,14 +68,11 @@ def plotter(folderName):
 def main():
     if len(sys.argv) < 2:
         print('Run with: "python3 latencyPlotter.py testcase"')
-    else:       
+    else:
         test = sys.argv[1]
-        
+
         concatRuns(test)
         plotter(test)
 
 if __name__ == "__main__":
     main()
-
-
-

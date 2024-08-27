@@ -52,19 +52,27 @@ class FileListener(FileSystemEventHandler):
         self.tcm_search_string = tcm_search_string
         self.cc_log_path = cc_logpath
         self.today = date.today()
-
+        
         #Need to get current number of lines in file for future comparison
         with open(f'{self.cc_log_path}', 'r', encoding="utf-8") as f:
             self.current_lines = len(f.readlines())
         f.close()
 
         self.logger.info("FileListener created for: " + str(self.cc_log_path))
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> master
     def findNewCarmaCloudMessage(self):
         """This method will parse the newly generated line in the carma cloud log file and assign
         the xml and message type to the appropriate global variables. It also assigns the epoch_time
         variable which will be used to create a bridge timestamp that will be added to the message sent
+<<<<<<< HEAD
         to nats """
+=======
+        to nats """   
+>>>>>>> master
 
         with open(f'{self.cc_log_path}', 'r', encoding="utf-8") as f:
             line_count = 1
@@ -86,21 +94,36 @@ class FileListener(FileSystemEventHandler):
                     if self.tcm_search_string in newLine and "TCM" in subscriber_list:
                         topic = "TCM"
                         startingIndex = newLine.find("<")
+<<<<<<< HEAD
                         new_carma_cloud_message = newLine[startingIndex:]
                         self.logger.info("Carma Cloud generated new " + str(topic) + " message with payload: " + str(new_carma_cloud_message))
 
+=======
+                        new_carma_cloud_message = newLine[startingIndex:]                                
+                        self.logger.info("Carma Cloud generated new " + str(topic) + " message with payload: " + str(new_carma_cloud_message))
+                        
+>>>>>>> master
                         message_queue.put([topic, new_carma_cloud_message, epoch_time])
                         self.logger.info("Current queue size: " + str(message_queue.qsize()))
 
                     elif self.tcr_search_string in newLine and "TCR" in subscriber_list:
                         topic = "TCR"
                         startingIndex = newLine.find("<")
+<<<<<<< HEAD
                         new_carma_cloud_message = newLine[startingIndex:]
                         self.logger.info("Carma Cloud generated new " + str(topic) + " message with payload: " + str(new_carma_cloud_message))
 
                         message_queue.put([topic, new_carma_cloud_message, epoch_time])
                         self.logger.info("Current queue size: " + str(message_queue.qsize()))
 
+=======
+                        new_carma_cloud_message = newLine[startingIndex:]                                
+                        self.logger.info("Carma Cloud generated new " + str(topic) + " message with payload: " + str(new_carma_cloud_message))
+                        
+                        message_queue.put([topic, new_carma_cloud_message, epoch_time])
+                        self.logger.info("Current queue size: " + str(message_queue.qsize()))
+                       
+>>>>>>> master
                     self.current_lines = line_count
 
                 line_count += 1
@@ -168,10 +191,17 @@ class CloudNatsBridge():
             for excluded in self.excludedTopics.split(","):
                 self.exclusion_list.append(excluded.strip())
         self.logger.info("Exclusion list: " + str(self.exclusion_list))
+<<<<<<< HEAD
 
         self.file_listener_start()
         self.logger.info(" Created Cloud-NATS bridge object")
 
+=======
+        
+        self.file_listener_start()
+        self.logger.info(" Created Cloud-NATS bridge object")
+
+>>>>>>> master
 
     def createLogger(self, log_type):
         """Creates log file for the Carma cloud bridge with configuration items based on the settings input in the params.yaml file"""
@@ -229,10 +259,16 @@ class CloudNatsBridge():
             self.logger.info("Error converting xml to json for: " + str(xmlString))
 
         return json_data
-
+            
     async def queue_send(self):
         self.logger.info("In queue send")
 
+<<<<<<< HEAD
+    async def queue_send(self):
+        self.logger.info("In queue send")
+
+=======
+>>>>>>> master
         while(True):
             #Try to get a message from the queue, sleep if the queue is empty
             try:
@@ -254,7 +290,11 @@ class CloudNatsBridge():
                 message[EventKeys.LOCATION.value] = self.cloud_info[EventKeys.LOCATION.value]
                 message[TopicKeys.TOPIC_NAME.value] = topic
                 message["timestamp"] = datetime.now(timezone.utc).timestamp()*1000000  # utc timestamp in microseconds
+<<<<<<< HEAD
                 message["log_timestamp"] = log_timestamp
+=======
+                message["log_timestamp"] = log_timestamp 
+>>>>>>> master
 
                 # telematic cloud server will look for topic names with the pattern ".data."
                 self.topic_name = "cloud." + self.unit_id + ".data." + topic

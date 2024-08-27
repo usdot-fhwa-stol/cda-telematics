@@ -20,7 +20,7 @@ The second csv returned is for message drop analysis.
 
 def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
     fileName = logname.split(".")[0]
-    
+
     with open(logname,'r') as influx_log:
 
         delay_results_file = open('{}_{}_delay_parsed.csv'.format(fileName,run_num), 'w')
@@ -56,7 +56,7 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
         # Since the message is a flattened json, it needs to be split manually and read to extract required info (unit_id, topic name, message/payload timestamp and log timestamp)
         for line in influx_log:
             split_line = line.split(":")
-            
+
             if search_string in split_line:
                 # Get log json
                 try:
@@ -64,28 +64,28 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
                 except:
                     skipped_lines_count += 1
                     continue
-                
+
                 log_line = json_object["log"]
-               # Get write time 
+               # Get write time
                 write_time_split = log_line.split("INFO")
                 write_time_string = write_time_split[0][:len(write_time_split[0]) - 2]
                 log_time_in_datetime = datetime.datetime.strptime(write_time_string, '%Y-%m-%dT%H:%M:%S.%fZ')
-                    
-            
+
+
                 payload_index = log_line.index(search_string) + 1
                 payload = log_line[payload_index + len(search_string) + 1:]
-                
+
                 # Convert Payload to a json
-                
+
                 payload = "event=" + payload
                 # Remove timestamp at end of line
                 payload = payload.rsplit(" ", 1)[0]
                 payload_list = payload.split(",")
-                
+
                 unit_type = ""
                 topic_name = ""
                 metadata_field = ""
-                
+
                 for item in payload_list:
 
                     # Get topic name
@@ -102,17 +102,17 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
                     if "unit_id" in item_split:
                         unit_id = item_split[1]
                         continue
-                    
+
                     # If topic is map_msg, get timestamp from metadata.timestamp
                     if topic_name == "v2xhub_map_msg_in":
                         if "metadata.timestamp" in item_split:
                             # Get metadata timestamp
                             message_timestamp = int(item_split[1].split(' ')[0])
                             time_in_s = message_timestamp/1000
-                            payload_time_in_datetime = datetime.datetime.fromtimestamp(time_in_s) 
+                            payload_time_in_datetime = datetime.datetime.fromtimestamp(time_in_s)
                             payload_time_in_datetime = (payload_time_in_datetime.astimezone(pytz.utc)).replace(tzinfo=None)
 
-                        
+
 
                 # Convert timestamp to datetime
                 try:
@@ -120,15 +120,15 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
                     if topic_name != "v2xhub_map_msg_in":
                         payload_timestamp_string = str(log_line.split(" ")[-1])[:-1]
                         payload_timestamp = float(payload_timestamp_string)
-                        payload_time_in_datetime = datetime.datetime.fromtimestamp(payload_timestamp/1e6) 
+                        payload_time_in_datetime = datetime.datetime.fromtimestamp(payload_timestamp/1e6)
                         payload_time_in_datetime = (payload_time_in_datetime.astimezone(pytz.utc)).replace(tzinfo=None)
 
                 except:
                     print("Could not get payload timestamp from topic: {}. Skipping".format(topic_name))
                     continue
 
-            
-            
+
+
                 # If within test window
                 if log_time_in_datetime > start_time and log_time_in_datetime < end_time :
                     delay = (log_time_in_datetime - payload_time_in_datetime).total_seconds()
@@ -137,25 +137,25 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
                     else:
                         delay_records.append(delay)
                         delay_writer.writerow([unit_id, topic_name, payload_time_in_datetime, log_time_in_datetime, delay])
-                    
+
                     message_drop_writer.writerow([unit_id, topic_name, payload_time_in_datetime, log_time_in_datetime])
-                    
+
                     if topic_name not in unique_topics:
-                            unique_topics.append(topic_name) 
-                    
+                            unique_topics.append(topic_name)
+
                     total_rows += 1
-                    
+
                 if log_time_in_datetime > end_time:
                     break
 
-            
+
 
     print("Number of unique topics: ", len(unique_topics))
     print(unique_topics)
-    
+
     ## Calculate required statistics
     delay_np_array = np.array(delay_records)
-    if delay_np_array.size > 1: 
+    if delay_np_array.size > 1:
         delay_max = np.amax(delay_np_array)
         delay_mean = np.mean(delay_np_array)
         delay_stdev = np.std(delay_np_array)
@@ -172,17 +172,17 @@ def read_log_table():
     log_df = pd.read_csv(log_csv)
     log_df = log_df.dropna()
     log_df_dict = dict(tuple(log_df.groupby('Test Case')))
-    
+
     return log_df_dict
-        
+
 
 def main():
     if len(sys.argv) < 2:
         print('Run with: "python3 parse_messaging_server_logs.py logname"')
-    else:       
+    else:
         logname = sys.argv[1]
         log_timesheet_df = read_log_table()
-        
+
         test_case = (logname.split("/")[-1]).split("_")[0]
         runs_string = ((logname.split("/")[-1]).split("_")[1].split(".")[0])[1:]
         runs_range_split = runs_string.split('-')
@@ -190,22 +190,22 @@ def main():
             runs_range = range(int(runs_range_split[0]),int(runs_range_split[0]) + 1)
         else:
             runs_range = range(int(runs_range_split[0]),int(runs_range_split[1]) + 1)
-        
+
 
         test_df = log_timesheet_df[test_case]
-        
+
         for index in range(0, len(test_df)):
             start_time_epoch = test_df['Start Time'].values[index]
             end_time_epoch = test_df['End Time'].values[index]
 
 
-            
-            local = pytz.timezone("America/New_York")    
-            
+
+            local = pytz.timezone("America/New_York")
+
 
             run_num = test_df['Run'].values[index].split('R')[1]
-            
-            if int(run_num) in runs_range: 
+
+            if int(run_num) in runs_range:
                 print("start time epoch: " + str(start_time_epoch))
                 print("end time epoch: " + str(end_time_epoch))
                 print("test case: "+ test_case)
@@ -213,11 +213,8 @@ def main():
                 print(runs_range)
                 print("Run num: ", run_num)
                 parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num)
-            
+
 
 
 if __name__ == "__main__":
     main()
-
-
-
