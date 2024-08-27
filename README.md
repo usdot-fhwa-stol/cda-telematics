@@ -1,5 +1,5 @@
 ## GitHub Actions Build status
-| Carma-streets-bridge | Carma-vehicle-bridge | telematics-cloud-messaging |
+|Docker Image Builds (develop) | Docker Image Builds (release) | Sonar Scanner |
 |-----|-----|-----|
  [![Docker build](https://github.com/usdot-fhwa-stol/cda-telematics/actions/workflows/docker.yml/badge.svg?branch=develop)](https://github.com/usdot-fhwa-stol/cda-telematics/actions/workflows/docker.yml)| [![Docker build](https://github.com/usdot-fhwa-stol/cda-telematics/actions/workflows/docker.yml/badge.svg?branch=master)](https://github.com/usdot-fhwa-stol/cda-telematics/actions/workflows/docker.yml)| [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=usdot-fhwa-stol_cda-telematics&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=usdot-fhwa-stol_cda-telematics)
 
