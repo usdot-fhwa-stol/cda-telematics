@@ -1,6 +1,5 @@
 package com.telematic.telematic_cloud_messaging.web_services;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Instant;
@@ -19,7 +18,6 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -62,7 +60,7 @@ public class UnitsStatusService implements CommandLineRunner {
     EventsService eventsService;
 
     // Global list to keep track of latest registered units
-    private static List<JSONObject> registeredUnitList = new LinkedList<JSONObject>();
+    private static List<JSONObject> registeredUnitList = new LinkedList<>();
     // Global list to keep track of the map of event and registered units
     private static HashMap<Integer, ArrayList<String>> registeredUnitsEventMap = new HashMap<>();
 
@@ -73,9 +71,7 @@ public class UnitsStatusService implements CommandLineRunner {
      * @return The list of registered units in JSON format
      */
     @GetMapping(value = "registeredUnits")
-    public ResponseEntity<List<JSONObject>> requestRegisteredUnits()
-            throws IOException, InterruptedException, ExecutionException {
-
+    public ResponseEntity<List<JSONObject>> requestRegisteredUnits() {
         logger.debug("List Registered Units.");
         return new ResponseEntity<>(registeredUnitList, HttpStatus.OK);
     }
@@ -88,22 +84,22 @@ public class UnitsStatusService implements CommandLineRunner {
      *        it will remove the registered units from the list.
      */
     @Scheduled(fixedRate = 5000)
-    public void checkUnitsStatus() throws IOException, InterruptedException {
+    public void checkUnitsStatus() throws InterruptedException {
         Connection conn = natsConn.getConnection();
         if (conn != null) {
             logger.debug(
-                    "Checking units status at timestamp (Unit of second) = : " + System.currentTimeMillis() / 1000);
+                    "Checking units status at timestamp (Unit of second) = : {}",  System.currentTimeMillis() / 1000);
             for (JSONObject registered_unit : registeredUnitList) {
                 String unitId = (String) registered_unit.get("unit_id");
                 Integer eventId = (Integer) registered_unit.get("event_id");
                 String subject = unitId + "." + checkUnitsStatus;
-                logger.debug("Checking unit status. subject: " + subject);
+                logger.debug("Checking unit status. subject: {}" , subject);
                 try {
                     Future<Message> future = conn.request(subject,
                             unitId.getBytes(StandardCharsets.UTF_8));
                     Message msg = future.get();
                     String reply = new String(msg.getData(), StandardCharsets.UTF_8);
-                    logger.debug("Checking unit status.  Unit =" + unitId + " Reply: " + reply);
+                    logger.debug("Checking unit status.  Unit = {} Reply: {}",unitId, reply);
 
                     // If registered unit is running and registered unit id not in the event map,
                     // add registered unit to the event map
@@ -118,7 +114,7 @@ public class UnitsStatusService implements CommandLineRunner {
                 } catch (CancellationException ex) {
                     // No reply remove unit from registeredUnitList
                     logger.error(
-                            "Checking unit status. Unit = " + unitId + " failed. Remove from registered unit list.");
+                            "Checking unit status. Unit = {} failed. Remove from registered unit list.",unitId);
                     // if the registered unit is not running (Not reply), remove registered unit for
                     // this map
                     if (registeredUnitsEventMap.containsKey(eventId)
@@ -133,11 +129,11 @@ public class UnitsStatusService implements CommandLineRunner {
             // Checking the map of registered units and their associated events. If the
             // number of registered units for their events are 0, remove the event live
             // status
-            for (Map.Entry<Integer, ArrayList<String>> map_entry : registeredUnitsEventMap.entrySet()) {
-                if (map_entry.getValue().size() > 0) {
-                    eventsService.updateEventStatus(EVENT_STATUS_LIVE, map_entry.getKey());
+            for (Map.Entry<Integer, ArrayList<String>> mapEntry : registeredUnitsEventMap.entrySet()) {
+                if (!mapEntry.getValue().isEmpty()) {
+                    eventsService.updateEventStatus(EVENT_STATUS_LIVE, mapEntry.getKey());
                 } else {
-                    eventsService.updateEventStatus("", map_entry.getKey());
+                    eventsService.updateEventStatus("", mapEntry.getKey());
                 }
             }
         }
@@ -149,6 +145,7 @@ public class UnitsStatusService implements CommandLineRunner {
      *        If any telematic unit send request to register_unit, it will update
      *        the global registeredUnitList, and return a positive reply.
      */
+    @SuppressWarnings("unchecked")
     @Override
     public void run(String... args) throws Exception {
          //on startup: reset all event status in case some live event status is not cleared
@@ -156,26 +153,26 @@ public class UnitsStatusService implements CommandLineRunner {
             eventsService.resetEventStatus();
             logger.info("Events status is reset!");
         } catch (Exception e) {
-            logger.error("Cannot reset events status! ERROR: " + e.getMessage());
-        } 
+            logger.error("Cannot reset events status! ERROR: {}" , e.getMessage());
+        }
         Connection conn = natsConn.getConnection();
         if (conn != null) {
             logger.debug("register units subscribe to subject: " + registerUnit);
 
-            Dispatcher register_sub_d = conn.createDispatcher(msg -> {
+            Dispatcher registerSubDispatcher = conn.createDispatcher(msg -> {
             });
 
-            register_sub_d.subscribe(registerUnit, (msg) -> {
+            registerSubDispatcher.subscribe(registerUnit, (msg) -> {
                 String msgData = new String(msg.getData(), StandardCharsets.UTF_8);
-                logger.info("Received register unit: " + msgData);
+                logger.info("Received register unit: {}",  msgData);
                 JSONParser parser = new JSONParser();
                 try {
                     JSONObject jsonObj = (JSONObject) parser.parse(msgData);
-                    Timestamp cur_timestamp = Timestamp.from(Instant.now());
+                    Timestamp curTimestamp = Timestamp.from(Instant.now());
 
                     // Get Event information from DB and return to the telematic units.
                     Events event = unitsService.getEventsByUnitAndTimestamp(jsonObj.get("unit_id").toString(),
-                            cur_timestamp);
+                            curTimestamp);
                     if (event != null) {
                         jsonObj.put("event_name", event.getName());
                         jsonObj.put("event_id", event.getId());
@@ -193,8 +190,8 @@ public class UnitsStatusService implements CommandLineRunner {
                         }
                         registeredUnitList.add(jsonObj);
                     } else {
-                        logger.error("Cannot find the unit =" + jsonObj.get("unit_id").toString()
-                                + " assgined to any events at " + cur_timestamp.toString());
+                        logger.error("Cannot find the unit = {}"
+                                + " assigned to any events at {}", jsonObj.get("unit_id").toString(),curTimestamp.toString());
                     }
 
                     // Send a reply to the telematic units

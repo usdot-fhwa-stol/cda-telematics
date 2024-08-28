@@ -1,4 +1,4 @@
-FROM node:16.16.0
+FROM node:20.11.1
 
 # Create app directory
 WORKDIR /app
@@ -7,10 +7,11 @@ WORKDIR /app
 COPY package*.json ./
 
 RUN npm install -g nodemon
+RUN npm install -g node-wait-for-it
 RUN npm init -y
 RUN npm install
 
 # Bundle app source
 COPY . .
-
-ENTRYPOINT ["npm", "start"]
+RUN chmod +x service.sh
+CMD ['/bin/sh', '-c', '/app/service.sh']

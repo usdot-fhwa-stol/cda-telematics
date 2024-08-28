@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -77,10 +77,12 @@ const Login = React.memo(() => {
             authContext.login(
                 resData.id,
                 resData.login,
-                resData.session_token,
+                resData.token,
+                resData.tokenExpiredAt,
                 resData.email,
                 resData.last_seen_at,
                 resData.org_id,
+                resData.org_name,
                 resData.name,
                 resData.is_admin);
             setLoginState(true);
@@ -104,7 +106,7 @@ const Login = React.memo(() => {
                     onClose={handleClose}
                     autoHideDuration={6000}
                     key="Login">
-                    <Alert onClose={handleClose} severity="error" sx={{ width: '100%' }}>
+                    <Alert data-testid='alert-msg' onClose={handleClose} severity="error" sx={{ width: '100%' }}>
                         {loginErrMsg}
                     </Alert>
                 </Snackbar>
@@ -125,6 +127,7 @@ const Login = React.memo(() => {
                                     margin="normal"
                                     required
                                     id="username"
+                                    inputProps={ {'data-testid':'username'}}
                                     label="User Name"
                                     name="username"
                                     autoComplete="username"
@@ -135,6 +138,7 @@ const Login = React.memo(() => {
                                     margin="normal"
                                     required
                                     name="password"
+                                    inputProps={{'data-testid':'password'}}
                                     label="Password"
                                     type="password"
                                     id="password"

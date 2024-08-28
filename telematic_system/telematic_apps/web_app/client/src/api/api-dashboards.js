@@ -1,9 +1,11 @@
 import axios from 'axios';
+import {env } from "../env"
+import { constructError } from './api-utils';
 /**
  *@brief List all dashboards urls belong to the current user organization
  */
 const searchDashboards = async (org_id, search_text) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/dashboards/org/search`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/dashboards/org/search`
 
 
   try {
@@ -12,9 +14,8 @@ const searchDashboards = async (org_id, search_text) => {
         data: { org_id: org_id, search_text: search_text }
       }, { withCredentials: true });
     return data;
-  } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+  } catch (err) {    
+    return constructError(err)
   }
 }
 
@@ -22,7 +23,7 @@ const searchDashboards = async (org_id, search_text) => {
  *@brief List all dashboards urls belong to the current user organization
  */
 const getDashboardsByOrg = async (org_id) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/dashboards/org/all`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/dashboards/org/all`
 
 
   try {
@@ -31,17 +32,16 @@ const getDashboardsByOrg = async (org_id) => {
         data: { org_id: org_id }
       }, { withCredentials: true });
     return data;
-  } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
-  }
+  } catch (err) {    
+    return constructError(err)
+ }
 }
 
 /**
  *@brief List all dashboards urls belong to the selected event
  */
 const listEventDashboards = async (event_id) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/list`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/list`
 
 
   try {
@@ -50,9 +50,8 @@ const listEventDashboards = async (event_id) => {
         data: { event_id: event_id }
       }, { withCredentials: true });
     return data;
-  } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+  } catch (err) {    
+    return constructError(err)
   }
 }
 
@@ -61,7 +60,7 @@ const listEventDashboards = async (event_id) => {
  *@brief Update all dashboards urls belong to the selected event
  */
 const updateEventDashboards = async (event_id, dashboard_id) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/update`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/update`
 
 
   try {
@@ -70,9 +69,8 @@ const updateEventDashboards = async (event_id, dashboard_id) => {
         data: { event_id: event_id, dashboard_id: dashboard_id }
       }, { withCredentials: true });
     return data;
-  } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+  } catch (err) {    
+    return constructError(err)
   }
 }
 
@@ -81,16 +79,14 @@ const updateEventDashboards = async (event_id, dashboard_id) => {
  *@brief Remove dashboards urls belong to the selected event
  */
 const deleteEventDashboards = async (event_id, dashboard_id) => {
-  const URL = `${process.env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/delete`
+  const URL = `${env.REACT_APP_WEB_SERVER_URI}/api/dashboards/event/delete`
 
 
   try {
     const { data } = await axios.delete(URL+"?event_id="+event_id+"&dashboard_id="+dashboard_id, { withCredentials: true });
-    console.log(data)
     return data;
-  } catch (err) {
-    console.log(err);
-    return { errCode: err.response.status, errMsg: err.response.data !== undefined && err.response.data.message !== undefined ? err.response.data.message : err.response.statusText }
+  } catch (err) {    
+    return constructError(err)
   }
 }
 

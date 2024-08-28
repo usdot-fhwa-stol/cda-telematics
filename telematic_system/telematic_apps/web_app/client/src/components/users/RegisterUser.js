@@ -46,6 +46,8 @@ const RegisterUser = () => {
 
     const saveUser = () => {
         const response = registerNewUser(username, email, password, selectedOrg);
+        
+        console.log(response)
         response.then(status => {
             if (status.errCode !== undefined && status.errMsg !== undefined) {
                 setErrorMsg(status.errMsg);
@@ -118,7 +120,7 @@ const RegisterUser = () => {
                 open={open}
                 autoHideDuration={6000}
                 key="Login">
-                <Alert onClose={handleClose} severity={errStatus} sx={{ width: '100%' }}>
+                <Alert onClose={handleClose} data-testid='alert-msg' severity={errStatus} sx={{ width: '100%' }}>
                     {errorMsg}
                 </Alert>
             </Snackbar>
@@ -126,9 +128,9 @@ const RegisterUser = () => {
                 <DialogTitle sx={{ color: 'green' }}>Successfully registered user </DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">                       
-                    The created user is by default assigned viewer role. Please send email to
-                            <Link href={`mailto:${adminEmails.join(',')}?subject=Role update request&body=Request`}> administrators </Link>
-                            &nbsp;to update your role.
+                        The created user is by default assigned viewer role. If you would like to create dashboards, events, etc, you must send an email to 
+                        <Link href={`mailto:${adminEmails.join(';')}?subject=Role update request&body=Request`}> administrators </Link>
+                            &nbsp; requesting an editor role.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
@@ -156,6 +158,7 @@ const RegisterUser = () => {
                                 error={errors.username ? true : false}
                                 id="username"
                                 label="Username *"
+                                inputProps={{ "data-testid": "username" }}
                                 variant='outlined'
                                 fullWidth
                                 margin="normal"
@@ -167,6 +170,7 @@ const RegisterUser = () => {
                                 {...register('email')}
                                 error={errors.email ? true : false}
                                 id="email"
+                                inputProps={{ "data-testid": "email" }}
                                 label="Email *"
                                 variant='outlined'
                                 fullWidth
@@ -179,6 +183,7 @@ const RegisterUser = () => {
                                 {...register('password')}
                                 error={errors.password ? true : false}
                                 id="password"
+                                inputProps={{ "data-testid": "password" }}
                                 label="Password *"
                                 fullWidth
                                 margin="normal"
@@ -196,12 +201,13 @@ const RegisterUser = () => {
                                 error={errors.selectedOrg ? true : false}
                                 labelId='all-orgs'
                                 id='org-selection'
+                                data-testid='org-selection'                               
                                 label='All Organizations *'
                                 value={selectedOrg}
                                 onChange={handleOrgChange}>
                                 {
                                     allOrgs.map(org => {
-                                        return <MenuItem value={org.id} key={org.id}>{org.name}</MenuItem>
+                                        return <MenuItem value={org.id} data-testid={org.name} key={org.id}>{org.name}</MenuItem>
                                     })
                                 }
                             </Select>

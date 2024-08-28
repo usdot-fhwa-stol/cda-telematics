@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -21,11 +21,13 @@ module.exports = (seq, Sequelize) => {
             type: Sequelize.STRING,
             primaryKey: true,
             allowNull: false,
+            unique: true
         },
         code: {
             type: Sequelize.STRING,
             defaultValue: '',
             allowNull: false,
+            unique: true
         }
     }, {
         underscored: true

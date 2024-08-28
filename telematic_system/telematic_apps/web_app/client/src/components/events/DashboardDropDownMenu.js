@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -13,11 +13,12 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
+import { Divider, Menu, MenuItem } from '@mui/material';
 import * as React from 'react';
-import { Button, Divider, Menu, MenuItem } from '@mui/material';
 import { Link } from 'react-router-dom';
 import { deleteEventDashboards, getDashboardsByOrg, listEventDashboards, updateEventDashboards } from '../../api/api-dashboards';
 import AuthContext from '../../context/auth-context';
+import { CustomizedOutlinedButton } from '../ui/CustomizedOutlinedButton';
 import { USER_ROLES } from '../users/UserMetadata';
 import { AssignDashboardDialog } from './AssignDashboardDialog';
 export default function DashboardDropDownMenu(props) {
@@ -124,7 +125,7 @@ export default function DashboardDropDownMenu(props) {
                 anchorEl={props.anchorEl}
                 open={props.open}
                 onClose={props.handleClose}>
-                <MenuItem component={Link} key="dashboard" to="/grafana" disableRipple>
+                <MenuItem component={Link} key="dashboard" to="/dashboard" disableRipple>
                     Default dashboard
                 </MenuItem>
                 {
@@ -132,7 +133,7 @@ export default function DashboardDropDownMenu(props) {
                     eventDashboards.map(item => <MenuItem
                         component={Link}
                         key={`dashboard-${item.id}`}
-                        to={`/grafana?uid=${item.uid}&slug=${item.slug}&orgId=${authCtx.org_id}`}
+                        to={`/dashboard?uid=${item.uid}&slug=${item.slug}&orgId=${authCtx.org_id}`}
                         disableRipple>
                         {item.title}
                     </MenuItem>)}
@@ -140,7 +141,7 @@ export default function DashboardDropDownMenu(props) {
                 {
                     authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
                     <MenuItem disableRipple>
-                        <Button size="small" variant='outlined' onClick={handleOpenAssignDashboardDialog}>(Un)Assign Dashboards</Button>
+                        <CustomizedOutlinedButton onClick={handleOpenAssignDashboardDialog}>(Un)Assign Dashboards</CustomizedOutlinedButton>
                     </MenuItem>
                 }
             </Menu>

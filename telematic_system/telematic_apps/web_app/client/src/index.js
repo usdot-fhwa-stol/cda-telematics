@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,10 +17,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
-import reportWebVitals from './reportWebVitals';
 
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -38,6 +37,7 @@ import { CookiesProvider } from "react-cookie";
 import { BrowserRouter } from 'react-router-dom';
 import { AuthContextProvider } from './context/auth-context';
 import { TopicContextProvider } from './context/topic-context';
+import {ROS2RosbagContextProvider} from './context/ros2-rosbag-context';
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
@@ -45,7 +45,9 @@ root.render(
       <CookiesProvider>
         <AuthContextProvider>
           <TopicContextProvider>
-            <App />
+            <ROS2RosbagContextProvider>
+              <App />
+            </ROS2RosbagContextProvider>
           </TopicContextProvider>
         </AuthContextProvider>
       </CookiesProvider>
@@ -53,4 +55,3 @@ root.render(
   </React.StrictMode>
 );
 
-reportWebVitals();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -18,6 +18,7 @@ const Sequelize = require('sequelize');
 
 const seq = new Sequelize(dbConfig.GRAFANA_DB, dbConfig.USER, dbConfig.PASSWORD, {
     host: dbConfig.HOST,
+    port: dbConfig.PORT,
     dialect: dbConfig.dialect,
     define: dbConfig.define,
     pool: {
@@ -45,6 +46,7 @@ grafana_db.org_user = require('./org_user.model')(seq, Sequelize);
 grafana_db.dashboard = require('./dashboard.model')(seq,Sequelize);
 grafana_db.event_dashboard = require('./event_dashboard.model')(seq,Sequelize);
 grafana_db.user_topic_request=require('./user_topic_request')(seq,Sequelize)
+grafana_db.file_info=require('./file_info.model')(seq,Sequelize)
 
 //Associations
 grafana_db.events.belongsToMany(grafana_db.units, {
@@ -60,6 +62,15 @@ grafana_db.events.hasMany(grafana_db.event_units);
 grafana_db.event_units.belongsTo(grafana_db.events);
 grafana_db.units.hasMany(grafana_db.event_units);
 grafana_db.event_units.belongsTo(grafana_db.units);
+
+grafana_db.user.hasMany(grafana_db.file_info, {
+    foreignKey: {
+        name: 'userId',
+        field: 'user_id',
+        type: Sequelize.BIGINT(20)
+    }
+});
+grafana_db.file_info.belongsTo(grafana_db.user);
 
 grafana_db.locations.hasMany(grafana_db.events, {
     foreignKey: {

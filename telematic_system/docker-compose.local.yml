@@ -1,0 +1,184 @@
+version: "3"
+services:
+
+  influxdb:
+    image:  influxdb:latest
+    container_name: influxdb
+    ports:
+      - '8086:8086'
+    restart: always
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "1"
+    env_file:
+      - .env
+    volumes:
+      - /opt/influxdb2/data:/var/lib/influxdb2 # data directory
+      - /opt/influxdb2/:/etc/influxdb2 # config directory
+
+  mysqldb:
+    image: mysql:5.7
+    restart: always
+    container_name: mysqldb
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "1"
+    environment:
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD_FILE=/run/secrets/mysql_password
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
+    ports:
+      - '3307:3306'  # Mapping required for CAVe-in-a-box deployment where port 3306 is used by v2xhub
+    secrets:
+      - mysql_password
+      - mysql_root_password
+    volumes:
+      - mysql-datavolume:/var/lib/mysql
+
+  nats:
+    image: 'nats:2.7.3-alpine3.15'
+    restart: always
+    container_name: nats
+    logging:
+      options:
+        max-size: "2g"
+        max-file: "1"
+    network_mode: host
+
+  grafana:
+      build:
+        context: "./telematic_apps/grafana"
+      image: usdotfhwastolcandidate/telematic_grafana:neon
+      restart: always
+      container_name: grafana
+      logging:
+        options:
+          max-size: "10m"
+          max-file: "1"
+      network_mode: host
+      depends_on:
+        - mysqldb
+
+      volumes:
+        - /opt/grafana/logs:/var/log/grafana
+        - ./telematic_apps/grafana/grafana.ini:/etc/grafana/grafana.ini
+        - /opt/grafana/data:/var/lib/grafana
+        - /opt/grafana/provisioning:/home/grafana/conf/provisioning
+        - /home/ubuntu/.aws/credentials:/usr/share/grafana/.aws/credentials
+      user: "472" #grafana user id
+
+  web_server:
+      build:
+        context: "./telematic_apps/web_app/server"
+        dockerfile: "Dockerfile"
+      image: usdotfhwastolcandidate/telematic_web_server:neon
+      restart: always
+      container_name: web_server
+      logging:
+        options:
+          max-size: "10m"
+          max-file: "1"
+      network_mode: host
+      depends_on:
+        - mysqldb
+        - grafana
+      env_file:
+        - .env
+      command: bash -c 'wait-for-it localhost:3307 && wait-for-it localhost:3000 && /app/service.sh'
+      volumes:
+        - /opt/apache2/grafana_htpasswd:/opt/apache2/grafana_htpasswd
+        - /opt/telematics/upload:/opt/telematics/upload
+
+  web_client:
+    build:
+      context: "./telematic_apps/web_app/client"
+    image: usdotfhwastolcandidate/telematic_web_client:neon
+    restart: always
+    container_name: web_client
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "1"
+    network_mode: host
+    depends_on:
+      - web_server
+
+  apache2:
+    build:
+      context: "./telematic_apps/apache2"
+      dockerfile: "./local.Dockerfile"
+    image: usdotfhwastolcandidate/telematic_local_apache2:neon
+    restart: always
+    container_name: apache2
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "1"
+    network_mode: host
+    environment:
+      - CLIENT_LOCAL_URL=http://127.0.0.1:8082/
+      - GRAFANA_LOCAL_URL=http://127.0.0.1:3000/
+      - TOPICSERVICE_LOCAL_URL=http://127.0.0.1:8080/
+      - UISERVICE_LOCAL_URL=http://127.0.0.1:9010/
+      - UISERVICE_LOCAL_UPLOAD_URL=http://127.0.0.1:9011/
+    depends_on:
+      - grafana
+      - web_client
+      - web_server
+    volumes:
+      - /opt/apache2/grafana_htpasswd:/etc/apache2/grafana_htpasswd
+
+  messaging_server:
+    build:
+      context: "./telematic_cloud_messaging"
+    container_name: messaging_server
+    image: usdotfhwastolcandidate/telematic_cloud_messaging:neon
+    depends_on:
+      - nats
+      - mysqldb
+      - influxdb
+    restart: always
+    logging:
+      options:
+        max-size: "2g"
+        max-file: "1"
+    network_mode: host
+    command: bash -c 'wait-for-it localhost:3307 && wait-for-it localhost:4222 && wait-for-it localhost:8086 && java -jar /telematic_cloud_messaging/app.jar'
+    env_file:
+      - .env
+
+  rosbag2_processing_service:
+    build:
+          context: ./telematic_historical_data_processing
+          dockerfile: Dockerfile
+          network: host
+    image: usdotfhwastolcandidate/telematic_historical_data_processing:neon
+    container_name: rosbag2_processing_service
+    restart: always
+    depends_on:
+      - nats
+      - mysqldb
+      - influxdb
+      - apache2
+    logging:
+      options:
+        max-size: "2g"
+        max-file: "1"
+    network_mode: host
+    volumes:
+           - /opt/telematics/logs:/opt/telematics/logs
+           - /opt/telematics/upload:/opt/telematics/upload
+    env_file:
+      - .env
+    command: bash -c 'source /ws/install/setup.bash && wait-for-it 127.0.0.1:3307 -- ros2 run rosbag2_processing_service main'
+
+secrets:
+  mysql_password:
+      file: ./secrets/mysql_password.txt
+  mysql_root_password:
+      file: ./secrets/mysql_root_password.txt
+volumes:
+  mysql-datavolume:

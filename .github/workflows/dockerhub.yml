@@ -1,88 +1,269 @@
-name: "DockerHub Build and Push"
+name: Docker Hub build
 
 on:
   push:
     branches:
       - "develop"
+      - "master"
+      - "release/*"
+    tags:
+      - "carma-system-*"
 
 jobs:
+  determine_docker_org_and_tag:
+    runs-on: ubuntu-latest
+    outputs:
+      docker_organization: ${{ steps.docker-org-and-tag.outputs.docker_organization }}
+      docker_image_tag: ${{ steps.docker-org-and-tag.outputs.docker_image_tag }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0      
+      - id: docker-org-and-tag
+        uses: usdot-fhwa-stol/actions/docker-org-and-tag@main
+
+  determine_docker_image_metadata:
+    runs-on: ubuntu-latest
+    outputs:
+      build_date: ${{ steps.build-metadata.outputs.build_date }}
+      vcs_ref: ${{ steps.build-metadata.outputs.vcs_ref }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0       
+      - name: Determine Build Metadata
+        id: build-metadata
+        uses: usdot-fhwa-stol/actions/docker-build-metadata@main
+
   dockerhub-telematic-cloud-messaging:
+    needs: [determine_docker_org_and_tag, determine_docker_image_metadata]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build
-        uses: docker/build-push-action@v3
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
         with:
           context: ./telematic_system/telematic_cloud_messaging/
-          file: ./telematic_system/telematic_cloud_messaging/Dockerfile
-          path: telematic_system/telematic_cloud_messaging/
           push: true
-          tags: usdotfhwastoldev/telematic_cloud_messaging:${{ github.ref_name }}
+          tags: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/telematic_cloud_messaging:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+          build-args: |
+            BUILD_DATE=${{ needs.determine_docker_image_metadata.outputs.build_date }}
+            VCS_REF=${{ needs.determine_docker_image_metadata.outputs.vcs_ref }}
 
   dockerhub-carma-streets-bridge:
+    needs: [determine_docker_org_and_tag, determine_docker_image_metadata]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build
-        uses: docker/build-push-action@v3
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
         with:
           context: ./telematic_system/telematic_units/carma_street_bridge/
-          file: ./telematic_system/telematic_units/carma_street_bridge/Dockerfile
           push: true
-          tags: usdotfhwastoldev/carma_street_nats_bridge:${{ github.ref_name }}
+          tags: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/carma_street_nats_bridge:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+          build-args: |
+            BUILD_DATE=${{ needs.determine_docker_image_metadata.outputs.build_date }}
+            VCS_REF=${{ needs.determine_docker_image_metadata.outputs.vcs_ref }}
 
   dockerhub-carma-vehicle-bridge:
+    needs: [determine_docker_org_and_tag, determine_docker_image_metadata]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build
-        uses: docker/build-push-action@v3
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
         with:
           context: ./telematic_system/telematic_units/carma_vehicle_bridge/
-          file: ./telematic_system/telematic_units/carma_vehicle_bridge/Dockerfile
           push: true
-          tags: usdotfhwastoldev/carma_vehicle_nats_bridge:${{ github.ref_name }}
-          
+          tags: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/carma_vehicle_nats_bridge:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+          build-args: |
+            BUILD_DATE=${{ needs.determine_docker_image_metadata.outputs.build_date }}
+            VCS_REF=${{ needs.determine_docker_image_metadata.outputs.vcs_ref }}
+
   dockerhub-carma-cloud-bridge:
+    needs: [determine_docker_org_and_tag, determine_docker_image_metadata]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build
-        uses: docker/build-push-action@v3
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
         with:
           context: ./telematic_system/telematic_units/carma_cloud_bridge/
-          file: ./telematic_system/telematic_units/carma_cloud_bridge/Dockerfile
           push: true
-          tags: usdotfhwastoldev/carma_cloud_nats_bridge:${{ github.ref_name }}         
+          tags: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/carma_cloud_nats_bridge:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+          build-args: |
+            BUILD_DATE=${{ needs.determine_docker_image_metadata.outputs.build_date }}
+            VCS_REF=${{ needs.determine_docker_image_metadata.outputs.vcs_ref }}
+
+  dockerhub-telematic-historical-data-processing:
+    needs: [determine_docker_org_and_tag, determine_docker_image_metadata]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./telematic_system/telematic_historical_data_processing/
+          push: true
+          tags: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/telematic_historical_data_processing:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+          build-args: |
+            BUILD_DATE=${{ needs.determine_docker_image_metadata.outputs.build_date }}
+            VCS_REF=${{ needs.determine_docker_image_metadata.outputs.vcs_ref }}
+
+  dockerhub-telematic-web-server:
+    needs: [determine_docker_org_and_tag, determine_docker_image_metadata]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./telematic_system/telematic_apps/web_app/server
+          push: true
+          tags: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/telematic_web_server:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+          build-args: |
+            BUILD_DATE=${{ needs.determine_docker_image_metadata.outputs.build_date }}
+            VCS_REF=${{ needs.determine_docker_image_metadata.outputs.vcs_ref }}
+
+  dockerhub-telematic-web-client:
+    needs: [determine_docker_org_and_tag, determine_docker_image_metadata]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./telematic_system/telematic_apps/web_app/client
+          push: true
+          tags: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/telematic_web_client:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+          build-args: |
+            BUILD_DATE=${{ needs.determine_docker_image_metadata.outputs.build_date }}
+            VCS_REF=${{ needs.determine_docker_image_metadata.outputs.vcs_ref }}
+
+  dockerhub-telematic-apache2:
+    needs: [determine_docker_org_and_tag, determine_docker_image_metadata]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./telematic_system/telematic_apps/apache2
+          push: true
+          tags: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/telematic_apache2:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+          build-args: |
+            BUILD_DATE=${{ needs.determine_docker_image_metadata.outputs.build_date }}
+            VCS_REF=${{ needs.determine_docker_image_metadata.outputs.vcs_ref }}
+
+  dockerhub-telematic-grafana:
+    needs: [determine_docker_org_and_tag, determine_docker_image_metadata]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./telematic_system/telematic_apps/grafana
+          push: true
+          tags: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/telematic_grafana:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+          build-args: |
+            BUILD_DATE=${{ needs.determine_docker_image_metadata.outputs.build_date }}
+            VCS_REF=${{ needs.determine_docker_image_metadata.outputs.vcs_ref }}
+
+  dockerhub-telematic-local-apache2:
+    needs: [determine_docker_org_and_tag, determine_docker_image_metadata]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./telematic_system/telematic_apps/apache2
+          file: ./telematic_system/telematic_apps/apache2/local.Dockerfile
+          push: true
+          tags: ${{ needs.determine_docker_org_and_tag.outputs.docker_organization }}/telematic_local_apache2:${{ needs.determine_docker_org_and_tag.outputs.docker_image_tag }}
+          build-args: |
+            BUILD_DATE=${{ needs.determine_docker_image_metadata.outputs.build_date }}
+            VCS_REF=${{ needs.determine_docker_image_metadata.outputs.vcs_ref }}

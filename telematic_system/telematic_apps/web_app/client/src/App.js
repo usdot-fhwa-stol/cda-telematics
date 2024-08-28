@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -20,11 +20,9 @@ import Layout from './components/layout/Layout';
 
 function App() {
   return (
-    <React.Fragment>
       <Layout>
         <MainRouter />
       </Layout>
-    </React.Fragment>
   );
 }
 

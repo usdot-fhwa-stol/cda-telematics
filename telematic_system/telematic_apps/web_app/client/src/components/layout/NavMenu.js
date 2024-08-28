@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -17,13 +17,14 @@ import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import EventIcon from '@mui/icons-material/Event';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StreamIcon from '@mui/icons-material/Stream';
+import WorkHistorySharpIcon from '@mui/icons-material/WorkHistorySharp';
 import { List, ListItem, ListItemButton, ListItemIcon, ListItemText, Toolbar, Tooltip } from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer';
 import { styled } from '@mui/material/styles';
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { getUserRole } from '../../api/api-org';
-import { deleteUser } from '../../api/api-user';
+import { checkServerSession, deleteUser } from '../../api/api-user';
 import AuthContext from '../../context/auth-context';
 import { USER_ROLES } from '../users/UserMetadata';
 import { withStyles } from '@mui/styles';
@@ -33,7 +34,9 @@ const NavMenu = React.memo(() => {
     useEffect(() => {
         //update user role if changed
         if (authCtx.user_id !== null && authCtx.user_id !== undefined && authCtx.org_id !== null
-            && authCtx.org_id !== undefined && parseInt(authCtx.org_id) !== 0) {
+            && authCtx.org_id !== undefined && parseInt(authCtx.org_id) !== 0 && authCtx.sessionToken !== null) {
+            //Update headers with auth token            
+            checkServerSession(authCtx.sessionToken);
             getUserRole({
                 user_id: parseInt(authCtx.user_id),
                 org_id: parseInt(authCtx.org_id)
@@ -98,6 +101,7 @@ const NavMenu = React.memo(() => {
                 <Toolbar />
                 <Toolbar />
                 <List >
+                    { location.pathname.includes("/telematic") && 
                     <ListItem key="Events" disablePadding sx={{ display: 'block' }}>
                         <StyledListItemButton
                             component={Link} to="/telematic/events"
@@ -110,6 +114,8 @@ const NavMenu = React.memo(() => {
                             <ListItemText primary="Events" />
                         </StyledListItemButton>
                     </ListItem>
+                    }
+                    { location.pathname.includes("/telematic") && 
                     <ListItem key="Topics" disablePadding sx={{ display: 'block' }}>
                         <StyledListItemButton
                             component={Link} to="/telematic/topics"
@@ -122,8 +128,9 @@ const NavMenu = React.memo(() => {
                             <ListItemText primary="Topics" />
                         </StyledListItemButton>
                     </ListItem>
+                    }
                     {
-                        (parseInt(authCtx.is_admin) === 1 ||  authCtx.role === USER_ROLES.ADMIN) &&
+                        (location.pathname.includes("/telematic") && ( parseInt(authCtx.is_admin) === 1 ||  authCtx.role === USER_ROLES.ADMIN)) &&
                         <ListItem key="admin" disablePadding sx={{ display: 'block' }}>
                             <StyledListItemButton
                                 component={Link} to="/telematic/admin"
@@ -137,8 +144,22 @@ const NavMenu = React.memo(() => {
                             </StyledListItemButton>
                         </ListItem>
                     }
+                    { location.pathname.includes("/historical/data") && 
+                    <ListItem key="ROS2rosbag" disablePadding sx={{ display: 'block' }}>
+                        <StyledListItemButton
+                            component={Link} to="/historical/data/ros2/rosbag"
+                            selected={"/historical/data/ros2/rosbag" === location.pathname}>
+                            <Tooltip title="ROS2 rosbag" placement="right-start" arrow>
+                                <ListItemIcon>
+                                    <WorkHistorySharpIcon />
+                                </ListItemIcon>
+                            </Tooltip>
+                            <ListItemText primary="ROS2 rosbag" />
+                        </StyledListItemButton>
+                    </ListItem>
+                    }
                 </List>
-                <StyledListItemButton onClick={logoutHandler} sx={{
+                <StyledListItemButton title="Logout" onClick={logoutHandler} sx={{
                     position: "absolute",
                     bottom: 20,
                     right: 0,

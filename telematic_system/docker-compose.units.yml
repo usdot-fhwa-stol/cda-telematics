@@ -1,15 +1,15 @@
 version: "3.4"
 services:
-  ros2-nats-bridge:
+  ros2_nats_bridge:
     build:
           context: ./telematic_units/carma_vehicle_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastoldev/carma_vehicle_nats_bridge:develop
+    image: usdotfhwastolcandidate/carma_vehicle_nats_bridge:neon
     logging:
       options:
         max-size: "2g"
         max-file: "1"
-    container_name: carma_vehicle_bridge
+    container_name: ros2_nats_bridge
     network_mode: host
     entrypoint: /ws/ros_entrypoint.sh
     volumes:
@@ -25,18 +25,19 @@ services:
     - CYCLONE_URL=./telematic_units/cyclone_config.xml
     - VEHICLE_BRIDGE_LOG_ROTATION_SIZE_BYTES=2147483648 #2 gigabytes
     - VEHICLE_BRIDGE_LOG_HANDLER_TYPE=console #console: Print logs on console; file: Save logs to file; all: Prints logs on console and file
-    - VEHICLE_BRIDGE_EXCLUSION_LIST= ${VEHICLE_BRIDGE_EXCLUSION_LIST} #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
+    - VEHICLE_BRIDGE_EXCLUSION_LIST= ${ROS2_TOPIC_EXCLUSION_LIST} #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
+    - IS_SIM=False #OPTIONAL variable to treat incoming messages as coming from simulation env.  In this case the bridge will use system time as message timestamp. Defaults to False.
 
-  streets-nats-bridge:
+  streets_nats_bridge:
     build:
           context: ./telematic_units/carma_street_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastoldev/carma_street_nats_bridge:develop
+    image: usdotfhwastolcandidate/carma_street_nats_bridge:neon
     logging:
       options:
         max-size: "2g"
         max-file: "1"
-    container_name: carma_street_bridge
+    container_name: streets_nats_bridge
     network_mode: host
     volumes:
            - ./logs:/var/logs
@@ -50,28 +51,27 @@ services:
     - STREETS_BRIDGE_LOG_HANDLER_TYPE=console #console: Print logs on console; file: Save logs to file; all: Prints logs on console and file
     - KAFKA_BROKER_IP=localhost
     - KAFKA_BROKER_PORT=9092
-    - NATS_IP=<IP> #REQUIRED variable, replace IP with IP address of NATS server
-    - NATS_PORT=4222
+    - NATS_SERVER_IP_PORT=nats://<IP>:4222 #REQUIRED variable, replace IP with IP address of NATS server
     - KAFKA_CONSUMER_RESET=earliest
     - STREETS_BRIDGE_EXCLUSION_LIST= ${STREETS_BRIDGE_EXCLUSION_LIST} #OPTIONAL variable to set a comma separated list of topics not available to publish, leave empty if none
-  
-  cloud-nats-bridge:
+    - IS_SIM=False #OPTIONAL variable to treat incoming messages as coming from simulation env.  In this case the bridge will use system time as message timestamp. Defaults to False.
+
+  cloud_nats_bridge:
     build:
           context: ./telematic_units/carma_cloud_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastoldev/carma_cloud_nats_bridge:develop
+    image: usdotfhwastolcandidate/carma_cloud_nats_bridge:neon
     logging:
       options:
         max-size: "2g"
         max-file: "1"
-    container_name: carma_cloud_bridge
+    container_name: cloud_nats_bridge
     network_mode: host
     volumes:
-           - ./logs:/var/logs           
+           - ./logs:/var/logs
            - /opt/tomcat/logs:/opt/tomcat/logs
     environment:
-      - NATS_IP=<IP> #REQUIRED variable, replace IP with IP address of NATS server
-      - NATS_PORT=4222
+      - NATS_SERVER_IP_PORT=nats://<IP>:4222 #REQUIRED variable, replace IP with IP address of NATS server
       - CARMA_CLOUD_LOG=/opt/tomcat/logs/carmacloud.log #Required for carma cloud bridge, containing the directory where carma cloud log is located
       - CARMA_CLOUD_BRIDGE_UNIT_ID=cloud_id
       - CARMA_CLOUD_BRIDGE_UNIT_TYPE=infrastructure

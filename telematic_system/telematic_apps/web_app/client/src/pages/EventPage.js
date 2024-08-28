@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019-2022 LEIDOS.
+ * Copyright (C) 2019-2024 LEIDOS.
  *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may not
  * use this file except in compliance with the License. You may obtain a copy of
@@ -15,7 +15,7 @@
  */
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import EventIcon from '@mui/icons-material/Event';
-import { Button, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { assignUnit2Event, createEvent, deleteEvent, editEvent, findAllEvents, unAssignUnit2Event } from '../api/api-events';
 import { createLocation, findAllLocations } from '../api/api-locations';
@@ -25,9 +25,10 @@ import { createUnit, findAllUnits } from '../api/api-units';
 import { AddEventDialog } from '../components/events/AddEventDialog';
 import { AddLocationDialog } from '../components/events/AddLocationDialog';
 import { AddUnitDialog } from '../components/events/AddUnitDialog';
-import EventsFilter from '../components/events/EventsFilter';
 import EventTable from '../components/events/EventTable';
+import EventsFilter from '../components/events/EventsFilter';
 import { NOTIFICATION_STATUS } from '../components/topics/TopicMetadata';
+import { CustomizedButton } from '../components/ui/CustomizedButton';
 import Notification from '../components/ui/Notification';
 import { PageAvatar } from '../components/ui/PageAvatar';
 import { USER_ROLES } from '../components/users/UserMetadata';
@@ -274,7 +275,6 @@ const EventPage = React.memo(() => {
   }
 
   useEffect(() => {
-    authCtx.updateViewCount();
     const res_loc_data = findAllLocations();
     res_loc_data.then(json => {
       if (json !== undefined && json.errCode === undefined) {
@@ -320,26 +320,15 @@ const EventPage = React.memo(() => {
     });
 
     const res_states_data = findAllStates();
-    res_states_data.then(json => {
+    res_states_data.then((json) => {
       if (json !== undefined && json.errCode === undefined) {
         let states = [];
-        json.forEach(state => {
+        json.forEach((state) => {
           states.push(state);
         });
         setStateList(states);
       }
     });
-
-    //If user role is missing, display a warning to the user
-    if ((authCtx.role === undefined || authCtx.role === null || authCtx.role === "")
-      && authCtx.org_name !== undefined && authCtx.org_name !== null && authCtx.org_name !== "") {
-      setAlertStatus({
-        open: true,
-        severity: NOTIFICATION_STATUS.WARNING,
-        title: NOTIFICATION_STATUS.WARNING.toLocaleUpperCase(),
-        message: 'You are not allowed to access the current organization: ' + authCtx.org_name
-      });
-    }
   }, []);
 
   return (
@@ -357,23 +346,23 @@ const EventPage = React.memo(() => {
           {
             authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== USER_ROLES.VIEWER && authCtx.role !== undefined && authCtx.role !== null && authCtx.role !== "" &&
             <Grid item xs={12} justifyContent="flex-end" display="flex">
-              <Button variant="outlined" onClick={handleAddUnitDialog} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />}>
+              <CustomizedButton onClick={handleAddUnitDialog}  startIcon={<AddCircleIcon />}>
                 Add Unit
-              </Button>
+              </CustomizedButton>
               {
                 openAddUnitDialog &&
                 <AddUnitDialog close={!openAddUnitDialog} open={openAddUnitDialog} onSave={onSaveUnitHandler} onCloseAddUnitDialog={handleCloseUnitDialog} />
               }
-              <Button variant="outlined" onClick={handleOpenLocation} sx={{ marginRight: 2 }} startIcon={<AddCircleIcon />} >
+              <CustomizedButton onClick={handleOpenLocation}  startIcon={<AddCircleIcon />} >
                 Add Location
-              </Button>
+              </CustomizedButton>
               {
                 openAddLocationDialog &&
                 <AddLocationDialog stateList={stateList} close={!openAddLocationDialog} open={openAddLocationDialog} onSaveLocation={onSaveLocationHandler} onCloseAddLocationDialog={handleCloseLocation} />
               }
-              <Button variant="outlined" onClick={handleAddEventDialog} startIcon={<AddCircleIcon />} fullWidth={false} >
+              <CustomizedButton onClick={handleAddEventDialog} startIcon={<AddCircleIcon />} fullWidth={false} >
                 Add Event
-              </Button>
+              </CustomizedButton>
               {
                 openAddEventDialog &&
                 <AddEventDialog title="Add Event" locationList={locationList} testingTypeList={testingTypeList} onEventSaveHandler={onEventSaveHandler} close={!openAddEventDialog} open={openAddEventDialog} onCloseEventDialog={handleCloseAddEventDialog} />
