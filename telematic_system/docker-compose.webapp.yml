@@ -5,7 +5,7 @@ services:
         context: "./telematic_apps/web_app/server"
       restart: always
       container_name: web_server
-      image: usdotfhwastolcandidate/telematic_web_server:neon
+      image: usdotfhwastol/telematic_web_server:carma-system-4.7.0
       logging:
         options:
           max-size: "10m"
@@ -48,7 +48,7 @@ services:
   web_client:
     build:
       context: "./telematic_apps/web_app/client"
-    image: usdotfhwastolcandidate/telematic_web_client:neon
+    image: usdotfhwastol/telematic_web_client:carma-system-4.7.0
     restart: always
     container_name: web_client
     logging:
@@ -65,7 +65,7 @@ services:
     build:
       context: "./telematic_apps/apache2"
     restart: always
-    image: usdotfhwastolcandidate/telematic_apache2:neon
+    image: usdotfhwastol/telematic_apache2:carma-system-4.7.0
     container_name: apache2
     logging:
       options:
@@ -88,7 +88,7 @@ services:
   grafana:
     build:
       context: "./telematic_apps/grafana"
-    image: usdotfhwastolcandidate/telematic_grafana:neon
+    image: usdotfhwastol/telematic_grafana:carma-system-4.7.0
     restart: always
     container_name: grafana
     logging:
