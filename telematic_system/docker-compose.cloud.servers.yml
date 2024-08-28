@@ -15,7 +15,7 @@ services:
       context: "./telematic_cloud_messaging"
     container_name: messaging_server
     #Todo: The cloud messaging service image has incorrect configuration. Please update the application.properties, and build it from source code.
-    image: usdotfhwastolcandidate/telematic_cloud_messaging:neon
+    image: usdotfhwastol/telematic_cloud_messaging:carma-system-4.7.0
     depends_on:
       - nats
     restart: always
@@ -33,7 +33,7 @@ services:
           context: ./telematic_historical_data_processing
           dockerfile: Dockerfile
           network: host
-    image: usdotfhwastolcandidate/telematic_historical_data_processing:neon
+    image: usdotfhwastol/telematic_historical_data_processing:carma-system-4.7.0
     network_mode: host
     logging:
       options:

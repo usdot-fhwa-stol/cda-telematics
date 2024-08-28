@@ -4,7 +4,7 @@ services:
     build:
           context: ./telematic_units/carma_vehicle_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastolcandidate/carma_vehicle_nats_bridge:neon
+    image: usdotfhwastol/carma_vehicle_nats_bridge:carma-system-4.7.0
     logging:
       options:
         max-size: "2g"
@@ -32,7 +32,7 @@ services:
     build:
           context: ./telematic_units/carma_street_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastolcandidate/carma_street_nats_bridge:neon
+    image: usdotfhwastol/carma_street_nats_bridge:carma-system-4.7.0
     logging:
       options:
         max-size: "2g"
@@ -60,7 +60,7 @@ services:
     build:
           context: ./telematic_units/carma_cloud_bridge
           dockerfile: Dockerfile
-    image: usdotfhwastolcandidate/carma_cloud_nats_bridge:neon
+    image: usdotfhwastol/carma_cloud_nats_bridge:carma-system-4.7.0
     logging:
       options:
         max-size: "2g"
