@@ -20,7 +20,6 @@ The second csv returned is for message drop analysis.
 
 def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
     fileName = logname.split(".")[0]
-
     with open(logname,'r') as influx_log:
 
         delay_results_file = open('{}_{}_delay_parsed.csv'.format(fileName,run_num), 'w')
@@ -56,7 +55,6 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
         # Since the message is a flattened json, it needs to be split manually and read to extract required info (unit_id, topic name, message/payload timestamp and log timestamp)
         for line in influx_log:
             split_line = line.split(":")
-
             if search_string in split_line:
                 # Get log json
                 try:
@@ -102,7 +100,6 @@ def parseInfluxfile(logname, start_time_epoch, end_time_epoch, run_num):
                     if "unit_id" in item_split:
                         unit_id = item_split[1]
                         continue
-
                     # If topic is map_msg, get timestamp from metadata.timestamp
                     if topic_name == "v2xhub_map_msg_in":
                         if "metadata.timestamp" in item_split:

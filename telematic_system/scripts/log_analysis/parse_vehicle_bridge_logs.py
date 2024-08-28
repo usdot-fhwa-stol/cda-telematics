@@ -75,7 +75,6 @@ def read_log_table():
     log_df = pd.read_csv(log_csv)
     log_df = log_df.dropna()
     log_df_dict = dict(tuple(log_df.groupby('Test Case')))
-
     # print(log_df_group)
     return log_df_dict
 
