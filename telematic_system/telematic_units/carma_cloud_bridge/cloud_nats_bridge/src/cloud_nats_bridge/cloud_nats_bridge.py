@@ -229,6 +229,9 @@ class CloudNatsBridge():
 
         return json_data
 
+    async def queue_send(self):
+        self.logger.info("In queue send")
+
 
     async def queue_send(self):
         self.logger.info("In queue send")
