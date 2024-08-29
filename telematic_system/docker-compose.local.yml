@@ -51,7 +51,7 @@ services:
   grafana:
       build:
         context: "./telematic_apps/grafana"
-      image: usdotfhwastol/telematic_grafana:carma-system-4.7.2
+      image: usdotfhwastoldev/telematic_grafana:develop
       restart: always
       container_name: grafana
       logging:
