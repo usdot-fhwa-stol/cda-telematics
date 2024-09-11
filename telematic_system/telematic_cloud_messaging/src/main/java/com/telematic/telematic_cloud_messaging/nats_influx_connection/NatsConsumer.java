@@ -22,8 +22,8 @@ import io.nats.client.Nats;
 import io.nats.client.Options;
 
 /**
- * The NatsConsumer object creates a connection to the telematic nats server and subscribes to 
- * all available subjects with ".data" in the subject name. It instantiates an InfluxDataWriter object 
+ * The NatsConsumer object creates a connection to the telematic nats server and subscribes to
+ * all available subjects with ".data" in the subject name. It instantiates an InfluxDataWriter object
  * that is used to publish the received data to the Influx database.
  */
 public class NatsConsumer {
@@ -86,7 +86,7 @@ public class NatsConsumer {
      * Attempt to connect to the nats server using the uri from the application.properties file
      * @param uri The uri of the nats server to connect to
      */
-    public void natsConnect() {    
+    public void natsConnect() {
         try {
             Options options = new Options.Builder().server(natsUri).maxReconnects(natsMaxReconnects).build();
             this.nc = Nats.connect(options);
@@ -95,19 +95,17 @@ public class NatsConsumer {
         }
         catch (InterruptedException | IOException e) {
             logger.error(ExceptionUtils.getStackTrace(e));
-            /* Clean up whatever needs to be handled before interrupting  */
-            Thread.currentThread().interrupt();
         }
     }
-   
+
     /**
      * This method is used to get the list of available topics for each unit that is stored in NATS and updatte
      * the topic list variable
      */
     public void updateAvailableTopicList() {
-        
+
         for (String unitId: unitIdList) {
-            try 
+            try
             {
                 //Use nats request/reply to get available topics for the unit
                 String availableTopicString = unitId + ".available_topics";
@@ -116,14 +114,14 @@ public class NatsConsumer {
                 String reply = new String(msg.getData(), StandardCharsets.UTF_8);
                 logger.debug("{} NatsConsumer available topics [{}] request. Reply: {}", this.unitType, availableTopicString, reply);
 
-                JSONObject jsonObject = new JSONObject(reply); 
+                JSONObject jsonObject = new JSONObject(reply);
                 Object topicsObject = jsonObject.get("topics");
 
                 //Add the topics to the topic list if they don't already exist
                 if(topicsObject instanceof JSONArray)
                 {
                     JSONArray topics = (JSONArray)topicsObject;
-                    for(int i=0; i<topics.length(); i++) 
+                    for(int i=0; i<topics.length(); i++)
                     {
                         String topicName = topics.getJSONObject(i).getString("name");
                         if (!this.topicList.contains(topicName)) {
@@ -133,18 +131,16 @@ public class NatsConsumer {
                     }
                 }
 
-            } 
-            catch (InterruptedException | ExecutionException | CancellationException e) 
+            }
+            catch (InterruptedException | ExecutionException | CancellationException e)
             {
                 logger.error("{} NatsConsumer no topic response from unit id: {}", this.unitType, unitId);
-                /* Clean up whatever needs to be handled before interrupting  */
-                Thread.currentThread().interrupt();
             }
             catch (Exception e) {
                 logger.error(ExceptionUtils.getStackTrace(e));
                 logger.error("Request for units failed, and retrying...");
             }
-        }     
+        }
     }
 
     /**
@@ -164,7 +160,7 @@ public class NatsConsumer {
             }
         });
     }
-    
+
     /**
      * Create an asynchronous subsciption to available subjects and publish to influxdb using the InfluxDataWriter
      */
@@ -176,8 +172,8 @@ public class NatsConsumer {
 
         //calculate the number of dispatchers to create based on the topic list size
         int numberDispatchers = 1;
-        
-        //if there is a remainder in division, need to add 1 dispatcher 
+
+        //if there is a remainder in division, need to add 1 dispatcher
         if ((newTopicListSize % topicsPerDispatcher) > 0) {
             numberDispatchers = (newTopicListSize / topicsPerDispatcher) + 1;
         }
@@ -217,7 +213,7 @@ public class NatsConsumer {
                 logger.info("{} NatsConsumer dispatcher {} subscribed to {}{}", unitType, i, natsSubscribeStr,
                         topicStr);
             }
-        }       
+        }
     }
 
     /**
@@ -243,6 +239,6 @@ public class NatsConsumer {
         {
             asyncSubscribe(influxDataWriter, currentListCopy);
         }
-        
+
     }
 }

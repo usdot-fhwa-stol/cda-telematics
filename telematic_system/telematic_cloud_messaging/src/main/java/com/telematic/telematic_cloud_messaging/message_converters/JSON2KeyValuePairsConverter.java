@@ -31,7 +31,7 @@ public class JSON2KeyValuePairsConverter {
                 else {
                     for(String field: ignoreFields)
                     {
-                        if(key.toString().strip().equalsIgnoreCase(field))   
+                        if(key.toString().strip().equalsIgnoreCase(field))
                         {
                             isIgnored = true;
                         }
@@ -54,7 +54,7 @@ public class JSON2KeyValuePairsConverter {
                         else if (value.toString().matches("[-+]?\\d*\\.?\\d+")) {
                             pairs += key + "=" + value;
                         }
-                        //Regex matching scientific notation. InfluxDB does not support scientific notation float syntax, temporarily set this kind of value = 0.0 
+                        //Regex matching scientific notation. InfluxDB does not support scientific notation float syntax, temporarily set this kind of value = 0.0
                         else if (value.toString().matches("^[+-]?\\d+(?:\\.\\d*(?:[eE][+-]?\\d+)?)?$")) {
                             pairs += key + "=" + 0.0;
                         }
@@ -67,9 +67,9 @@ public class JSON2KeyValuePairsConverter {
                         else {
                             pairs += key + "=\"" + value.toString().replaceAll("\\s", "") + "\"";
                         }
-                    }                    
-                }              
-                
+                    }
+                }
+
                 if (!isIgnored && json.keySet().size() != keyCount) {
                     pairs += ",";
                 }

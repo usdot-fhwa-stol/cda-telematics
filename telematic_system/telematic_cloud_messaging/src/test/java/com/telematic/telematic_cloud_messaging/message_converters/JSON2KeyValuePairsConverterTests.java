@@ -50,7 +50,7 @@ import org.springframework.test.context.TestPropertySource;
 public class JSON2KeyValuePairsConverterTests {
     @Autowired
     JSON2KeyValuePairsConverter converter;
-    
+
     @Test
     public void convertJson2KeyValuePairs() {
         List<String> to_str_fields = Arrays.asList("hostBSMId,TrafficControlRequest.reqid,tcmV01.reqid".split(","));

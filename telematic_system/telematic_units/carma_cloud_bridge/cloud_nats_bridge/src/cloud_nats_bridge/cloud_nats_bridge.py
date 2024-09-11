@@ -59,7 +59,6 @@ class FileListener(FileSystemEventHandler):
         f.close()
 
         self.logger.info("FileListener created for: " + str(self.cc_log_path))
-
     def findNewCarmaCloudMessage(self):
         """This method will parse the newly generated line in the carma cloud log file and assign
         the xml and message type to the appropriate global variables. It also assigns the epoch_time
@@ -229,6 +228,7 @@ class CloudNatsBridge():
             self.logger.info("Error converting xml to json for: " + str(xmlString))
 
         return json_data
+
 
     async def queue_send(self):
         self.logger.info("In queue send")

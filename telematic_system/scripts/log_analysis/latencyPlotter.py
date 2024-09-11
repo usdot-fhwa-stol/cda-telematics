@@ -23,10 +23,12 @@ def concatRuns(folderName):
         allFiles.append(df)
 
     concatOutput = pd.concat(allFiles, axis=0, ignore_index=True)
-    concatOutput.to_csv(f'{folderName}_allruns.csv', index=False)
+    if not os.path.exists("output"):
+        os.mkdir("output")
+    concatOutput.to_csv(f'output/{folderName}_allruns.csv', index=False)
 
 def plotter(folderName):
-    allRuns = folderName + "_allruns.csv"
+    allRuns = "output/"+str(folderName) + "_allruns.csv"
 
     #read in the combined csv data
     data = pd.read_csv(allRuns)
@@ -47,63 +49,30 @@ def plotter(folderName):
     print("95th Latency: " + str(trimmed_data["Delay(s)"].quantile(0.95)))
 
     #plot vehicle, streets, and cloud data histograms if they were part of the test
-    streets_data = trimmed_data[trimmed_data['Unit Id'] == "streets_id"]
-    
-    if len(streets_data) > 0:
-        fig, ax1 = plt.subplots()
-        fig.set_size_inches(10, 10) 
-        sns.histplot(streets_data['Delay(s)'], kde=False)
-        plt.xlim(0, 0.75)
-        plt.xlabel('Latency(s)', fontsize=18)
-        plt.ylabel('Count', fontsize=18)
-        plt.xticks(fontsize=15)
-        plt.yticks(fontsize=15)
-        plt.title(folderName + " Streets Bridge Latency Histogram", fontsize=18)
-        plt.savefig(f'{folderName}_streets_latency_hist.png')
+    units = ["DOT-45244", "DOT-45254","DOT_45254","vehicle_id","rsu_1234","streets_id","cloud_id"]
+    for unit in units:
+        unit_data = trimmed_data[trimmed_data['Unit Id'] == unit]
 
-
-    cloud_data = trimmed_data[trimmed_data['Unit Id'] == "cloud_id"]
-   
-    if len(cloud_data) > 0:
-        fig, ax1 = plt.subplots()
-        fig.set_size_inches(10, 10) 
-        sns.histplot(cloud_data['Delay(s)'], kde=False)
-        plt.xlim(0, 0.75)
-        plt.xlabel('Latency(s)', fontsize=18)
-        plt.ylabel('Count', fontsize=18)
-        plt.xticks(fontsize=15)
-        plt.yticks(fontsize=15)
-        plt.title(folderName + " Cloud Bridge Latency Histogram", fontsize=18)
-        plt.savefig(f'{folderName}_cloud_latency_hist.png')
-
-    vehicles = ["DOT-45244", "DOT-45254"]
-    for vehicle in vehicles:
-        vehicle_data = trimmed_data[trimmed_data['Unit Id'] == vehicle]
-        
-        if len(vehicle_data) > 0:
+        if len(unit_data) > 0:
             fig, ax1 = plt.subplots()
-            fig.set_size_inches(10, 10) 
-            sns.histplot(vehicle_data['Delay(s)'], kde=False)
+            fig.set_size_inches(10, 10)
+            sns.histplot(unit_data['Delay(s)'], kde=False)
             plt.xlim(0, 0.75)
             plt.xlabel('Latency(s)', fontsize=18)
             plt.ylabel('Count', fontsize=18)
             plt.xticks(fontsize=15)
             plt.yticks(fontsize=15)
-            plt.title(folderName + " " + vehicle + " Vehicle Bridge Latency Histogram", fontsize=18)
-            plt.savefig(f'{folderName}_{vehicle}_latency_hist.png')
-
+            plt.title(folderName + " " + unit + " Latency Histogram", fontsize=18)
+            plt.savefig(f'output/{folderName}_{unit}_latency_hist.png')
 
 def main():
     if len(sys.argv) < 2:
         print('Run with: "python3 latencyPlotter.py testcase"')
-    else:       
+    else:
         test = sys.argv[1]
-        
+
         concatRuns(test)
         plotter(test)
 
 if __name__ == "__main__":
     main()
-
-
-
