@@ -51,7 +51,7 @@ services:
   grafana:
       build:
         context: "./telematic_apps/grafana"
-      image: usdotfhwastol/telematic_grafana:carma-system-4.7.2
+      image: usdotfhwastol/telematic_grafana:carma-system-4.7.3
       restart: always
       container_name: grafana
       logging:
@@ -74,7 +74,7 @@ services:
       build:
         context: "./telematic_apps/web_app/server"
         dockerfile: "Dockerfile"
-      image: usdotfhwastol/telematic_web_server:carma-system-4.7.2
+      image: usdotfhwastol/telematic_web_server:carma-system-4.7.3
       restart: always
       container_name: web_server
       logging:
@@ -95,7 +95,7 @@ services:
   web_client:
     build:
       context: "./telematic_apps/web_app/client"
-    image: usdotfhwastol/telematic_web_client:carma-system-4.7.2
+    image: usdotfhwastol/telematic_web_client:carma-system-4.7.3
     restart: always
     container_name: web_client
     logging:
@@ -110,7 +110,7 @@ services:
     build:
       context: "./telematic_apps/apache2"
       dockerfile: "./local.Dockerfile"
-    image: usdotfhwastol/telematic_local_apache2:carma-system-4.7.2
+    image: usdotfhwastol/telematic_local_apache2:carma-system-4.7.3
     restart: always
     container_name: apache2
     logging:
@@ -135,7 +135,7 @@ services:
     build:
       context: "./telematic_cloud_messaging"
     container_name: messaging_server
-    image: usdotfhwastol/telematic_cloud_messaging:carma-system-4.7.2
+    image: usdotfhwastol/telematic_cloud_messaging:carma-system-4.7.3
     depends_on:
       - nats
       - mysqldb
@@ -155,7 +155,7 @@ services:
           context: ./telematic_historical_data_processing
           dockerfile: Dockerfile
           network: host
-    image: usdotfhwastol/telematic_historical_data_processing:carma-system-4.7.2
+    image: usdotfhwastol/telematic_historical_data_processing:carma-system-4.7.3
     container_name: rosbag2_processing_service
     restart: always
     depends_on:
