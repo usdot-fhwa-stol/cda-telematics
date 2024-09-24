@@ -228,7 +228,9 @@ exports.loginUser = (req, res) => {
                 res.status(401).send({ message: "Failed to authenticate user." });
             }
         } else {
-            res.status(401).send({ message: `Failed to authenticate user = ${req.body.username} , password = ${req.body.password} ` });
+            res.status(401).send({
+              message: `Failed to authenticate user = ${req.body.username}`,
+            });
         }
     }).catch(err => {
         
