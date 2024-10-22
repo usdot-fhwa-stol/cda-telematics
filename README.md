@@ -31,9 +31,9 @@ The development team would like to acknowledge the people who have made direct c
 By contributing to the Federal Highway Administration (FHWA) CDA Telematics repository, you agree that your contributions will be licensed under its Apache License 2.0 license. [CDA Telematics License](<docs/License.md>)
 
 ## Contact
-Please click on the link below to visit the Federal Highway Adminstration(FHWA) CARMA website. For more information, contact CARMA@dot.gov.
+Please click on the link below to visit the Federal Highway Adminstration(FHWA) CARMA website. For more information, contact CAVSupportServices@dot.gov.
 
 [CARMA Contacts](https://highways.dot.gov/research/research-programs/operations/CARMA)
 
 ## Support
-For technical support from the CARMA team, please contact the CARMA help desk at CARMASupport@dot.gov.
+For technical support from the CARMA team, please contact the CARMA help desk at CAVSupportServices@dot.gov.
